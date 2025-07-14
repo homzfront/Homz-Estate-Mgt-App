@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+
+# BadBot
+User-agent: BadBot
+Disallow: /
+
+# Host
+Host: http://www.homz.ng
+
+# Sitemaps
+Sitemap: http://www.homz.ng/sitemap.xml
