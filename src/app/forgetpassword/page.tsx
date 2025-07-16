@@ -1,77 +1,60 @@
 "use client";
 
+import AuthSlider from "@/components/auth/authSlider";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import api from "@/utils/api";
-import SliderAuth from "@/components/auth/slider";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [sentEmail, setSentMail] = useState(false);
   const [emailError, setEmailError] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    try {
-      const response = await api.post(
-        "/auth/forgotpassword",
-        { email }
-      );
+    // try {
+    //   const response = await api.post(
+    //     "/auth/forgotpassword",
+    //     { email }
+    //   );
 
-      if (response.data.statuscode === 200 || 201) {
-        setSentMail(true);
-      } else {
-        setEmailError(response.data.message);
-      }
-    } catch (error) {
-      setEmailError(error.response?.data?.message);
-    }
+    //   if (response.data.statuscode === 200 || 201) {
+    //     setSentMail(true);
+    //   } else {
+    //     setEmailError(response.data.message);
+    //   }
+    // } catch (error) {
+    //   setEmailError(error.response?.data?.message);
+    // }
   };
 
-  const handleSubmitT = async (e) => {
+  const handleSubmitT = async (e: any) => {
     e.preventDefault();
 
-    try {
-      const response = await api.post(
-        "/auth/forgotpassword",
-        { email }
-      );
+    // try {
+    //   const response = await api.post(
+    //     "/auth/forgotpassword",
+    //     { email }
+    //   );
 
-      if (response.data.statuscode === 200 || 201) {
-        setSentMail(true);
-        toast.success("reset password link sent to your mail.");
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      setEmailError(error.response?.data?.message);
-    }
+    //   if (response.data.statuscode === 200 || 201) {
+    //     setSentMail(true);
+    //     toast.success("reset password link sent to your mail.");
+    //   } else {
+    //     toast.error(response.data.message);
+    //   }
+    // } catch (error) {
+    //   setEmailError(error.response?.data?.message);
+    // }
   };
 
 
   return (
     <div className="">
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeButton={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
       <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz"> 
-        <SliderAuth/>
+        <AuthSlider/>
       </div>
         <div className="sm:w-[794px] w-full flex flex-col ">
           <div className="m-auto mt-32">

@@ -60,9 +60,8 @@ const Login = () => {
               </p>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div
-                  className={`flex flex-col gap-4 ${
-                    loading ? "pointer-events-none" : ""
-                  }`}
+                  className={`flex flex-col gap-4 ${loading ? "pointer-events-none" : ""
+                    }`}
                 >
                   <div className="flex flex-col gap-2 items-start">
                     <label className="text-center text-[14px] font-[500] text-BlackHomz">
@@ -116,28 +115,32 @@ const Login = () => {
                   </Link>
                 </div>
                 <button
-                  className={`bg-BlueHomz mt-3 text-white font-[700] text-[16px] w-full sm:w-[360px] rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${
-                    loading
+                  className={`bg-BlueHomz mt-3 text-white font-[700] text-[16px] w-full sm:w-[360px] rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading
                       ? "pointer-events-none w-full flex justify-center"
                       : ""
-                  } `}
+                    } `}
                   type="submit"
                 >
                   Log In
                 </button>
               </form>
-              <div className="mt-[-10px]">
+
+              <span className="font-normal w-full text-center text-sm text-GrayHomz">
+                OR
+              </span>
+              <div className="mt-[-5px]">
                 <button onClick={() => handleGoogleSignIn()} className={`border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz  rounded-[8px] h-[47px] hover:text-BlackHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""}`}>
-                    <Image
-                      className=""
-                      src={"/Social icon.png"}
-                      alt="google"
-                      height={"20"}
-                      width={"20"}
-                      />
-               Login In with google
-                    </button>
-                <p className="text-center font-[400] text-[14px]">
+                  <Image
+                    className=""
+                    src={"/Social icon.png"}
+                    alt="google"
+                    height={"20"}
+                    width={"20"}
+                  />
+                  Login In with google
+                </button>
+
+                <p className="mt-4 text-center font-[400] text-[14px]">
                   Don't have an account?
                   <Link
                     className="text-center font-[700] text-[14px] text-BlueHomz  ml-1"

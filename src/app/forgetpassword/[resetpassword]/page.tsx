@@ -4,17 +4,8 @@ import Eye from "@/components/icons/Eye";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import axios from "axios";
-import Loading from "@/components/mainmenu/loading";
-import api from "@/utils/api";
-import SliderAuth from "@/components/auth/slider";
-import useLandlordLogin from "@/store/landlordLogin/landlordLogin";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import AuthSlider from "@/components/auth/authSlider";
 
 const ResetPassword = () => {
   const queryString = window.location.search;
@@ -30,12 +21,12 @@ const ResetPassword = () => {
   const [passwordError, setPasswordError] = useState("");
   const [succPass, setSuccPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { routeTo } = useLandlordLogin();
-  const isValidPassword = (password) => {
+  // const { routeTo } = useLandlordLogin();
+  const isValidPassword = (password: any) => {
     return password.length >= 8;
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: any, value: any) => {
     setFormData({
       ...formData,
       [field]: value,
@@ -54,7 +45,7 @@ const ResetPassword = () => {
     setVisibleTwo(!visibleTwo);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!isValidPassword(formData.password)) {
@@ -69,62 +60,46 @@ const ResetPassword = () => {
 
     setLoading(true);
 
-    try {
-      const response = await api.patch(
-        `auth/resetPassword/${token}`,
-        {
-          newPassword: formData.password,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (routeTo && response.data.message) {
-        // Remove `url` from `routeTo` and convert to query string
-        const { url, ...queryParams } = routeTo; // Destructure to remove `url`
-        const urlParams = new URLSearchParams(queryParams).toString();
-        // Redirect using the specified URL path and query parameters
-        router.push(`/${url}?${urlParams}`);
+    // try {
+    //   const response = await api.patch(
+    //     `auth/resetPassword/${token}`,
+    //     {
+    //       newPassword: formData.password,
+    //     },
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+    //   if (routeTo && response.data.message) {
+    //     // Remove `url` from `routeTo` and convert to query string
+    //     const { url, ...queryParams } = routeTo; // Destructure to remove `url`
+    //     const urlParams = new URLSearchParams(queryParams).toString();
+    //     // Redirect using the specified URL path and query parameters
+    //     router.push(`/${url}?${urlParams}`);
 
-        toast.success("Password changed. Redirecting to complete landlord's invitation.");
-        useLandlordLogin.getState().clearRouteTo()
-      } else {
-        setLoading(false);
-        setSuccPass(true);
-      }
-    } catch (error) {
-      setPasswordError("error", error.response?.data?.message);
-      setLoading(false)
-    } finally {
-      setLoading(false);
-    }
+    //     toast.success("Password changed. Redirecting to complete landlord's invitation.");
+    //     useLandlordLogin.getState().clearRouteTo()
+    //   } else {
+    //     setLoading(false);
+    //     setSuccPass(true);
+    //   }
+    // } catch (error) {
+    //   setPasswordError("error", error.response?.data?.message);
+    //   setLoading(false)
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
 
 
   return (
     <div className="">
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeButton={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-      {
-        loading && <Loading />
-      }
       <div className="flex m-auto  max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
-          <SliderAuth />
+          <AuthSlider />
         </div>
         <div className="sm:w-[794px] w-full px-3 flex flex-col justify-around items-center">
           <div className="m-auto mt-16 sm:mt-32 ">

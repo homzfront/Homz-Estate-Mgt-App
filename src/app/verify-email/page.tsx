@@ -4,15 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import api from "@/utils/api";
-import SliderAuth from "@/components/auth/slider";
-import LoadingFormII from "@/components/mainmenu/loadingFormII";
-import useProfileStore from "@/store/profile";
-import CustomizedModal from "@/components/mainmenu/CustomizedModal";
-import LoadingProlonged from "@/components/general/loadingProlonged";
+import AuthSlider from "@/components/auth/authSlider";
 
 
 const VerifyEmail = () => {
@@ -27,7 +19,6 @@ const VerifyEmail = () => {
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
-  const { profile } = useProfileStore();
   const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(false);
 
   const startTimer = () => {
@@ -38,112 +29,112 @@ const VerifyEmail = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedEmail = localStorage.getItem('email');
-      setEmail(storedEmail || '');
+      setEmail(storedEmail || '' as any);
       startTimer();
     }
   }, []);
 
-  useEffect(() => {
-    if (email !== null && profile?.isVerified === false) {
-      (async () => {
-        const response = await api.get("/user/profile");
-        if (response?.data?.user?.isVerified === false) {
-          await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
-          startTimer();
-        }
-      })();
-    }
-  }, [email])
+  // useEffect(() => {
+  //   if (email !== null && profile?.isVerified === false) {
+  //     (async () => {
+  //       const response = await api.get("/user/profile");
+  //       if (response?.data?.user?.isVerified === false) {
+  //         await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
+  //         startTimer();
+  //       }
+  //     })();
+  //   }
+  // }, [email])
 
-  useEffect(() => {
-    let countdownInterval;
+  // useEffect(() => {
+  //   let countdownInterval;
 
-    if (timer) {
-      countdownInterval = setInterval(() => {
-        setSeconds(prevSeconds => {
-          if (prevSeconds <= 1) {
-            clearInterval(countdownInterval);
-            setTimer(false);
-            return 0;
-          }
-          return prevSeconds - 1;
-        });
-      }, 1000);
-    }
+  //   if (timer) {
+  //     countdownInterval = setInterval(() => {
+  //       setSeconds(prevSeconds => {
+  //         if (prevSeconds <= 1) {
+  //           clearInterval(countdownInterval);
+  //           setTimer(false);
+  //           return 0;
+  //         }
+  //         return prevSeconds - 1;
+  //       });
+  //     }, 1000);
+  //   }
 
-    return () => clearInterval(countdownInterval);
-  }, [timer]);
+  //   return () => clearInterval(countdownInterval);
+  // }, [timer]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      await api.post("/auth/verification", { email, pincode: otp.join("") });
-      setVerificationSuccess(true);
-      setError(false);
-      setError2("");
-      setLoading(false);
-    } catch (error) {
-      setError2(error.response.data.error);
-      setError(true);
-      setLoading(false);
+    // setLoading(true);
+    // try {
+    //   await api.post("/auth/verification", { email, pincode: otp.join("") });
+    //   setVerificationSuccess(true);
+    //   setError(false);
+    //   setError2("");
+    //   setLoading(false);
+    // } catch (error) {
+    //   setError2(error.response.data.error);
+    //   setError(true);
+    //   setLoading(false);
 
-      if (error.response) {
-        setError2(error.response.data.error);
-      } else if (error.request) {
-        setError2("No response received from the server");
-      } else {
-        setError2("Error occurred while making the request");
-      }
-    }
+    //   if (error.response) {
+    //     setError2(error.response.data.error);
+    //   } else if (error.request) {
+    //     setError2("No response received from the server");
+    //   } else {
+    //     setError2("Error occurred while making the request");
+    //   }
+    // }
   };
 
-  const ResendOtp = async (e) => {
+  const ResendOtp = async (e: any) => {
     e.preventDefault();
     setResend(true);
-    try {
-      await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
-      toast.success('OTP SENT');
-      startTimer();
-      setResend(false);
-    } catch (error) {
-      toast.error(error.response?.data?.message);
-      setResend(false);
-    } finally {
-      setResend(false);
-    }
+    // try {
+    //   await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
+    //   toast.success('OTP SENT');
+    //   startTimer();
+    //   setResend(false);
+    // } catch (error) {
+    //   toast.error(error.response?.data?.message);
+    //   setResend(false);
+    // } finally {
+    //   setResend(false);
+    // }
   };
 
-  const handleEmailVerification = (e) => {
+  const handleEmailVerification = (e: any) => {
     e.preventDefault();
     router.push("/select-plan");
   };
 
-  const handleInputChange = (index, value) => {
-    if (/^\d$/.test(value)) {
-      const newOTP = [...otp];
-      newOTP[index] = value;
-      setOTP(newOTP);
-      setError(false);
-      if (value && index < otp.length - 1) {
-        inputRefs.current[index + 1].focus();
-      }
-    } else if (value === "" && index >= 0) {
-      const newOTP = [...otp];
-      newOTP[index] = "";
-      setOTP(newOTP);
-      setError(false);
-      if (index === 0) {
-        setError(false);
-      } else {
-        inputRefs.current[index - 1].focus();
-      }
-    } else {
-      setError(true);
-    }
+  const handleInputChange = (index: any, value: any) => {
+    // if (/^\d$/.test(value)) {
+    //   const newOTP = [...otp];
+    //   newOTP[index] = value;
+    //   setOTP(newOTP);
+    //   setError(false);
+    //   if (value && index < otp.length - 1) {
+    //     inputRefs.current[index + 1].focus();
+    //   }
+    // } else if (value === "" && index >= 0) {
+    //   const newOTP = [...otp];
+    //   newOTP[index] = "";
+    //   setOTP(newOTP);
+    //   setError(false);
+    //   if (index === 0) {
+    //     setError(false);
+    //   } else {
+    //     inputRefs.current[index - 1].focus();
+    //   }
+    // } else {
+    //   setError(true);
+    // }
   };
 
-  const handlePaste = (event) => {
+  const handlePaste = (event: any) => {
     event.preventDefault();
     const pastedValue = event.clipboardData.getData('text');
     if (pastedValue.length === 4 && /^\d+$/.test(pastedValue)) {
@@ -154,22 +145,22 @@ const VerifyEmail = () => {
 
   const isOTPComplete = otp.every((digit) => /^\d$/.test(digit));
 
-  useEffect(() => {
-    let timer;
+  // useEffect(() => {
+  //   let timer;
 
-    if (loading) {
-      // Set a timer to show the long loading message after 3 seconds
-      timer = setTimeout(() => {
-        setShowLongLoadingMessage(true);
-      }, 20000); // 20 seconds
-    } else {
-      // Reset when loading is false
-      setShowLongLoadingMessage(false);
-    }
+  //   if (loading) {
+  //     // Set a timer to show the long loading message after 3 seconds
+  //     timer = setTimeout(() => {
+  //       setShowLongLoadingMessage(true);
+  //     }, 20000); // 20 seconds
+  //   } else {
+  //     // Reset when loading is false
+  //     setShowLongLoadingMessage(false);
+  //   }
 
-    // Cleanup the timer on component unmount or when loading changes
-    return () => clearTimeout(timer);
-  }, [loading]);
+  //   // Cleanup the timer on component unmount or when loading changes
+  //   return () => clearTimeout(timer);
+  // }, [loading]);
 
   const closeModal = () => {
     setShowLongLoadingMessage(false);
@@ -177,25 +168,9 @@ const VerifyEmail = () => {
 
   return (
     <div className="">
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeButton={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-      <CustomizedModal isOpen={showLongLoadingMessage}>
-        <LoadingProlonged closeModal={closeModal} />
-      </CustomizedModal>
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
-          <SliderAuth />
+          <AuthSlider />
         </div>
         <div className="w-[794px] flex flex-col justify-around items-center">
           <div className="h-[85%] md:x-6 w-[320px] sm:w-full py-4">
@@ -215,11 +190,11 @@ const VerifyEmail = () => {
                         <input
                           key={index}
                           type="text"
-                          maxLength="1"
+                          // maxLength="1"
                           value={digit}
                           onChange={(e) => handleInputChange(index, e.target.value)}
                           className={`border rounded-md text-[41px] font-[700] text-GrayHomz w-[60px] sm:w-[80px] p-2 text-center ${error ? "border-red-500" : ""}`}
-                          ref={(el) => (inputRefs.current[index] = el)}
+                          // ref={(el) => (inputRefs.current[index] = el)}
                           onPaste={handlePaste} // Add onPaste event handler
                         />
                       ))}
@@ -234,7 +209,8 @@ const VerifyEmail = () => {
                         onClick={handleSubmit}
                         className={`mt-4 bg-BlueHomz text-white font-[700] text-[16px] w-full rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""}`}
                       >
-                        {loading ? <LoadingFormII /> : "Verify Email"}
+                     
+                     Verify Email
                       </button>
                     ) : (
                       <button
@@ -259,7 +235,7 @@ const VerifyEmail = () => {
                         <button
                           onClick={ResendOtp}
                           className={`${resend ? "pointer-events-none" : ""} text-BlueHomz text-center font-[700] text-[12px] md:text-[14px] ml-1`}
-                          href={""}
+                          // href={""}
                         >
                           Click to resend
                         </button>

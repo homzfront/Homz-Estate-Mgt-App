@@ -3,3 +3,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.dashboard_main {
+  min-width: 1200px;
+  max-width: 1440px;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.header {
+  border-bottom: 1px solid rgb(225, 225, 225);
+}
+
+.sidebar {
+  min-width: 278px;
+}
+
+.dashboard {
+  flex-grow: 1; /* This will make the dashboard fill the remaining space */
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .dashboard_main {
+    min-width: 0px;
+    flex-direction: column;
+  }
+}
+
+/* Add this to your existing styles or create a separate stylesheet */
+.scrollbar-container::-webkit-scrollbar {
+  width: 5px;
+  background-color: #e2e4e6;
+  border: 2px;
+  scrollbar-width: thin;
+  height: 10px;
+}
+
+.scrollbar-container-small::-webkit-scrollbar {
+  width: 2px;
+  background-color: #e2e4e6;
+  border: 2px;
+  scrollbar-width: thin;
+  height: 2px;
+}
+
+.scrollbar-container-small::-webkit-scrollbar-thumb {
+  background-color: #006AFF;
+  padding-top: 2px;
+}
+
+.scrollbar-container::-webkit-scrollbar-thumb {
+  background-color: #006AFF;
+  padding-top: 10px;
+}
