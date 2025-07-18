@@ -1,6 +1,6 @@
 import React from 'react'
 
-const AccessControlIcon = ({ className = "#4E4E4E", classNameII = "#292D32" }) => {
+const ManageUserIcon = ({ className = "#4E4E4E", classNameII = "#4E4E4E" }) => {
     return (
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M11.6867 6.02635C11.64 6.01969 11.5934 6.01969 11.5467 6.02635C10.5134 5.99302 9.69336 5.14635 9.69336 4.10635C9.69336 3.04635 10.5534 2.17969 11.62 2.17969C12.68 2.17969 13.5467 3.03969 13.5467 4.10635C13.54 5.14635 12.72 5.99302 11.6867 6.02635Z" fill={className} />
@@ -13,4 +13,4 @@ const AccessControlIcon = ({ className = "#4E4E4E", classNameII = "#292D32" }) =
     )
 }
 
-export default AccessControlIcon
+export default ManageUserIcon

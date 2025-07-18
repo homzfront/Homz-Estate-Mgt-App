@@ -1,6 +1,7 @@
 import React from 'react'
-import Sidebar from '../components/sidebar';
-import Header from '../components/header';
+import Sidebar from '../../components/sidebar';
+import Header from '../../components/header';
+import MobileFooter from '../../components/mobileFooter';
 
 const Layout = ({
     children,
@@ -13,6 +14,7 @@ const Layout = ({
             <div className='main w-full' >
                 <Header />
                 {children}
+                <MobileFooter />
             </div>
         </div>
     )

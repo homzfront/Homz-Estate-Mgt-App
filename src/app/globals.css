@@ -20,8 +20,13 @@
   min-width: 278px;
 }
 
+.mobile-footer {
+  display: none;
+}
+
 .dashboard {
-  flex-grow: 1; /* This will make the dashboard fill the remaining space */
+  flex-grow: 1;
+  /* This will make the dashboard fill the remaining space */
 }
 
 @media screen and (max-width: 768px) {
@@ -29,9 +34,28 @@
     display: none;
   }
 
+  .header {
+    display: none;
+  }
+
+  .mobile-footer {
+    display: block;
+    position: fixed;
+    bottom: 5%;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    height: 75px;
+    margin-bottom: 5px;
+    background-color: #F6F6F6; /* Add background to prevent overlap transparency */
+    border-top: 1px solid #e5e5e5;
+    padding: 12px; /* Optional padding */
+  }
+
   .dashboard_main {
     min-width: 0px;
     flex-direction: column;
+    padding-bottom: 60px; /* 👈 Leave space for fixed footer */
   }
 }
 

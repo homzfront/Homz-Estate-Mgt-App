@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ManageUserIcon = ({ className = "#4E4E4E", classNameII = "#292D32" }) => {
+const ManageResidentIcon = ({ className = "#4E4E4E", classNameII = "#4E4E4E" }) => {
     return (
         <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6.00098 2.67969C7.37949 2.67985 8.51659 3.73118 8.65332 5.07422L8.66699 5.34668C8.66019 6.79174 7.53268 7.95622 6.09668 8.00684H6.07422C6.02232 8.00288 5.97109 8.00157 5.92285 8.00488C4.4495 7.94666 3.33415 6.78202 3.33398 5.34668C3.33398 3.87616 4.53045 2.67969 6.00098 2.67969Z" fill={className} stroke={className} />
@@ -11,4 +11,4 @@ const ManageUserIcon = ({ className = "#4E4E4E", classNameII = "#292D32" }) => {
     )
 }
 
-export default ManageUserIcon
+export default ManageResidentIcon
