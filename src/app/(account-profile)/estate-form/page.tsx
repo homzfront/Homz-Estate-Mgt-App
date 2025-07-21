@@ -1,6 +1,6 @@
 'use client';
 
-import ArrowLeft from '@/components/icons/arrowLeft';
+import ArrowLeft from '@/components/icons/arrowRight';
 import Homz from '@/components/icons/homz';
 import Image from 'next/image';
 import Link from 'next/link';

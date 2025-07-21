@@ -19,16 +19,20 @@ interface DropdownProps {
     disabled?: boolean;
     isLoading?: boolean;
     showSearch?: boolean;
+    borderColor?: string;
+    arrowColor?: string
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
     options,
+    borderColor = "border-GrayHomz",
     onSelect,
     selectOption,
     className = "",
     disabled = false,
     isLoading = false,
-    showSearch = true
+    showSearch = true,
+    arrowColor = "#4E4E4E",
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -61,7 +65,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Trigger */}
             <div
-                className={`text-BlackHomz px-4 border bg-white h-[45px] text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between ${isOpen ? "border-BlueHomz border-2" : "border-GrayHomz"
+                className={`text-BlackHomz px-4 border bg-white h-[45px] text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
                     } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 onClick={handleDropdownToggle}
             >
@@ -69,7 +73,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                     {selectedOption?.label || selectOption}
                 </span>
                 <div className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}>
-                    <ArrowDown className="#4E4E4E" />
+                    <ArrowDown className={arrowColor} />
                 </div>
             </div>
 

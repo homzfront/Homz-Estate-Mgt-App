@@ -11,7 +11,7 @@ import ResidentIcon from '@/components/icons/estateManager/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager/mobile/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager/mobile/supportIcon';
 import UsersIcon from '@/components/icons/estateManager/mobile/usersIcon';
-import MobileClose from '@/components/icons/estateManager/mobileClose';
+import MobileClose from '@/components/icons/estateManager/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
