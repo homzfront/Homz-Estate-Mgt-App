@@ -5,6 +5,7 @@ import Image from 'next/image'
 import React from 'react'
 
 const Header = () => {
+    
     return (
         <div className='header'>
             <div className='flex items-center justify-between px-8 h-[120px]'> 
