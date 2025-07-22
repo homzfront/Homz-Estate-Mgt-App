@@ -1,0 +1,87 @@
+/* src/app/globals.css OR src/styles/globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dashboard_main {
+  min-width: 1200px;
+  max-width: 1440px;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.header {
+  border-bottom: 1px solid rgb(225, 225, 225);
+}
+
+.sidebar {
+  min-width: 278px;
+}
+
+.mobile-footer {
+  display: none;
+}
+
+.dashboard {
+  flex-grow: 1;
+  /* This will make the dashboard fill the remaining space */
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .header {
+    display: none;
+  }
+
+  .mobile-footer {
+    display: block;
+    position: fixed;
+    bottom: 5%;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    height: 75px;
+    margin-bottom: 5px;
+    background-color: #F6F6F6; /* Add background to prevent overlap transparency */
+    border-top: 1px solid #e5e5e5;
+    padding: 12px; /* Optional padding */
+  }
+
+  .dashboard_main {
+    min-width: 0px;
+    flex-direction: column;
+    padding-bottom: 60px; /* 👈 Leave space for fixed footer */
+  }
+}
+
+/* Add this to your existing styles or create a separate stylesheet */
+.scrollbar-container::-webkit-scrollbar {
+  width: 5px;
+  background-color: #e2e4e6;
+  border: 2px;
+  scrollbar-width: thin;
+  height: 10px;
+}
+
+.scrollbar-container-small::-webkit-scrollbar {
+  width: 2px;
+  background-color: #e2e4e6;
+  border: 2px;
+  scrollbar-width: thin;
+  height: 2px;
+}
+
+.scrollbar-container-small::-webkit-scrollbar-thumb {
+  background-color: #006AFF;
+  padding-top: 2px;
+}
+
+.scrollbar-container::-webkit-scrollbar-thumb {
+  background-color: #006AFF;
+  padding-top: 10px;
+}
