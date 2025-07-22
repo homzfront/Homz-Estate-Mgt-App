@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
 import React from 'react'
 import PopUp from '../(estate-manager)/dashboard/components/popUp'
-import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
+// import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import { Visitor, Visitors } from './visitors';
+import { Visitors } from './visitors';
 import Pagination from './pagination';
 import StatusDropDown from './statusDropDown';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,11 +16,11 @@ const Table = () => {
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
 
     const [totalPages, setTotalPages] = React.useState(1);
-    const [loading, setLoading] = React.useState(false);
+    // const [loading, setLoading] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
-    const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
+    // const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
     const [popUp, setpopUp] = React.useState(false);
-    const dropdownRef = React.useRef(null);
+    // const dropdownRef = React.useRef(null);
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
     const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
@@ -91,17 +93,17 @@ const Table = () => {
                         </thead>
                         <tbody>
                             {
-                                loading ? (
-                                    // Show skeleton loaders when loading
-                                    <>
-                                        <SkeletonTableLoader />
-                                        <SkeletonTableLoader />
-                                        <SkeletonTableLoader />
-                                        <SkeletonTableLoader />
-                                        <SkeletonTableLoader />
-                                        <SkeletonTableLoader />
-                                    </>
-                                ) :
+                                // loading ? (
+                                //     // Show skeleton loaders when loading
+                                //     <>
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //     </>
+                                // ) :
                                     currentData &&
                                     currentData.map((data, index) => (
                                         <tr
@@ -162,7 +164,7 @@ const Table = () => {
                                             <td className="sticky right-[-24px] md:right-0 bg-[#F6F6F6] md:bg-white py-[15px] pr-4 z-10">
                                                 <button onClick={() => {
                                                     handleToggleMenu(index)
-                                                    setSelectedData(data)
+                                                    // setSelectedData(data)
                                                 }}>
                                                     <Image
                                                         src="/dots-vertical.png"

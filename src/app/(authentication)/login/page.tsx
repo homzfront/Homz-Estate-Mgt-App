@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
 
@@ -13,8 +14,7 @@ const Login = () => {
   const [visible, setVisible] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(true);
-  const router = useRouter();
+  // const router = useRouter();
 
 
   const handleGoogleSignIn = () => {
@@ -26,20 +26,21 @@ const Login = () => {
   }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    // Empty function
+    e.preventDefault( )
+   setLoading(true)
   };
 
-  const closeModal = () => {
-    // Empty function
-  };
+  // const closeModal = () => {
+  //   // Empty function
+  // };
 
   const Visible = () => {
-    // Empty function
+    setVisible(true)
   };
 
-  const handleLoginSuccess = async (credentialResponse: any) => {
-    // Empty function
-  };
+  // const handleLoginSuccess = async (credentialResponse: any) => {
+  //   // Empty function
+  // };
 
 
   return (
@@ -141,7 +142,7 @@ const Login = () => {
                 </button>
 
                 <p className="mt-4 text-center font-[400] text-[14px]">
-                  Don't have an account?
+                  Didn&apos;t have an account?
                   <Link
                     className="text-center font-[700] text-[14px] text-BlueHomz  ml-1"
                     href={"/register"}

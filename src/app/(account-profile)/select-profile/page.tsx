@@ -1,14 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import ArrowRightSolid from '@/components/icons/arrowRightSolid';
 import EstateManagement from '@/components/icons/estateManagement';
 import Resident from '@/components/icons/resident';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'
 import React from 'react'
-import { CSSProperties } from 'react';
 
 const SelectProfile = () => {
-    const router = useRouter();
     const [hoveredCard, setHoveredCard] = React.useState<number | null>(null);
 
     const data = [

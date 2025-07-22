@@ -1,9 +1,7 @@
 'use client';
 
 import ArrowLeft from '@/components/icons/arrowRight';
-import Homz from '@/components/icons/homz';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';

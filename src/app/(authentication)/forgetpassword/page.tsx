@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import AuthSlider from "@/components/auth/authSlider";
@@ -13,20 +14,21 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    // try {
-    //   const response = await api.post(
-    //     "/auth/forgotpassword",
-    //     { email }
-    //   );
+    try {
+      // const response = await api.post(
+      //   "/auth/forgotpassword",
+      //   { email }
+      // );
 
-    //   if (response.data.statuscode === 200 || 201) {
-    //     setSentMail(true);
-    //   } else {
-    //     setEmailError(response.data.message);
-    //   }
-    // } catch (error) {
-    //   setEmailError(error.response?.data?.message);
-    // }
+      setSentMail(true);
+      // if (response.data.statuscode === 200 || 201) {
+      // } else {
+      //   setEmailError(response.data.message);
+      // }
+    } catch (error) {
+      // setEmailError(error.response?.data?.message);
+      console.log(error)
+    }
   };
 
   const handleSubmitT = async (e: any) => {
@@ -138,7 +140,7 @@ const ForgotPassword = () => {
                     Continue
                   </Link>
                   <p className="mt-5 text-center font-[400] text-[14px]">
-                    Didn't receive the email?
+                    Didn&apos;t receive the email?
                     <button
                       className="text-center font-[700] text-[14px] text-BlueHomz  ml-1"
                       onClick={handleSubmitT}

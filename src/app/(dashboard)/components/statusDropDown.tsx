@@ -1,5 +1,5 @@
 import React, { RefObject } from "react";
-import Image from "next/image";
+// import Image from "next/image";
 import capitalizeFirstLetter from "@/app/utils/capitalizeFirstLetter";
 import HourGlassLoader from "@/components/general/hourGlassLoader";
 import ArrowDown from "@/components/icons/arrowDown";

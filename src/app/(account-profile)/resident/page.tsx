@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import React, { useState } from 'react'
 import Image from 'next/image'
@@ -64,6 +65,18 @@ const Resident = () => {
     const handleZoneSelect = (option: { id: string | number; label: string }) => {
         setSelectedStreetZone(option.label)
     }
+
+    const handleSubmit = () => {
+    const payload ={ 
+           selectedStreetName,
+        selectedStreetZone,
+        selectedOwner,
+        selectedApartment,
+        selectedBuilding,
+    }
+    console.log(payload);
+    }
+
 
     return (
         <div>
@@ -176,7 +189,13 @@ const Resident = () => {
                 {/* Go to Dashboard Button */}
                 <div className="mt-10 flex justify-end px-4 md:px-0">
                     <button
-                        onClick={() => router.push('/dashboard')}
+                        onClick={() => {
+                            if (router) {
+                                router.push('/dashboard')
+                            } else {
+                                handleSubmit()
+                            }
+                        }}
                         className="bg-BlueHomz hover:bg-BlueHomzDark h-[45px] flex justify-center items-center font-normal text-[16px] text-white px-6 py-2 rounded-md"
                     >
                         Go to Dashboard

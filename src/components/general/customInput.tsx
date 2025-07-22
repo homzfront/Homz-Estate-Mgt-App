@@ -2,17 +2,17 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import clsx from 'clsx';
 
-type InputType = 
-  | 'text'
-  | 'number'
-  | 'email'
-  | 'password'
-  | 'date'
-  | 'time'
-  | 'datetime-local'
-  | 'tel'
-  | 'url'
-  | 'search';
+// type InputType = 
+//   | 'text'
+//   | 'number'
+//   | 'email'
+//   | 'password'
+//   | 'date'
+//   | 'time'
+//   | 'datetime-local'
+//   | 'tel'
+//   | 'url'
+//   | 'search';
 
 interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -41,7 +41,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     },
     ref
   ) => {
-    const [isFocused, setIsFocused] = useState(false);
+    // const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState(props.value || props.defaultValue || '');
 
     useEffect(() => {
@@ -93,8 +93,8 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             ref={ref}
             type={type}
             className={inputClasses}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            // onFocus={() => setIsFocused(true)}
+            // onBlur={() => setIsFocused(false)}
             onChange={handleChange}
             value={inputValue}
             {...props}

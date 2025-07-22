@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthSlider from "@/components/auth/authSlider";
 
@@ -14,12 +15,12 @@ const VerifyEmail = () => {
   const [error2, setError2] = useState("");
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [otp, setOTP] = useState(["", "", "", ""]);
-  const inputRefs = useRef([]);
+  // const inputRefs = useRef([]);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
-  const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(false);
+  // const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(false);
 
   const startTimer = () => {
     setSeconds(60)
@@ -67,7 +68,9 @@ const VerifyEmail = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // setLoading(true);
+    setLoading(true);
+    setVerificationSuccess(false)
+    setError2("")
     // try {
     //   await api.post("/auth/verification", { email, pincode: otp.join("") });
     //   setVerificationSuccess(true);
@@ -111,6 +114,9 @@ const VerifyEmail = () => {
   };
 
   const handleInputChange = (index: any, value: any) => {
+    console.log(index)
+    console.log(value)
+
     // if (/^\d$/.test(value)) {
     //   const newOTP = [...otp];
     //   newOTP[index] = value;
@@ -162,9 +168,9 @@ const VerifyEmail = () => {
   //   return () => clearTimeout(timer);
   // }, [loading]);
 
-  const closeModal = () => {
-    setShowLongLoadingMessage(false);
-  };
+  // const closeModal = () => {
+  //   setShowLongLoadingMessage(false);
+  // };
 
   return (
     <div className="">
@@ -223,7 +229,7 @@ const VerifyEmail = () => {
                   </div>
                   <div className="flex gap-2 items-center">
                     <p className={`${timer ? "pointer-events-none" : ""} text-center font-[400] text-[12px] md:text-[14px]`}>
-                      Didn't receive the email?
+                      Didn&apos;t receive the email?
                     </p>
                     {
                       timer ?

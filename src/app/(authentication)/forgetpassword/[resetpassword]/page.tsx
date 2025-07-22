@@ -1,17 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import AuthSlider from "@/components/auth/authSlider";
 
 const ResetPassword = () => {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const token = urlParams.get("token");
-  const router = useRouter();
+  // const queryString = window.location.search;
+  // const urlParams = new URLSearchParams(queryString);
   const [formData, setFormData] = useState({
     password: "",
     repassword: "",
@@ -57,8 +55,9 @@ const ResetPassword = () => {
       setPasswordError("Passwords doesn't match");
       return;
     }
-
+    
     setLoading(true);
+        setSuccPass(true);
 
     // try {
     //   const response = await api.patch(
@@ -83,7 +82,6 @@ const ResetPassword = () => {
     //     useLandlordLogin.getState().clearRouteTo()
     //   } else {
     //     setLoading(false);
-    //     setSuccPass(true);
     //   }
     // } catch (error) {
     //   setPasswordError("error", error.response?.data?.message);
@@ -96,7 +94,7 @@ const ResetPassword = () => {
 
 
   return (
-    <div className="">
+    <div className={`${loading && ""}`}>
       <div className="flex m-auto  max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />

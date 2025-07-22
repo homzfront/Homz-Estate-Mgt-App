@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
@@ -17,7 +18,7 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [verified, setVerified] = useState(false);
+  // const [verified, setVerified] = useState(false);
 
   // const handleGoogleSignIn = () => {
   //   localStorage.setItem("fromGoogle", "true");
@@ -84,6 +85,7 @@ const Register = () => {
 
   const Visible = () => {
     setVisible(!visible);
+    setLoading(false);
   };
 
   return (
