@@ -10,8 +10,10 @@ import { useUserStore } from '@/store/useUserStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react'
+import Table from '../../components/table';
 
 const Dashboard = () => {
+    const [data, setData] = React.useState<boolean>(false)
     const userData = useUserStore((state) => state.userData);
     const router = useRouter();
 
@@ -53,21 +55,28 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
-                    <div className='mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] h-auto h-[450px] md:h-[600px] p-4'>
+                    <div className={`mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] p-4 ${data ? "h-auto" : "h-[450px] md:h-[600px]"}`}>
                         <h3 className='text-sm font-medium text-GrayHomz'>Access Control</h3>
-                        <div className='h-[90%] flex flex-col w-full items-center justify-center mt-10 md:mt-0'>
-                            <div className='bg-[#EEF5FF] hidden md:flex items-center justify-center h-[144px] w-[144px] rounded-full'>
-                                <RegisterTenantIcon />
-                            </div>
-                               <div className='bg-[#FFFFFF] md:hidden flex items-center justify-center h-[112px] w-[112px] rounded-full'>
-                                <RegisterTenantIconMobile />
-                            </div>
-                            <div className='flex flex-col gap-3 items-center mt-4'>
-                                <h1 className='text-[#141313] font-normal text-[16px]'>No Access Request</h1>
-                                <h3 className='text-[#141313] font-normal text-sm text-center'>There are currently no access requests across your estate. </h3>
-                                <button className='text-[16px] font-normal text-BlueHomz flex items-center gap-2'> <AddIcon /> Register Visitor</button>
-                            </div>
-                        </div>
+                        {
+                            data ?
+                                <div>
+                                    <Table />
+                                </div>
+                                :
+                                <div className='h-[90%] flex flex-col w-full items-center justify-center mt-10 md:mt-0'>
+                                    <div className='bg-[#EEF5FF] hidden md:flex items-center justify-center h-[144px] w-[144px] rounded-full'>
+                                        <RegisterTenantIcon />
+                                    </div>
+                                    <div className='bg-[#FFFFFF] md:hidden flex items-center justify-center h-[112px] w-[112px] rounded-full'>
+                                        <RegisterTenantIconMobile />
+                                    </div>
+                                    <div className='flex flex-col gap-3 items-center mt-4'>
+                                        <h1 className='text-[#141313] font-normal text-[16px]'>No Access Request</h1>
+                                        <h3 className='text-[#141313] font-normal text-sm text-center'>There are currently no access requests across your estate. </h3>
+                                        <button onClick={() => setData(true)} className='text-[16px] font-normal text-BlueHomz flex items-center gap-2'> <AddIcon /> Register Visitor</button>
+                                    </div>
+                                </div>
+                        }
                     </div>
                 </div>
                 :
