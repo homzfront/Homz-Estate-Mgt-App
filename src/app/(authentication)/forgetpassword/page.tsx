@@ -52,6 +52,7 @@ const ForgotPassword = () => {
   };
 
 
+  
   return (
     <div className="">
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
