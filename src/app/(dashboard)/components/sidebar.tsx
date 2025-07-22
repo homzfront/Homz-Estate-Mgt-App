@@ -200,7 +200,7 @@ const Sidebar = () => {
                                                     onClick={() => toggleSub(data.name)}
                                                     className={`${subOpen ? "rotate-180" : ""} flex`}
                                                 >
-                                                    {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown />}
+                                                    {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> :  <ArrowDown className='#4E4E4E' />}
                                                 </div>
                                             </div>
                                         </Link>
@@ -295,7 +295,7 @@ const Sidebar = () => {
                                                 onClick={() => toggleSubMore(data.name)}
                                                 className={`${subMoreOpen ? "rotate-180" : ""} flex`}
                                             >
-                                                {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown />}
+                                                {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown className='#4E4E4E' />}
                                             </div>
                                         </div>
                                     </Link>

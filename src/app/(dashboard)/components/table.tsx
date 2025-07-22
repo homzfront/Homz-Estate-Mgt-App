@@ -21,7 +21,7 @@ const Table = () => {
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
     const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
-    const pageSize = 10; 
+    const pageSize = 8; 
 
     React.useEffect(() => {
         setTotalPages(Math.ceil(Visitors.length / pageSize));
