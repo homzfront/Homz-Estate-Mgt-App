@@ -10,10 +10,12 @@ import ExpensesIcon from '@/components/icons/estateManager/desktop/expensesIcon'
 import FinanceIcon from '@/components/icons/estateManager/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager/desktop/manageResidentIcon';
+import ManageResiIcon from '@/components/icons/estateManager/desktop/manageResiIcon';
 import ManageUserIcon from '@/components/icons/estateManager/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager/desktop/moreIcon';
 import PaymentIcon from '@/components/icons/estateManager/desktop/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager/desktop/profileIcon';
+import ResidentAccess from '@/components/icons/estateManager/desktop/residentAccess';
 import SettingsIcon from '@/components/icons/estateManager/desktop/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager/desktop/supportIcon';
 import Image from 'next/image';
@@ -38,9 +40,24 @@ const Data = [
         image2: (
             <ManageResidentIcon className='#FFFFFF' classNameII='#FFFFFF' />
         ),
-        link: "/manage-resident",
+        link: "#",
         name: "Manage Residents",
         active: false,
+        submenu: true,
+        subMenuItems: [
+            {
+                title: "Manage Residents",
+                link: "/manage-resident/manage-residents",
+                image: <ManageResiIcon />,
+                image2: <ManageResiIcon className='#006AFF' />,
+            },
+            {
+                title: "Residents Access",
+                link: "/manage-resident/residents-access",
+                image: <ResidentAccess />,
+                image2: <ResidentAccess className='#006AFF' />,
+            },
+        ],
     },
     {
         id: 3,
@@ -52,6 +69,7 @@ const Data = [
         name: "Bills & Utilities",
         active: false,
     },
+
     {
         id: 4,
         image: <AccessControlIcon />,
@@ -66,7 +84,7 @@ const Data = [
         image2: (
             <FinanceIcon className='#FFFFFF' />
         ),
-        link: "",
+        link: "#",
         name: "Finance",
         active: false,
         submenu: true,
@@ -114,7 +132,7 @@ const More = [
         image2: (
             <MoreIcon className='#FFFFFF' classNameII='#FFFFFF' />
         ),
-        link: "",
+        link: "#",
         name: "More",
         active: false,
         submenu: true,
@@ -133,7 +151,7 @@ const More = [
             },
             {
                 title: "Logout",
-                link: "",
+                link: "#",
                 image: <LogoutIcon />,
                 image2: <LogoutIcon />,
             },
@@ -158,14 +176,23 @@ const Sidebar = () => {
         setSelecetedMoreName(name)
     };
 
-    const isActive = (data: any, pathname: any) => {
+    const isActive = (data: any, pathname: string) => {
+        // 1. First check if the full path matches exactly
         if (data.link === pathname) return true;
+
+        // 2. If no exact match, check the base path (without the last segment)
+        const basePath = pathname.split('/').slice(0, -1).join('/');
+
+        if (data.link === basePath) return true;
+
+        // 3. Check submenu items (full path first, then base path)
         if (data.submenu && data.subMenuItems) {
-            return data.subMenuItems.some((item: any) => item.link === pathname);
+            return data.subMenuItems.some((item: any) =>
+                item.link === pathname || item.link === basePath
+            );
         }
         return false;
     };
-
     return (
         <div className="sidebar">
             <div className="shadow-lg">
@@ -190,7 +217,7 @@ const Sidebar = () => {
                                     <button onClick={() => toggleSub(data.name)}>
                                         <Link
                                             href={data.link}
-                                            className={`h-[40px] px-2 flex items-center rounded-md gap-[12px] text-[16px] font-[500]
+                                            className={`h-[40px] w-full px-2 flex items-center rounded-md gap-[12px] text-[16px] font-[500]
                                             ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
                                             `}
                                         >

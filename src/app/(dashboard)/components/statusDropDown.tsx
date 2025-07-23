@@ -44,7 +44,6 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
     const displayStatus: Status = selectedStatus ?? value;
     const buttonStyle = getStatusStyles(displayStatus);
     
-    console.log(displayStatus)
     return (
         <div ref={dropdownRef} className="dropdown w-full">
             {loading ? (
