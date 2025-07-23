@@ -48,7 +48,7 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, child
       style={customStyles}
       className="modal-scroll-content"
     >
-      <div ref={contentRef} className="modal-scroll-content min-w-[600px]">
+      <div ref={contentRef} className="modal-scroll-content min-w-[350px] h-screen md:h-auto overflow-auto">
         {children}
       </div>
     </Modal>

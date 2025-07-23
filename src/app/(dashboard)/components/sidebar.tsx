@@ -9,10 +9,12 @@ import ExpensesIcon from '@/components/icons/estateManager/desktop/expensesIcon'
 import FinanceIcon from '@/components/icons/estateManager/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager/desktop/manageResidentIcon';
+import ManageResiIcon from '@/components/icons/estateManager/desktop/manageResiIcon';
 import ManageUserIcon from '@/components/icons/estateManager/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager/desktop/moreIcon';
 import PaymentIcon from '@/components/icons/estateManager/desktop/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager/desktop/profileIcon';
+import ResidentAccess from '@/components/icons/estateManager/desktop/residentAccess';
 import SettingsIcon from '@/components/icons/estateManager/desktop/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager/desktop/supportIcon';
 import Image from 'next/image';
@@ -55,9 +57,24 @@ const Data = [
         id: 4,
         image: <AccessControlIcon />,
         image2: <AccessControlIcon className='#FFFFFF' />,
-        link: "/access-control",
+        link: "",
         name: "Access Control",
         active: false,
+        submenu: true,
+        subMenuItems: [
+            {
+                title: "Manage Residents",
+                link: "/access-control/manage-residents",
+                image: <ManageResiIcon />,
+                image2: <ManageResiIcon className='#006AFF' />,
+            },
+            {
+                title: "Residents Access",
+                link: "/access-control/residents-access",
+                image: <ResidentAccess />,
+                image2: <ResidentAccess className='#006AFF' />,
+            },
+        ],
     },
     {
         id: 5,
@@ -157,10 +174,20 @@ const Sidebar = () => {
         setSelecetedMoreName(name)
     };
 
-    const isActive = (data: any, pathname: any) => {
+    const isActive = (data: any, pathname: string) => {
+        // 1. First check if the full path matches exactly
         if (data.link === pathname) return true;
+
+        // 2. If no exact match, check the base path (without the last segment)
+        const basePath = pathname.split('/').slice(0, -1).join('/');
+        
+        if (data.link === basePath) return true;
+
+        // 3. Check submenu items (full path first, then base path)
         if (data.submenu && data.subMenuItems) {
-            return data.subMenuItems.some((item: any) => item.link === pathname);
+            return data.subMenuItems.some((item: any) =>
+                item.link === pathname || item.link === basePath
+            );
         }
         return false;
     };
@@ -200,7 +227,7 @@ const Sidebar = () => {
                                                     onClick={() => toggleSub(data.name)}
                                                     className={`${subOpen ? "rotate-180" : ""} flex`}
                                                 >
-                                                    {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> :  <ArrowDown className='#4E4E4E' />}
+                                                    {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown className='#4E4E4E' />}
                                                 </div>
                                             </div>
                                         </Link>

@@ -21,6 +21,7 @@ interface DropdownProps {
     showSearch?: boolean;
     borderColor?: string;
     arrowColor?: string
+    height?: string;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -33,6 +34,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     isLoading = false,
     showSearch = true,
     arrowColor = "#4E4E4E",
+    height = "h-[45px]"
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -65,7 +67,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Trigger */}
             <div
-                className={`text-BlackHomz px-4 border bg-white h-[45px] text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
+                className={`text-BlackHomz px-4 border bg-white ${height} text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
                     } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 onClick={handleDropdownToggle}
             >
@@ -112,7 +114,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                                         }`}
                                     onClick={() => handleOptionClick(option)}
                                 >
-                                    <div className="font-medium flex items-center justify-between">{option.label}  ${selectedOption?.id === option.id && <BlueTick />}</div>
+                                    <div className="font-medium flex items-center justify-between">{option.label}  {selectedOption?.id === option.id && <BlueTick />}</div>
                                     {option.zoneName && (
                                         <div className="text-sm text-GrayHomz font-normal mt-1">{option.zoneName}</div>
                                     )}

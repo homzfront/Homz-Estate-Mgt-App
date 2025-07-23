@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar from '../../components/sidebar';
-import Header from '../../components/header';
-import MobileFooter from '../../components/mobileFooter';
+import Header from '@/app/(dashboard)/components/header';
+import MobileFooter from '@/app/(dashboard)/components/mobileFooter';
+import Sidebar from '@/app/(dashboard)/components/sidebar';
 
 const Layout = ({
     children,
