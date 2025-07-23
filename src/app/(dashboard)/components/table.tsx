@@ -1,31 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
 import React from 'react'
 import PopUp from '../(estate-manager)/dashboard/components/popUp'
 // import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import { Visitors } from './visitors';
+import { Visitor, Visitors } from './visitors';
 import Pagination from './pagination';
 import StatusDropDown from './statusDropDown';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ArrowDown from '@/components/icons/arrowDown';
+import CustomModal from '@/components/general/customModal';
+import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
+import ProfileWhite from '@/components/icons/profileWhite';
+import { useAccessStore } from '@/store/useAccessStore';
 
-const Table = () => {
+// Define status types
+type Status = "Pending" | "Signed In" | "Signed Out";
+
+interface TableProps {
+    fromDefault?: boolean
+}
+
+const Table = ({ fromDefault = true }: TableProps) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
-
+    const [openDetails, setOpenDetails] = React.useState<boolean>(false)
     const [totalPages, setTotalPages] = React.useState(1);
     // const [loading, setLoading] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
-    // const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
+    const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
     const [popUp, setpopUp] = React.useState(false);
     // const dropdownRef = React.useRef(null);
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
     const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
     const pageSize = 8;
-
+    const { setResidentData } = useAccessStore();
     React.useEffect(() => {
         setTotalPages(Math.ceil(Visitors.length / pageSize));
     }, [Visitors.length]);
@@ -61,7 +71,6 @@ const Table = () => {
         }
     };
 
-
     const firstThreePages = [1, 2, 3];
     const lastThreePages = [totalPages - 2, totalPages - 1, totalPages];
 
@@ -69,8 +78,159 @@ const Table = () => {
     const indexOfFirstItem = indexOfLastItem - pageSize;
     const currentData = Visitors.slice(indexOfFirstItem, indexOfLastItem);
 
+    const getStatusStyles = (status: Status | null): string => {
+        switch (status) {
+            case "Pending":
+                return "bg-warningBg text-warning2 border border-warning2";
+            case "Signed In":
+                return "bg-successBg text-Success border border-Success";
+            case "Signed Out":
+                return "bg-error text-white border border-white";
+            default:
+                return "";
+        }
+    };
+
+
+
+    const buttonStyle = getStatusStyles(selectedData?.accessStatus as any);
+
     return (
         <div className="mt-6 w-full mx-auto">
+            {
+                openDetails &&
+                <CustomModal isOpen={openDetails} onRequestClose={() => setOpenDetails(false)}>
+                    <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[40px] mb-[50px] md:mt-0 md:mb-0'>
+                        <div className='flex justify-between items-center'>
+                            <div>
+                                <h2 className='text-BlueHomz text-[16px] font-medium hidden md:block'>Resident Information</h2>
+                                <h2 className='text-BlueHomz text-sm font-medium md:hidden'>Visitor Access Record</h2>
+                            </div>
+                            <button onClick={() => setOpenDetails(false)}><CloseTransluscentIcon /></button>
+                        </div>
+
+                        <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
+                            <div className='grid grid-cols-2 gap-4'>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Resident’s Name
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.residentName}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Property
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    [New Suncity Property]
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium flex items-center gap-1'>
+                                    Apartment <span className='md:hidden'>No</span><span className='hidden md:block'>Number</span>
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    [Apartment No]
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    <span className='md:hidden'>Home </span>Address
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    [Property Address]
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <div className='md:hidden mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
+                            <div className='grid grid-cols-2 gap-4'>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Visitor
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.visitor}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Phone number
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.phoneNumber}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Purpose
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.purpose}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    No of visitors
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.numberOfVisitors}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Date of visit
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.dateOfVisit}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Expected time
+                                    of visit
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.expectedArrivalTime}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Access Code
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.accessCode}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Access Status
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    <button
+                                        className={`rounded-md py-2 px-4 flex items-center justify-center ${buttonStyle}`}
+                                    >
+                                        <div className="flex gap-2 items-center">
+                                            <p>{selectedData?.accessStatus}</p>
+                                            <div className={`mb-[3px]`}>
+                                                <ArrowDown size={12} className={selectedData?.accessStatus === "Pending"
+                                                    ? "#dc6803"
+                                                    : selectedData?.accessStatus === "Signed In"
+                                                        ? "#039855"
+                                                        : "#ffffff"} />
+                                            </div>
+                                        </div>
+                                    </button>
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Time In
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.timeIn}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Time Out
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.timeOut}
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <button
+                            onClick={() => {
+                                setResidentData(selectedData)
+                                router.push(`/manage-resident/manage-residents/${selectedData?.visitor}`)
+                            }}
+                            className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'
+                        >
+                            <ProfileWhite /> View Resident’s profile
+                        </button>
+                    </div>
+                </CustomModal>
+            }
             <div className="border overflow-x-auto scrollbar-container">
                 <div className="w-[700%] md:w-[150%]">
                     <table border={1} className="w-full">
@@ -107,6 +267,11 @@ const Table = () => {
                                     currentData &&
                                     currentData.map((data, index) => (
                                         <tr
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                setOpenDetails(true)
+                                                setSelectedData(data)
+                                            }}
                                             key={index}
                                             className="w-2 border-t-[1px] items-center"
                                         >
@@ -161,10 +326,11 @@ const Table = () => {
                                             <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                                 {data.accessCode}
                                             </td>
-                                            <td className="sticky right-[-24px] md:right-0 bg-[#F6F6F6] md:bg-white py-[15px] pr-4 z-10">
-                                                <button onClick={() => {
+                                            <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
+                                                <button onClick={(e) => {
+                                                    e.stopPropagation()
                                                     handleToggleMenu(index)
-                                                    // setSelectedData(data)
+                                                    setSelectedData(data)
                                                 }}>
                                                     <Image
                                                         src="/dots-vertical.png"
@@ -176,6 +342,8 @@ const Table = () => {
                                                 </button>
                                                 {popUp && selectedDataId === index && (
                                                     <PopUp
+                                                        setOpenDetails={setOpenDetails}
+                                                        fromDefault={fromDefault}
                                                     />
                                                 )}
                                             </td>
