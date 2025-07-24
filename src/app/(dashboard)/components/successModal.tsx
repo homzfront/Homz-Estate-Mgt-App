@@ -5,12 +5,13 @@ import CustomModal from "@/components/general/customModal";
 interface SuccessModalType {
     isOpen: boolean;
     title: string;
-    handleSubmit: () => void;
+    handleSubmit?: () => void;
     handleBack: () => void;
-    successText: string;
+    successText?: string;
     optionalText?: string;
-    submitText: string
+    submitText?: string
     closeSuccessModal: () => void;
+    color?: string;
 }
 
 const SuccessModal = ({
@@ -21,6 +22,7 @@ const SuccessModal = ({
     successText,
     optionalText,
     submitText,
+    color,
     closeSuccessModal
 }: SuccessModalType) => {
     return (
@@ -41,9 +43,11 @@ const SuccessModal = ({
                             <p className="text-[14px] md:text-[20px] font-[700] leading-[17.64px] md:leading-[25.2px] text-center mb-1">
                                 {title}
                             </p>
-                            <p className=" leading-[19.5px] text-[13px] md:text-[16px] font-[400] md:leading-[24px] text-center">
-                                {successText}
-                            </p>
+                            {successText &&
+                                <p className=" leading-[19.5px] text-[13px] md:text-[16px] font-[400] md:leading-[24px] text-center">
+                                    {successText}
+                                </p>
+                            }
                         </div>
                     </div>
                     {handleSubmit &&
@@ -56,7 +60,7 @@ const SuccessModal = ({
                     }
                     {handleBack &&
                         <button
-                            className={`text-BlackHomz font-normal text-sm hover:text-GrayHomz cursor-pointer h-[48px]`}
+                            className={`${color ? color : "text-BlackHomz"}  font-normal text-sm hover:text-GrayHomz cursor-pointer h-[48px]`}
                             onClick={handleBack}
                         >
                             {optionalText ? optionalText : "Close"}

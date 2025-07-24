@@ -100,7 +100,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
             {
                 openDetails &&
                 <CustomModal isOpen={openDetails} onRequestClose={() => setOpenDetails(false)}>
-                    <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[40px] mb-[50px] md:mt-0 md:mb-0'>
+                    <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
                         <div className='flex justify-between items-center'>
                             <div>
                                 <h2 className='text-BlueHomz text-[16px] font-medium hidden md:block'>Resident Information</h2>
@@ -222,7 +222,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                         <button
                             onClick={() => {
                                 setResidentData(selectedData)
-                                router.push(`/manage-resident/manage-residents/${selectedData?.visitor}`)
+                                router.push(`/access-control/${selectedData?.visitor}`)
                             }}
                             className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'
                         >
