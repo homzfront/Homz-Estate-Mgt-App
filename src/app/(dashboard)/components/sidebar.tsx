@@ -10,12 +10,10 @@ import ExpensesIcon from '@/components/icons/estateManager/desktop/expensesIcon'
 import FinanceIcon from '@/components/icons/estateManager/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager/desktop/manageResidentIcon';
-import ManageResiIcon from '@/components/icons/estateManager/desktop/manageResiIcon';
 import ManageUserIcon from '@/components/icons/estateManager/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager/desktop/moreIcon';
 import PaymentIcon from '@/components/icons/estateManager/desktop/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager/desktop/profileIcon';
-import ResidentAccess from '@/components/icons/estateManager/desktop/residentAccess';
 import SettingsIcon from '@/components/icons/estateManager/desktop/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager/desktop/supportIcon';
 import Image from 'next/image';
@@ -40,24 +38,9 @@ const Data = [
         image2: (
             <ManageResidentIcon className='#FFFFFF' classNameII='#FFFFFF' />
         ),
-        link: "#",
+        link: "/manage-resident",
         name: "Manage Residents",
         active: false,
-        submenu: true,
-        subMenuItems: [
-            {
-                title: "Manage Residents",
-                link: "/manage-resident/manage-residents",
-                image: <ManageResiIcon />,
-                image2: <ManageResiIcon className='#006AFF' />,
-            },
-            {
-                title: "Residents Access",
-                link: "/manage-resident/residents-access",
-                image: <ResidentAccess />,
-                image2: <ResidentAccess className='#006AFF' />,
-            },
-        ],
     },
     {
         id: 3,
@@ -69,7 +52,6 @@ const Data = [
         name: "Bills & Utilities",
         active: false,
     },
-
     {
         id: 4,
         image: <AccessControlIcon />,
