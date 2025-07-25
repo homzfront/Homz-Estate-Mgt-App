@@ -70,7 +70,7 @@ const Table = () => {
     const currentData = allResidents.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
-        <div className="mt-6 w-full mx-auto">
+        <div className="mt-6 w-full mx-auto mb-[150px] md:mb-0">
             {openDetails && selectedData && (
                 <CustomModal isOpen={openDetails} onRequestClose={() => setOpenDetails(false)}>
                     <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
@@ -129,7 +129,18 @@ const Table = () => {
                                 <th className="text-left" style={{ width: "250px" }}>Apartment</th>
                                 <th className="text-left" style={{ width: "250px" }}>Email</th>
                                 <th className="text-left" style={{ width: "250px" }}>Phone</th>
-                                <th style={{ width: "100px" }}></th>
+                                <style jsx>{`
+                                            th.responsive-th {
+                                                width: 70px;
+                                            }
+
+                                            @media (min-width: 768px) {
+                                                th.responsive-th {
+                                                width: 100px;
+                                                }
+                                            }
+                                            `}</style>
+                                <th className="responsive-th"></th>
                             </tr>
                         </thead>
                         <tbody>
