@@ -165,6 +165,7 @@ const Table = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleToggleMenu(index)
+                                                setSelectedData(resident);
                                             }}
                                             className="p-1"
                                         >
