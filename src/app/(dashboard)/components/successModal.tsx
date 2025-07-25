@@ -26,7 +26,6 @@ const SuccessModal = ({
     closeSuccessModal
 }: SuccessModalType) => {
     return (
-        <div>
             <CustomModal
                 isOpen={isOpen}
                 onRequestClose={closeSuccessModal}
@@ -68,7 +67,6 @@ const SuccessModal = ({
                     }
                 </div>
             </CustomModal>
-        </div>
     );
 };
 

@@ -1,5 +1,6 @@
-import React, { ReactNode } from 'react';
-import Modal, { Styles } from 'react-modal';
+"use client";
+import React, { ReactNode } from "react";
+import Modal, { Styles } from "react-modal";
 
 interface CustomModalProps {
   isOpen: boolean;
@@ -7,51 +8,60 @@ interface CustomModalProps {
   children: ReactNode;
   contentRef?: React.RefObject<HTMLDivElement>;
 }
-const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onRequestClose, children, contentRef }) => {
+
+const CustomModal: React.FC<CustomModalProps> = ({
+  isOpen,
+  onRequestClose,
+  children,
+  contentRef,
+}) => {
   const customStyles: Styles = {
     overlay: {
-      backgroundColor: 'rgba(3, 3, 3, 0.5)',
-    display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      position: 'fixed',
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      position: "fixed",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
       zIndex: 99,
-      overflow: 'visible', // Crucial for dropdown visibility
+      overflow: "auto", // allow scroll if content overflows
     },
     content: {
-      position: 'relative', // Changed to relative
-      top: 'auto',
-      left: 'auto',
-      right: 'auto',
-      bottom: 'auto',
-      padding: '0',
-      borderRadius: '0',
-      backgroundColor: 'transparent',
-      border: 'none',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      overflow: 'visible', // Crucial for dropdown visibility
+      position: "relative",
+      inset: "unset", // disables default top/right/bottom/left
+      padding: "0",
+      borderRadius: "8px",
+      backgroundColor: "transparent",
+      border: "none",
+      maxHeight: "90vh", // keep modal content within viewport
+      overflow: "visible", // allow dropdowns inside
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
     },
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      onRequestClose={onRequestClose} // ✅ handles outside click and ESC
       contentLabel="Custom Modal"
       ariaHideApp={false}
       style={customStyles}
-      className="modal-scroll-content"
+      shouldCloseOnOverlayClick={true} // ✅ important
+      shouldCloseOnEsc={true} // ✅ closes on ESC
     >
-      <div ref={contentRef} className="modal-scroll-content h-screen overflow-y-auto flex items-center justify-center min-w-[600px]">
+      <div
+        ref={contentRef}
+        className="w-full max-w-3xl h-auto max-h-[90vh] overflow-y-auto p-6 scrollbar-container"
+      >
         {children}
       </div>
     </Modal>
   );
 };
+
 export default CustomModal;
