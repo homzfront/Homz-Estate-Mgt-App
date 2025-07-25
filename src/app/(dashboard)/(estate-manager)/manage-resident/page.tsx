@@ -6,6 +6,8 @@ import ManualAddIcon from '@/components/icons/estateManager/desktop/manualAddIco
 import React from 'react'
 import InviteResident from './components/inviteResident';
 import SuccessModal from '../../components/successModal';
+import HeaderFilter from './components/headerFilter';
+import Table from './components/table';
 
 const ManageResidents = () => {
     const [residentData, setResidentData] = React.useState<boolean>(false);
@@ -16,7 +18,10 @@ const ManageResidents = () => {
         <div className='p-8'>
             {
                 residentData ?
-                    <div></div>
+                    <div>
+                        <HeaderFilter setOpenInvite={setOpenInvite} />
+                        <Table />
+                    </div>
                     :
                     <div>
                         {
