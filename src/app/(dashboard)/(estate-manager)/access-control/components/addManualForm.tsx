@@ -12,14 +12,14 @@ interface AddManualFormProps {
 }
 const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormProps) => {
     const [isOpen, setIsOpen] = React.useState(true);
-    const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false)
+    const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
     const [formData, setFormData] = React.useState({
         visitorName: '',
         visitPurpose: '',
         phoneNo: '',
         NoOfPersons: '',
     });
-    const [timeCode, setTimeCode] = React.useState<string>("One-Time")
+    const [timeCode, setTimeCode] = React.useState<string>("One-Time");
     const handleDropdownToggle = () => {
         setIsOpen(prev => !prev);
     };
@@ -32,7 +32,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
     };
 
     return (
-        <div className='p-4 rounded-[12px] bg-white w-[350px] md:w-[550px] mt-[220px] mb-[50px] md:mt-0 md:mb-0'>
+        <div className='p-4 rounded-[12px] bg-white w-[350px] md:w-[550px] mb-[50px] md:mb-0'>
             {
                 !codeGenerated ?
                     <div>

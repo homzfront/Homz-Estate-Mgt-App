@@ -68,7 +68,7 @@ const Pagination: React.FC<PaginationProps> = ({
           </div>
           <Image
             className='hidden md:block'
-            src={"/static/dashboard/enterprisemanager/dashboard/arrow-left-blue.png"} alt="" height={16} width={16} />
+            src={"/arrow-left-blues.png"} alt="" height={16} width={16} />
           <span className='hidden md:block'>Previous</span>
         </button>
       </div>
@@ -94,7 +94,7 @@ const Pagination: React.FC<PaginationProps> = ({
           </div>
           <Image
             className='hidden md:block'
-            src={"/static/dashboard/enterprisemanager/dashboard/arrow-right-blue.png"} alt="" height={16} width={16} />
+            src={"/arrow-right-blue.png"} alt="" height={16} width={16} />
         </button>
       </div>
     </div>
