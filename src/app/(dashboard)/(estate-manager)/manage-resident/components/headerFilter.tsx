@@ -19,9 +19,10 @@ import AddIcon from "@/components/icons/addIcon";
 
 interface HeaderFilterProps {
     setOpenInvite: (data: boolean) => void;
+    setOpenManualForm: (data: boolean) => void;
 }
 
-const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite }) => {
+const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManualForm }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenTwo, setIsOpenTwo] = useState(false);
     const [isOpenI, setIsOpenI] = useState(false);
@@ -57,7 +58,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite }) => {
                     <h2 className='font-medium text-[16px] text-BlackHomz'>Residents </h2>
                     <p className='text-sm text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>528</p>
                 </div>
-                <button className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
+                <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
                     <AddIcon className="#ffffff" />
                 </button>
             </div>
@@ -185,7 +186,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite }) => {
                                             <span className="w-4"><AddNormal /></span>
                                             <span className="min-w-[80%]">Invite Resident(s)</span>
                                         </div>
-                                        <div className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
+                                        <div onClick={() => setOpenManualForm(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
                                             <span className="w-4"><ManualAddIcon className="#4E4E4E" /></span>
                                             <span className="min-w-[80%]">Manually add Resident</span>
                                         </div>

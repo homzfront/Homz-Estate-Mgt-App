@@ -8,48 +8,62 @@ import InviteResident from './components/inviteResident';
 import SuccessModal from '../../components/successModal';
 import HeaderFilter from './components/headerFilter';
 import Table from './components/table';
+import ManualForm from './components/manualForm';
 
 const ManageResidents = () => {
     const [residentData, setResidentData] = React.useState<boolean>(false);
     const [openInvite, setOpenInvite] = React.useState<boolean>(false);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
-
+    const [openManualForm, setOpenManualForm] = React.useState<boolean>(false);
     return (
         <div className='p-8'>
             {
+                openInvite &&
+                <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)}>
+                    <InviteResident
+                        setOpenInvite={setOpenInvite}
+                        setOpenSuccessModal={setOpenSuccessModal}
+                    />
+                </CustomModal>
+            }
+            {
+                openManualForm &&
+                <CustomModal isOpen={openManualForm} onRequestClose={() => setOpenManualForm(false)}>
+                    <ManualForm
+                        setOpenManualForm={setOpenManualForm}
+                        setOpenSuccessModal={setOpenSuccessModal}
+                    />
+                </CustomModal>
+            }
+            {
+                openSuccessModal &&
+                <SuccessModal
+                    isOpen={openSuccessModal}
+                    title="Success! Invitation Sent"
+                    successText="Your invitation link has been sent to [Resident's Email]. They can now create an account and join your property directly from the email."
+                    color="text-BlueHomz"
+                    handleBack={() => {
+                        setResidentData(true);
+                        setOpenSuccessModal(false);
+                    }}
+                    closeSuccessModal={() => {
+                        setResidentData(true);
+                        setOpenSuccessModal(false);
+                    }}
+                />
+
+            }
+            {
                 residentData ?
                     <div>
-                        <HeaderFilter setOpenInvite={setOpenInvite} />
+                        <HeaderFilter
+                            setOpenInvite={setOpenInvite}
+                            setOpenManualForm={setOpenManualForm}
+                        />
                         <Table />
                     </div>
                     :
                     <div>
-                        {
-                            openInvite &&
-                            <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)}>
-                                <InviteResident
-                                    setOpenInvite={setOpenInvite}
-                                    setOpenSuccessModal={setOpenSuccessModal}
-                                />
-                            </CustomModal>
-                        }
-                        {
-                            openSuccessModal &&
-                            <SuccessModal
-                                isOpen={openSuccessModal}
-                                title="Success! Invitation Sent"
-                                successText="Your invitation link has been sent to [Resident's Email]. They can now create an account and join your property directly from the email."
-                                color="text-BlueHomz"
-                                handleBack={() => {
-                                    setResidentData(true);
-                                    setOpenSuccessModal(false)
-                                }}
-                                closeSuccessModal={() => {
-                                    setOpenSuccessModal(false);
-                                }}
-                            />
-
-                        }
                         <div className='flex items-center gap-2 space-x-1'>
                             <h2 className='font-medium text-[16px] md:text-[20px] text-BlackHomz'>Residents </h2>
                             <p className='text-sm md:text-[18px] text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>0</p>
@@ -72,7 +86,7 @@ const ManageResidents = () => {
                                     </button>
                                     <button
                                         onClick={() => {
-                                            setResidentData(true)
+                                            setOpenManualForm(true);
                                         }}
                                         className='border border-BlueHomz px-4 py-2 rounded-[4px] cursor-ponter text-sm font-normal text-BlueHomz flex justify-center items-center gap-1 w-full md:w-auto'
                                     >
