@@ -6,7 +6,7 @@ interface SuccessModalType {
     isOpen: boolean;
     title: string;
     handleSubmit?: () => void;
-    handleBack: () => void;
+    handleBack?: () => void;
     successText?: string;
     optionalText?: string;
     submitText?: string
