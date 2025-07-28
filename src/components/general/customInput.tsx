@@ -80,7 +80,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         {label && (
           <label
             htmlFor={props.id}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-BlackHomz mb-1"
           >
             {label}
             {props.required && <span className="text-red-500 ml-1">*</span>}

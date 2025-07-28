@@ -25,8 +25,8 @@ const InviteResident = ({ setOpenInvite,setOpenSuccessModal }: InviteResidentPro
     }
 
     return (
-        <div className='p-4 rounded-[12px] bg-white w-[350px] md:w-[580px] mb-[50px] md:mb-0'>
-            <div className='p-2'>
+        <div className='py-4 px-4 md:px-7 md:py-8 rounded-[12px] bg-white w-[350px] md:w-[580px] mb-[50px] md:mb-0'>
+            <div className=''>
                 <h1 className='text-[16px] md:text-[20px] font-normal md:font-bold text-BlackHomz'>Invite Residents to Your Estate</h1>
                 <h4 className='mt-1 text-[13px] md:text-[16px] font-normal text-GrayHomz'>Copy and send this code to residents so they can join your estate.</h4>
                 <div className='mt-4 bg-whiteblue p-4 rounded-[8px] flex items-center justify-between'>

@@ -1,8 +1,10 @@
+"use client"
 import React from 'react'
+import SupportComponent from '../../features/supportComponent'
 
 const Support = () => {
   return (
-    <div>Support</div>
+    <div><SupportComponent /></div>
   )
 }
 
