@@ -1,13 +1,14 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import Widget from "./components/widget";
 import WidgetMobile from "./components/widgetMobile";
 
 const Profile = () => {
 
   return (
-    <div className="p-8 w-full">
-      <p className="font-[500] text-[20px] text-GrayHomz">Profile</p>
+    <Suspense fallback={<p>Loading video...</p>}>
+      <div className="p-8 w-full">
+        <p className="font-[500] text-[20px] text-GrayHomz">Profile</p>
         <div>
           <div className="hidden md:block">
             <Widget />
@@ -16,7 +17,8 @@ const Profile = () => {
             <WidgetMobile />
           </div>
         </div>
-    </div>
+      </div>
+    </Suspense>
   );
 };
 
