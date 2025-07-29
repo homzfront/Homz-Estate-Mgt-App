@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
 import BusinessInfo from "./businessInfo";
 import PersonalInfo from "./personalInfo";
-import ChangePassword from "./changePassword";
+import ChangePassword from "../(changePassword)/changePassword";
 
 const allPages = [
   {
