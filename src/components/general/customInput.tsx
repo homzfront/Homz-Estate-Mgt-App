@@ -60,7 +60,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     };
 
     const inputClasses = clsx(
-      'block w-full rounded-[4px] shadow-sm focus:outline-none sm:text-sm',
+      'block w-full rounded-[4px] placeholder:text-[14px] shadow-sm focus:outline-none sm:text-sm',
       'disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500',
       {
         'border-gray-300 focus:border-primary-500 focus:ring-primary-500': !error && !borderColor,

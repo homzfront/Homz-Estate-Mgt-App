@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useSearchParams } from 'next/navigation';
 import PersonalInfo from './personalInfo';
 import BusinessInfo from './businessInfo';
-import ChangePassword from './changePassword';
+import ChangePassword from '../(changePassword)/changePassword';
 
 const WidgetMobile = () => {
     const urlParams = useSearchParams();
