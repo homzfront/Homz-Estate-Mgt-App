@@ -11,19 +11,46 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 import Table from '../../components/table';
+import ArrowDown from '@/components/icons/arrowDown';
+import Image from 'next/image';
+import CustomModal from '@/components/general/customModal';
+import PickEstate from '../../components/pickEstate';
 
 const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
+    const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const userData = useUserStore((state) => state.userData);
     const router = useRouter();
 
     return (
         <div className='mb-[150px]'>
+            {openEstateList &&
+                <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
+                    <PickEstate />
+                </CustomModal>
+            }
             {userData ?
                 <div className='p-8'>
+                    <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
+                        <div className='flex gap-2 items-center'>
+                            <div className="w-6 h-6 rounded-full overflow-hidden">
+                                <Image
+                                    src={"/houses.jpg"}
+                                    alt={"estate-img"}
+                                    width={24}
+                                    height={24}
+                                    className="object-cover w-full h-full"
+                                />
+                            </div>
+                            Golden Palms Estate
+                        </div>
+                        <button className='mt-1.5'>
+                            <ArrowDown size={20} className='#4E4E4E' />
+                        </button>
+                    </button>
                     <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Welcome, Victor</h1>
                     <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Here’s what’s happening across your estate today.</h3>
-                    <div className='mt-8 bg-warningBg p-4 w-[320px] rounded-[12px] border-l-[4px] border-[#DC6803] flex flex-col gap-10'>
+                    <div className='mt-8 bg-warningBg p-4 w-full max-w-[320px] rounded-[12px] border-l-[4px] border-[#DC6803] flex flex-col gap-10'>
                         <div className="flex justify-between">
                             <h3 className="font-[500] text-[14px] text-BlackHomz">Total Residents</h3>
                             <Link

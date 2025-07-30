@@ -12,6 +12,7 @@ import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
 import { useAccessStore } from '@/store/useAccessStore';
+import RevokeAccess from '@/components/icons/revokeAccess';
 
 // Define status types
 type Status = "Pending" | "Signed In" | "Signed Out";
@@ -24,7 +25,8 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
-    const [openDetails, setOpenDetails] = React.useState<boolean>(false)
+    const [openDetails, setOpenDetails] = React.useState<boolean>(false);
+    const [openRevoke, setOpenRevoke] = React.useState<boolean>(false);
     const [totalPages, setTotalPages] = React.useState(1);
     // const [loading, setLoading] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
@@ -97,6 +99,41 @@ const Table = ({ fromDefault = true }: TableProps) => {
 
     return (
         <div className="mt-6 w-full mx-auto">
+            {openRevoke &&
+                <CustomModal
+                    isOpen={openRevoke}
+                    onRequestClose={() => setOpenRevoke(false)}
+                >
+                    <div className="bg-white flex flex-col w-[333px] md:w-[464px] p-[32px] rounded-[12px] gap-[18px]">
+                        <div className="flex flex-col gap-6 items-center justify-center">
+                            <RevokeAccess />
+                            <div className="flex flex-col">
+                                <p className="text-[14px] md:text-[20px] font-[700] leading-[17.64px] md:leading-[25.2px] text-center mb-1">
+                                    Revoke Visitor Access?
+                                </p>
+                                <p className=" leading-[19.5px] text-[13px] md:text-[16px] font-[400] md:leading-[24px] text-center">
+                                    Are you sure you want to revoke access for this visitor? They will no longer be able to use the access code to enter the estate.
+                                </p>
+                            </div>
+                        </div>
+                        <div className='flex items-center gap-4'>
+                            <button
+                                className="w-full flex justify-center items-center border border-BlueHomz text-BlueHomz font-normal text-sm rounded-[4px] h-[48px] p-[12px]"
+                                onClick={() => setOpenRevoke(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className={`w-full flex justify-center items-center font-normal text-sm bg-error text-white cursor-pointer h-[48px] rounded-[4px]`}
+                                onClick={() => setOpenRevoke(false)}
+                            >
+                                Revoke Access
+                            </button>
+                        </div>
+                    </div>
+                </CustomModal>
+            }
+
             {
                 openDetails &&
                 <CustomModal isOpen={openDetails} onRequestClose={() => setOpenDetails(false)}>
@@ -264,91 +301,92 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                 //         <SkeletonTableLoader />
                                 //     </>
                                 // ) :
-                                    currentData &&
-                                    currentData.map((data, index) => (
-                                        <tr
-                                            onClick={(e) => {
+                                currentData &&
+                                currentData.map((data, index) => (
+                                    <tr
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setOpenDetails(true)
+                                            setSelectedData(data)
+                                        }}
+                                        key={index}
+                                        className="w-2 border-t-[1px] items-center"
+                                    >
+                                        <td className="text-GrayHomz py-[25px] font-[500] text-[11px] flex items-center justify-center">
+                                            <span className='w-[8px] h-[8px] rounded-full bg-error' />
+                                        </td>
+
+                                        <td className="text-BlueHomz py-[15px] font-[500] text-[11px]">
+                                            <span className='flex items-center gap-2'>
+                                                {`[${data?.residentName}]`} <ArrowDown />
+                                            </span>
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
+                                            {data?.visitor}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data?.phoneNumber}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+
+                                            {data.purpose}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data.numberOfVisitors}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data?.dateOfVisit}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data.expectedArrivalTime}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data.accessCode}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            <StatusDropDown
+                                                value={data.accessStatus as any}
+                                                loading={false}
+                                                isOpen={openDropdownIndex === index}
+                                                toggleDropdown={() => toggleDropdown(index)}
+                                                selectedStatus={selectedStatus}
+                                                setSelectedStatus={setSelectedStatus}
+                                                handleStatusChange={(status) => {
+                                                    console.log("Selected:", status);
+                                                }}
+                                            />
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data.expectedArrivalTime}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {data.accessCode}
+                                        </td>
+                                        <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
+                                            <button onClick={(e) => {
                                                 e.stopPropagation()
-                                                setOpenDetails(true)
+                                                handleToggleMenu(index)
                                                 setSelectedData(data)
-                                            }}
-                                            key={index}
-                                            className="w-2 border-t-[1px] items-center"
-                                        >
-                                            <td className="text-GrayHomz py-[25px] font-[500] text-[11px] flex items-center justify-center">
-                                                <span className='w-[8px] h-[8px] rounded-full bg-error' />
-                                            </td>
-
-                                            <td className="text-BlueHomz py-[15px] font-[500] text-[11px]">
-                                                <span className='flex items-center gap-2'>
-                                                    {`[${data?.residentName}]`} <ArrowDown />
-                                                </span>
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
-                                                {data?.visitor}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data?.phoneNumber}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-
-                                                {data.purpose}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data.numberOfVisitors}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data?.dateOfVisit}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data.expectedArrivalTime}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data.accessCode}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                <StatusDropDown
-                                                    value={data.accessStatus as any}
-                                                    loading={false}
-                                                    isOpen={openDropdownIndex === index}
-                                                    toggleDropdown={() => toggleDropdown(index)}
-                                                    selectedStatus={selectedStatus}
-                                                    setSelectedStatus={setSelectedStatus}
-                                                    handleStatusChange={(status) => {
-                                                        console.log("Selected:", status);
-                                                    }}
+                                            }}>
+                                                <Image
+                                                    src="/dots-vertical.png"
+                                                    alt="Options"
+                                                    height={21}
+                                                    width={20}
+                                                    style={{ height: "auto", width: "auto" }}
                                                 />
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data.expectedArrivalTime}
-                                            </td>
-                                            <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                                {data.accessCode}
-                                            </td>
-                                            <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
-                                                <button onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    handleToggleMenu(index)
-                                                    setSelectedData(data)
-                                                }}>
-                                                    <Image
-                                                        src="/dots-vertical.png"
-                                                        alt="Options"
-                                                        height={21}
-                                                        width={20}
-                                                        style={{ height: "auto", width: "auto" }}
-                                                    />
-                                                </button>
-                                                {popUp && selectedDataId === index && (
-                                                    <PopUp
-                                                        setOpenDetails={setOpenDetails}
-                                                        fromDefault={fromDefault}
-                                                    />
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                            </button>
+                                            {popUp && selectedDataId === index && (
+                                                <PopUp
+                                                    setOpenDetails={setOpenDetails}
+                                                    fromDefault={fromDefault}
+                                                    setOpenRevoke={setOpenRevoke}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>

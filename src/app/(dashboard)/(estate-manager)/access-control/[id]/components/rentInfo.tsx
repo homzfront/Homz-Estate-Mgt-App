@@ -4,8 +4,8 @@ import React from 'react'
 
 const RentInfo = () => {
     return (
-        <div>
-            <p className="mt-2 text-GrayHomz font-normal text-[16px]">
+        <div className='text-sm md:text-[16px]'>
+            <p className="mt-2 text-GrayHomz font-normal">
                 View rent information for all properties currently rented by this Resident.
             </p>
             <div

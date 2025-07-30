@@ -16,10 +16,13 @@ import PaymentIcon from '@/components/icons/estateManager/desktop/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager/desktop/profileIcon';
 import SettingsIcon from '@/components/icons/estateManager/desktop/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager/desktop/supportIcon';
+import { useUserStore } from '@/store/useUserStore';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
+import PickEstate from './pickEstate';
+import useClickOutside from '@/app/utils/useClickOutside';
 
 const Data = [
     {
@@ -50,6 +53,7 @@ const Data = [
         ),
         link: "/bill-utility",
         name: "Bills & Utilities",
+        coming_Soon: true,
         active: false,
     },
     {
@@ -68,6 +72,7 @@ const Data = [
         ),
         link: "#",
         name: "Finance",
+        coming_Soon: true,
         active: false,
         submenu: true,
         subMenuItems: [
@@ -94,6 +99,7 @@ const Data = [
         link: "/manage-users",
         name: "Manage Users",
         active: false,
+        coming_Soon: true,
     },
     {
         id: 7,
@@ -143,15 +149,24 @@ const More = [
 
 
 const Sidebar = () => {
+    const router = useRouter();
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState(false);
     const [subMoreOpen, setSubMoreOpen] = React.useState(false);
+    const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [selectedName, setSelecetedName] = React.useState(null);
+    const closeRef = React.useRef<HTMLDivElement>(null);
+
+    useClickOutside(closeRef as any, () => {
+        setOpenEstateList(false);
+    });
+
     const [selectedMoreName, setSelecetedMoreName] = React.useState(null);
     const toggleSub = (name: any) => {
         setSubOpen(!subOpen);
         setSelecetedName(name)
     };
+    const userData = useUserStore((state) => state.userData);
 
     const toggleSubMore = (name: any) => {
         setSubMoreOpen(!subMoreOpen);
@@ -176,7 +191,18 @@ const Sidebar = () => {
         return false;
     };
     return (
-        <div className="sidebar">
+        <div className="sidebar relative">
+            {openEstateList && (
+                <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex justify-start">
+                    <div className="w-full h-fit mt-[12%] ml-[2%] shadow-lg">
+                        <PickEstate closeRef={closeRef} />
+                    </div>
+                </div>
+                //  <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
+                //  <PickEstate />
+                // </CustomModal>
+            )}
+
             <div className="shadow-lg">
                 <div className="w-full h-[1024px] px-6 flex flex-col py-10">
                     <Link href={"/"} className='w-full mt-2'>
@@ -188,29 +214,60 @@ const Sidebar = () => {
                         />
                     </Link>
 
-                    <button className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
-                        <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
-                    </button>
-
+                    {userData ?
+                        <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                            <div className='flex gap-2 items-center'>
+                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                    <Image
+                                        src={"/houses.jpg"}
+                                        alt={"estate-img"}
+                                        width={24}
+                                        height={24}
+                                        className="object-cover w-full h-full"
+                                    />
+                                </div>
+                                Golden Palms Estate
+                            </div>
+                            <div className='mt-1.5'>
+                                <ArrowDown size={20} className='#4E4E4E' />
+                            </div>
+                        </button>
+                        : <button onClick={() => router.push("/add-estate")} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                            <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
+                        </button>
+                    }
                     <div className="flex flex-col gap-3 mb-[50px] mt-10">
                         {Data.map((data) =>
                             data.submenu ? (
                                 <div key={data.id}>
-                                    <button onClick={() => toggleSub(data.name)}>
+                                    <button
+                                        onClick={() => {
+                                            if (!data.coming_Soon) {
+                                                toggleSub(data.name);
+                                            }
+                                        }}
+                                        className="w-full text-left"
+                                    >
                                         <Link
                                             href={data.link}
-                                            className={`h-[40px] w-full px-2 flex items-center rounded-md gap-[12px] text-[16px] font-[500]
-                                            ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
-                                            `}
+                                            className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
+                                                    ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
+                                                    `}
                                         >
-                                            {isActive(data, pathname) ? data.image2 : data.image}
-                                            <div className="flex items-center w-full justify-between">
-                                                <span className="">{data.name}</span>
-                                                <div
-                                                    onClick={() => toggleSub(data.name)}
-                                                    className={`${subOpen ? "rotate-180" : ""} flex`}
-                                                >
-                                                    {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown className='#4E4E4E' />}
+                                            {/* Icon */}
+                                            <span>{isActive(data, pathname) ? data.image2 : data.image}</span>
+
+                                            {/* Name and Arrow */}
+                                            <div className="flex items-center justify-between flex-1">
+                                                <span className="text-start">{data.name}</span>
+
+                                                {/* Arrow - rotates only if this item is open */}
+                                                <div className={`transition-transform ${subMoreOpen ? "rotate-180" : ""}`}>
+                                                    {isActive(data, pathname) ? (
+                                                        <ArrowDown className="#FFFFFF" />
+                                                    ) : (
+                                                        <ArrowDown className="#4E4E4E" />
+                                                    )}
                                                 </div>
                                             </div>
                                         </Link>
@@ -262,7 +319,7 @@ const Sidebar = () => {
                                 <Link
                                     key={data.id}
                                     href={data.link}
-                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
+                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
                                         ? "bg-BlueHomz text-white"
                                         : " hover:bg-whiteblue"
                                         } `}
@@ -277,7 +334,9 @@ const Sidebar = () => {
                                         </div>
                                     )}
                                     <div className="flex items-center w-full">
-                                        <span className={``}>{data.name}</span>
+                                        <span className="w-[150px] text-start">{data.name}
+                                            {/* {data?.coming_Soon && <span className='text-xs text-Success italic font-normal'>coming soon!</span>} */}
+                                        </span>
                                         <p
                                             className={`${data?.active === true ? "bg-error" : "bg-transparent"
                                                 } mt-1 ml-1 h-2 w-2 rounded-full`}
@@ -287,29 +346,36 @@ const Sidebar = () => {
                             )
                         )}
                     </div>
-                    <div className='flex flex-col gap-3 mb-[50px] mt-10'>
+                    <div className='flex flex-col gap-3 mb-[50px] mt-10 max-w-[230px]'>
                         {More.map((data) =>
                         (
                             <div key={data.id}>
-                                <button onClick={() => toggleSubMore(data.name)} >
+                                <button onClick={() => toggleSubMore(data.name)} className="w-full text-left">
                                     <Link
                                         href={data.link}
-                                        className={`h-[40px] px-2 flex items-center rounded-md gap-[12px] text-[16px] font-[500]
-                                            ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
-                                            `}
+                                        className={`h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
+                                                    ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
+                                                    `}
                                     >
-                                        {isActive(data, pathname) ? data.image2 : data.image}
-                                        <div className="flex items-center w-full justify-between">
-                                            <span className="">{data.name}</span>
-                                            <div
-                                                onClick={() => toggleSubMore(data.name)}
-                                                className={`${subMoreOpen ? "rotate-180" : ""} flex`}
-                                            >
-                                                {isActive(data, pathname) ? <ArrowDown className='#FFFFFF' /> : <ArrowDown className='#4E4E4E' />}
+                                        {/* Icon */}
+                                        <span>{isActive(data, pathname) ? data.image2 : data.image}</span>
+
+                                        {/* Name and Arrow */}
+                                        <div className="flex items-center justify-between flex-1">
+                                            <span className="text-start">{data.name}</span>
+
+                                            {/* Arrow - rotates only if this item is open */}
+                                            <div className={`transition-transform ${subMoreOpen ? "rotate-180" : ""}`}>
+                                                {isActive(data, pathname) ? (
+                                                    <ArrowDown className="#FFFFFF" />
+                                                ) : (
+                                                    <ArrowDown className="#4E4E4E" />
+                                                )}
                                             </div>
                                         </div>
                                     </Link>
                                 </button>
+
                                 {subMoreOpen && selectedMoreName === data.name && (
                                     <div className="flex items-center space-x-7 ml-[20px]">
                                         <hr
