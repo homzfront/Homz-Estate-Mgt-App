@@ -73,12 +73,12 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
                         >
                             {["Pending", "Signed In", "Signed Out"].map((status) => (
                                 <li key={status}>
-                                    <button
+                                    <span
                                         onClick={() => {
                                             setSelectedStatus(status as Status);
                                             handleStatusChange(status as Status);
                                         }}
-                                        className={`dropdown-item text-GrayHomz text-start w-[80px] rounded-md px-2 h-[20px] ${status === "Pending"
+                                        className={`cursor-pointer dropdown-item text-GrayHomz text-start w-[80px] rounded-md px-2 h-[20px] ${status === "Pending"
                                             ? "hover:bg-warningBg hover:text-warning2"
                                             : status === "Signed In"
                                                 ? "hover:bg-successBg hover:text-Success"
@@ -86,7 +86,7 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
                                             }`}
                                     >
                                         {status}
-                                    </button>
+                                    </span>
                                 </li>
                             ))}
                         </ul>

@@ -129,7 +129,7 @@ const WidgetMobile = ({
                                 }}
                                 className='cursor-pointer'
                             >
-                                <ArrowRight height={20} width={20} />
+                                <ArrowRight className="#4E4E4E" height={20} width={20} />
                             </div>
                         </div>
                         <div className='px-4 h-[60px] flex items-center border-GrayHomz2 border-b-[1px] justify-between w-full'>
@@ -141,7 +141,7 @@ const WidgetMobile = ({
                                 }}
                                 className='cursor-pointer'
                             >
-                                <ArrowRight height={20} width={20} />
+                                <ArrowRight className="#4E4E4E" height={20} width={20} />
                             </div>
                         </div>
                     </div>

@@ -15,6 +15,7 @@ import MobileClose from '@/components/icons/estateManager/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
+import LogoutIcon from '@/components/icons/estateManager/mobile/logout';
 
 interface DataType {
     id: number;
@@ -74,7 +75,8 @@ const PopUpData = [
             <PaymentIcon className='#006AFF' />
         ),
         link: "/finance/payment",
-        name: "Payments"
+        name: "Payments",
+        coming_Soon: true,
     },
     {
         id: 2,
@@ -83,7 +85,8 @@ const PopUpData = [
             <ExpensesIcon className='#006AFF' />
         ),
         link: "/finance/expense",
-        name: "Expenses"
+        name: "Expenses",
+        coming_Soon: true,
     },
     {
         id: 3,
@@ -92,7 +95,8 @@ const PopUpData = [
             <UsersIcon className='#006AFF' />
         ),
         link: "/manage-users",
-        name: "Users"
+        name: "Users",
+        coming_Soon: true,
     },
     {
         id: 4,
@@ -106,7 +110,8 @@ const PopUpData = [
         image: <NotiIcon />,
         image2: <NotiIcon className='#006AFF' />,
         link: "/notification-page",
-        name: "Notifi..."
+        name: "Notifi...",
+           coming_Soon: true,
     },
     {
         id: 6,
@@ -121,6 +126,13 @@ const PopUpData = [
         image2: <SettingsIcon className='#006AFF' />,
         link: "/settings",
         name: "Settings"
+    },
+    {
+        id: 8,
+        image: <LogoutIcon />,
+        image2: <LogoutIcon />,
+        link: "",
+        name: "Logout"
     }
 ];
 
@@ -144,12 +156,12 @@ const MobileFooter = () => {
                         <div className='grid grid-cols-4 justify-between gap-4 items-center'>
                             {
                                 PopUpData.map((data) => (
-                                    <Link href={data.link} key={data.id} className={`flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] bg-[#F6F6F6] text-[11px] font-[400] ${pathname === data.link
+                                    <Link href={data.link} key={data.id} className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400] ${pathname === data.link
                                         ? "text-BlueHomz"
                                         : "text-GrayHomz"
                                         } 
                                     `}>
-                                        <span className='flex flex-col gap-1 items-center'>
+                                        <span className={`flex flex-col gap-1 items-center truncate ${data?.name === "Logout" ? "text-error" : ""}`}>
                                             {pathname === data.link ? (
                                                 <div>
                                                     {data.image2}
@@ -159,7 +171,7 @@ const MobileFooter = () => {
                                                     {data.image}
                                                 </div>
                                             )}
-                                        {data.name}
+                                            {data.name}
                                         </span>
                                     </Link>
                                 ))
@@ -192,7 +204,7 @@ const MobileFooter = () => {
                                 {data.image}
                             </div>
                         )}
-                        <div className="flex items-center w-full truncate">
+                        <div className={`flex items-center w-full truncate`}>
                             <span>{data.name}</span>
                         </div>
                     </Link>
