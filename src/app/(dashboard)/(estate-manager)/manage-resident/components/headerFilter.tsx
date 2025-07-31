@@ -11,10 +11,10 @@ import DotsBlue from "@/components/icons/dotsBlue";
 import Ticked from "@/components/icons/ticked";
 import UnTicked from "@/components/icons/unTicked";
 import useClickOutside from '@/app/utils/useClickOutside';
-import ManualAddIcon from "@/components/icons/estateManager/desktop/manualAddIcon";
-import ShareIcon from "@/components/icons/estateManager/desktop/shareIcon";
-import BillMiniIcon from "@/components/icons/estateManager/desktop/billMiniIcon";
-import ExportIcon from "@/components/icons/estateManager/desktop/exportIcon";
+import ManualAddIcon from "@/components/icons/estateManager&Resident/desktop/manualAddIcon";
+import ShareIcon from "@/components/icons/estateManager&Resident/desktop/shareIcon";
+import BillMiniIcon from "@/components/icons/estateManager&Resident/desktop/billMiniIcon";
+import ExportIcon from "@/components/icons/estateManager&Resident/desktop/exportIcon";
 import AddIcon from "@/components/icons/addIcon";
 
 interface HeaderFilterProps {

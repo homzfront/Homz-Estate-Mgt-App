@@ -1,6 +1,6 @@
 import { Visitor } from "@/app/(dashboard)/components/visitors";
 import ArrowRight from "@/components/icons/arrowRight";
-import MobileBackButton from "@/components/icons/estateManager/mobile/mobileBackButton";
+import MobileBackButton from "@/components/icons/estateManager&Resident/mobile/mobileBackButton";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";

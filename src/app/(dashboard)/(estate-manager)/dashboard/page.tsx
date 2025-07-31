@@ -2,15 +2,15 @@
 import AddBlue from '@/components/icons/addBlue';
 import AddIcon from '@/components/icons/addIcon';
 import ArrowRight from '@/components/icons/arrowRight';
-import EmptyEstateIcon from '@/components/icons/estateManager/desktop/emptyEstateIcon';
-import RegisterTenantIcon from '@/components/icons/estateManager/desktop/registerTenantIcon';
-import RegisterTenantIconMobile from '@/components/icons/estateManager/mobile/registerTenantIcon';
-import EmptyEstateIconMobile from '@/components/icons/estateManager/mobile/emptyEstateIconMobile';
+import EmptyEstateIcon from '@/components/icons/estateManager&Resident/desktop/emptyEstateIcon';
+import RegisterTenantIcon from '@/components/icons/estateManager&Resident/desktop/registerTenantIcon';
+import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/mobile/registerTenantIcon';
+import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
 import { useUserStore } from '@/store/useUserStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react'
-import Table from '../../components/table';
+import Table from './components/table';
 import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
-import PopUp from '../(estate-manager)/dashboard/components/popUp'
+import PopUp from './popUp'
 // import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import { Visitor, Visitors } from './visitors';
-import Pagination from './pagination';
-import StatusDropDown from './statusDropDown';
+import { Visitor, Visitors } from '../../../components/visitors';
+import Pagination from '../../../components/pagination';
+import StatusDropDown from '../../../components/statusDropDown';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ArrowDown from '@/components/icons/arrowDown';
 import CustomModal from '@/components/general/customModal';

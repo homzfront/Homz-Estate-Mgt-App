@@ -1,11 +1,11 @@
 "use client"
 import React from 'react'
 import { useAccessStore } from '@/store/useAccessStore'
-import EmptyAccess from '@/components/icons/estateManager/desktop/emptyAccess'
+import EmptyAccess from '@/components/icons/estateManager&Resident/desktop/emptyAccess'
 import AddWhiteBox from '@/components/icons/addWhiteBox'
 import Dropdown from '@/components/general/dropDown'
 import ResetIcon from '@/components/icons/resetIcon'
-import Table from '@/app/(dashboard)/components/table'
+import Table from '@/app/(dashboard)/(estate-manager)/dashboard/components/table'
 import AddIcon from '@/components/icons/addIcon'
 import CustomModal from '@/components/general/customModal'
 import AddManualForm from './components/addManualForm'
