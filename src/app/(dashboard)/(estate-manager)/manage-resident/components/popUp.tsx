@@ -4,7 +4,7 @@ import React from 'react';
 import ArrowRight from '@/components/icons/arrowRight';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
-import VisitorAccessMiniIcon from '@/components/icons/estateManager/desktop/visitorAccessMiniIcon';
+import VisitorAccessMiniIcon from '@/components/icons/estateManager&Resident/desktop/visitorAccessMiniIcon';
 
 interface PopUpProps {
     setOpenDetails: (data: boolean) => void;

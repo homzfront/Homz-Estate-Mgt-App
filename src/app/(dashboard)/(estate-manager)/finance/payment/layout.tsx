@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar from '../../../components/sidebar';
+import Sidebar from '../../components/sidebar';
 import Header from '../../../components/header';
-import MobileFooter from '@/app/(dashboard)/components/mobileFooter';
+import MobileFooter from '@/app/(dashboard)/(estate-manager)/components/mobileFooter';
 
 const Layout = ({
     children,

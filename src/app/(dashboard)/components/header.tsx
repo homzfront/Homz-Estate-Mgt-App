@@ -1,6 +1,6 @@
-import MessageIcon from '@/components/icons/estateManager/desktop/messageIcon'
-import NotiIcon from '@/components/icons/estateManager/desktop/notiIcon'
-import SearchIcon from '@/components/icons/estateManager/desktop/searchIcon'
+import MessageIcon from '@/components/icons/estateManager&Resident/desktop/messageIcon'
+import NotiIcon from '@/components/icons/estateManager&Resident/desktop/notiIcon'
+import SearchIcon from '@/components/icons/estateManager&Resident/desktop/searchIcon'
 import Image from 'next/image'
 import React from 'react'
 

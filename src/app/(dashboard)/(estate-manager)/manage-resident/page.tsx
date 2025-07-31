@@ -1,8 +1,8 @@
 "use client"
 import CustomModal from '@/components/general/customModal';
 import AddWhiteBox from '@/components/icons/addWhiteBox';
-import ManageResidentEmptyIcon from '@/components/icons/estateManager/desktop/manageResidentEmptyIcon';
-import ManualAddIcon from '@/components/icons/estateManager/desktop/manualAddIcon';
+import ManageResidentEmptyIcon from '@/components/icons/estateManager&Resident/desktop/manageResidentEmptyIcon';
+import ManualAddIcon from '@/components/icons/estateManager&Resident/desktop/manualAddIcon';
 import React from 'react'
 import InviteResident from './components/inviteResident';
 import SuccessModal from '../../components/successModal';

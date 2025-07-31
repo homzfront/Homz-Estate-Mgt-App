@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Dropdown from '@/components/general/dropDown'
+import CustomInput from '@/components/general/customInput'
+import DateIcon from '@/components/icons/dateIcon'
 
 
 const buildingOptions = Array.from({ length: 8 }, (_, i) => ({
@@ -40,9 +42,16 @@ const ownerTypeOption = [
 
 const Resident = () => {
     const router = useRouter()
+    const [formData, setFormData] = React.useState({
+        selectOwnershipType: '',
+        rentDuration: '',
+        rentStartDate: '',
+        rentDueDate: '',
+    });
+
     const [selectedBuilding, setSelectedBuilding] = useState('');
     const [selectedApartment, setSelectedApartment] = useState('');
-    const [selectedOwner, setSelectedOwner] = useState('');
+    const [selectedOwner, setSelectedOwner] = useState('I am renting this apartment/property');
     const [selectedStreetName, setSelectedStreetName] = useState('');
     const [selectedStreetZone, setSelectedStreetZone] = useState('');
 
@@ -67,16 +76,22 @@ const Resident = () => {
     }
 
     const handleSubmit = () => {
-    const payload ={ 
-           selectedStreetName,
-        selectedStreetZone,
-        selectedOwner,
-        selectedApartment,
-        selectedBuilding,
-    }
-    console.log(payload);
+        const payload = {
+            selectedStreetName,
+            selectedStreetZone,
+            selectedOwner,
+            selectedApartment,
+            selectedBuilding,
+        }
+        console.log(payload);
     }
 
+    const handleInputChange = (field: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
 
     return (
         <div>
@@ -105,22 +120,9 @@ const Resident = () => {
 
 
             {/* Form Section */}
-            <div className="max-w-[720px] mx-auto mt-4 md:mt-1 md:p-2 md:bg-[#FCFCFC]">
+            <div className="max-w-[720px] mx-auto mt-4 md:mt-1 md:p-2 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
                 <div className="grid grid-cols-1">
-                    {/* Building Section */}
-                    <div className="flex flex-col gap-4 p-4">
-                        <label className="text-sm font-medium">
-                            Select Ownership Type <span className="text-red-500">*</span>
-                        </label>
-                        <Dropdown
-                            options={ownerTypeOption}
-                            onSelect={handleOwnerSelect}
-                            selectOption="Select option"
-                            showSearch={false}
-                        />
-                        {/* Search and list handled inside dropdown */}
-                    </div>
-                    <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-col gap-1 px-4">
                         <label className="text-sm font-medium">
                             Estate Name <span className="text-red-500">*</span>
                         </label>
@@ -132,9 +134,9 @@ const Resident = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* Building Section */}
-                    <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-col gap-1 px-4">
                         <label className="text-sm font-medium">
                             Select Zone <span className="font-normal"> (optional)</span>
                         </label>
@@ -147,7 +149,7 @@ const Resident = () => {
                     </div>
 
                     {/* Apartment Section */}
-                    <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-col gap-1 px-4">
                         <label className="text-sm font-medium">
                             Street Name <span className="text-red-500">*</span>
                         </label>
@@ -159,9 +161,9 @@ const Resident = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* Building Section */}
-                    <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-col gap-1 px-4">
                         <label className="text-sm font-medium">
                             Building <span className="text-red-500">*</span>
                         </label>
@@ -174,7 +176,7 @@ const Resident = () => {
                     </div>
 
                     {/* Apartment Section */}
-                    <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-col gap-1 px-4">
                         <label className="text-sm font-medium">
                             Apartment <span className="text-red-500">*</span>
                         </label>
@@ -186,12 +188,91 @@ const Resident = () => {
                     </div>
                 </div>
 
+                {/* Building Section */}
+                <div className="flex flex-col gap-1 px-4">
+                    <label className="text-sm font-medium">
+                        Select Ownership Type <span className="text-red-500">*</span>
+                    </label>
+                    <Dropdown
+                        options={ownerTypeOption}
+                        onSelect={handleOwnerSelect}
+                        selectOption={selectedOwner}
+                        showSearch={false}
+                    />
+                    {/* Search and list handled inside dropdown */}
+                </div>
+
+                {/* Building Section */}
+                {selectedOwner === "I am renting this apartment/property" ?
+                    <div className="grid grid-cols-1 gap-4 md:gap-6 px-4">
+                        <div className='relative'>
+                            <CustomInput
+                                borderColor="#4E4E4E"
+                                label="Rent Duration"
+                                placeholder="e.g 12"
+                                value={formData.rentDuration}
+                                onValueChange={(value) => handleInputChange('rentDuration', value)}
+                                required
+                                type='number'
+                                className='h-[45px] pl-4 pr-[100px] mt-1'
+                            />
+                            <select className="absolute top-9 right-2 border-none text-xs px-2 py-1">
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                        <div className='flex flex-col md:flex-row items-center gap-4 md:gap-6'>
+                            <div className='w-full md:w-[50%]'>
+                                <label className="text-sm text-BlackHomz font-medium">
+                                    Rent Start Date <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative mt-1">
+                                    <CustomInput
+                                        borderColor="#4E4E4E"
+                                        type="date"
+                                        className="h-[45px] px-4 pr-10 input-hide-date-icon"
+                                        onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
+                                        required
+                                    />
+                                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                        <DateIcon />
+                                    </span>
+                                </div>
+                            </div>
+                            <div className='flex flex-col gap-1 w-full md:w-[50%] text-sm'>
+                                <h3 className='text-sm font-medium text-BlackHomz mb-1'>Rent Due Date <span className='text-error'>*</span></h3>
+                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
+                                    Auto-filled
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    : <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                        <div className='w-full md:w-[100%]'>
+                            <label className="text-sm text-BlackHomz font-medium">
+                                Residency Start Date <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <CustomInput
+                                    borderColor="#4E4E4E"
+                                    type="date"
+                                    className="h-[45px] px-4 pr-10 input-hide-date-icon mt-1"
+                                    onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
+                                    required
+                                />
+                                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                    <DateIcon />
+                                </span>
+                            </div>
+                        </div>
+                    </div>}
+
                 {/* Go to Dashboard Button */}
                 <div className="mt-10 flex justify-end px-4 md:px-0">
                     <button
                         onClick={() => {
                             if (router) {
-                                router.push('/dashboard')
+                                router.push('/resident/dashboard')
                             } else {
                                 handleSubmit()
                             }

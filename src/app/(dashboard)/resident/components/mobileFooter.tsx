@@ -1,21 +1,17 @@
 "use client"
 import CustomModal from '@/components/general/customModal';
-import AccessControlIcon from '@/components/icons/estateManager/mobile/accessControlIcon';
-import DashboardIcon from '@/components/icons/estateManager/mobile/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager/mobile/expensesIcon';
-import MoreIcon from '@/components/icons/estateManager/mobile/moreIcon';
-import NotiIcon from '@/components/icons/estateManager/mobile/notiIcon';
-import PaymentIcon from '@/components/icons/estateManager/mobile/paymentIcon';
-import ProfileIcon from '@/components/icons/estateManager/mobile/profileIcon';
-import ResidentIcon from '@/components/icons/estateManager/mobile/residentIcon';
-import SettingsIcon from '@/components/icons/estateManager/mobile/settingsIcon';
-import SupportIcon from '@/components/icons/estateManager/mobile/supportIcon';
-import UsersIcon from '@/components/icons/estateManager/mobile/usersIcon';
-import MobileClose from '@/components/icons/estateManager/mobile/mobileClose';
+import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
+import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
+import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
+import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
+import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
+import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
-import LogoutIcon from '@/components/icons/estateManager/mobile/logout';
+import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
+import VisitorAccess from '@/components/icons/estateManager&Resident/mobile/visitorAccess';
+import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 
 interface DataType {
     id: number;
@@ -33,28 +29,28 @@ const Data = [
         image2: (
             <DashboardIcon className='#006AFF' />
         ),
-        link: "/dashboard",
+        link: "/resident/dashboard",
         name: "Dashboard",
         extra: false,
     },
     {
         id: 2,
-        image: <ResidentIcon />,
+        image: <VisitorAccess />,
         image2: (
-            <ResidentIcon className='#006AFF' />
+            <VisitorAccess className='#006AFF' />
         ),
-        link: "/manage-resident",
-        name: "Residents",
+        link: "/resident/visitor-access",
+        name: "Visitor Access",
         extra: false,
     },
     {
         id: 3,
-        image: <AccessControlIcon />,
+        image: <DuesAndPaymentIcon className="#202020" />,
         image2: (
-            <AccessControlIcon className='#006AFF' />
+            <DuesAndPaymentIcon className='#006AFF' />
         ),
-        link: "/access-control",
-        name: "Access Control",
+        link: "/resident/dues-payments",
+        name: "Dues & Payments",
         extra: false,
     },
     {
@@ -70,65 +66,28 @@ const Data = [
 const PopUpData = [
     {
         id: 1,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: true,
+        image: <SupportIcon />,
+        image2: <SupportIcon className='#006AFF' />,
+        link: "/resident/support",
+        name: "Support"
     },
     {
         id: 2,
-        image: <ExpensesIcon />,
-        image2: (
-            <ExpensesIcon className='#006AFF' />
-        ),
-        link: "/finance/expense",
-        name: "Expenses",
+        image: <NotiIcon />,
+        image2: <NotiIcon className='#006AFF' />,
+        link: "/resident/notification-page",
+        name: "Notifications",
         coming_Soon: true,
     },
     {
         id: 3,
-        image: <UsersIcon />,
-        image2: (
-            <UsersIcon className='#006AFF' />
-        ),
-        link: "/manage-users",
-        name: "Users",
-        coming_Soon: true,
-    },
-    {
-        id: 4,
-        image: <SupportIcon />,
-        image2: <SupportIcon className='#006AFF' />,
-        link: "/support",
-        name: "Support"
-    },
-    {
-        id: 5,
-        image: <NotiIcon />,
-        image2: <NotiIcon className='#006AFF' />,
-        link: "/notification-page",
-        name: "Notifi...",
-           coming_Soon: true,
-    },
-    {
-        id: 6,
         image: <ProfileIcon />,
         image2: <ProfileIcon className='#006AFF' />,
-        link: "/profile",
+        link: "/resident/profile",
         name: "Profile"
     },
     {
-        id: 7,
-        image: <SettingsIcon />,
-        image2: <SettingsIcon className='#006AFF' />,
-        link: "/settings",
-        name: "Settings"
-    },
-    {
-        id: 8,
+        id: 4,
         image: <LogoutIcon />,
         image2: <LogoutIcon />,
         link: "",
@@ -153,10 +112,10 @@ const MobileFooter = () => {
                                 <MobileClose />
                             </button>
                         </div>
-                        <div className='grid grid-cols-4 justify-between gap-4 items-center'>
+                        <div className='grid grid-cols-3 justify-between gap-4 items-center'>
                             {
                                 PopUpData.map((data) => (
-                                    <Link href={data.link} key={data.id} className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400] ${pathname === data.link
+                                    <Link href={data.link} key={data.id} className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[74px] w-[95px] ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400] ${pathname === data.link
                                         ? "text-BlueHomz"
                                         : "text-GrayHomz"
                                         } 

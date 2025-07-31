@@ -67,9 +67,7 @@ const Settings = () => {
   };
   const pages = [
     "All", "Landlord", "Account Officer", "Security"
-  ]
-  console.log("selectedData:", selectedData)
-  console.log("openDetails:", openDetails)
+  ];
 
   return (
     <div className='py-8'>

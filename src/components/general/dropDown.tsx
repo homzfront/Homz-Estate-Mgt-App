@@ -23,6 +23,7 @@ interface DropdownProps {
     borderColor?: string;
     arrowColor?: string
     height?: string;
+    textColor?: string;
     bgColor?: string;
 }
 
@@ -37,7 +38,8 @@ const Dropdown: React.FC<DropdownProps> = ({
     showSearch = true,
     arrowColor = "#4E4E4E",
     bgColor = "bg-white",
-    height = "h-[45px]"
+    height = "h-[45px]",
+    textColor = "text-BlackHomz",
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -70,7 +72,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Trigger */}
             <div
-                className={`text-BlackHomz px-4 border ${bgColor}  ${height} text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
+                className={`${textColor} px-4 border ${bgColor}  ${height} text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
                     } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 onClick={handleDropdownToggle}
             >
