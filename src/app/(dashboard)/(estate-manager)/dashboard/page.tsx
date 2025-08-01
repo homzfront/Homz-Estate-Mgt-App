@@ -14,7 +14,7 @@ import Table from './components/table';
 import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
-import PickEstate from '../../components/pickEstate';
+import PickEstate from '../components/pickEstate';
 
 const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
@@ -44,9 +44,9 @@ const Dashboard = () => {
                             </div>
                             Golden Palms Estate
                         </div>
-                        <button className='mt-1.5'>
+                        <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
-                        </button>
+                        </div>
                     </button>
                     <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Welcome, Victor</h1>
                     <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Here’s what’s happening across your estate today.</h3>

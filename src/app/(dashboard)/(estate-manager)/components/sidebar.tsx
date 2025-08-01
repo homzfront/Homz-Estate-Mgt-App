@@ -21,7 +21,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
-import PickEstate from '../../components/pickEstate';
+import PickEstate from './pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
 
 const Data = [

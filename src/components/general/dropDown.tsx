@@ -25,6 +25,7 @@ interface DropdownProps {
     height?: string;
     textColor?: string;
     bgColor?: string;
+    openBorder?: string;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -40,6 +41,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     bgColor = "bg-white",
     height = "h-[45px]",
     textColor = "text-BlackHomz",
+    openBorder = "border-GrayHomz"
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
@@ -86,7 +88,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
             {/* Dropdown Content */}
             {isOpen && (
-                <div className="absolute z-50 mt-1 w-full bg-white rounded-[4px] shadow-lg border border-GrayHomz max-h-[240px] flex flex-col">
+                <div className={`absolute z-50 mt-1 w-full bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
                     {/* Search input - now properly positioned */}
                     {showSearch &&
                         <div className="p-2 sticky top-0 bg-white">
