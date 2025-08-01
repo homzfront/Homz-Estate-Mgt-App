@@ -10,6 +10,7 @@ export interface Visitor {
   accessStatus: "Pending" | "Signed In" | "Signed Out";
   timeIn: string;
   timeOut: string;
+  codeType?: string; // Optional field for code type
 }
 
 export const Visitors: Visitor[] = [
@@ -24,7 +25,8 @@ export const Visitors: Visitor[] = [
     accessCode: "Victorkunle-3094",
     accessStatus: "Pending",
     timeIn: "-",
-    timeOut: "-"
+    timeOut: "-",
+    codeType: "Permanent"
   },
   {
     residentName: "Resident 2",
@@ -37,7 +39,8 @@ export const Visitors: Visitor[] = [
     accessCode: "ChibueAjae-0024",
     accessStatus: "Pending",
     timeIn: "-",
-    timeOut: "-"
+    timeOut: "-",
+    codeType: "Permanent"
   },
   {
     residentName: "Resident 3",
@@ -50,7 +53,8 @@ export const Visitors: Visitor[] = [
     accessCode: "YusufoluOlumade-0932",
     accessStatus: "Pending",
     timeIn: "-",
-    timeOut: "-"
+    timeOut: "-",
+    codeType: "Permanent"
   },
   {
     residentName: "Resident 4",
@@ -63,7 +67,8 @@ export const Visitors: Visitor[] = [
     accessCode: "AmarachAnosike-1527",
     accessStatus: "Signed Out",
     timeIn: "2:05PM",
-    timeOut: "3:05PM"
+    timeOut: "3:05PM",
+    codeType: "One-Time"
   },
   {
     residentName: "Resident 5",
@@ -76,7 +81,8 @@ export const Visitors: Visitor[] = [
     accessCode: "Ignatius-5625",
     accessStatus: "Signed Out",
     timeIn: "2:05PM",
-    timeOut: "3:05PM"
+    timeOut: "3:05PM",
+    codeType: "One-Time"
   },
   {
     residentName: "Resident 6",
@@ -89,7 +95,8 @@ export const Visitors: Visitor[] = [
     accessCode: "Ayibanimi-2624",
     accessStatus: "Signed Out",
     timeIn: "2:05PM",
-    timeOut: "3:05PM"
+    timeOut: "3:05PM",
+    codeType: "One-Time"
   },
   {
     residentName: "Resident 7",
@@ -102,7 +109,8 @@ export const Visitors: Visitor[] = [
     accessCode: "Ngozi-7687",
     accessStatus: "Signed Out",
     timeIn: "2:05PM",
-    timeOut: "3:05PM"
+    timeOut: "3:05PM",
+    codeType: "One-Time"
   },
   {
     residentName: "Resident 8",
@@ -115,7 +123,8 @@ export const Visitors: Visitor[] = [
     accessCode: "IniobasiHossam-5625",
     accessStatus: "Signed In",
     timeIn: "2:05PM",
-    timeOut: "-"
+    timeOut: "-",
+    codeType: "Permanent"
   },
   // Dummy entries
   ...Array.from({ length: 32 }, (_, i): Visitor => {
@@ -131,7 +140,8 @@ export const Visitors: Visitor[] = [
       accessCode: `Visitor${i + 9}-000${i + 1}`,
       accessStatus: status as "Signed In" | "Signed Out" | "Pending",
       timeIn: status === "Pending" ? "-" : "2:05PM",
-      timeOut: status === "Signed Out" ? "3:05PM" : "-"
+      timeOut: status === "Signed Out" ? "3:05PM" : "-",
+      codeType: "One-Time" // Assuming a default code type for dummy entries
     };
   })
 ];
