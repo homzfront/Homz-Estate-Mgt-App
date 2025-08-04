@@ -2,7 +2,7 @@
 "use client"
 import ArrowDown from '@/components/icons/arrowDown';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
+// import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
