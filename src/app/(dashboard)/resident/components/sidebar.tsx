@@ -2,7 +2,7 @@
 "use client"
 import ArrowDown from '@/components/icons/arrowDown';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
+// import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,6 +12,7 @@ import VisitorShield from '@/components/icons/estateManager&Resident/desktop/vis
 import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import PickEstate from './pickEstate';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
+import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
 
 const Data = [
     {
@@ -46,12 +47,12 @@ const Data = [
     },
     {
         id: 4,
-        image: <SupportIcon />,
+        image: <Profile16Icon />,
         image2: (
-            <SupportIcon className='#FFFFFF' />
+            <Profile16Icon className='#FFFFFF' />
         ),
-        link: "/resident/support",
-        name: "Support",
+        link: "/resident/profile",
+        name: "Profile",
         active: false,
     },
 ];
