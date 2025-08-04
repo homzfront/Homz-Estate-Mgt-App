@@ -4,7 +4,7 @@ import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dash
 import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
+// import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -64,13 +64,13 @@ const Data = [
 ];
 
 const PopUpData = [
-    {
-        id: 1,
-        image: <SupportIcon />,
-        image2: <SupportIcon className='#006AFF' />,
-        link: "/resident/support",
-        name: "Support"
-    },
+    // {
+    //     id: 1,
+    //     image: <SupportIcon />,
+    //     image2: <SupportIcon className='#006AFF' />,
+    //     link: "/resident/support",
+    //     name: "Support"
+    // },
     {
         id: 2,
         image: <NotiIcon />,
