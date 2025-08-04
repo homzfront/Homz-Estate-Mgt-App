@@ -84,7 +84,7 @@ const Sidebar = () => {
         }
         return false;
     };
-    
+
     return (
         <div className="sidebar relative">
             {openEstateList && (
@@ -144,8 +144,8 @@ const Sidebar = () => {
                                     </div>
                                 )}
                                 <div className="flex items-center w-full">
-                                    <span className="w-[150px] text-start">{data.name}
-                                        {/* {data?.coming_Soon && <span className='text-xs text-Success italic font-normal'>coming soon!</span>} */}
+                                    <span className="w-[150px] text-start">
+                                        {data.name}
                                     </span>
                                     <p
                                         className={`${data?.active === true ? "bg-error" : "bg-transparent"
