@@ -202,7 +202,7 @@ const PlansYearly = () => {
                     } 
             `}
                 >
-             Get Started
+                  Get Started
                 </button>
                 {plan.features.map((feature, i) => (
                   <div key={i} className="flex flex-row items-center gap-2">
@@ -270,12 +270,12 @@ const PlansYearly = () => {
                   Contact Sales
                 </Link>
                 <button
-                   className={`h-[48px] rounded-lg text-[14px] w-full bg-BlueHomz hover:bg-blue-400 text-white ${plan.status === true
+                  className={`h-[48px] rounded-lg text-[14px] w-full bg-BlueHomz hover:bg-blue-400 text-white ${plan.status === true
                     ? " hidden"
                     : ""
                     }`}
                 >
-               Get Started
+                  Get Started
                 </button>
                 {plan.features.map((feature, i) => (
                   <div key={i} className="text-[14px] flex flex-row items-center gap-2">
