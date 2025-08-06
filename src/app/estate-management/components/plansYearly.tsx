@@ -273,8 +273,7 @@ const PlansYearly = () => {
                    className={`h-[48px] rounded-lg text-[14px] w-full bg-BlueHomz hover:bg-blue-400 text-white ${plan.status === true
                     ? " hidden"
                     : ""
-                    } 
-             `}
+                    }`}
                 >
                Get Started
                 </button>
