@@ -3,57 +3,127 @@
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
+import DotLoader from "@/components/general/dotLoader";
+import { storeToken } from "@/utils/cookies";
+import api from "@/utils/api";
+import toast, { Toaster } from "react-hot-toast";
+// import { useAuthSlice } from "@/store/authStore";
+
 
 const Login = () => {
+  // const { setUserData } = useAuthSlice();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
-  // const router = useRouter();
-
+  const router = useRouter();
 
   const handleGoogleSignIn = () => {
-    // Empty function
+    // Empty function as requested
   };
-
-  useEffect(() => {
-    // Empty effect
-  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault( )
-   setLoading(true)
+    e.preventDefault();
+    setLoginError("");
+
+    // Basic validation
+    if (!email || !password) {
+      setLoginError("Please fill in all fields");
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setLoginError("Please enter a valid email address");
+      return;
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      setLoginError(
+        "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character"
+      );
+      return;
+    }
+
+
+    setLoading(true);
+
+    try {
+      const response = await api.post("/auth/log-in", {
+        email,
+        password
+      });
+
+      const { message, success, data } = response.data;
+
+      if (!success) {
+        throw new Error(message || "Login failed");
+      }
+      // setUserData(data?.userId)
+      // Store tokens using the right keys
+      await storeToken({
+        token: data.accessToken,
+        refresh_token: data.refreshToken,
+      });
+      // Show success toast
+      toast.success("Login successful!", {
+        position: "top-center",
+        duration: 2000,
+        style: {
+          background: "#E8F5E9",
+          color: "#2E7D32",
+          fontWeight: 500,
+          padding: "12px 20px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        },
+      });
+      // Redirect to dashboard or home page
+      router.push("/dashboard");
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "An error occurred during login";
+
+      setLoginError(backendMessage || fallbackMessage);
+
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // const closeModal = () => {
-  //   // Empty function
-  // };
-
-  const Visible = () => {
-    setVisible(true)
+  const toggleVisibility = () => {
+    setVisible(!visible);
   };
-
-  // const handleLoginSuccess = async (credentialResponse: any) => {
-  //   // Empty function
-  // };
-
 
   return (
     <div className="">
-
+      {/* Add Toaster component at the root of your page */}
+      <Toaster
+        toastOptions={{
+          // Default options for all toasts
+          style: {
+            fontFamily: 'inherit',
+            fontSize: '14px',
+          },
+          // Default duration
+          duration: 4000,
+        }}
+      />
       <div className="flex m-auto max-w-full sm:max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />
         </div>
         <div className="sm:w-[794px] w-full px-6 flex flex-col justify-around items-center">
           <div className="h-[85%] px-6 W-[320px] sm:w-full py-4">
-            <div className="flex flex-col gap-6 m-auto  max-w-[360px]">
-              <h1 className="text-start  text-[36px] font-[700] text-BlackHomz">
+            <div className="flex flex-col gap-6 m-auto max-w-[360px]">
+              <h1 className="text-start text-[36px] font-[700] text-BlackHomz">
                 Welcome Back
               </h1>
               <p className="mt-[-10px] text-[16px] font-[400] text-GrayHomz">
@@ -70,7 +140,7 @@ const Login = () => {
                     </label>
                     <input
                       className="border w-full sm:w-[360px] rounded-[4px] h-[47px] px-2 placeholder:text-[14px]"
-                      type="text"
+                      type="email"
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
@@ -78,6 +148,7 @@ const Login = () => {
                       }}
                       placeholder="Enter your email"
                       autoComplete="email"
+                      required
                     />
                   </div>
                   <div className="relative flex flex-col gap-2 items-start">
@@ -94,14 +165,20 @@ const Login = () => {
                       }}
                       placeholder="Enter your password"
                       autoComplete="current-password"
+                      required
+                      minLength={6}
                     />
-                    <div className="absolute top-11 right-4" onClick={Visible}>
+                    <button
+                      type="button"
+                      className="absolute top-11 right-4"
+                      onClick={toggleVisibility}
+                    >
                       {visible ? (
                         <Eye className="w-4 h-4" />
                       ) : (
                         <BashedEye className="w-4 h-4" />
                       )}
-                    </div>
+                    </button>
                   </div>
                   {loginError && (
                     <span className="mt-[-10px] font[400] text-[13px] text-red-500">
@@ -116,13 +193,12 @@ const Login = () => {
                   </Link>
                 </div>
                 <button
-                  className={`bg-BlueHomz mt-3 text-white font-[700] text-[16px] w-full sm:w-[360px] rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading
-                      ? "pointer-events-none w-full flex justify-center"
-                      : ""
-                    } `}
+                  className={`bg-BlueHomz mt-3 text-white font-[700] text-[16px] w-full sm:w-[360px] rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
+                    }`}
                   type="submit"
+                  disabled={loading}
                 >
-                  Log In
+                  {loading ? <DotLoader /> : "Log In"}
                 </button>
               </form>
 
@@ -130,13 +206,16 @@ const Login = () => {
                 OR
               </span>
               <div className="mt-[-5px]">
-                <button onClick={() => handleGoogleSignIn()} className={`border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz  rounded-[8px] h-[47px] hover:text-BlackHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""}`}>
+                <button
+                  onClick={handleGoogleSignIn}
+                  className={`border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
+                    }`}
+                >
                   <Image
-                    className=""
                     src={"/Social icon.png"}
                     alt="google"
-                    height={"20"}
-                    width={"20"}
+                    height={20}
+                    width={20}
                   />
                   Login In with google
                 </button>
@@ -144,7 +223,7 @@ const Login = () => {
                 <p className="mt-4 text-center font-[400] text-[14px]">
                   Didn&apos;t have an account?
                   <Link
-                    className="text-center font-[700] text-[14px] text-BlueHomz  ml-1"
+                    className="text-center font-[700] text-[14px] text-BlueHomz ml-1"
                     href={"/register"}
                   >
                     Create Account

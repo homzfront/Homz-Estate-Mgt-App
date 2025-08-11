@@ -23,6 +23,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
 import PickEstate from './pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
+import { useAuthSlice } from '@/store/authStore';
 
 const Data = [
     {
@@ -150,6 +151,7 @@ const More = [
 
 const Sidebar = () => {
     const router = useRouter();
+    const { logOutUser } = useAuthSlice()
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState(false);
     const [subMoreOpen, setSubMoreOpen] = React.useState(false);
@@ -391,6 +393,11 @@ const Sidebar = () => {
                                                 return (
                                                     <Link
                                                         key={idx}
+                                                        onClick={async () => {
+                                                            if (subItem?.title === "Logout") {
+                                                                await logOutUser()
+                                                            }
+                                                        }}
                                                         href={subItem.link}
                                                         className={`flex flex-row space-x-2 items-center p-1 rounded-md hover:bg-whiteblue px-2 ${subItem.link === pathname
                                                             ? "text-BlueHomz" :

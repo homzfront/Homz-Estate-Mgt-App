@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
+import { useAuthSlice } from '@/store/authStore';
 
 interface DataType {
     id: number;
@@ -111,7 +112,7 @@ const PopUpData = [
         image2: <NotiIcon className='#006AFF' />,
         link: "/notification-page",
         name: "Notifi...",
-           coming_Soon: true,
+        coming_Soon: true,
     },
     {
         id: 6,
@@ -137,6 +138,7 @@ const PopUpData = [
 ];
 
 const MobileFooter = () => {
+    const { logOutUser } = useAuthSlice()
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState<DataType | null>(null);
 
@@ -156,11 +158,23 @@ const MobileFooter = () => {
                         <div className='grid grid-cols-4 justify-between gap-4 items-center'>
                             {
                                 PopUpData.map((data) => (
-                                    <Link href={data.link} key={data.id} className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400] ${pathname === data.link
-                                        ? "text-BlueHomz"
-                                        : "text-GrayHomz"
-                                        } 
-                                    `}>
+                                    <Link
+                                        href={data.link}
+                                        key={data.id}
+
+                                        onClick={async () => {
+                                            if (data?.name === "Logout") {
+                                                await logOutUser()
+                                            }
+                                        }}
+                                        className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px]
+                                        ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400] 
+                                        ${pathname === data.link
+                                                ? "text-BlueHomz"
+                                                : "text-GrayHomz"
+                                            } 
+                                        `}
+                                    >
                                         <span className={`flex flex-col gap-1 items-center truncate ${data?.name === "Logout" ? "text-error" : ""}`}>
                                             {pathname === data.link ? (
                                                 <div>
