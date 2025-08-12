@@ -11,6 +11,7 @@ import DotLoader from "@/components/general/dotLoader";
 import { storeToken } from "@/utils/cookies";
 import api from "@/utils/api";
 import toast, { Toaster } from "react-hot-toast";
+import { useAuthSlice } from "@/store/authStore";
 // import { useAuthSlice } from "@/store/authStore";
 
 
@@ -22,7 +23,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  const {setUserData} = useAuthSlice()
   const handleGoogleSignIn = () => {
     // Empty function as requested
   };
@@ -85,6 +86,10 @@ const Login = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
+
+      setUserData({
+        email: email
+      })
       // Redirect to dashboard or home page
       router.push("/dashboard");
     } catch (error: any) {
