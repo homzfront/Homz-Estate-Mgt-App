@@ -29,7 +29,7 @@ const Pricing = ({ hidden = false }) => {
               Start your 14-day free trial
             </h1>
             <div className="mt-4 sm:mt-0 flex w-full flex-col sm:flex-row sm:w-auto gap-4">
-              <Link href={"/register"}>
+              <Link href={"/"}>
                 <button className="w-full sm:w-[116px] h-[48px] text-[16px]  hover:bg-transparent  hover:text-white hover:border rounded-md font-normal  text-BlueHomz  bg-white  px-2 py-1">
                   Get started
                 </button>

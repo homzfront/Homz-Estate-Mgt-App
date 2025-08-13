@@ -280,7 +280,7 @@ const EstateHomePage = () => {
                             Review visitor access requests made by tenants. Approve, decline, or log new entries manually.
                         </p>
                     </div>
-                    <div className='mt-[40px] flex flex-col-reverse gap-8 md:flex-row-reverse gap-8 w-full items-end'>
+                    <div className='mt-[40px] flex flex-col-reverse md:flex-row-reverse gap-8 w-full items-end'>
                         <div className='w-full md:w-[40%] flex flex-col gap-4'>
                             <div className='flex gap-4 items-center'>
                                 <ManageVisitorsReqIcon />
