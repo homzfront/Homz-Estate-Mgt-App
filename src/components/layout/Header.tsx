@@ -6,11 +6,11 @@ import Close from "../icons/Close";
 import Image from "next/image";
 import BusinessAlert from "../icons/businessAlert";
 import Down from "../icons/Down";
-import EnterpriseDoc from "../icons/enterpriseDoc";
 import ArrowUpII from "../icons/arrowUpII";
 import PropertyManagement from "../icons/estateHomePage/propertyManagement";
 import PropertyListing from "../icons/estateHomePage/propertyListing";
 import { usePathname } from "next/navigation";
+import EnterpriseDoc from "../icons/enterpriseDoc";
 interface HeaderState {
   subMenuOpen: boolean;
   active: boolean;
@@ -79,9 +79,9 @@ const Header = () => {
           <Link
             href={"/"}
             className={`hover:text-blue-400 ${pathname === "/" ||
-              pathname === "/search-page/PropertyListing" ||
-              pathname === "/search-page/PreviewProperty" ||
-              pathname === "/search-page"
+              pathname === "/" ||
+              pathname === "/" ||
+              pathname === "/"
               ? "text-BlueHomz"
               : ""
               }`}
@@ -89,31 +89,31 @@ const Header = () => {
             Home
           </Link>
           <Link
-            href={"/landlord"}
-            className={`hover:text-blue-400 ${pathname === "/landlord" ? "text-BlueHomz" : ""}`}
+            href={"/"}
+            // className={`hover:text-blue-400 ${pathname === "/" ? "text-BlueHomz" : ""}`}
           >
             Management
           </Link>
           <div className="relative flex items-center gap-1">
             <Link
               href={
-                pathname === "/enterprise" ||
-                  pathname === "/document-generation" ||
-                  pathname === "/estate-management"
+                pathname === "/" ||
+                  pathname === "/" ||
+                  pathname === "/"
                   ? ""
-                  : "/enterprise"
+                  : "/"
               }
-              className={`${pathname === "/document-generation" ||
-                pathname === "/enterprise" || pathname === "/estate-management"
-                ? "text-BlueHomz"
-                : ""
-                } hover:text-blue-400`}
+              // className={`${pathname === "/" ||
+              //   pathname === "/" || pathname === "/"
+              //   ? "text-BlueHomz"
+              //   : ""
+              //   } hover:text-blue-400`}
             >
-              {pathname === "/document-generation"
+              {pathname === "/"
                 ? "Document Generation"
-                : pathname === "/enterprise"
+                : pathname === "/"
                   ? "Property Management"
-                  : pathname === "/estate-management" ?
+                  : pathname === "/" ?
                     "Estate Management"
                     : "Products"}
             </Link>
@@ -128,7 +128,7 @@ const Header = () => {
                 className={`absolute px-3 top-5 md:top-7 py-3 flex flex-col gap-2 items-start justify-center rounded-[10px] text-[12px] md:text-[14px] text-BlackHomz w-[210px] sm:w-[240px] border z-[99999] bg-white`}
               >
                 <Link
-                  href={"/enterprise"}
+                  href={"/"}
                   className="w-full"
                   onMouseEnter={() => setSpecificState('active', true)}
                   onMouseLeave={() => setSpecificState('active', false)}
@@ -154,7 +154,7 @@ const Header = () => {
                   )}
                 </Link>
                 <Link
-                  href={"/estate-management"}
+                  href={"/"}
                   className="w-full"
                   onMouseEnter={() => setSpecificState('activeTwo', true)}
                   onMouseLeave={() => setSpecificState('activeTwo', false)}
@@ -180,7 +180,7 @@ const Header = () => {
                   )}
                 </Link>
                 <Link
-                  href={"/document-generation"}
+                  href={"/"}
                   className="w-full"
                   onMouseEnter={() => setSpecificState('activeThree', true)}
                   onMouseLeave={() => setSpecificState('activeThree', false)}
@@ -205,8 +205,8 @@ const Header = () => {
             )}
           </div>
           <Link
-            href={"/tenant"}
-            className={`hover:text-blue-400 ${pathname === "/tenant" ? "text-BlueHomz" : ""}`}
+            href={"/"}
+            // className={`hover:text-blue-400 ${pathname === "/" ? "text-BlueHomz" : ""}`}
           >
             Tenant
           </Link>
@@ -223,13 +223,13 @@ const Header = () => {
         className={`mt-[20px] md:mt-0 md:text-[12px] lg:text-[16px] ml-0 md:ml-[-20px] lg:ml-0 md:flex md:justify-center space-y-4 md:space-y-0 items-center md:space-x-4 space-x-0 ${state.open ? "block" : "hidden md:flex"}`}
       >
             <Link
-              href="/login"
+              href="/"
               className={`hover:text-blue-400 ${state.open ? "text-[12px]" : ""}`}
             >
               Sign in
             </Link>
             <Link
-              href="/register"
+              href="/"
               className={`w-[147px] rounded-[4px] text-white bg-BlueHomz items-center flex justify-center h-[48px] py-1 hover:bg-blue-400 ${state.open ? "text-[12px] " : ""}`}
             >
               Create Account

@@ -73,19 +73,19 @@ const Footer = () => {
           <div className="flex w-full mt-4 lg:mt-0 justify-start lg:justify-center">
             <div className="leading-loose pl-0 ">
               <h2 className="font-[700] text-[16px] lg:mb-3">Useful Links</h2>
-              <Link href={"/about-us"}>
+              <Link href={"/"}>
                 <p>About Us</p>
               </Link>
-              <Link href={"/search-page/PropertyListing?page=1"}>
+              <Link href={"/"}>
                 <p>Properties</p>
               </Link>
-              <Link href={"/privacy-policy"}>
+              <Link href={"/"}>
                 <p>Privacy Policy</p>
               </Link>
-              <Link href={"/terms-and-conditions"}>
+              <Link href={"/"}>
                 <p>Terms of Use</p>
               </Link>
-              <Link href={"/contact-page"}>
+              <Link href={"/"}>
                 <p>Contact</p>
               </Link>
               <Link href={"http://blog.homz.ng/"}>
