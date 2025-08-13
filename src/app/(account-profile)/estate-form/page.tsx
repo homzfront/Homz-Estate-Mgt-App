@@ -20,7 +20,7 @@ type FormValues = {
 
 const EstateManagerRegistration = () => {
     const [loading, setLoading] = React.useState(false);
-    const {setUserAccountDetails} = useAuthSlice()
+    const { setUserAccountDetails } = useAuthSlice()
     const {
         register,
         handleSubmit,
@@ -34,17 +34,21 @@ const EstateManagerRegistration = () => {
         try {
 
             // Prepare the payload in the required format
-            const payload = {
+            const payload: any = {
                 personal: {
                     firstName: data.firstName,
                     lastName: data.lastName,
                     phoneNumber: data.phoneNumber
-                },
-                business: {
-                    businessName: data.businessName || '',
-                    businessAddress: data.businessAddress || ''
                 }
             };
+
+            if (data.businessName || data.businessAddress) {
+                payload.business = {
+                    businessName: data.businessName || '',
+                    businessAddress: data.businessAddress || ''
+                };
+            }
+
 
             // POST request to create profile
             await api.post("/community-manager/create-profile", removeEmptyFields(payload));
@@ -75,7 +79,7 @@ const EstateManagerRegistration = () => {
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];
             const fallbackMessage = error?.message || "An error occurred during login";
-          
+
             // Show toast notification
             toast.error(
                 majorBackendError ||

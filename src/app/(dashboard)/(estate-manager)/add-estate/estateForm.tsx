@@ -34,6 +34,13 @@ const EstateForm = () => {
         securityPhone: ''
     });
 
+
+
+    // Load state 
+    React.useEffect(() => {
+   
+    }, []);
+    
     const widgetHeaders = ["Estate Information", "Add Zones (Optional)", "Add Streets", "Add Buildings", "Add Apartments"]
 
     // Set initial active page from URL params
