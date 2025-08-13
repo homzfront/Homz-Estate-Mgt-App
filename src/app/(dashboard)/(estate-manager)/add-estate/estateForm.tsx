@@ -12,10 +12,17 @@ import AddZone from './components/addZone'
 import AddStreet from './components/addStreet'
 import AddBuilding from './components/addBuilding'
 import AppApartment from './components/appApartment'
+import useStateStore from '@/store/useStateAndAreaStore/useStateStore'
 
 const EstateForm = () => {
+    // react components
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    // zustand for state 
+    const { chooseState } = useStateStore();
+
+    // normal states
     const [active, setActive] = React.useState<number>(0);
     const [completedSteps, setCompletedSteps] = React.useState<number[]>([]);
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
@@ -34,13 +41,11 @@ const EstateForm = () => {
         securityPhone: ''
     });
 
-
-
     // Load state 
     React.useEffect(() => {
-   
+        chooseState()
     }, []);
-    
+
     const widgetHeaders = ["Estate Information", "Add Zones (Optional)", "Add Streets", "Add Buildings", "Add Apartments"]
 
     // Set initial active page from URL params

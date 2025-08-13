@@ -1,6 +1,8 @@
 import CustomInput from '@/components/general/customInput'
 import Dropdown from '@/components/general/dropDown'
 import AddBlue from '@/components/icons/addBlue'
+import useAreaStore from '@/store/useStateAndAreaStore/useAreaStore';
+import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
 import React from 'react'
 
 interface EstateInfoProps {
@@ -13,6 +15,10 @@ interface EstateInfoProps {
 }
 
 const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
+    const { stateList } = useStateStore()
+    const { chooseArea, loading: loadingState, error: errorArea, areaData } = useAreaStore();
+
+    const [selectedState, setSelectedState] = React.useState<string | null>(null)
     const areaOptions = [
         { id: 1, label: "Lekki Phase 1" },
         { id: 2, label: "Victoria Island" },
