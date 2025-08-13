@@ -9,7 +9,7 @@ import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
 import { useAuthSlice } from "@/store/authStore";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const Register = () => {
   const router = useRouter();
@@ -104,33 +104,24 @@ const Register = () => {
         },
       });
       // On successful registration
-      router.push("/verify-email");
+      router.push("/login");
 
     } catch (error: any) {
       // Error is already handled in the store
-      console.error("Registration error:", error);
-      const backendMessage = error?.response?.data?.message?.[0];
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during registration";
 
       if (error?.response?.data?.message?.includes("email")) {
         setEmailError(backendMessage || fallbackMessage);
       } else {
-        setPasswordError(backendMessage || fallbackMessage);
+        setPasswordError(backendMessage || backendMessageTwo || fallbackMessage);
       }
     }
   };
 
   return (
     <div className="flex m-auto max-w-[100%] sm:max-w-[1440px] h-[1024px]">
-      <Toaster
-        toastOptions={{
-          style: {
-            fontFamily: 'inherit',
-            fontSize: '14px',
-          },
-          duration: 4000,
-        }}
-      />
       <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
         <AuthSlider />
       </div>
@@ -222,7 +213,7 @@ const Register = () => {
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    className={`mr-2 cursor-pointer ${passwordError === "You must agree to the terms and conditions" ? "border-red-500" : ""
+                    className={`mr-2 cursor-pointer bg-BlueHomz ${passwordError === "You must agree to the terms and conditions" ? "border-red-500" : ""
                       }`}
                     checked={formData.agreedToTerms}
                     onChange={() => handleInputChange("agreedToTerms", !formData.agreedToTerms)}
@@ -260,11 +251,11 @@ const Register = () => {
                 {isSigningUP ? <DotLoader /> : "Get Started"}
               </button>
             </form>
-            <span className="font-normal w-full text-center text-sm text-GrayHomz">
+            {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
               OR
-            </span>
+            </span> */}
             <div className="mt-[-5px]">
-              <button
+              {/* <button
                 className="border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz"
                 type="button"
               >
@@ -275,7 +266,7 @@ const Register = () => {
                   width={20}
                 />
                 Sign Up with Google
-              </button>
+              </button> */}
               <p className="mt-4 text-center font-[400] text-[14px]">
                 Already have an account?{" "}
                 <Link

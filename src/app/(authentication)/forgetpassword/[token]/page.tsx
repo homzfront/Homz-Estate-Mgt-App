@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import AuthSlider from "@/components/auth/authSlider";
 import { useSearchParams } from "next/navigation";
 import { storeToken } from "@/utils/cookies";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import api from "@/utils/api";
 import DotLoader from "@/components/general/dotLoader";
 
@@ -67,30 +67,18 @@ const ResetPassword = () => {
         token: token as any,
       });
 
-      const response = await api.put("/auth/reset-password", {
+      await api.put("/auth/reset-password", {
         token,
         newPassword: formData.password,
         confirmPassword: formData.repassword
       });
-      console.log(response)
-
-      // if (!response.ok) {
-      //   throw new Error(data.message || 'Failed to reset password');
-      // }
-
-      // // Store tokens if they're returned in the response
-      // if (data.accessToken && data.refreshToken) {
-      //   await storeToken({
-      //     token: data.accessToken,
-      //     refresh_token: data.refreshToken,
-      //   });
-      // }
-
       toast.success("Password reset successfully!");
       setSuccPass(true);
     } catch (error: any) {
-      setPasswordError(error.message || "An error occurred");
-      toast.error(error.message || "Failed to reset password");
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "Failed to reset password.";
+      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
     } finally {
       setLoading(false);
     }
@@ -98,16 +86,6 @@ const ResetPassword = () => {
 
   return (
     <div className={`${loading ? "pointer-events-none" : ""}`}>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontFamily: 'inherit',
-            fontSize: '14px',
-          },
-          duration: 4000,
-        }}
-      />
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />
@@ -187,9 +165,9 @@ const ResetPassword = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                     className={`bg-BlueHomz mt-7 text-white font-[700] text-[16px] w-full rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
+                      className={`bg-BlueHomz mt-7 text-white font-[700] text-[16px] w-full rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
                         }`}
-                     >
+                    >
                       {loading ? <DotLoader /> : "Reset Password"}
                     </button>
                   </form>

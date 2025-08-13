@@ -27,10 +27,9 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-
         // Check for token expiration errors
         if (
-            (error.response?.data?.message === "jwt expired" ||
+            ((error.response?.data?.message?.[0] === "Token expired. Please login again." || error.response?.data?.message === "Token expired. Please login again.") &&
                 error.response?.status === 401) &&
             !originalRequest._retry
         ) {
@@ -60,23 +59,33 @@ api.interceptors.response.use(
                     }
                 );
 
-                const { message, success, data } = refreshResponse.data;
+                const { success, data } = refreshResponse.data;
+                if (success === true) {
+                    // Store the new tokens
+                    await storeToken({
+                        token: data?.accessToken,
+                        refresh_token: data?.refreshToken,
+                    });
 
-                // Store the new tokens
-                await storeToken({
-                    token: data?.accessToken,
-                    refresh_token: data?.refreshToken,
-                });
+                    // Update Authorization header
+                    api.defaults.headers.common.Authorization = `Bearer ${data?.accessToken}`;
+                    originalRequest.headers.Authorization = `Bearer ${data?.accessToken}`;
 
-                // Update Authorization header
-                api.defaults.headers.common.Authorization = `Bearer ${data?.accessToken}`;
-                originalRequest.headers.Authorization = `Bearer ${data?.accessToken}`;
+                    // Process queued requests
+                    failedRequestsQueue.forEach((prom) => prom.resolve(data?.accessToken));
+                    failedRequestsQueue = [];
 
-                // Process queued requests
-                failedRequestsQueue.forEach((prom) => prom.resolve(data?.accessToken));
-                failedRequestsQueue = [];
-
-                return api(originalRequest);
+                    return api(originalRequest);
+                } 
+                // else {
+                //     // If refresh fails, clear tokens and redirect to login
+                //     await deleteToken();
+                //     if (typeof window !== "undefined") {
+                //         setTimeout(() => {
+                //             window.location.href = "/login";
+                //         }, 3000);
+                //     }
+                // }
             } catch (refreshError) {
                 // If refresh fails, clear tokens and redirect to login
                 await deleteToken();

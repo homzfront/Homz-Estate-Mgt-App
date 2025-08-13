@@ -15,10 +15,12 @@ import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
 import PickEstate from '../components/pickEstate';
+// import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
+    // const user = useAuthSlice((state) => state.userData);
     const userData = useUserStore((state) => state.userData);
     const router = useRouter();
 

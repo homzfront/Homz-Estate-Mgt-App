@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import AuthSlider from "@/components/auth/authSlider";
 import api from "@/utils/api";
 import { useAuthSlice } from "@/store/authStore";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import DotLoader from "@/components/general/dotLoader";
 
 const VerifyEmail = () => {
@@ -23,7 +23,6 @@ const VerifyEmail = () => {
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
-  const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(false);
 
   const startTimer = () => {
     setSeconds(60);
@@ -80,14 +79,18 @@ const VerifyEmail = () => {
       setError2("");
       setLoading(false);
     } catch (error: any) {
-      setError2(error.response?.data?.error || "An error occurred");
+      const backendMessage = error?.response?.data?.message;
+      const backendMes = error?.response?.data?.error;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "An error occurred";
+      setError2(backendMessage || backendMessageTwo || backendMes || fallbackMessage);
       setError(true);
       setLoading(false);
     }
   };
 
-  const ResendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const ResendOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setResend(true);
     try {
       // Create a token on the fly
@@ -107,10 +110,20 @@ const VerifyEmail = () => {
       startTimer();
       setResend(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to resend OTP");
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "Failed to resend OTP";
+
+      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
       setResend(false);
     }
   };
+
+  
+  useEffect(() => {
+    startTimer()
+  }, [])
+
 
   const handleEmailVerification = (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,21 +169,6 @@ const VerifyEmail = () => {
 
   const isOTPComplete = otp.every((digit) => /^\d$/.test(digit));
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-
-    if (loading) {
-      timer = setTimeout(() => {
-        setShowLongLoadingMessage(true);
-      }, 20000);
-    } else {
-      setShowLongLoadingMessage(false);
-    }
-
-    return () => clearTimeout(timer);
-  }, [loading]);
-
-
   // Initialize the refs array in useEffect
   useEffect(() => {
     inputRefs.current = inputRefs.current.slice(0, otp.length);
@@ -180,15 +178,6 @@ const VerifyEmail = () => {
 
   return (
     <div className="">
-      <Toaster
-        toastOptions={{
-          style: {
-            fontFamily: 'inherit',
-            fontSize: '14px',
-          },
-          duration: 4000,
-        }}
-      />
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />

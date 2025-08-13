@@ -6,14 +6,14 @@ import api from "@/utils/api";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, FormEvent } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [sentEmail, setSentMail] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -33,10 +33,11 @@ const ForgotPassword = () => {
         toast.error(response.data.message || "Failed to send reset link");
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "An error occurred";
-      setEmailError(errorMessage);
-      toast.error(errorMessage);
-      console.error(error);
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "An error occurred.";
+      setEmailError(backendMessage || backendMessageTwo || fallbackMessage);
+      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
     } finally {
       setLoading(false);
     }
@@ -54,23 +55,15 @@ const ForgotPassword = () => {
         toast.error(response.data.message || "Failed to resend reset link");
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "An error occurred";
-      toast.error(errorMessage);
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "An error occurred.";
+      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
     }
   };
 
   return (
     <div className="">
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            fontFamily: 'inherit',
-            fontSize: '14px',
-          },
-          duration: 4000,
-        }}
-      />
       <div className="flex m-auto max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />

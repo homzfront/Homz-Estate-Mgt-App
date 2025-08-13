@@ -1,10 +1,14 @@
 'use client';
-
+import { removeEmptyFields } from '@/app/utils/removeEmptyFields';
+import DotLoader from '@/components/general/dotLoader';
 import ArrowLeft from '@/components/icons/arrowRight';
+import { useAuthSlice } from '@/store/authStore';
+import api from '@/utils/api';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import toast from "react-hot-toast";
 
 type FormValues = {
     firstName: string;
@@ -15,6 +19,8 @@ type FormValues = {
 };
 
 const EstateManagerRegistration = () => {
+    const [loading, setLoading] = React.useState(false);
+    const {setUserAccountDetails} = useAuthSlice()
     const {
         register,
         handleSubmit,
@@ -23,9 +29,68 @@ const EstateManagerRegistration = () => {
 
     const router = useRouter();
 
-    const onSubmit = async () => {
-        router.push("/dashboard")
-    }
+    const onSubmit = async (data: FormValues) => {
+        setLoading(true);
+        try {
+
+            // Prepare the payload in the required format
+            const payload = {
+                personal: {
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    phoneNumber: data.phoneNumber
+                },
+                business: {
+                    businessName: data.businessName || '',
+                    businessAddress: data.businessAddress || ''
+                }
+            };
+
+            // POST request to create profile
+            await api.post("/community-manager/create-profile", removeEmptyFields(payload));
+
+            // Show success toast
+            toast.success("Account created!", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#E8F5E9",
+                    color: "#2E7D32",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+
+            // GET request to fetch current profile
+            const currentProfileResponse = await api.get('/community-manager/current-profile');
+            setUserAccountDetails(currentProfileResponse?.data?.data)
+
+            // Redirect to dashboard on success
+            router.push("/dashboard");
+        } catch (error: any) {
+            console.log(error)
+            const majorBackendError = error?.response?.data?.errors?.[0]?.message
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "An error occurred during login";
+          
+            // Show toast notification
+            toast.error(
+                majorBackendError ||
+                backendMessage ||
+                backendMessageTwo ||
+                fallbackMessage,
+                {
+                    position: "top-center",
+                    duration: 5000,
+                }
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen">
@@ -151,9 +216,11 @@ const EstateManagerRegistration = () => {
                     <div className="mt-10 w-full flex justify-end">
                         <button
                             type="submit"
-                            className="w-full md:w-auto items-center text-center bg-BlueHomz text-white py-3 rounded-[4px] hover:bg-BlueHomzDark transition duration-200 focus:outline-none focus:ring-2 focus:ring-BlueHomz focus:ring-offset-2"
+                            className={`w-full md:w-auto md:min-w-[225px] items-center text-center bg-BlueHomz text-white py-3 rounded-[4px] hover:bg-BlueHomzDark transition duration-200 focus:outline-none focus:ring-2 focus:ring-BlueHomz focus:ring-offset-2
+                            ${loading ? "pointer-events-none flex justify-center h-[48px]" : ""}
+                            `}
                         >
-                            <span className='flex gap-1 items-center justify-center px-4 text-center'>Proceed to Dashboard <ArrowLeft /></span>
+                            <span className='flex gap-1 items-center justify-center px-4 text-center'> {loading ? <DotLoader /> : <>Proceed to Dashboard <ArrowLeft /></>}</span>
                         </button>
                     </div>
                 </form>
@@ -162,4 +229,4 @@ const EstateManagerRegistration = () => {
     )
 }
 
-export default EstateManagerRegistration
+export default EstateManagerRegistration;

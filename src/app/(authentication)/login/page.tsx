@@ -10,20 +10,18 @@ import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
 import { storeToken } from "@/utils/cookies";
 import api from "@/utils/api";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useAuthSlice } from "@/store/authStore";
-// import { useAuthSlice } from "@/store/authStore";
 
 
 const Login = () => {
-  // const { setUserData } = useAuthSlice();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const {setUserData} = useAuthSlice()
+  const { setUserData } = useAuthSlice()
   const handleGoogleSignIn = () => {
     // Empty function as requested
   };
@@ -51,8 +49,7 @@ const Login = () => {
         "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character"
       );
       return;
-    }
-
+    };
 
     setLoading(true);
 
@@ -63,16 +60,27 @@ const Login = () => {
       });
 
       const { message, success, data } = response.data;
-
       if (!success) {
         throw new Error(message || "Login failed");
       }
-      // setUserData(data?.userId)
+
+      // Store user email
+      setUserData({
+        email: email
+      })
+
       // Store tokens using the right keys
       await storeToken({
         token: data.accessToken,
         refresh_token: data.refreshToken,
       });
+
+      // Fetch user profile
+      const profile = await api.get("/auth/current-user");
+
+      // Store user data
+      setUserData(profile.data.data);
+
       // Show success toast
       toast.success("Login successful!", {
         position: "top-center",
@@ -86,18 +94,23 @@ const Login = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
-
-      setUserData({
-        email: email
-      })
-      // Redirect to dashboard or home page
-      router.push("/dashboard");
+      if (profile?.data?.data?.accounts?.length === 0) {
+        // Redirect to profile
+        router.push("/select-profile")
+      } else {
+        // Redirect to dashboard 
+        router.push("/dashboard");
+      }
     } catch (error: any) {
-      const backendMessage = error?.response?.data?.message?.[0];
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during login";
 
-      setLoginError(backendMessage || fallbackMessage);
-
+      if (backendMessage === "Account is not verified. Please verify your account.") {
+        router.push("/verify-email")
+      } else {
+        setLoginError(backendMessage || backendMessageTwo || fallbackMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -109,18 +122,6 @@ const Login = () => {
 
   return (
     <div className="">
-      {/* Add Toaster component at the root of your page */}
-      <Toaster
-        toastOptions={{
-          // Default options for all toasts
-          style: {
-            fontFamily: 'inherit',
-            fontSize: '14px',
-          },
-          // Default duration
-          duration: 4000,
-        }}
-      />
       <div className="flex m-auto max-w-full sm:max-w-[1440px] h-[1024px]">
         <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">
           <AuthSlider />
@@ -207,11 +208,11 @@ const Login = () => {
                 </button>
               </form>
 
-              <span className="font-normal w-full text-center text-sm text-GrayHomz">
+              {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
                 OR
-              </span>
+              </span> */}
               <div className="mt-[-5px]">
-                <button
+                {/* <button
                   onClick={handleGoogleSignIn}
                   className={`border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
                     }`}
@@ -223,7 +224,7 @@ const Login = () => {
                     width={20}
                   />
                   Login In with google
-                </button>
+                </button> */}
 
                 <p className="mt-4 text-center font-[400] text-[14px]">
                   Didn&apos;t have an account?

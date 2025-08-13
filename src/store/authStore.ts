@@ -12,7 +12,12 @@ export interface RegisterUser {
 
 export interface UserObject {
     email: string;
-    userId: string;
+    userId?: string;
+    _id?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    isVerified?: boolean;
+    accounts?: any;
 }
 
 export interface AuthResponse {
@@ -20,6 +25,35 @@ export interface AuthResponse {
     userId: any;
     access_token: string;
     refresh_token?: string;
+}
+
+export interface AccountDetailsType {
+    _id: string;
+    userId: string;
+    email: string;
+    personal: {
+        firstName: string;
+        lastName: string;
+        phoneNumber: string;
+    },
+    isActive: boolean;
+    isDeleted: boolean;
+    deleted: boolean;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+    organization: {
+        _id: string;
+        name: string;
+        communityManagerId: string;
+        userId: string;
+        isActive: boolean;
+        isDeleted: boolean;
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+    }
 }
 
 export interface AuthState {
@@ -30,7 +64,9 @@ export interface AuthState {
     logOutUser: () => Promise<void>;
     createUser: (payload: RegisterUser) => Promise<AuthResponse>;
     clearError: () => void;
-    setUserData: (data: any) => void;
+    setUserData: (data: UserObject) => void;
+    userAccountDetails: AccountDetailsType | null;
+    setUserAccountDetails: (data: AccountDetailsType) => void
 }
 
 export const useAuthSlice = create<AuthState>()(
@@ -79,7 +115,6 @@ export const useAuthSlice = create<AuthState>()(
                     // Update state with user data
                     set({
                         userData: {
-                            userId: data?.userId,
                             email: payload?.email
                         }
                     });
@@ -99,6 +134,9 @@ export const useAuthSlice = create<AuthState>()(
                     set({ isSigningUP: false });
                 }
             },
+
+            userAccountDetails: null,
+            setUserAccountDetails: ((data) => set({ userAccountDetails: data })),
 
             clearError: () => set({ error: null })
         }),
