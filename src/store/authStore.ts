@@ -66,6 +66,8 @@ export interface AuthState {
     clearError: () => void;
     setUserData: (data: UserObject) => void;
     userAccountDetails: AccountDetailsType | null;
+    getCommunityManaProfile: () => Promise<void>;
+    communityProfile: any;
     setUserAccountDetails: (data: AccountDetailsType) => void
 }
 
@@ -75,6 +77,7 @@ export const useAuthSlice = create<AuthState>()(
             userData: null,
             isLoggingIN: false,
             isSigningUP: false,
+            communityProfile: null,
             error: null,
             setUserData: ((data) => set({ userData: data })),
             logOutUser: async () => {
@@ -133,6 +136,24 @@ export const useAuthSlice = create<AuthState>()(
                 } finally {
                     set({ isSigningUP: false });
                 }
+            },
+            getCommunityManaProfile: async () => {
+                try {
+                    const response = await api.get("/community-manager/current-profile");
+
+                    // Axios puts your parsed data here
+                    const data = response.data.data;
+
+                    // Update state with communityProfile
+                    set({
+                        communityProfile: data
+                    });
+
+                } catch (error: any) {
+                    console.error('failed to fetch community manager profile:', error);
+                    set({ error: error.message || 'failed' });
+                    throw error;
+                } 
             },
 
             userAccountDetails: null,

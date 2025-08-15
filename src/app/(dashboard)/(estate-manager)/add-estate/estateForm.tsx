@@ -26,7 +26,7 @@ const EstateForm = () => {
 
     // zustand for state 
     const { chooseState } = useStateStore();
-    const { userData } = useAuthSlice();
+    const { communityProfile } = useAuthSlice();
 
     // normal states
     const [active, setActive] = React.useState<number>(0);
@@ -120,13 +120,12 @@ const EstateForm = () => {
             setLoading(true);
             // First, create the estate
             const createEstateResponse = await api.post(`/estates/create-estate`, payload);
-            console.log("response:", createEstateResponse?.data)
 
             if (createEstateResponse?.data) {
                 const estateData = createEstateResponse?.data?.data
 
                 const estateId = estateData._id; // Adjust based on your API response
-                const estateManId = userData?._id
+                const estateManId = estateData?.associatedIds?.organizationId
                 // Then upload the cover photo if it exists
                 if (coverPhoto) {
                     // Convert data URL to blob
@@ -135,7 +134,7 @@ const EstateForm = () => {
                     const formData = new FormData();
                     formData.append('coverImage', blob, 'cover-photo.jpg');
 
-                    await api.patch(`/estates/upload/single/cover-photo/${estateId}/${estateManId}`, formData);
+                    await api.patch(`/estates/upload/single/cover-photo/${estateManId}/${estateId}`, formData);
                 }
 
             }

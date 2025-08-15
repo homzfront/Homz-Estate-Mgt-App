@@ -15,6 +15,7 @@ import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
 import PickEstate from '../components/pickEstate';
+import { useAuthSlice } from '@/store/authStore';
 // import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
@@ -23,6 +24,12 @@ const Dashboard = () => {
     // const user = useAuthSlice((state) => state.userData);
     const userData = useUserStore((state) => state.userData);
     const router = useRouter();
+    const { getCommunityManaProfile } = useAuthSlice();
+
+    // Load state 
+    React.useEffect(() => {
+        getCommunityManaProfile()
+    }, []);
 
     return (
         <div className='mb-[150px]'>
