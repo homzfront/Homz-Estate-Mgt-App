@@ -19,7 +19,7 @@ const useAreaStore = create<AreaStore>((set) => ({
   chooseArea: async (state: string) => {
     set({ loading: true, success: false, error: null, areaData: null });
     try {
-      const response = await api.post<{ data: any[] }>(
+      const response = await api.get<{ data: any[] }>(
         `/state-area/find-state/${state}/area`
       );
       set({ loading: false, success: true, areaData: response.data.data });

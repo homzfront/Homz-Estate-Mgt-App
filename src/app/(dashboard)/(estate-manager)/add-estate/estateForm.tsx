@@ -13,6 +13,7 @@ import AddStreet from './components/addStreet'
 import AddBuilding from './components/addBuilding'
 import AppApartment from './components/appApartment'
 import useStateStore from '@/store/useStateAndAreaStore/useStateStore'
+import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
 
 const EstateForm = () => {
     // react components
@@ -27,19 +28,10 @@ const EstateForm = () => {
     const [completedSteps, setCompletedSteps] = React.useState<number[]>([]);
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
     const setUserData = useUserStore((state) => state.setUserData);
-    const [formData, setFormData] = React.useState({
-        estateName: '',
-        estateLocation: '',
-        area: '',
-        state: '',
-        managerPhone: '',
-        utilityPhone: '',
-        accountNumber: '',
-        bankName: '',
-        accountName: '',
-        emergencyPhone: '',
-        securityPhone: ''
-    });
+    const {
+        formData,
+        setFormData,
+    } = useEstateFormStore();
 
     // Load state 
     React.useEffect(() => {
@@ -97,11 +89,8 @@ const EstateForm = () => {
         }
     };
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+    const handleInputChange = (field: keyof EstateFormData, value: string) => {
+        setFormData({ [field]: value });
     };
 
     const renderFormContent = () => {
@@ -116,29 +105,21 @@ const EstateForm = () => {
             case 1:
                 return (
                     <AddZone
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 2:
                 return (
                     <AddStreet
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 3:
                 return (
                     <AddBuilding
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 4:
                 return (
                     <AppApartment
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             default:
