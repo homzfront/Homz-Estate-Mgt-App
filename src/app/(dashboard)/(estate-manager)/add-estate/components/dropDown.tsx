@@ -85,12 +85,12 @@ const Dropdown: React.FC<DropdownProps> = ({
                     <div className="overflow-y-auto flex-1 scrollbar-container">
                         {isLoading ? (
                             <div className="p-4 text-center text-GrayHomz">Loading...</div>
-                        ) : filteredOptions.length === 0 ? (
+                        ) : filteredOptions?.length === 0 || !filteredOptions ? (
                             <div className="p-4 text-center text-GrayHomz">
                                 No options found
                             </div>
                         ) : (
-                            filteredOptions.map((option, index) => (
+                            filteredOptions?.map((option, index) => (
                                 <div
                                     key={index}
                                     className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm ${selectedOption === option

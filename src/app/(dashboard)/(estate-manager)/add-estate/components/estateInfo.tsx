@@ -33,8 +33,6 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
     } = useEstateFormStore();
     const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
 
-    console.log("formData:", formData)
-
     React.useEffect(() => {
         if (formData?.state) {
             chooseArea(formData?.state)
@@ -74,8 +72,6 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
         setCoverPhoto(null);
     };
 
-    console.log("coverImage:", formData?.coverPhoto)
-
     return (
         <div className="mt-8 space-y-6">
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -96,7 +92,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                                 options={areaData as any}
                                 isLoading={loadingArea}
                                 onSelect={(option) => handleInputChange('area', option)}
-                                selectOption="Select Area"
+                                selectOption={formData?.area ? formData?.area : "Select Area"}
                                 borderColor='border-[#A9A9A9]'
                                 arrowColor='#A9A9A9'
                             />
@@ -104,7 +100,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                                 options={stateList as any}
                                 isLoading={loading}
                                 onSelect={(option) => handleInputChange('state', option)}
-                                selectOption="Select State"
+                                selectOption={formData?.state ? formData?.state : "Select State"}
                                 borderColor='border-[#A9A9A9]'
                                 arrowColor='#A9A9A9'
                             />
