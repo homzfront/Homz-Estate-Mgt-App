@@ -24,6 +24,7 @@ import React from 'react'
 import PickEstate from './pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
 import { useAuthSlice } from '@/store/authStore';
+import api from '@/utils/api';
 
 const Data = [
     {
@@ -151,13 +152,39 @@ const More = [
 
 const Sidebar = () => {
     const router = useRouter();
-    const { logOutUser } = useAuthSlice()
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState(false);
     const [subMoreOpen, setSubMoreOpen] = React.useState(false);
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [selectedName, setSelecetedName] = React.useState(null);
     const closeRef = React.useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const { logOutUser, setEstatesData, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
+
+    const getEstates = async () => {
+        try {
+            setLoading(true)
+            const response = await api.get(`/estates/all-estates/${communityProfile?.organization
+                ?._id}/${communityProfile?._id}`)
+            setEstatesData(response?.data?.data?.estates);
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false);
+        }
+    }
+    // Load state 
+    React.useEffect(() => {
+        getCommunityManaProfile()
+    }, []);
+
+
+    React.useEffect(() => {
+        getEstates()
+    }, [communityProfile]);
+
+    console.log(communityProfile);
+    console.log(estatesData)
 
     useClickOutside(closeRef as any, () => {
         setOpenEstateList(false);
@@ -216,27 +243,29 @@ const Sidebar = () => {
                         />
                     </Link>
 
-                    {userData ?
-                        <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
-                            <div className='flex gap-2 items-center'>
-                                <div className="w-6 h-6 rounded-full overflow-hidden">
-                                    <Image
-                                        src={"/houses.jpg"}
-                                        alt={"estate-img"}
-                                        width={24}
-                                        height={24}
-                                        className="object-cover w-full h-full"
-                                    />
+                    {loading ?
+                        <div>Loading...</div> :
+                        estatesData ?
+                            <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                                <div className='flex gap-2 items-center'>
+                                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                                        <Image
+                                            src={"/houses.jpg"}
+                                            alt={"estate-img"}
+                                            width={24}
+                                            height={24}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    </div>
+                                    Golden Palms Estate
                                 </div>
-                                Golden Palms Estate
-                            </div>
-                            <div className='mt-1.5'>
-                                <ArrowDown size={20} className='#4E4E4E' />
-                            </div>
-                        </button>
-                        : <button onClick={() => router.push("/add-estate")} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
-                            <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
-                        </button>
+                                <div className='mt-1.5'>
+                                    <ArrowDown size={20} className='#4E4E4E' />
+                                </div>
+                            </button>
+                            : <button onClick={() => router.push("/add-estate")} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                                <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
+                            </button>
                     }
                     <div className="flex flex-col gap-3 mb-[50px] mt-10">
                         {Data.map((data) =>

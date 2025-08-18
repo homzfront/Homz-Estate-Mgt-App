@@ -23,7 +23,6 @@ const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
-    const userData = useUserStore((state) => state.userData);
     const router = useRouter();
     const { setEstatesData, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
 
