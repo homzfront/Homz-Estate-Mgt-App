@@ -69,7 +69,61 @@ export interface AuthState {
     getCommunityManaProfile: () => Promise<void>;
     communityProfile: any;
     setUserAccountDetails: (data: AccountDetailsType) => void
+    estatesData: Community | null;
+    setEstatesData: (data: Community) => void;
 }
+
+export interface Community {
+    _id: string;
+    associatedIds: {
+        userId: string;
+        communityManagerId: string;
+        organizationId: string;
+    };
+    basicDetails: {
+        name: string;
+        location: {
+            area: string;
+            state: string;
+        };
+    };
+    contactInformation: {
+        managerPhone: string;
+        emergencyPhone: string;
+        utilityServicesPhone: string;
+        securityPhone: string;
+    };
+    bankDetails: {
+        accountNumber: string;
+        accountName: string;
+        bankName: string;
+    };
+    zones: {
+        name: string;
+    }[];
+    streets: {
+        name: string;
+        zone: string;
+    }[];
+    buildings: {
+        name: string;
+        street: string;
+        zone: string;
+    }[];
+    apartments: {
+        name: string;
+        building: string;
+        street: string;
+        zone: string;
+    }[];
+    isActive: boolean;
+    isDeleted: boolean;
+    deleted: boolean;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+    __v: number;
+}
+
 
 export const useAuthSlice = create<AuthState>()(
     persist(
@@ -79,6 +133,8 @@ export const useAuthSlice = create<AuthState>()(
             isSigningUP: false,
             communityProfile: null,
             error: null,
+            estatesData: null,
+            setEstatesData: ((data) => set({ estatesData: data })),
             setUserData: ((data) => set({ userData: data })),
             logOutUser: async () => {
                 try {
@@ -153,7 +209,7 @@ export const useAuthSlice = create<AuthState>()(
                     console.error('failed to fetch community manager profile:', error);
                     set({ error: error.message || 'failed' });
                     throw error;
-                } 
+                }
             },
 
             userAccountDetails: null,

@@ -3,12 +3,15 @@
 import AddIcon from '@/components/icons/addIcon'
 import DeleteIcon from '@/components/icons/deleteIcon'
 import EstateInfoIcon from '@/components/icons/estateInfoIcon'
+import { useAuthSlice } from '@/store/authStore'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-const PickEstate = ({closeRef}: any) => {
+const PickEstate = ({ closeRef }: any) => {
+    const { userData } = useAuthSlice();
     const router = useRouter();
+    console.log(userData)
     return (
         <div ref={closeRef} className='p-4 rounded-[12px] bg-inputBg md:w-[350px] min-w-[340px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
             <div className='bg-white rounded-[12px] p-3'>
