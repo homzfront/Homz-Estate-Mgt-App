@@ -159,7 +159,7 @@ const Sidebar = () => {
     const [selectedName, setSelecetedName] = React.useState(null);
     const closeRef = React.useRef<HTMLDivElement>(null);
     const [loading, setLoading] = React.useState<boolean>(false);
-    const { logOutUser, setEstatesData, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
+    const { logOutUser, setEstatesData, estatesData, communityProfile } = useAuthSlice();
 
     const getEstates = async () => {
         try {
@@ -173,11 +173,6 @@ const Sidebar = () => {
             setLoading(false);
         }
     }
-    // Load state 
-    React.useEffect(() => {
-        getCommunityManaProfile()
-    }, []);
-
 
     React.useEffect(() => {
         getEstates()
