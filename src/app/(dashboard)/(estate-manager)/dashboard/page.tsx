@@ -6,7 +6,6 @@ import EmptyEstateIcon from '@/components/icons/estateManager&Resident/desktop/e
 import RegisterTenantIcon from '@/components/icons/estateManager&Resident/desktop/registerTenantIcon';
 import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/mobile/registerTenantIcon';
 import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
-import { useUserStore } from '@/store/useUserStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react'
@@ -16,14 +15,13 @@ import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
 import PickEstate from '../components/pickEstate';
 import { useAuthSlice } from '@/store/authStore';
-import api from '@/utils/api';
 // import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
-    const {  communityProfile, getCommunityManaProfile } = useAuthSlice();
+    const { estatesData, getCommunityManaProfile } = useAuthSlice();
     // Load state 
     React.useEffect(() => {
         getCommunityManaProfile()
@@ -36,7 +34,7 @@ const Dashboard = () => {
                     <PickEstate />
                 </CustomModal>
             }
-            {communityProfile ?
+            {estatesData && estatesData?.length > 0 ?
                 <div className='p-8'>
                     <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
                         <div className='flex gap-2 items-center'>
@@ -49,7 +47,7 @@ const Dashboard = () => {
                                     className="object-cover w-full h-full"
                                 />
                             </div>
-                            Golden Palms Estate
+                          {estatesData?.[0]?.basicDetails?.name as any}
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
@@ -92,7 +90,7 @@ const Dashboard = () => {
                     <div className={`mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] p-4 ${data ? "h-auto" : "h-[450px] md:h-[600px]"}`}>
                         <h3 className='text-sm font-medium text-GrayHomz'>Access Control</h3>
                         {
-                            data ?
+                            estatesData && estatesData?.length > 0 ?
                                 <div>
                                     <Table />
                                 </div>

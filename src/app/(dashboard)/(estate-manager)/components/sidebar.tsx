@@ -158,7 +158,7 @@ const Sidebar = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [selectedName, setSelecetedName] = React.useState(null);
     const closeRef = React.useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = React.useState<boolean>(false);
+    const [loading, setLoading] = React.useState<boolean>(true);
     const { logOutUser, setEstatesData, estatesData, communityProfile } = useAuthSlice();
 
     const getEstates = async () => {
@@ -175,7 +175,7 @@ const Sidebar = () => {
     }
 
     React.useEffect(() => {
-        getEstates()
+      if(communityProfile)  getEstates()
     }, [communityProfile]);
 
     console.log(communityProfile);
@@ -239,8 +239,8 @@ const Sidebar = () => {
                     </Link>
 
                     {loading ?
-                        <div>Loading...</div> :
-                        estatesData ?
+                        <div className='text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px]'>Loading...</div> :
+                        estatesData && estatesData?.length > 0 ?
                             <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                                 <div className='flex gap-2 items-center'>
                                     <div className="w-6 h-6 rounded-full overflow-hidden">
@@ -252,7 +252,7 @@ const Sidebar = () => {
                                             className="object-cover w-full h-full"
                                         />
                                     </div>
-                                    Golden Palms Estate
+                                   {estatesData?.[0]?.basicDetails?.name as any}
                                 </div>
                                 <div className='mt-1.5'>
                                     <ArrowDown size={20} className='#4E4E4E' />

@@ -69,8 +69,8 @@ export interface AuthState {
     getCommunityManaProfile: () => Promise<void>;
     communityProfile: any;
     setUserAccountDetails: (data: AccountDetailsType) => void
-    estatesData: Community | null;
-    setEstatesData: (data: Community) => void;
+    estatesData: Community[] | null;
+    setEstatesData: (data: Community[]) => void;
 }
 
 export interface Community {
