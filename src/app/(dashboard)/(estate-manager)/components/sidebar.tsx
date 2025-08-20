@@ -24,7 +24,8 @@ import React from 'react'
 import PickEstate from './pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
 import { useAuthSlice } from '@/store/authStore';
-import api from '@/utils/api';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useEstateFormStore } from '@/store/useEstateFormStore';
 
 const Data = [
     {
@@ -158,28 +159,20 @@ const Sidebar = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [selectedName, setSelecetedName] = React.useState(null);
     const closeRef = React.useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = React.useState<boolean>(true);
-    const { logOutUser, setEstatesData, estatesData, communityProfile } = useAuthSlice();
-
-    const getEstates = async () => {
-        try {
-            setLoading(true)
-            const response = await api.get(`/estates/all-estates/${communityProfile?.organization
-                ?._id}/${communityProfile?._id}`)
-            setEstatesData(response?.data?.data?.estates);
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false);
-        }
-    }
+    const { clearForm } = useEstateFormStore()
+    const { logOutUser, getEstates, estatesData, communityProfile } = useAuthSlice();
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
     React.useEffect(() => {
-      if(communityProfile)  getEstates()
-    }, [communityProfile]);
+        if (!selectedCommunity && estatesData && estatesData.length > 0) {
+            setSelectedCommunity(estatesData[0]); // default first estate
+        }
+    }, [selectedCommunity, estatesData, setSelectedCommunity]);
 
-    console.log(communityProfile);
-    console.log(estatesData)
+    React.useEffect(() => {
+        if (communityProfile) getEstates()
+    }, [communityProfile]);
 
     useClickOutside(closeRef as any, () => {
         setOpenEstateList(false);
@@ -190,7 +183,6 @@ const Sidebar = () => {
         setSubOpen(!subOpen);
         setSelecetedName(name)
     };
-    const userData = useUserStore((state) => state.userData);
 
     const toggleSubMore = (name: any) => {
         setSubMoreOpen(!subMoreOpen);
@@ -222,9 +214,6 @@ const Sidebar = () => {
                         <PickEstate closeRef={closeRef} />
                     </div>
                 </div>
-                //  <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
-                //  <PickEstate />
-                // </CustomModal>
             )}
 
             <div className="shadow-lg">
@@ -238,29 +227,41 @@ const Sidebar = () => {
                         />
                     </Link>
 
-                    {loading ?
-                        <div className='text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px]'>Loading...</div> :
-                        estatesData && estatesData?.length > 0 ?
-                            <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
-                                <div className='flex gap-2 items-center'>
-                                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                    {estatesData && estatesData?.length > 0 && selectedCommunity &&
+                        <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                            <div className='flex gap-2 items-center'>
+                                <div className="w-6 h-6 rounded-full overflow-hidden">
+                                    {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                        <Image
+                                            src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                            alt={"estate-img"}
+                                            width={40}
+                                            height={40}
+                                            className="object-cover w-full h-full"
+                                        /> :
                                         <Image
                                             src={"/houses.jpg"}
                                             alt={"estate-img"}
-                                            width={24}
-                                            height={24}
+                                            width={40}
+                                            height={40}
                                             className="object-cover w-full h-full"
                                         />
-                                    </div>
-                                   {estatesData?.[0]?.basicDetails?.name as any}
+                                    }
                                 </div>
-                                <div className='mt-1.5'>
-                                    <ArrowDown size={20} className='#4E4E4E' />
-                                </div>
-                            </button>
-                            : <button onClick={() => router.push("/add-estate")} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
-                                <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
-                            </button>
+                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
+                            </div>
+                            <div className='mt-1.5'>
+                                <ArrowDown size={20} className='#4E4E4E' />
+                            </div>
+                        </button>
+                    }
+                    {(communityProfile && estatesData?.length === 0) &&
+                        <button onClick={() => {
+                            clearForm()
+                            router.push("/add-estate")
+                        }} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                            <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
+                        </button>
                     }
                     <div className="flex flex-col gap-3 mb-[50px] mt-10">
                         {Data.map((data) =>

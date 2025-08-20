@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
+import DotLoader from '@/components/general/dotLoader';
 
 interface UpdateButtonProps {
     updateDone: (e: React.FormEvent) => Promise<void>;
@@ -31,7 +32,7 @@ const UpdateButtonPassword = ({ updateDone, doneUpdate, setDoneUpdate, loading, 
         <div className="">
             <div className="mt-[5%] flex justify-end">
                 <button onClick={handleUpdate} className="w-full md:w-auto text-[14px] font-[500] h-[42px] px-4 rounded-md text-white bg-BlueHomz flex justify-center items-center">
-                   Save Update
+                    Save Update
                 </button>
             </div>
             <CustomModal isOpen={showDialogue} onRequestClose={() => setShowDialogue(false)}>
@@ -73,15 +74,16 @@ const UpdateButtonPassword = ({ updateDone, doneUpdate, setDoneUpdate, loading, 
                                     <button
                                         onClick={
                                             updateDone}
-                                        className={`mt-2 h-[48px] rounded-md w-full bg-BlueHomz text-white text-[16px] font-[500] ${loading ? "pointer-events-none w-full flex justify-center" : ""} `}
+                                        className={`mt-4 h-[48px] px-4 rounded-md w-full bg-BlueHomz text-white text-[16px] font-[500] ${loading ? "pointer-events-none w-full flex justify-center items-center" : ""} `}
                                     >
-                                        Yes
+                                        {loading ? <DotLoader /> : "Yes"}
                                     </button>
                                     <button
                                         onClick={
                                             returnHomeTwo
                                         }
-                                        className={`mt-4 h-[48px] rounded-md w-full border border-BlueHomz text-BlueHomz text-[16px] font-[500] ${loading ? "pointer-events-none" : ""} `}
+                                        disabled={loading}
+                                        className={`mt-4 h-[48px] px-4 rounded-md w-full border border-BlueHomz text-BlueHomz text-[16px] font-[500] ${loading ? "pointer-events-none" : ""} `}
                                     >
                                         No, don’t save
                                     </button>

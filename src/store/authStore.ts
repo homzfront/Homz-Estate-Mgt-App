@@ -35,7 +35,7 @@ export interface AccountDetailsType {
         firstName: string;
         lastName: string;
         phoneNumber: string;
-    },
+    };
     isActive: boolean;
     isDeleted: boolean;
     deleted: boolean;
@@ -53,24 +53,7 @@ export interface AccountDetailsType {
         createdAt: string;
         updatedAt: string;
         __v: number;
-    }
-}
-
-export interface AuthState {
-    isLoggingIN: boolean;
-    isSigningUP: boolean;
-    userData: UserObject | null;
-    error: string | null;
-    logOutUser: () => Promise<void>;
-    createUser: (payload: RegisterUser) => Promise<AuthResponse>;
-    clearError: () => void;
-    setUserData: (data: UserObject) => void;
-    userAccountDetails: AccountDetailsType | null;
-    getCommunityManaProfile: () => Promise<void>;
-    communityProfile: any;
-    setUserAccountDetails: (data: AccountDetailsType) => void
-    estatesData: Community[] | null;
-    setEstatesData: (data: Community[]) => void;
+    };
 }
 
 export interface Community {
@@ -87,6 +70,20 @@ export interface Community {
             state: string;
         };
     };
+    coverPhoto: {
+        assetId: string;
+        publicId: string;
+        format: string;
+        size: string;
+        resource_type: string;
+        url: string;
+        thumbnailUrl: string;
+        scaledImage: string;
+        originalname: string;
+        height: string;
+        created_at: string;
+        width: string;
+    },
     contactInformation: {
         managerPhone: string;
         emergencyPhone: string;
@@ -98,32 +95,35 @@ export interface Community {
         accountName: string;
         bankName: string;
     };
-    zones: {
-        name: string;
-    }[];
-    streets: {
-        name: string;
-        zone: string;
-    }[];
-    buildings: {
-        name: string;
-        street: string;
-        zone: string;
-    }[];
-    apartments: {
-        name: string;
-        building: string;
-        street: string;
-        zone: string;
-    }[];
+    zones: { name: string }[];
+    streets: { name: string; zone: string }[];
+    buildings: { name: string; street: string; zone: string }[];
+    apartments: { name: string; building: string; street: string; zone: string }[];
     isActive: boolean;
     isDeleted: boolean;
     deleted: boolean;
-    createdAt: string; // ISO date string
-    updatedAt: string; // ISO date string
+    createdAt: string;
+    updatedAt: string;
     __v: number;
 }
 
+export interface AuthState {
+    isLoggingIN: boolean;
+    isSigningUP: boolean;
+    userData: UserObject | null;
+    error: string | null;
+    logOutUser: () => Promise<void>;
+    createUser: (payload: RegisterUser) => Promise<AuthResponse>;
+    clearError: () => void;
+    setUserData: (data: UserObject) => void;
+    userAccountDetails: AccountDetailsType | null;
+    getCommunityManaProfile: () => Promise<void>;
+    communityProfile: any;
+    setUserAccountDetails: (data: AccountDetailsType) => void;
+    estatesData: Community[] | null;
+    getEstates: () => Promise<void>;
+    estateLoading: boolean;
+}
 
 export const useAuthSlice = create<AuthState>()(
     persist(
@@ -134,27 +134,46 @@ export const useAuthSlice = create<AuthState>()(
             communityProfile: null,
             error: null,
             estatesData: null,
-            setEstatesData: ((data) => set({ estatesData: data })),
-            setUserData: ((data) => set({ userData: data })),
+            estateLoading: true,
+
+            setUserData: (data) => set({ userData: data }),
+            setUserAccountDetails: (data) => set({ userAccountDetails: data }),
+
+            getEstates: async () => {
+                try {
+                    const communityProfile = get().communityProfile;
+
+                    if (!communityProfile?._id || !communityProfile?.organization?._id) {
+                        throw new Error("Missing community profile");
+                    }
+
+                    const response = await api.get(
+                        `/estates/all-estates/${communityProfile.organization._id}/${communityProfile._id}`
+                    );
+
+                    set({ estatesData: response?.data?.data?.estates });
+                } catch (error) {
+                    console.error("Failed to fetch estates:", error);
+                } finally {
+                    set({ estateLoading: false });
+                }
+            },
+
             logOutUser: async () => {
                 try {
                     set({ userData: null, isLoggingIN: false });
-                    // Clear both session and local storage
                     sessionStorage.clear();
                     localStorage.clear();
 
-                    // Call API to invalidate tokens
                     await fetch("/api/logout", {
                         method: "POST",
-                        credentials: 'include' // Important for HTTP-only cookies
+                        credentials: "include",
                     });
 
-                    // Redirect without hooks
                     window.location.href = "/login";
-
                 } catch (error) {
-                    console.error('Logout error:', error);
-                    set({ error: 'Failed to log out properly' });
+                    console.error("Logout error:", error);
+                    set({ error: "Failed to log out properly" });
                 }
             },
 
@@ -162,66 +181,50 @@ export const useAuthSlice = create<AuthState>()(
                 try {
                     set({ isSigningUP: true, error: null });
 
-                    const response = await api.post("/auth/sign-up", {
-                        email: payload?.email,
-                        password: payload?.password,
-                        confirmPassword: payload?.confirmPassword
-                    });
-
-                    // Axios puts your parsed data here
+                    const response = await api.post("/auth/sign-up", payload);
                     const data: AuthResponse = response.data;
 
-                    // Update state with user data
                     set({
-                        userData: {
-                            email: payload?.email
-                        }
+                        userData: { email: payload.email },
                     });
 
-                    // Store tokens if not using HTTP-only cookies
                     if (data.access_token) {
                         await storeToken({ token: data.access_token });
                     }
 
                     return data;
-
                 } catch (error: any) {
-                    console.error('Registration error:', error);
-                    set({ error: error.message || 'Registration failed' });
+                    console.error("Registration error:", error);
+                    set({ error: error.message || "Registration failed" });
                     throw error;
                 } finally {
                     set({ isSigningUP: false });
                 }
             },
+
             getCommunityManaProfile: async () => {
                 try {
                     const response = await api.get("/community-manager/current-profile");
-
-                    // Axios puts your parsed data here
                     const data = response.data.data;
-
-                    // Update state with communityProfile
-                    set({
-                        communityProfile: data
-                    });
-
+                    set({ communityProfile: data });
                 } catch (error: any) {
-                    console.error('failed to fetch community manager profile:', error);
-                    set({ error: error.message || 'failed' });
+                    console.error("failed to fetch community manager profile:", error);
+                    set({ error: error.message || "failed" });
                     throw error;
                 }
             },
 
             userAccountDetails: null,
-            setUserAccountDetails: ((data) => set({ userAccountDetails: data })),
 
-            clearError: () => set({ error: null })
+            clearError: () => set({ error: null }),
         }),
         {
-            name: 'auth',
+            name: "auth",
             partialize: (state) => ({
-                userData: state.userData
-            }) // Only persist userData
+                userData: state.userData,
+                estatesData: state.estatesData,
+                communityProfile: state.communityProfile
+            }),
         }
     )
 );

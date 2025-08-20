@@ -17,7 +17,6 @@ import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
 import toast from 'react-hot-toast'
 import api from '@/utils/api'
 import DotLoader from '@/components/general/dotLoader'
-import { useAuthSlice } from '@/store/authStore'
 
 const EstateForm = () => {
     // react components
@@ -26,7 +25,6 @@ const EstateForm = () => {
 
     // zustand for state 
     const { chooseState } = useStateStore();
-    const { communityProfile } = useAuthSlice();
 
     // normal states
     const [active, setActive] = React.useState<number>(0);

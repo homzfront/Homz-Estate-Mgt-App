@@ -15,6 +15,7 @@ import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
 import PickEstate from '../components/pickEstate';
 import { useAuthSlice } from '@/store/authStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 // import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
@@ -22,6 +23,7 @@ const Dashboard = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
     const { estatesData, getCommunityManaProfile } = useAuthSlice();
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     // Load state 
     React.useEffect(() => {
         getCommunityManaProfile()
@@ -34,20 +36,29 @@ const Dashboard = () => {
                     <PickEstate />
                 </CustomModal>
             }
-            {estatesData && estatesData?.length > 0 ?
+            {estatesData && estatesData?.length > 0 && selectedCommunity &&
                 <div className='p-8'>
                     <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
                         <div className='flex gap-2 items-center'>
                             <div className="w-6 h-6 rounded-full overflow-hidden">
-                                <Image
-                                    src={"/houses.jpg"}
-                                    alt={"estate-img"}
-                                    width={24}
-                                    height={24}
-                                    className="object-cover w-full h-full"
-                                />
+                                {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                    <Image
+                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                        alt={"estate-img"}
+                                        width={40}
+                                        height={40}
+                                        className="object-cover w-full h-full"
+                                    /> :
+                                    <Image
+                                        src={"/houses.jpg"}
+                                        alt={"estate-img"}
+                                        width={40}
+                                        height={40}
+                                        className="object-cover w-full h-full"
+                                    />
+                                }
                             </div>
-                          {estatesData?.[0]?.basicDetails?.name as any}
+                            {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
@@ -111,7 +122,8 @@ const Dashboard = () => {
                         }
                     </div>
                 </div>
-                :
+            }
+            {!estatesData || estatesData?.length === 0 &&
                 <div className='p-8'>
                     <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Welcome, Victor</h1>
                     <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Add a new estate to get started</h3>
