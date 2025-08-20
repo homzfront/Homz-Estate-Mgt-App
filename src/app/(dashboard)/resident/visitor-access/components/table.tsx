@@ -1,14 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import PopUp from './popUp'
+// import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
 import { Visitor, Visitors } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
+import StatusDropDown from '../../../components/statusDropDown';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ArrowDown from '@/components/icons/arrowDown';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
+import ProfileWhite from '@/components/icons/profileWhite';
+import { useAccessStore } from '@/store/useAccessStore';
 import RevokeAccess from '@/components/icons/revokeAccess';
-import StatusDropDown from './statusDropDown';
+
+// Define status types
+type Status = "Pending" | "Signed In" | "Signed Out";
 
 interface TableProps {
     fromDefault?: boolean
@@ -21,11 +28,16 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const [openDetails, setOpenDetails] = React.useState<boolean>(false);
     const [openRevoke, setOpenRevoke] = React.useState<boolean>(false);
     const [totalPages, setTotalPages] = React.useState(1);
+    // const [loading, setLoading] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
     const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
     const [popUp, setpopUp] = React.useState(false);
+    // const dropdownRef = React.useRef(null);
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
+    const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
+    const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
     const pageSize = 8;
+    // const { setResidentData } = useAccessStore();
     React.useEffect(() => {
         setTotalPages(Math.ceil(Visitors.length / pageSize));
     }, [Visitors.length]);
@@ -35,6 +47,10 @@ const Table = ({ fromDefault = true }: TableProps) => {
         params.set('page', pageNo.toString());
         router.push(`?${params.toString()}`, { scroll: false });
     }, [pageNo, router, searchParams]);
+
+    const toggleDropdown = (index: number) => {
+        setOpenDropdownIndex((prev) => (prev === index ? null : index));
+    };
 
     const handleToggleMenu = (id: string | number) => {
         setpopUp(!popUp);
@@ -63,6 +79,23 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const indexOfLastItem = pageNo * pageSize;
     const indexOfFirstItem = indexOfLastItem - pageSize;
     const currentData = Visitors.slice(indexOfFirstItem, indexOfLastItem);
+
+    // const getStatusStyles = (status: Status | null): string => {
+    //     switch (status) {
+    //         case "Pending":
+    //             return "bg-warningBg text-warning2 border border-warning2";
+    //         case "Signed In":
+    //             return "bg-successBg text-Success border border-Success";
+    //         case "Signed Out":
+    //             return "bg-error text-white border border-white";
+    //         default:
+    //             return "";
+    //     }
+    // };
+
+
+
+    // const buttonStyle = getStatusStyles(selectedData?.accessStatus as any);
 
     return (
         <div className="mt-6 w-full mx-auto">
@@ -106,11 +139,31 @@ const Table = ({ fromDefault = true }: TableProps) => {
                 <CustomModal isOpen={openDetails} onRequestClose={() => setOpenDetails(false)}>
                     <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
                         <div className='flex justify-between items-center'>
-                            <h2 className='text-BlueHomz text-sm font-medium'>Visitor Access Information</h2>
+                            <div>
+                                <h2 className='text-BlueHomz text-sm font-medium'>Visitor Access Information</h2>
+                            </div>
                             <button onClick={() => setOpenDetails(false)}><CloseTransluscentIcon /></button>
                         </div>
 
                         <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
+                            <div className='grid grid-cols-2 gap-4'>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Resident’s Name
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.residentName}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Role
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    [Resident’s Role]
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <div className='md:hidden mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
                             <div className='grid grid-cols-2 gap-4'>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Visitor
@@ -159,13 +212,29 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                     Code Type
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.codeType}
+                                    [One Time] / [Permanent]
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Status
                                 </p>
+                                {/* <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    <button
+                                        className={`rounded-md py-2 px-4 flex items-center justify-center ${buttonStyle}`}
+                                    >
+                                        <div className="flex gap-2 items-center">
+                                            <p>{selectedData?.accessStatus}</p>
+                                            <div className={`mb-[3px]`}>
+                                                <ArrowDown size={12} className={selectedData?.accessStatus === "Pending"
+                                                    ? "#dc6803"
+                                                    : selectedData?.accessStatus === "Signed In"
+                                                        ? "#039855"
+                                                        : "#ffffff"} />
+                                            </div>
+                                        </div>
+                                    </button>
+                                </p> */}
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.accessStatus}
+                                    [Pending]
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Time In
@@ -181,19 +250,29 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                 </p>
                             </div>
                         </div>
+                        {/* 
+                        <button
+                            onClick={() => {
+                                setResidentData(selectedData)
+                                router.push(`/access-control/${selectedData?.visitor}`)
+                            }}
+                            className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'
+                        >
+                            <ProfileWhite /> View Resident’s profile
+                        </button> */}
                     </div>
                 </CustomModal>
             }
-            <div className="border-y overflow-x-auto scrollbar-container">
+            <div className="border overflow-x-auto scrollbar-container">
                 <div className="w-[700%] md:w-[150%]">
                     <table border={1} className="w-full">
                         <thead>
-                            <tr className="bg-[#E6E6E6] h-[50px] text-[13px] font-[500] text-BlackHomz">
+                            <tr className="bg-whiteblue h-[50px] text-[13px] font-[500] text-BlackHomz">
                                 <th className="text-left pl-4" style={{ width: "40px" }}></th>
                                 <th className="text-left" style={{ width: "110px" }}>Visitor</th>
                                 <th className="text-left" style={{ width: "90px" }}>Phone Number</th>
                                 <th className="text-left" style={{ width: "90px" }}>Purpose</th>
-                                <th className="text-left" style={{ width: "90px" }}>No of vis   itors</th>
+                                <th className="text-left" style={{ width: "90px" }}>No of visitors</th>
                                 <th className="text-left" style={{ width: "90px" }}>Date of visit</th>
                                 <th className="text-left" style={{ width: "110px" }}>Expected arrival time</th>
                                 <th className="text-left" style={{ width: "90px" }}>Access Code</th>
@@ -201,24 +280,39 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                 <th className="text-left" style={{ width: "90px" }}>Access Status</th>
                                 <th className="text-left" style={{ width: "90px" }}>Time In</th>
                                 <th className="text-left" style={{ width: "90px" }}>Time Out</th>
+                                <th className="text-left" style={{ width: "110px" }}>Resident Info</th>
                                 <th style={{ width: "50px" }}></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentData &&
+                            {
+                                // loading ? (
+                                //     // Show skeleton loaders when loading
+                                //     <>
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //         <SkeletonTableLoader />
+                                //     </>
+                                // ) :
+                                currentData &&
                                 currentData.map((data, index) => (
                                     <tr
                                         onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedData(data);
+                                            e.stopPropagation()
+                                            // setOpenDetails(true)
+                                            setSelectedData(data)
                                         }}
                                         key={index}
-                                        className="w-2 border-t-[1px] items-center bg-white"
+                                        className="w-2 border-t-[1px] items-center"
                                     >
                                         <td className="text-GrayHomz py-[25px] font-[500] text-[11px] flex items-center justify-center">
                                             <span className='w-[8px] h-[8px] rounded-full bg-error' />
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
                                             {data?.visitor}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
@@ -241,20 +335,36 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                             {data.accessCode}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.codeType}
+                                            [One-Time]
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             <StatusDropDown
-                                                selectedStatus={data.accessStatus}
+                                                value={data.accessStatus as any}
+                                                loading={false}
+                                                isOpen={openDropdownIndex === index}
+                                                toggleDropdown={() => toggleDropdown(index)}
+                                                selectedStatus={selectedStatus}
+                                                setSelectedStatus={setSelectedStatus}
+                                                handleStatusChange={(status) => {
+                                                    console.log("Selected:", status);
+                                                }}
                                             />
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.expectedArrivalTime}
+                                            {data.timeIn}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.accessCode}
+                                            {data.timeOut}
                                         </td>
-                                        <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} bg-white py-[15px] pr-4 z-10`}>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                            <span className='flex items-center gap-2'>
+                                                [Resident’s Full Name]
+                                            </span>
+                                            <span className='font-[400]'>
+                                                [Resident’s Role]
+                                            </span>
+                                        </td>
+                                        <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
                                             <button onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleToggleMenu(index)
@@ -271,6 +381,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                             {popUp && selectedDataId === index && (
                                                 <PopUp
                                                     setOpenDetails={setOpenDetails}
+                                                    fromDefault={fromDefault}
                                                     setOpenRevoke={setOpenRevoke}
                                                 />
                                             )}

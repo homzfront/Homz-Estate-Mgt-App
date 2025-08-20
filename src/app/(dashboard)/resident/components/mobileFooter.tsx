@@ -4,7 +4,6 @@ import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dash
 import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
-// import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,6 +11,7 @@ import React from 'react'
 import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
 import VisitorAccess from '@/components/icons/estateManager&Resident/mobile/visitorAccess';
 import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
 
 interface DataType {
     id: number;
@@ -64,20 +64,20 @@ const Data = [
 ];
 
 const PopUpData = [
-    // {
-    //     id: 1,
-    //     image: <SupportIcon />,
-    //     image2: <SupportIcon className='#006AFF' />,
-    //     link: "/resident/support",
-    //     name: "Support"
-    // },
+    {
+        id: 1,
+        image: <SettingsIcon />,
+        image2: <SettingsIcon className='#006AFF' />,
+        link: "/resident/settings",
+        name: "Settings"
+    },
     {
         id: 2,
         image: <NotiIcon />,
         image2: <NotiIcon className='#006AFF' />,
         link: "/resident/notification-page",
         name: "Notifications",
-        coming_Soon: true,
+        coming_Soon: false,
     },
     {
         id: 3,

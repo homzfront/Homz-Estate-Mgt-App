@@ -7,12 +7,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
-import useClickOutside from '@/app/utils/useClickOutside';
 import VisitorShield from '@/components/icons/estateManager&Resident/desktop/visitorShield';
 import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
-import PickEstate from './pickEstate';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 
 const Data = [
     {
@@ -55,17 +55,23 @@ const Data = [
         name: "Profile",
         active: false,
     },
+    {
+        id: 5,
+        image: <SettingsIcon w={"16"} h={"16"} className='#4E4E4E' />,
+        image2: (
+            <SettingsIcon w={"16"} h={"16"} className='#FFFFFF' />
+        ),
+        link: "/resident/settings",
+        name: "Settings",
+        active: false,
+    },
 ];
 
 const Sidebar = () => {
     const pathname = usePathname();
-    const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
-    const closeRef = React.useRef<HTMLDivElement>(null);
+    const { setOpenEstateList } = useOpenCommunityListStore();
     const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
 
-    useClickOutside(closeRef as any, () => {
-        setOpenEstateList(false);
-    });
 
     const isActive = (data: any, pathname: string) => {
         // 1. First check if the full path matches exactly
@@ -86,15 +92,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="sidebar relative">
-            {openEstateList && (
-                <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex justify-start">
-                    <div className="w-full h-fit mt-[12%] ml-[2%] shadow-lg">
-                        <PickEstate closeRef={closeRef} />
-                    </div>
-                </div>
-            )}
-
+        <div className={`sidebar relative`}>
             <div className="shadow-lg">
                 <div className="w-full h-[1024px] px-6 flex flex-col py-10">
                     <Link href={"/"} className='w-full mt-2'>
@@ -106,7 +104,7 @@ const Sidebar = () => {
                         />
                     </Link>
 
-                    <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                    <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[62px] rounded-[4px]'>
                         <div className='flex gap-2 items-center'>
                             <div className="w-6 h-6 rounded-full overflow-hidden">
                                 <Image
@@ -117,46 +115,85 @@ const Sidebar = () => {
                                     className="object-cover w-full h-full"
                                 />
                             </div>
-                            {selectedEstate ? selectedEstate?.estate : "Golden Palms Estate"}
+                            <div className='flex flex-col'>
+                                <p>{selectedEstate ? selectedEstate?.estate : "Golden Palms Estate"}</p>
+                                <span className='text-xs'>
+                                    [Block 6], [Apartment 1]
+                                </span>
+                            </div>
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
                         </div>
                     </button>
-                    <div className="flex flex-col gap-3 mb-[50px] mt-10">
-                        {Data.map((data) =>
-                        (
-                            <Link
-                                key={data.id}
-                                href={data.link}
-                                className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
-                                    ? "bg-BlueHomz text-white"
-                                    : " hover:bg-whiteblue"
-                                    } `}
-                            >
-                                {isActive(data, pathname) ? (
-                                    <div className={``}>
-                                        {data.image2}
+                    <div className='h-[70%] flex flex-col justify-between mt-10'>
+                        <div className="flex flex-col gap-3">
+                            {Data?.slice(0, 3).map((data) =>
+                            (
+                                <Link
+                                    key={data.id}
+                                    href={data.link}
+                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
+                                        ? "bg-BlueHomz text-white"
+                                        : " hover:bg-whiteblue"
+                                        } `}
+                                >
+                                    {isActive(data, pathname) ? (
+                                        <div className={``}>
+                                            {data.image2}
+                                        </div>
+                                    ) : (
+                                        <div className={``}>
+                                            {data.image}
+                                        </div>
+                                    )}
+                                    <div className="flex items-center w-full">
+                                        <span className="w-[150px] text-start">
+                                            {data.name}
+                                        </span>
+                                        <p
+                                            className={`${data?.active === true ? "bg-error" : "bg-transparent"
+                                                } mt-1 ml-1 h-2 w-2 rounded-full`}
+                                        ></p>
                                     </div>
-                                ) : (
-                                    <div className={``}>
-                                        {data.image}
+                                </Link>
+                            )
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            {Data?.slice(3, 5).map((data) =>
+                            (
+                                <Link
+                                    key={data.id}
+                                    href={data.link}
+                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
+                                        ? "bg-BlueHomz text-white"
+                                        : " hover:bg-whiteblue"
+                                        } `}
+                                >
+                                    {isActive(data, pathname) ? (
+                                        <div className={``}>
+                                            {data.image2}
+                                        </div>
+                                    ) : (
+                                        <div className={``}>
+                                            {data.image}
+                                        </div>
+                                    )}
+                                    <div className="flex items-center w-full">
+                                        <span className="w-[150px] text-start">
+                                            {data.name}
+                                        </span>
+                                        <p
+                                            className={`${data?.active === true ? "bg-error" : "bg-transparent"
+                                                } mt-1 ml-1 h-2 w-2 rounded-full`}
+                                        ></p>
                                     </div>
-                                )}
-                                <div className="flex items-center w-full">
-                                    <span className="w-[150px] text-start">
-                                        {data.name}
-                                    </span>
-                                    <p
-                                        className={`${data?.active === true ? "bg-error" : "bg-transparent"
-                                            } mt-1 ml-1 h-2 w-2 rounded-full`}
-                                    ></p>
-                                </div>
-                            </Link>
-                        )
-                        )}
+                                </Link>
+                            )
+                            )}
+                        </div>
                     </div>
-
                 </div>
             </div>
         </div>

@@ -16,16 +16,14 @@ import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/payme
 import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
-import { useUserStore } from '@/store/useUserStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
-import PickEstate from './pickEstate';
-import useClickOutside from '@/app/utils/useClickOutside';
 import { useAuthSlice } from '@/store/authStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useEstateFormStore } from '@/store/useEstateFormStore';
+import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 
 const Data = [
     {
@@ -156,9 +154,8 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState(false);
     const [subMoreOpen, setSubMoreOpen] = React.useState(false);
-    const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
+    const { setOpenEstateList } = useOpenCommunityListStore();
     const [selectedName, setSelecetedName] = React.useState(null);
-    const closeRef = React.useRef<HTMLDivElement>(null);
     const { clearForm } = useEstateFormStore()
     const { logOutUser, getEstates, estatesData, communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
@@ -173,10 +170,6 @@ const Sidebar = () => {
     React.useEffect(() => {
         if (communityProfile) getEstates()
     }, [communityProfile]);
-
-    useClickOutside(closeRef as any, () => {
-        setOpenEstateList(false);
-    });
 
     const [selectedMoreName, setSelecetedMoreName] = React.useState(null);
     const toggleSub = (name: any) => {
@@ -208,14 +201,6 @@ const Sidebar = () => {
     };
     return (
         <div className="sidebar relative">
-            {openEstateList && (
-                <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex justify-start">
-                    <div className="w-full h-fit mt-[12%] ml-[2%] shadow-lg">
-                        <PickEstate closeRef={closeRef} />
-                    </div>
-                </div>
-            )}
-
             <div className="shadow-lg">
                 <div className="w-full h-[1024px] px-6 flex flex-col py-10">
                     <Link href={"/"} className='w-full mt-2'>

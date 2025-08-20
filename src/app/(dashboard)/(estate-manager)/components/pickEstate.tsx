@@ -120,7 +120,8 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                         setSelectedCommunity(item);
                                         setOpenEstateList(false);
                                     }}
-                                    className={`flex gap-2 items-center rounded-[4px] ${selectedCommunity?._id === item._id ? "text-GrayHomz2 bg-GrayHomz6 pointer-events-none" : "cursor-pointer text-BlueHomz bg-whiteblue"} px-2 py-1 rounded-[4px] text-xs`}
+                                     className={`px-2 py-1 text-xs flex gap-2 items-center rounded-[4px] cursor-pointer
+                                                ${selectedCommunity?._id === item._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}
                                 >
                                     {selectedCommunity?._id === item._id ? "Selected" : "Switch"}
                                 </div>
