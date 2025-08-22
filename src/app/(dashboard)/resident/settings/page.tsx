@@ -8,6 +8,9 @@ import SuccessModal from '../../components/successModal';
 import Table from './components/table';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import CustomModal from '@/components/general/customModal';
+import BlueTick from '@/components/icons/blueTick';
+import Close from '@/components/icons/Close';
+import InfoIcon from '@/components/icons/infoIcon';
 
 const currentData = [
   { firstName: "Bigabanibo", lastName: "Iwowari", email: "Ibigabanibo@gmail.com", role: "Security", relationship: "Spouse", phone: "09093999292" },
@@ -32,9 +35,17 @@ const Settings = () => {
   const [openDetails, setOpenDetails] = React.useState(false);
   const [selectedData, setSelectedData] = React.useState<User | null>(null);
   const [activePage, setActivePage] = React.useState(0);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const [isOpenRole, setIsOpenRole] = React.useState(false);
+  const [selectedOption, setSelectedOption] = React.useState<any>(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [showRoleContent, setShowRoleContent] = React.useState<string | any>(null);
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
   const [formData, setFormData] = React.useState({
     email: '',
     firstName: '',
@@ -44,9 +55,11 @@ const Settings = () => {
     role: '',
   });
   const options = [
-    { id: 1, label: "Co-Owner" },
-    { id: 2, label: "Renter" },
-    { id: 3, label: "Household Member" },
+    { id: 1, label: "Co-Owner", content: "Can see and edit every aspect of the dashboard" },
+    { id: 2, label: "Co-Renter", content: "Can see and edit every aspect of the dashboard" },
+    { id: 3, label: "Admin", content: "Can see and edit every aspect of the dashboard" },
+    { id: 4, label: "Staff", content: `A staff member can generate an access code and can see the "staff" section of the access code generated history or management view.` },
+    { id: 5, label: "Dependent", content: `A dependent(child, househelp, guest or spouse) can generate an access code and can see the "dependent" section of the access code generated history or management view.` },
   ];
 
   const relationshipOptions = [
@@ -57,6 +70,36 @@ const Settings = () => {
     { id: 5, label: "Parent" },
     { id: 6, label: "Other" },
   ];
+
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleDropdownToggle = () => {
+    if (!isLoading) setIsOpenRole(!isOpenRole);
+  };
+
+  const handleOptionClick = (option: any) => {
+    setSelectedOption(option);
+    setIsOpenRole(false);
+    // example: update form state directly
+    console.log("Selected role:", option.label);
+  };
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpenRole(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -84,6 +127,28 @@ const Settings = () => {
 
   return (
     <div className='py-8'>
+      {showRoleContent && (
+        <div className="fixed inset-0 z-[100] bg-black bg-opacity-50 flex justify-end items-end">
+          {/* Role Details Card */}
+          <div className="bg-white rounded-[12px] w-[300px] sm:w-[450px] p-4 m-6 shadow-lg">
+            <div className="flex justify-between items-center">
+              <p className="text-[18px] font-medium text-BlackHomz">
+                {showRoleContent?.label}
+              </p>
+              <button
+                onClick={() => setShowRoleContent(null)}
+                className="border border-GrayHomz rounded-[6px] h-[24px] w-[24px] flex justify-center items-center"
+              >
+                <Close />
+              </button>
+            </div>
+            <p className="text-[16px] font-normal text-GrayHomz mt-3">
+              {showRoleContent?.content}
+            </p>
+          </div>
+        </div>
+      )}
+
       {openSuccess &&
         <SuccessModal
           title='Invitation Sent Successfully'
@@ -200,22 +265,78 @@ const Settings = () => {
               {/* Role & Relationship */}
               <div className='bg-[#FCFCFC] px-4 py-6 rounded-[8px]'>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="w-full">
                     <label
-                      htmlFor={"roleOptions"}
+                      htmlFor="roleOptions"
                       className="block text-sm font-medium text-BlackHomz mb-1"
                     >
-                      What is the co-resident’s role in this property? <span className="text-red-500 ml-1">*</span>
+                      What is the co-resident’s role in this property?{" "}
+                      <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <Dropdown
-                      options={options}
-                      onSelect={(option) => handleInputChange('role', option.label)}
-                      selectOption="Select role"
-                      showSearch={false}
-                      borderColor='border-[#A9A9A9]'
-                      arrowColor='#A9A9A9'
-                      bgColor='bg-transparent'
-                    />
+
+                    {/* Dropdown wrapper */}
+                    <div
+                      className={`relative w-full`}
+                      ref={dropdownRef}
+                    >
+                      {/* Trigger */}
+                      <div
+                        className={`px-4 border bg-transparent text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpenRole ? "border-BlueHomz border-2" : "border-[#A9A9A9]"
+                          }`}
+                        onClick={handleDropdownToggle}
+                      >
+                        <span className="mr-2 truncate">
+                          {selectedOption?.label || "Select role"}
+                        </span>
+                        <div
+                          className={`w-5 h-5 transition-transform duration-200 ${isOpenRole ? "transform rotate-180" : ""
+                            }`}
+                        >
+                          <ArrowDown className="#A9A9A9" />
+                        </div>
+                      </div>
+
+                      {/* Dropdown Content */}
+                      {isOpenRole && (
+                        <div className="absolute z-50 mt-1 w-full bg-white rounded-[4px] shadow-lg border border-[#A9A9A9] max-h-[240px] flex flex-col">
+
+                          {/* Options list */}
+                          <div className="overflow-y-auto flex-1 scrollbar-container">
+                            {isLoading ? (
+                              <div className="p-4 text-center text-GrayHomz">Loading...</div>
+                            ) : filteredOptions.length === 0 ? (
+                              <div className="p-4 text-center text-GrayHomz">
+                                No options found
+                              </div>
+                            ) : (
+                              filteredOptions.map((option) => (
+                                <div
+                                  key={option.id}
+                                  className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm ${selectedOption?.id === option.id
+                                    ? "text-BlueHomz"
+                                    : "hover:text-BlackHomz"
+                                    }`}
+                                  onClick={() => {
+                                    handleOptionClick(option);
+                                    handleInputChange("role", option.label); // 👈 update formData
+                                  }}
+                                >
+                                  <div className="font-medium flex items-center justify-between">
+                                    {option.label}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setShowRoleContent(option)
+                                      }}>
+                                      <InfoIcon /></button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label

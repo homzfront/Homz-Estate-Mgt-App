@@ -71,7 +71,16 @@ const PickEstate = ({ closeRef, setOpenPendingModal }: PickEstateProps) => {
 
 
                         <div className='text-sm font-normal text-GrayHomz w-full'>
-                            <button onMouseLeave={() => setHoverSecurity(false)} onMouseEnter={() => setHoverSecurity(true)} className='text-GrayHomz text-sm font-normal px-4 py-2 w-full hover:bg-whiteblue hover:text-BlueHomz hover:rounded-[4px] text-start flex items-center gap-4'>{hoverSecurity ? <SecurityIcon className='#006aff' /> : <SecurityIcon className='#4e4e4e' />} Security</button>
+                            <button
+                                onClick={() => {
+                                    router.push("/resident/security")
+                                }}
+                                onMouseLeave={() => setHoverSecurity(false)}
+                                onMouseEnter={() => setHoverSecurity(true)}
+                                className='text-GrayHomz text-sm font-normal px-4 py-2 w-full hover:bg-whiteblue hover:text-BlueHomz hover:rounded-[4px] text-start flex items-center gap-4'
+                            >
+                                {hoverSecurity ? <SecurityIcon className='#006aff' /> : <SecurityIcon className='#4e4e4e' />} Security
+                            </button>
                             <button onMouseLeave={() => setHoverContactSupport(false)} onMouseEnter={() => setHoverContactSupport(true)} className='text-GrayHomz text-sm font-normal px-4 py-2 w-full hover:bg-whiteblue hover:text-BlueHomz hover:rounded-[4px] text-start flex items-center gap-4'>{hoverContactSupport ? <ContactIcon className='#006aff' /> : <ContactIcon className='#4e4e4e' />} Contact Support</button>
                             <button onMouseLeave={() => setHoverLogout(false)} onMouseEnter={() => setHoverLogout(true)} className='text-GrayHomz text-sm font-normal px-4 py-2 w-full hover:bg-whiteblue hover:text-error hover:rounded-[4px] text-start flex items-center gap-4'>{hoverLogout ? <LogoutIcon /> : <LogoutIcon className='#4e4e4e' />} Logout</button>
                         </div>
