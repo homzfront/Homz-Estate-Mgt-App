@@ -148,7 +148,7 @@ export const useAuthSlice = create<AuthState>()(
                     }
 
                     const response = await api.get(
-                        `/estates/all-estates/${communityProfile.organization._id}/${communityProfile._id}`
+                        `/estates/community-manager/${communityProfile._id}/all-estates/organizations/${communityProfile.organization._id}`
                     );
 
                     set({ estatesData: response?.data?.data?.estates });
