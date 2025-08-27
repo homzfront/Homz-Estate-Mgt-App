@@ -12,6 +12,7 @@ import { storeToken } from "@/utils/cookies";
 import api from "@/utils/api";
 import toast from "react-hot-toast";
 import { useAuthSlice } from "@/store/authStore";
+import { useResidentStore } from "@/store/useResidentStore";
 
 
 const Login = () => {
@@ -21,7 +22,8 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setUserData } = useAuthSlice()
+  const { setUserData } = useAuthSlice();
+  const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
   const handleGoogleSignIn = () => {
     // Empty function as requested
   };
@@ -95,9 +97,21 @@ const Login = () => {
         },
       });
       if (profile?.data?.data?.accounts?.length === 0) {
-        // Redirect to profile
-        router.push("/select-profile")
+        if (isResident && organizationId && estateId && token) {
+          const params = new URLSearchParams({
+            invitation: token as any,
+            organizationId: organizationId as any,
+            estateId: estateId as any
+          }).toString()
+
+          router.push(`/resident?${params}`)
+        } else {
+          clearResidentData();
+          // Redirect to profile
+          router.push("/select-profile");
+        }
       } else {
+        clearResidentData();
         // Redirect to dashboard 
         router.push("/dashboard");
       }

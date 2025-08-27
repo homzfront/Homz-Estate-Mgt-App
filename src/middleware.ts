@@ -29,6 +29,7 @@ export const config = {
         "/support",
         "/settings/:path*",
         "/settings",
+        // "/resident",
         "/resident/dashboard/:path*",
         "/resident/dashboard",
         "/resident/profile/:path*",

@@ -3,6 +3,7 @@ import api from '@/utils/api';
 import { storeToken } from '@/utils/cookies';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useResidentStore } from "@/store/useResidentStore";
 
 export interface RegisterUser {
     email: string;
@@ -178,12 +179,18 @@ export const useAuthSlice = create<AuthState>()(
             },
 
             createUser: async (payload: RegisterUser) => {
+                const { isResident, estateId, organizationId } = useResidentStore.getState();
                 try {
                     set({ isSigningUP: true, error: null });
-
-                    const response = await api.post("/auth/sign-up", payload);
-                    const data: AuthResponse = response.data;
-
+                    let response = null
+                    let data = null
+                    if (isResident && estateId && organizationId) {
+                        response = await api.post("/auth/resident/sign-up", payload);
+                        data = response.data;
+                    } else {
+                        response = await api.post("/auth/sign-up", payload);
+                        data = response.data;
+                    }
                     set({
                         userData: { email: payload.email },
                     });
