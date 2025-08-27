@@ -130,7 +130,7 @@ const InviteResident = ({ setOpenInvite, setOpenSuccessModal }: InviteResidentPr
                     )}
                 </div>
 
-                <div className='flex justify-between items-center mt-7'>
+                {/* <div className='flex justify-between items-center mt-7'>
                     <span className='border border-GrayHomz5 w-[45%]' />
                     <span className="font-normal w-[10%] text-center text-sm md:text-[16px] text-GrayHomz">
                         OR
@@ -159,7 +159,7 @@ const InviteResident = ({ setOpenInvite, setOpenSuccessModal }: InviteResidentPr
                             Send Invite
                         </button>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )
