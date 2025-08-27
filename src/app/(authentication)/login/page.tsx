@@ -101,23 +101,23 @@ const Login = () => {
         }
       } else {
         clearResidentData();
-        // Show success toast
-        toast.success("Login successful!", {
-          position: "top-center",
-          duration: 2000,
-          style: {
-            background: "#E8F5E9",
-            color: "#2E7D32",
-            fontWeight: 500,
-            padding: "12px 20px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          },
-        });
         const response = await api.get("/community-manager/current-profile");
         if (!response) {
           router.push("/resident/dashboard")
         } else {
+          // Show success toast
+          toast.success("Login successful!", {
+            position: "top-center",
+            duration: 2000,
+            style: {
+              background: "#E8F5E9",
+              color: "#2E7D32",
+              fontWeight: 500,
+              padding: "12px 20px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            },
+          });
           // Redirect to dashboard 
           router.push("/dashboard");
         }
@@ -129,11 +129,7 @@ const Login = () => {
 
       if (backendMessage === "Account is not verified. Please verify your account.") {
         router.push("/verify-email")
-      } else if (
-
-        backendMessage === `Account "COMMUNITY_MANAGER" does not exist in user's profiles`
-
-      ) {
+      } else if (backendMessage === `Account "COMMUNITY_MANAGER" does not exist in user's profiles`) {
         router.push("/resident/dashboard")
         toast.success("Login successful!", {
           position: "top-center",
