@@ -22,7 +22,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setUserData, communityProfile, getCommunityManaProfile } = useAuthSlice();
+  const { setUserData } = useAuthSlice();
   const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
   const handleGoogleSignIn = () => {
     // Empty function as requested
@@ -77,7 +77,6 @@ const Login = () => {
         refresh_token: data.refreshToken,
       });
 
-      await getCommunityManaProfile()
       // Fetch user profile
       const profile = await api.get("/auth/current-user");
 
@@ -114,8 +113,8 @@ const Login = () => {
         }
       } else {
         clearResidentData();
-        // console.log(communityProfile)
-        if (!communityProfile) {
+        const response = await api.get("/community-manager/current-profile");
+        if (!response) {
           router.push("/resident/dashboard")
         } else {
           // Redirect to dashboard 
