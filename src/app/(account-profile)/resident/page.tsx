@@ -86,7 +86,7 @@ const Resident = () => {
         if (residentToken && organizationId) {
             (async () => {
                 const t = await getToken();
-                console.log(t)
+                // console.log(t)
                 if (!t || !userData) router.push("/login")
             })();
         }
@@ -308,9 +308,9 @@ const formatDueDateForSubmission = (calculatedDueDate: string | null) => {
         }
     };
 
-    console.log("selectedOwner:", selectedOwner)
-    console.log("formData:", formData)
-    console.log("userData:", userData)
+    // console.log("selectedOwner:", selectedOwner)
+    // console.log("formData:", formData)
+    // console.log("userData:", userData)
 
     return (
         <div>
