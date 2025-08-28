@@ -13,6 +13,7 @@ import { useResidentParams } from '@/hooks/useResidentParams'
 import toast from "react-hot-toast";
 import DotLoader from '@/components/general/dotLoader'
 import api from '@/utils/api'
+import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
 
 const buildingOptions = Array.from({ length: 8 }, (_, i) => ({
     id: i + 1,
@@ -174,20 +175,6 @@ const Resident = () => {
             rentDurationType: type
         }));
     };
-
-    // Convert calculatedDueDate to ISO 8601 format with end-of-day time for submission
-const formatDueDateForSubmission = (calculatedDueDate: string | null) => {
-    if (!calculatedDueDate) return null;
-
-    // Handle MM/DD/YYYY format
-    const [month, day, year] = calculatedDueDate.split('/').map(Number);
-
-    if (!year || !month || !day) return null; // Guard against invalid split
-
-    const dueDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
-    return dueDate.toISOString();
-};
-
 
     const handleSubmit = async () => {
         setLoading(true);
