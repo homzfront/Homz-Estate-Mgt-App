@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import DotLoader from '@/components/general/dotLoader'
 import api from '@/utils/api'
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
+import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 
 const buildingOptions = Array.from({ length: 8 }, (_, i) => ({
     id: i + 1,
@@ -75,9 +76,23 @@ const Resident = () => {
     const [calculatedDueDate, setCalculatedDueDate] = useState('');
     const { userData } = useAuthSlice();
     const [loading, setLoading] = useState(false);
+    const { publicCommunity, setPublicCommunity } = useSelectedCommunity()
 
     // Extract data from the store
     const { token: residentToken, organizationId, estateId, isResident } = useResidentStore();
+
+    const getPublicEstate = async () => {
+        try {
+            const response = await api.get(
+                `/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
+
+            );
+
+            setPublicCommunity(response?.data?.data?.estates);
+        } catch (error) {
+            console.error("Failed to fetch estates:", error);
+        };
+    }
 
     // Handle URL parameters
     useResidentParams()
@@ -88,7 +103,11 @@ const Resident = () => {
             (async () => {
                 const t = await getToken();
                 // console.log(t)
-                if (!t || !userData) router.push("/login")
+                if (!t || !userData) {
+                    router.push("/login")
+                } else {
+                    getPublicEstate();
+                }
             })();
         }
     }, [residentToken, organizationId]);
@@ -298,6 +317,8 @@ const Resident = () => {
     // console.log("selectedOwner:", selectedOwner)
     // console.log("formData:", formData)
     // console.log("userData:", userData)
+
+    console.log("publicCommunity:", publicCommunity)
 
     return (
         <div>

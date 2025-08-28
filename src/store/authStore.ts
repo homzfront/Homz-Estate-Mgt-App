@@ -184,13 +184,13 @@ export const useAuthSlice = create<AuthState>()(
                     set({ isSigningUP: true, error: null });
                     let response = null
                     let data = null
-                    if (isResident && estateId && organizationId) {
-                        response = await api.post("/auth/resident/sign-up", payload);
-                        data = response.data;
-                    } else {
-                        response = await api.post("/auth/sign-up", payload);
-                        data = response.data;
-                    }
+                    // if (isResident && estateId && organizationId) {
+                    //     response = await api.post("/auth/resident/sign-up", payload);
+                    //     data = response.data;
+                    // } else {
+                    response = await api.post("/auth/sign-up", payload);
+                    data = response.data;
+                    // }
                     set({
                         userData: { email: payload.email },
                     });
