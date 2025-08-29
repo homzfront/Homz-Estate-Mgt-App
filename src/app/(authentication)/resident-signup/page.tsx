@@ -47,7 +47,7 @@ const ResidentSignup = () => {
             </p>
             <div className='grid grid-cols-2 gap-4 mt-4 w-full'>
               {pages.map((data, index) => (
-                <div>
+                <div key={index}>
                   <button onClick={() => setActive(index)} className='flex items-center justify-center gap-2'>
                     <span className={`w-[24px] h-[24px] min-w-[24px] min-h-[24px] rounded-full text-sm font-medium ${active === index ? "bg-successBg text-Success" : "bg-GrayHomz6 text-GrayHomz"}`}>{index + 1}</span>
                     <span className={`text-[11px] text-GrayHomz font-normal truncate`}>{data}</span>

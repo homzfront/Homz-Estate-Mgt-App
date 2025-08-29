@@ -17,7 +17,7 @@ const ChangePassword = () => {
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
-    const { token, email,  } = useResidentStore();
+    const { token, email, estateId, organizationId } = useResidentStore();
 
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
@@ -59,13 +59,40 @@ const ChangePassword = () => {
         }
 
         try {
-            //   await createUser({
-            //     email: formData.email,
-            //     password: formData.password,
-            //     confirmPassword: formData.confirmPassword
-            //   });
+            setIsSigningUp(true);
+            
+            // Prepare the payload
+            const payload = {
+                email: email || formData.email,
+                password: formData.password,
+                confirmPassword: formData.confirmPassword,
+                token: token,
+                estateId: estateId,
+                organizationId: organizationId
+            };
 
-            toast.success("Sign up successful!", {
+            // Make the POST request
+            const response = await fetch('http://localhost:4000/api/v1/auth/resident/update-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // Log the response
+            console.log(response);
+
+            // Check if the request was successful
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update password');
+            }
+
+            const responseData = await response.json();
+            
+            toast.success("Password updated successfully!", {
                 position: "top-center",
                 duration: 2000,
                 style: {
@@ -79,11 +106,12 @@ const ChangePassword = () => {
             });
 
         } catch (error: any) {
-            // Error is already handled in the store
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred during registration";
+            const fallbackMessage = error?.message || "An error occurred during password update";
             setPasswordError(backendMessage || backendMessageTwo || fallbackMessage);
+        } finally {
+            setIsSigningUp(false);
         }
     };
 
@@ -164,7 +192,7 @@ const ChangePassword = () => {
                     type="submit"
                     disabled={isSigningUP}
                 >
-                    {isSigningUP ? <DotLoader /> : "Create Account & Continues"}
+                    {isSigningUP ? <DotLoader /> : "Create Account & Continue"}
                 </button>
             </form>
         </div>
