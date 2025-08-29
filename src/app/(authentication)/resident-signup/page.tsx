@@ -7,43 +7,30 @@ import { useResidentStore } from '@/store/useResidentStore'
 import { useResidentParams } from '@/hooks/useResidentParams'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import api from '@/utils/api'
-import { useRouter } from 'next/navigation'
 
 const pages = ['Create Account', 'Review Property Details']
 
 const ResidentSignup = () => {
-  const router = useRouter();
   const [active, setActive] = React.useState<number>(0);
-  const { publicCommunity, setPublicCommunity } = useSelectedCommunity()
+  const { setPublicCommunity } = useSelectedCommunity()
   // Extract data from the store
-  const { token: residentToken, organizationId, estateId, isResident, email, firstName, lastName, estateName } = useResidentStore();
+  const {  organizationId, estateId } = useResidentStore();
   // Handle URL parameters
   useResidentParams()
-  console.log({ residentToken, organizationId, estateId, isResident, email, firstName, lastName, estateName });
-  // const getPublicEstate = async () => {
-  //   try {
-  //     const response = await api.get(
-  //       `/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
 
-  //     );
+  const getPublicEstate = async () => {
+    try {
+      const response = await api.get(
+        `/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
 
-  //     setPublicCommunity(response?.data?.data?.estates);
-  //   } catch (error) {
-  //     console.error("Failed to fetch estates:", error);
-  //   };
-  // }
+      );
 
-  // Optional: Log the stored data for debugging
-  // React.useEffect(() => {
-  //   if (residentToken && organizationId) {
-  //     getPublicEstate();
-  //   } 
-  //   else {
-  //     router.push("/")
-  //   }
-  // }, [residentToken, organizationId]);
+      setPublicCommunity(response?.data?.data?.estates);
+    } catch (error) {
+      console.error("Failed to fetch estates:", error);
+    };
+  };
 
-  console.log(publicCommunity);
   return (
     <div className="flex m-auto max-w-[100%] sm:max-w-[1440px] h-[1024px]">
       <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">

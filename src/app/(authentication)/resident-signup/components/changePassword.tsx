@@ -2,17 +2,12 @@
 "use client";
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
-import Link from "next/link";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
-import { useAuthSlice } from "@/store/authStore";
 import toast from "react-hot-toast";
+import { useResidentStore } from "@/store/useResidentStore";
 
 const ChangePassword = () => {
-    const router = useRouter();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -22,6 +17,7 @@ const ChangePassword = () => {
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
+    const { token, email,  } = useResidentStore();
 
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
@@ -98,7 +94,7 @@ const ChangePassword = () => {
                     <div className='flex flex-col gap-1 w-full text-sm'>
                         <h3 className='text-sm font-medium text-BlackHomz mb-1'>Email <span className='text-error'>*</span></h3>
                         <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                            {passwordError ? passwordError : 'Auto-filled'}
+                            {email ? email : 'Auto-filled'}
                         </span>
                     </div>
 
