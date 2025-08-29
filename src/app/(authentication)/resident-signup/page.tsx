@@ -60,7 +60,7 @@ const ResidentSignup = () => {
             {/* show pages */}
             {
               active === 0 &&
-              <ChangePassword />
+              <ChangePassword setActive={setActive}/>
             }
 
             {

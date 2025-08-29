@@ -76,7 +76,7 @@ const Resident = () => {
     const [calculatedDueDate, setCalculatedDueDate] = useState('');
     const { userData } = useAuthSlice();
     const [loading, setLoading] = useState(false);
-    const { publicCommunity, setPublicCommunity } = useSelectedCommunity()
+    const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
 
     // Extract data from the store
     const { token: residentToken, organizationId, estateId, isResident } = useResidentStore();

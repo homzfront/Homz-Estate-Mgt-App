@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useResidentStore } from '@/store/useResidentStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import React, { useState } from 'react';
 
 const UpdateResidentAccount = () => {
+    const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
+    const { organizationId, estateId } = useResidentStore();
     const [formData, setFormData] = useState({
         firstName: '[Autofilled - First Name]',
         lastName: '[Autofilled - Last Name]',
@@ -23,11 +27,30 @@ const UpdateResidentAccount = () => {
         }));
     };
 
+    const getPublicEstate = async () => {
+        try {
+            const response: any = await fetch(`http://localhost:4000/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
+
+            );
+            const data = await response.json();
+            console.log("Public Estate Response:", data);
+            setPublicCommunity(data?.data);
+        } catch (error) {
+            console.error("Failed to fetch estates:", error);
+        };
+    }
+
+    React.useEffect(() => {
+        getPublicEstate();
+    }, [organizationId, estateId]);
+
     const handleSubmit = (e: any) => {
         e.preventDefault();
         // Handle form submission logic here
         console.log('Form submitted:', formData);
     };
+
+    console.log("Public Community:", publicCommunity);
 
     return (
         <div className="p-6 bg-[#FCFCFC] rounded-lg shadow-sm w-full">
@@ -154,13 +177,13 @@ const UpdateResidentAccount = () => {
                 </div>
 
                 {/* Submit Button */}
-                <div className='flex justify-end'> 
-                <button
-                    type="submit"
-                    className="bg-BlueHomz text-white py-3 w-full md:w-[240px] text-[16px] rounded font-medium hover:bg-blue-700 transition-colors mt-4"
-                >
-                    Confirm & Go to Dashboard
-                </button>
+                <div className='flex justify-end'>
+                    <button
+                        type="submit"
+                        className="bg-BlueHomz text-white py-3 w-full md:w-[240px] text-[16px] rounded font-medium hover:bg-blue-700 transition-colors mt-4"
+                    >
+                        Confirm & Go to Dashboard
+                    </button>
                 </div>
             </form>
         </div>

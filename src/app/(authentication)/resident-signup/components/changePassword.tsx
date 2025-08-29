@@ -6,8 +6,10 @@ import React, { useState } from "react";
 import DotLoader from "@/components/general/dotLoader";
 import toast from "react-hot-toast";
 import { useResidentStore } from "@/store/useResidentStore";
-
-const ChangePassword = () => {
+interface PasswordProps {
+    setActive: (index: number) => void;
+}
+const ChangePassword = ({ setActive }: PasswordProps) => {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -60,7 +62,7 @@ const ChangePassword = () => {
 
         try {
             setIsSigningUp(true);
-            
+
             // Prepare the payload
             const payload = {
                 email: email || formData.email,
@@ -91,7 +93,7 @@ const ChangePassword = () => {
             }
 
             const responseData = await response.json();
-            
+            setActive(1); // Move to the next step on success
             toast.success("Password updated successfully!", {
                 position: "top-center",
                 duration: 2000,
@@ -122,7 +124,7 @@ const ChangePassword = () => {
                     <div className='flex flex-col gap-1 w-full text-sm'>
                         <h3 className='text-sm font-medium text-BlackHomz mb-1'>Email <span className='text-error'>*</span></h3>
                         <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                            {email ? email : 'Auto-filled'}
+                            {email ? email : ''}
                         </span>
                     </div>
 
