@@ -237,7 +237,7 @@ const EstateForm = () => {
                         successText='You can now manage estate information, invite residents and add bills.'
                         submitText='Invite Residents'
                         handleSubmit={() => {
-                            setUserData(true);
+                            // setUserData(true);
                             clearForm();
                             router.push("/dashboard");
                         }}

@@ -24,6 +24,7 @@ import { useAuthSlice } from '@/store/authStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useEstateFormStore } from '@/store/useEstateFormStore';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
+import UserTick from '@/components/icons/userTick';
 
 const Data = [
     {
@@ -42,9 +43,28 @@ const Data = [
         image2: (
             <ManageResidentIcon className='#FFFFFF' classNameII='#FFFFFF' />
         ),
-        link: "/manage-resident",
-        name: "Manage Residents",
+        name: "Residents",
+        link: "#",
         active: false,
+        submenu: true,
+        subMenuItems: [
+            {
+                title: "Manage Residents",
+                link: "/manage-resident",
+                image: <ManageResidentIcon h='14' w='14' />,
+                image2: (
+                    <ManageResidentIcon h='14' w='14' className='#006AFF' classNameII='#006AFF' />
+                ),
+            },
+            {
+                title: "Join Requests",
+                link: "/manage-resident/request",
+                image2: <UserTick />,
+                image: (
+                    <UserTick color='#4E4E4E' />
+                ),
+            },
+        ],
     },
     {
         id: 3,

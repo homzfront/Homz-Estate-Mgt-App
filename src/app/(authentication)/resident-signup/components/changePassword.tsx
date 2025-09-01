@@ -6,6 +6,12 @@ import React, { useState } from "react";
 import DotLoader from "@/components/general/dotLoader";
 import toast from "react-hot-toast";
 import { useResidentStore } from "@/store/useResidentStore";
+import { useAuthSlice } from "@/store/authStore";
+import api from "@/utils/api";
+import { storeToken } from "@/utils/cookies";
+
+
+
 interface PasswordProps {
     setActive: (index: number) => void;
 }
@@ -20,7 +26,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const { token, email, estateId, organizationId } = useResidentStore();
-
+    const { getResidentProfile, setUserData } = useAuthSlice();
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
         if (passwordError) {
@@ -83,8 +89,6 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
                 body: JSON.stringify(payload)
             });
 
-            // Log the response
-            console.log(response);
 
             // Check if the request was successful
             if (!response.ok) {
@@ -93,6 +97,20 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             }
 
             const responseData = await response.json();
+
+            // Store tokens using the right keys
+            await storeToken({
+                token: responseData?.data?.accessToken,
+                refresh_token: responseData?.data?.refreshToken,
+            });
+
+            // Fetch user profile
+            const profile = await api.get("/auth/current-user");
+
+            // Store user data
+            setUserData(profile.data.data);
+            const residentProfile = await getResidentProfile(profile.data.data?._id);
+            console.log(residentProfile);
             setActive(1); // Move to the next step on success
             toast.success("Password updated successfully!", {
                 position: "top-center",

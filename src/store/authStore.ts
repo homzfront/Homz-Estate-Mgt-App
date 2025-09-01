@@ -2,7 +2,7 @@
 import api from '@/utils/api';
 import { storeToken } from '@/utils/cookies';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { useResidentStore } from "@/store/useResidentStore";
 
 export interface RegisterUser {
@@ -120,10 +120,12 @@ export interface AuthState {
     userAccountDetails: AccountDetailsType | null;
     getCommunityManaProfile: () => Promise<void>;
     communityProfile: any;
+    residentProfile: any;
     setUserAccountDetails: (data: AccountDetailsType) => void;
     estatesData: Community[] | null;
     getEstates: () => Promise<void>;
     estateLoading: boolean;
+    getResidentProfile: (residentId: string) => Promise<void>;
 }
 
 export const useAuthSlice = create<AuthState>()(
@@ -136,6 +138,7 @@ export const useAuthSlice = create<AuthState>()(
             error: null,
             estatesData: null,
             estateLoading: true,
+            residentProfile: null,
 
             setUserData: (data) => set({ userData: data }),
             setUserAccountDetails: (data) => set({ userAccountDetails: data }),
@@ -221,6 +224,18 @@ export const useAuthSlice = create<AuthState>()(
                 }
             },
 
+            getResidentProfile: async (residentId: string ) => {
+                try {
+                    const response = await api.get(`/resident/profile/organizations/${useResidentStore.getState().organizationId}/estates/${useResidentStore.getState().estateId}/residents/${residentId}`);
+                    const data = response.data.data;
+                    set({ residentProfile: data });
+                } catch (error: any) {
+                    console.error("failed to fetch community manager profile:", error);
+                    set({ error: error.message || "failed" });
+                    throw error;
+                }
+            },
+
             userAccountDetails: null,
 
             clearError: () => set({ error: null }),
@@ -230,8 +245,11 @@ export const useAuthSlice = create<AuthState>()(
             partialize: (state) => ({
                 userData: state.userData,
                 estatesData: state.estatesData,
-                communityProfile: state.communityProfile
+                communityProfile: state.communityProfile,
+                residentProfile: state.residentProfile,
             }),
+            // storage: createJSONStorage(() => sessionStorage),
+            // storage: createJSONStorage(() => localStorage),
         }
     )
 );
