@@ -102,7 +102,7 @@ const Resident = () => {
         if (residentToken && organizationId) {
             (async () => {
                 const t = await getToken();
-                // console.log(t)
+                console.log(t)
                 if (!t || !userData) {
                     router.push("/login")
                 } else {

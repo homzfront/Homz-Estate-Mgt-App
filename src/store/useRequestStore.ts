@@ -16,7 +16,7 @@ interface AssociatedIds {
     estateId: string;
 }
 
-interface ResidentData {
+export interface ResidentData {
     _id: string;
     associatedIds: AssociatedIds;
     userId: string;
@@ -46,7 +46,12 @@ interface ReponseData {
 }
 export interface RequestState {
     isLoading: boolean;
-    getRequest: () => Promise<void>;
+    getRequest: (
+        page?: number,
+        limit?: number,
+        status?: string,
+        search?: string
+    ) => Promise<void>;
     requestResponse: ReponseData | null;
 }
 
@@ -56,17 +61,34 @@ export const useRequestSlice = create<RequestState>()(
             isLoading: true,
             requestResponse: null,
 
-            getRequest: async () => {
+            getRequest: async (
+                page = 1,
+                limit = 6,
+                status?: string,
+                search?: string
+            ) => {
+                set({ isLoading: true });
                 try {
-                    const response = await api.get(`/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?._id}`);
+                    const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?._id}`;
+                    let query = `${baseUrl}?limit=${limit}&page=${page}`;
+
+                    if (status) {
+                        query += `&status=${status}`;
+                    }
+
+                    if (search) {
+                        query += `&search=${search}`;
+                    }
+
+                    const response = await api.get(query);
                     const data = response.data.data;
                     console.log("Request data:", data);
                     set({ requestResponse: data });
-                    set({ isLoading: false });
                 } catch (error: any) {
-                    // console.error("failed to fetch requests:", error);
                     set({ isLoading: false });
                     throw error;
+                } finally {
+                    set({ isLoading: false });
                 }
             },
         }),
@@ -75,8 +97,6 @@ export const useRequestSlice = create<RequestState>()(
             partialize: (state) => ({
                 requestResponse: state.requestResponse,
             }),
-            // storage: createJSONStorage(() => sessionStorage),
-            // storage: createJSONStorage(() => localStorage),
         }
     )
 );

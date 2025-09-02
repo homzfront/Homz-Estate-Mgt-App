@@ -1,33 +1,41 @@
 "use client";
+import Pagination from '@/app/(dashboard)/components/pagination';
+import useClickOutside from '@/app/utils/useClickOutside';
+import CustomModal from '@/components/general/customModal';
+import DotLoader from '@/components/general/dotLoader';
+import ApproveIcon from '@/components/icons/approveIcon';
+import DeclineIcon from '@/components/icons/declineIcon';
+import Eye from '@/components/icons/Eye';
 import Ticked from '@/components/icons/ticked';
 import UnTicked from '@/components/icons/unTicked';
 import UserAdd from '@/components/icons/userAdd';
-import { useRequestSlice } from '@/store/useRequestStore';
+import { ResidentData, useRequestSlice } from '@/store/useRequestStore';
+import api from '@/utils/api';
+import { getToken } from '@/utils/cookies';
+import Image from 'next/image';
 import React, { useRef } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import toast from 'react-hot-toast';
 
 const Request = () => {
     const { requestResponse, isLoading, getRequest } = useRequestSlice();
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
     const [selectAll, setSelectAll] = React.useState(false);
     const [popUpMenu, setPopUpMenu] = React.useState(false);
-    const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0 });
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
-    const tableRef = useRef<HTMLDivElement>(null);
-    const popUpRef = useRef<HTMLDivElement>(null);
-
-    React.useEffect(() => {
-        getRequest();
-    }, []);
-
-    // Virtualizer setup
-    const rowCount = requestResponse ? requestResponse?.results.length : 0;
-    const rowVirtualizer = useVirtualizer({
-        count: rowCount,
-        getScrollElement: () => tableRef.current,
-        estimateSize: () => 60,
-        overscan: 5,
+    const [pageNo, setPageNo] = React.useState<number>(1);
+    const pageSize = 6; // match your API default
+    const menuRef = useRef<HTMLElement>(null);
+    const [modelOpen, setModelOpen] = React.useState(''); // 'approve' | 'decline' | ''
+    const [selectedData, setSelectedData] = React.useState<null | ResidentData>(null);
+    const [isRequesting, setIsRequesting] = React.useState<boolean>(false);
+    // Close pop-up menu when clicking outside
+    useClickOutside(menuRef as any, () => {
+        setPopUpMenu(false);
     });
+    React.useEffect(() => {
+        getRequest(pageNo, pageSize);
+    }, [pageNo]);
+
 
     // Select all rows
     const handleSelectAll = () => {
@@ -51,58 +59,137 @@ const Request = () => {
     const handleToggleMenu = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setSelectedId(id);
-        setPopUpMenu(true);
-        // Position menu below button
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
-        setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+        setPopUpMenu(!popUpMenu);
     };
 
-    // Close pop-up on outside click
-    React.useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (
-                popUpRef.current &&
-                !popUpRef.current.contains(event.target as Node)
-            ) {
-                setPopUpMenu(false);
-                setSelectedId(null);
-            }
-        }
-        if (popUpMenu) {
-            document.addEventListener("mousedown", handleClickOutside);
-        }
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [popUpMenu]);
 
     // Approve/Decline actions (stub)
-    const handleApprove = (id: string) => {
-        alert(`Approved request for ${id}`);
-        setPopUpMenu(false);
+    const handleApprove = async (id: string) => {
+        try {
+            const payload = {
+                "validationIds": {
+                    "estateId": selectedData?.associatedIds?.estateId,
+                    "organizationId": selectedData?.associatedIds?.organizationId
+                }
+            }
+            setIsRequesting(true);
+            const jwtToken = await getToken();
+            const response = await api.post(`/resident-invitation/residents/${id}/accept/tokens/${jwtToken}`, payload)
+            toast.success("Invitation approved")
+            console.log(response);
+            setPopUpMenu(false);
+            setModelOpen('');
+        } catch (error: any) {
+            setIsRequesting(false);
+            console.log(error)
+        } finally {
+            setIsRequesting(false);
+        }
     };
-    const handleDecline = (id: string) => {
-        alert(`Declined request for ${id}`);
-        setPopUpMenu(false);
+
+    const handleDecline = async (id: string) => {
+        try {
+            const payload = {
+                "validationIds": {
+                    "estateId": selectedData?.associatedIds?.estateId,
+                    "organizationId": selectedData?.associatedIds?.organizationId
+                }
+            }
+            setIsRequesting(true);
+            // const response = await api.post(`/resident/community-manager/${selectedData?.associatedIds?.communityManagerId}/reject/${id}`, payload)
+            // toast.success("Invitation approved")
+            const jwtToken = await getToken();
+            const response = await api.post(`/resident-invitation/residents/${id}/accept/tokens/${jwtToken}`, payload)
+            toast.success("Invitation approved")
+            console.log(response);
+            setPopUpMenu(false);
+            setModelOpen('');
+        } catch (error: any) {
+            setIsRequesting(false);
+            console.log(error)
+        } finally {
+            setIsRequesting(false);
+        }
     };
-console.log(requestResponse);
+
+    // Pagination handlers
+    const handlePageClick = (page: number) => setPageNo(page);
+    const handleNext = () => {
+        if (requestResponse && pageNo < requestResponse.totalPages) setPageNo(pageNo + 1);
+    };
+    const handlePrev = () => {
+        if (pageNo > 1) setPageNo(pageNo - 1);
+    };
+
     // Skeleton Loader
     const SkeletonLoader = () => (
-        <div className="w-full border-t-[1px] flex items-center min-h-[60px]">
-            <div className="py-[15px] pl-4 w-[8%]"><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[12%]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[8%]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-            <div className="w-[8%]"><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
-        </div>
+        <tr>
+            <td colSpan={9}>
+                <div className="flex items-center min-h-[60px]">
+                    <div className="py-[15px] pl-4 w-[40px]"><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[150px]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[40px]"><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+                    <div className="w-[40px]"><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
+                </div>
+            </td>
+        </tr>
     );
+
+console.log("selectedData:", selectedData)
 
     return (
         <div className='p-8'>
+            <CustomModal isOpen={modelOpen !== ''} onRequestClose={() => setModelOpen('')}>
+                <div className='p-6 min-w-[340px] w-full md:w-[600px] bg-white rounded-[12px]'>
+                    <div className="flex flex-col gap-6 items-center justify-center">
+                        <Image
+                            src={modelOpen === 'approve' ? '/success_icon.svg' : '/decline.png'}
+                            height={48}
+                            width={46}
+                            alt=""
+                        />
+                        <div className="flex flex-col">
+                            <p className="text-[14px] md:text-[20px] font-[700] leading-[17.64px] md:leading-[25.2px] text-center mb-1">
+                                {modelOpen === 'approve' ? 'Approve Request?' : 'Decline Request?'}
+                            </p>
+                            <p className=" leading-[19.5px] text-[13px] md:text-[16px] font-[400] md:leading-[24px] text-center">
+                                {modelOpen === 'approve' ?
+                                    <>
+                                        {`Are you sure you want to approve this request? ${selectedData?.firstName} will be added as a resident to ${selectedData?.estateName}.`}
+                                    </>
+                                    : "This action will notify the resident that their request was declined."}
+                            </p>
+                        </div>
+                    </div>
+                    <div className='flex justify-center items-center mt-4 gap-4'>
+                        <button
+                            className={`flex-1 ${modelOpen === 'approve' ? 'bg-BlueHomz' : 'bg-error'} text-white rounded-[4px] h-[48px] p-[12px] ${isRequesting && "pointer-events-none flex justify-center items-center"}`}
+                            onClick={() => {
+                                if (modelOpen === 'approve' && selectedData) handleApprove(selectedData?.userId ?? '');
+                                if (modelOpen === 'decline' && selectedData) handleDecline(selectedData?.userId ?? '');
+                            }}
+                        >
+                            {isRequesting ? <DotLoader /> : modelOpen === 'approve' ? "Yes, Approve" : "Decline Request"}
+                        </button>
+
+                        <button
+                            disabled={isRequesting}
+                            className={`flex-1 text-BlackHomz border border-BlackHomz rounded-[4px] font-normal text-sm hover:text-GrayHomz cursor-pointer h-[48px]`}
+                            onClick={() => {
+                                setModelOpen('');
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </CustomModal >
+
             {(!requestResponse || requestResponse?.results?.length === 0) && !isLoading && (
                 <div>
                     <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
@@ -120,142 +207,137 @@ console.log(requestResponse);
                     </div>
                 </div>
             )}
-            {isLoading && (
-                <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                    <p className='text-GrayHomz font-normal text-sm md:text-[16px]'>Loading...</p>
-                </div>
-            )}
-            {requestResponse?.results && requestResponse?.results.length > 0 && !isLoading && (
-                <div>
-                    <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
-                    <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] max-w-[600px]'>View and manage pending requests from residents who want to join the estate. You can approve or decline each request.</h3>
-                    <div className="mt-6 w-full mx-auto flex flex-col" style={{ height: '70vh' }}>
-                        {/* Table Header */}
-                        <div className="bg-whiteblue min-h-[50px] text-[13px] font-semibold text-BlackHomz flex items-center border rounded-t-[8px]">
-                            <div onClick={handleSelectAll} className="cursor-pointer text-left pl-4 flex-shrink-0 w-[8%]">
-                                {selectAll ? <Ticked /> : <UnTicked />}
-                            </div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Resident Name</div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Email</div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Street</div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Building</div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Apartment</div>
-                            <div className="text-left flex-shrink-0 w-[12%]">Requested On</div>
-                            <div className="text-left flex-shrink-0 w-[8%]">Status</div>
-                            <div className="flex-shrink-0 w-[8%]">Action</div>
-                        </div>
-                        {/* Virtualized Table Body */}
-                        <div
-                            ref={tableRef}
-                            className="w-full border border-t-0 rounded-b-[8px] overflow-y-auto"
-                            style={{ height: 'calc(70vh - 50px)', position: 'relative' }}
-                        >
-                            <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-                                {isLoading
-                                    ? Array.from({ length: 5 }).map((_, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                position: 'absolute',
-                                                top: `${i * 60}px`,
-                                                left: 0,
-                                                width: '100%',
-                                                height: '60px',
-                                                zIndex: '-20',
-                                            }}
-                                        >
-                                            <SkeletonLoader />
-                                        </div>
-                                    ))
-                                    : rowVirtualizer.getVirtualItems().map(virtualRow => {
-                                        const data = requestResponse?.results[virtualRow.index];
-                                        return (
-                                            <div
-                                                key={data._id}
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 0,
-                                                    left: 0,
-                                                    width: '100%',
-                                                    height: `${virtualRow.size}px`,
-                                                    transform: `translateY(${virtualRow.start}px)`,
-                                                }}
-                                                className="w-full border-t-[1px] flex items-center min-h-[60px] bg-white"
-                                            >
-                                                <div onClick={() => handleRowSelect(data._id)} className="cursor-pointer pr-2 py-[15px] pl-4 font-[400] text-[13px] flex-shrink-0 w-[8%]">
-                                                    {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
-                                                </div>
-                                                <div className="flex items-center gap-1 py-[15px] text-GrayHomz4 font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    <span>{data.firstName} {data.lastName}</span>
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] break-words font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    {data.email}
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    {data.streetName}
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    {data.building}
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    {data.apartment}
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] font-[400] text-[13px] flex-shrink-0 w-[12%]">
-                                                    {new Date(data.createdAt).toLocaleDateString()}
-                                                </div>
-                                                <div className="text-GrayHomz py-[15px] font-[400] text-[13px] flex-shrink-0 w-[8%]">
-                                                    <span className="bg-warningBg text-warning rounded-md py-1 px-3 flex items-center justify-center">
-                                                        {data.status}
-                                                    </span>
-                                                </div>
-                                                <div className="py-[15px] z-10 w-[8%] flex gap-2 relative">
-                                                    <button
-                                                        className="ml-2 md:ml-8"
-                                                        onClick={e => handleToggleMenu(data._id, e)}
-                                                    >
-                                                        ⋮
-                                                    </button>
-                                                    {/* Pop-up menu */}
-                                                    {popUpMenu && selectedId === data._id && (
-                                                        <div
-                                                            ref={popUpRef}
-                                                            style={{
-                                                                position: 'fixed',
-                                                                top: menuPosition.top + 5,
-                                                                left: menuPosition.left,
-                                                                zIndex: 1000,
-                                                                background: 'white',
-                                                                border: '1px solid #eee',
-                                                                borderRadius: '8px',
-                                                                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                                                                minWidth: '120px',
-                                                                padding: '8px 0',
-                                                            }}
+            {
+                isLoading && (
+                    <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+                        <p className='text-GrayHomz font-normal text-sm md:text-[16px]'>Loading...</p>
+                    </div>
+                )
+            }
+            {
+                requestResponse?.results && requestResponse?.results.length > 0 && !isLoading && (
+                    <div>
+                        <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
+                        <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] max-w-[600px]'>View and manage pending requests from residents who want to join the estate. You can approve or decline each request.</h3>
+                        <div className="mt-6 w-full border overflow-x-auto scrollbar-container">
+                            <div className="w-[700%] md:w-[150%]">
+                                <table border={1} className="w-full">
+                                    <thead>
+                                        <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
+                                            <th className="cursor-pointer text-left pl-4 w-[40px]" onClick={handleSelectAll}>
+                                                {selectAll ? <Ticked /> : <UnTicked />}
+                                            </th>
+                                            <th className="text-left w-[150px]">Resident Name</th>
+                                            <th className="text-left w-[150px]">Email</th>
+                                            <th className="text-left w-[150px]">Street</th>
+                                            <th className="text-left w-[150px]">Building</th>
+                                            <th className="text-left w-[150px]">Apartment</th>
+                                            <th className="text-left w-[150px]">Requested On</th>
+                                            <th className="text-left w-[110px]">Status</th>
+                                            <th className="text-left w-[80px]">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className='min-h-[300px]'>
+                                        {isLoading
+                                            ? Array.from({ length: 5 }).map((_, i) => <SkeletonLoader key={i} />)
+                                            : requestResponse?.results.map((data) => (
+                                                <tr key={data._id} className="border-t-[1px] min-h-[60px] bg-white">
+                                                    <td onClick={() => handleRowSelect(data._id)} className="cursor-pointer pr-2 py-[15px] pl-4 font-[500] text-[11px] w-[40px]">
+                                                        {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-[150px]">
+                                                        <span>{data.firstName} {data.lastName}</span>
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px] break-words">
+                                                        {data.email}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                        {data.streetName}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                        {data.building}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                        {data.apartment}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                        {new Date(data.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-[110px]">
+                                                        <span className="bg-warningBg max-w-[80px] text-warning rounded-md py-1 px-3 flex items-center justify-center">
+                                                            {data.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-[15px] z-10 w-[80px] sticky right-[-24px] md:right-0">
+                                                        <button
+                                                            className='ml-4'
+                                                            onClick={e => handleToggleMenu(data._id, e)}
                                                         >
-                                                            <button
-                                                                className="block w-full text-left px-4 py-2 text-green-600 hover:bg-gray-100"
-                                                                onClick={() => handleApprove(data._id)}
+                                                            ⋮
+                                                        </button>
+                                                        {/* Pop-up menu */}
+                                                        {popUpMenu && selectedId === data._id && (
+                                                            <div
+                                                                ref={menuRef as any}
+                                                                className={`drop-down absolute top-11 left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] right-[67px] border p-2 rounded-md bg-white flex flex-col items-center justify-around `}
                                                             >
-                                                                Approve
-                                                            </button>
-                                                            <button
-                                                                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                                                                onClick={() => handleDecline(data._id)}
-                                                            >
-                                                                Decline
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                                                                <button
+                                                                    className="flex md:hidden gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
+                                                                // onClick={() => handleApprove(data._id)}
+                                                                >
+                                                                    <Eye className='h-4 w-4' /> View
+                                                                </button>
+                                                                <button
+                                                                    className="flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue"
+                                                                    onClick={() => {
+                                                                        setSelectedData(data);
+                                                                        setModelOpen('approve');
+                                                                        setPopUpMenu(false);
+                                                                    }}
+                                                                >
+                                                                    <ApproveIcon />    Approve
+                                                                </button>
+                                                                <button
+                                                                    className="flex gap-2 items-center w-full text-left px-4 py-2 text-error hover:bg-whiteblue"
+                                                                    onClick={() => {
+                                                                        setSelectedData(data);
+                                                                        setModelOpen('decline')
+                                                                        setPopUpMenu(false);
+                                                                    }}
+                                                                >
+                                                                    <DeclineIcon />   Decline
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
                             </div>
+                            {/* Pagination */}
+                            {requestResponse && requestResponse.totalPages > 1 && (
+                                <div className="mt-6">
+                                    <Pagination
+                                        firstThreePages={[1, 2, 3]}
+                                        currentPage={pageNo}
+                                        totalPages={requestResponse.totalPages}
+                                        handleNext={handleNext}
+                                        handlePageClick={handlePageClick}
+                                        handlePrev={handlePrev}
+                                        lastThreePages={[
+                                            requestResponse.totalPages - 2,
+                                            requestResponse.totalPages - 1,
+                                            requestResponse.totalPages,
+                                        ]}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 
