@@ -21,7 +21,7 @@ interface HeaderState {
   activeThree: boolean;
   openModalForBusi: boolean;
   open: boolean;
-}
+};
 
 // Function to extract username from email address
 const extractUsername = (userOrEmail: string) => {
