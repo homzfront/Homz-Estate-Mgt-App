@@ -358,127 +358,127 @@ const Request = () => {
                         </div>
 
                         {/* Table Section */}
-                       <div className="mt-6 border overflow-x-auto scrollbar-container">
-  <table className="w-full">
-    <thead>
-      <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
-        {/* Select All */}
-        <th
-          className="cursor-pointer text-left pl-4 w-[40px]"
-          onClick={handleSelectAll}
-        >
-          {selectAll ? <Ticked /> : <UnTicked />}
-        </th>
+                        <div className="mt-6 border overflow-x-auto scrollbar-container">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
+                                        {/* Select All */}
+                                        <th
+                                            className="cursor-pointer text-left pl-4 w-[40px]"
+                                            onClick={handleSelectAll}
+                                        >
+                                            {selectAll ? <Ticked /> : <UnTicked />}
+                                        </th>
 
-        {/* Resident Name */}
-        <th className="text-left w-auto md:w-[150px]">Resident Name</th>
+                                        {/* Resident Name */}
+                                        <th className="text-left w-auto md:w-[150px]">Resident Name</th>
 
-        {/* Hidden on mobile */}
-        <th className="hidden md:table-cell text-left w-[150px]">Email</th>
-        <th className="hidden md:table-cell text-left w-[150px]">Street</th>
-        <th className="hidden md:table-cell text-left w-[150px]">Building</th>
-        <th className="hidden md:table-cell text-left w-[150px]">Apartment</th>
-        <th className="hidden md:table-cell text-left w-[150px]">Requested On</th>
+                                        {/* Hidden on mobile */}
+                                        <th className="hidden md:table-cell text-left w-[150px]">Email</th>
+                                        <th className="hidden md:table-cell text-left w-[150px]">Street</th>
+                                        <th className="hidden md:table-cell text-left w-[150px]">Building</th>
+                                        <th className="hidden md:table-cell text-left w-[150px]">Apartment</th>
+                                        <th className="hidden md:table-cell text-left w-[150px]">Requested On</th>
 
-        {/* Always visible */}
-        <th className="text-left w-auto md:w-[110px]">Status</th>
-        <th className="text-left w-auto md:w-[80px]">Action</th>
-      </tr>
-    </thead>
+                                        {/* Always visible */}
+                                        <th className="text-left w-auto md:w-[110px]">Status</th>
+                                        <th className="text-left w-auto md:w-[80px]">Action</th>
+                                    </tr>
+                                </thead>
 
-    <tbody>
-      {requestResponse?.results.map((data) => (
-        <tr key={data._id} className="border-t min-h-[60px] bg-white">
-          {/* Checkbox */}
-          <td
-            onClick={() => handleRowSelect(data._id)}
-            className="cursor-pointer pr-2 py-[15px] pl-4 font-[500] text-[11px] w-[40px]"
-          >
-            {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
-          </td>
+                                <tbody>
+                                    {requestResponse?.results.map((data) => (
+                                        <tr key={data._id} className="border-t min-h-[60px] bg-white">
+                                            {/* Checkbox */}
+                                            <td
+                                                onClick={() => handleRowSelect(data._id)}
+                                                className="cursor-pointer pr-2 py-[15px] pl-4 font-[500] text-[11px] w-[40px]"
+                                            >
+                                                {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
+                                            </td>
 
-          {/* Resident Name */}
-          <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[150px]">
-            {data.firstName} {data.lastName}
-          </td>
+                                            {/* Resident Name */}
+                                            <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[150px]">
+                                                {data.firstName} {data.lastName}
+                                            </td>
 
-          {/* Hidden on mobile */}
-          <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
-            {data.email}
-          </td>
-          <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
-            {data.streetName}
-          </td>
-          <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
-            {data.building}
-          </td>
-          <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
-            {data.apartment}
-          </td>
-          <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
-            {new Date(data.createdAt).toLocaleDateString()}
-          </td>
+                                            {/* Hidden on mobile */}
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                {data.email}
+                                            </td>
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                {data.streetName}
+                                            </td>
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                {data.building}
+                                            </td>
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                {data.apartment}
+                                            </td>
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[150px]">
+                                                {new Date(data.createdAt).toLocaleDateString()}
+                                            </td>
 
-          {/* Status */}
-          <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[110px]">
-            <span className="bg-warningBg max-w-[80px] text-warning rounded-md py-1 px-3 flex items-center justify-center">
-              {data.status}
-            </span>
-          </td>
+                                            {/* Status */}
+                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[110px]">
+                                                <span className="bg-warningBg max-w-[80px] text-warning rounded-md py-1 px-3 flex items-center justify-center">
+                                                    {data.status}
+                                                </span>
+                                            </td>
 
-          {/* Action */}
-          <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
-            <button
-              className="ml-4"
-              onClick={(e) => handleToggleMenu(data._id, e)}
-            >
-              ⋮
-            </button>
+                                            {/* Action */}
+                                            <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
+                                                <button
+                                                    className="ml-4"
+                                                    onClick={(e) => handleToggleMenu(data._id, e)}
+                                                >
+                                                    ⋮
+                                                </button>
 
-            {/* Pop-up menu */}
-            {popUpMenu && selectedId === data._id && (
-              <div
-                ref={menuRef as any}
-                className="drop-down absolute top-11 left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around"
-              >
-                <button
-                  className="flex gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
-                  onClick={() => {
-                    setSelectedData(data);
-                    setDetailsOpen(true);
-                    setPopUpMenu(false);
-                  }}
-                >
-                  <Eye className="h-4 w-4" /> View
-                </button>
-                <button
-                  className="flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue"
-                  onClick={() => {
-                    setSelectedData(data);
-                    setModelOpen("approve");
-                    setPopUpMenu(false);
-                  }}
-                >
-                  <ApproveIcon /> Approve
-                </button>
-                <button
-                  className="flex gap-2 items-center w-full text-left px-4 py-2 text-error hover:bg-whiteblue"
-                  onClick={() => {
-                    setSelectedData(data);
-                    setModelOpen("decline");
-                    setPopUpMenu(false);
-                  }}
-                >
-                  <DeclineIcon /> Decline
-                </button>
-              </div>
-            )}
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+                                                {/* Pop-up menu */}
+                                                {popUpMenu && selectedId === data._id && (
+                                                    <div
+                                                        ref={menuRef as any}
+                                                        className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around"
+                                                    >
+                                                        <button
+                                                            className="flex md:hidden gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
+                                                            onClick={() => {
+                                                                setSelectedData(data);
+                                                                setDetailsOpen(true);
+                                                                setPopUpMenu(false);
+                                                            }}
+                                                        >
+                                                            <Eye className="h-4 w-4" /> View
+                                                        </button>
+                                                        <button
+                                                            className="flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue"
+                                                            onClick={() => {
+                                                                setSelectedData(data);
+                                                                setModelOpen("approve");
+                                                                setPopUpMenu(false);
+                                                            }}
+                                                        >
+                                                            <ApproveIcon /> Approve
+                                                        </button>
+                                                        <button
+                                                            className="flex gap-2 items-center w-full text-left px-4 py-2 text-error hover:bg-whiteblue"
+                                                            onClick={() => {
+                                                                setSelectedData(data);
+                                                                setModelOpen("decline");
+                                                                setPopUpMenu(false);
+                                                            }}
+                                                        >
+                                                            <DeclineIcon /> Decline
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
 
                         {/* Details Modal/Card */}
