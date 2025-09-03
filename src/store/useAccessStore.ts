@@ -1,4 +1,4 @@
-import { Resident } from '@/app/(dashboard)/(estate-manager)/manage-resident/components/resident';
+import { Resident } from '@/app/(dashboard)/(estate-manager)/manage-resident/residents/components/resident';
 import { Visitor } from '@/app/(dashboard)/components/visitors';
 import { create } from 'zustand';
 

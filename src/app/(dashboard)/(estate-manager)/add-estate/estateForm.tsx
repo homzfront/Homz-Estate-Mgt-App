@@ -3,7 +3,7 @@ import ArrowLeft from '@/components/icons/arrowLeft'
 import ArrowLeft16Long from '@/components/icons/arrowLeft16Long'
 import ArrowLeftMob from '@/components/icons/arrowLeftMob'
 import ArrowRightWhite from '@/components/icons/arrowRightWhite'
-import { useUserStore } from '@/store/useUserStore'
+// import { useUserStore } from '@/store/useUserStore'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import SuccessModal from '../../components/successModal'
@@ -12,27 +12,36 @@ import AddZone from './components/addZone'
 import AddStreet from './components/addStreet'
 import AddBuilding from './components/addBuilding'
 import AppApartment from './components/appApartment'
+import useStateStore from '@/store/useStateAndAreaStore/useStateStore'
+import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
+import toast from 'react-hot-toast'
+import api from '@/utils/api'
+import DotLoader from '@/components/general/dotLoader'
 
 const EstateForm = () => {
+    // react components
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    // zustand for state 
+    const { chooseState } = useStateStore();
+
+    // normal states
     const [active, setActive] = React.useState<number>(0);
+    const [loading, setLoading] = React.useState<boolean>(false);
     const [completedSteps, setCompletedSteps] = React.useState<number[]>([]);
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
-    const setUserData = useUserStore((state) => state.setUserData);
-    const [formData, setFormData] = React.useState({
-        estateName: '',
-        estateLocation: '',
-        area: '',
-        state: '',
-        managerPhone: '',
-        utilityPhone: '',
-        accountNumber: '',
-        bankName: '',
-        accountName: '',
-        emergencyPhone: '',
-        securityPhone: ''
-    });
+    // const setUserData = useUserStore((state) => state.setUserData);
+    const {
+        formData,
+        setFormData,
+        clearForm
+    } = useEstateFormStore();
+
+    // Load state 
+    React.useEffect(() => {
+        chooseState()
+    }, []);
 
     const widgetHeaders = ["Estate Information", "Add Zones (Optional)", "Add Streets", "Add Buildings", "Add Apartments"]
 
@@ -47,14 +56,109 @@ const EstateForm = () => {
         }
     }, [searchParams]);
 
-    const handleOpenModal = () => {
-        setIsOpen(true);
-    }
+    const handleSubmit = async () => {
+        // Get all data from the store
+        const {
+            estateName,
+            area,
+            state,
+            managerPhone,
+            utilityPhone,
+            emergencyPhone,
+            securityPhone,
+            accountNumber,
+            bankName,
+            accountName,
+            zones,
+            streets,
+            buildings,
+            apartments,
+            coverPhoto
+        } = useEstateFormStore.getState().formData;
 
-    const handleSubmit = () => {
-        setUserData(true);
-        router.push("/dashboard")
-    }
+        // Prepare the payload
+        const payload = {
+            basicDetails: {
+                name: estateName,
+                location: {
+                    area,
+                    state
+                }
+            },
+            contactInformation: {
+                managerPhone,
+                emergencyPhone,
+                utilityServicesPhone: utilityPhone,
+                securityPhone
+            },
+            bankDetails: {
+                accountNumber,
+                accountName,
+                bankName
+            },
+            zones: zones.map(zone => ({ name: zone.label })),
+            streets: streets.map(street => ({
+                name: street.label,
+                zone: street.zone
+            })),
+            buildings: buildings.map(building => ({
+                name: building.label,
+                street: building.street,
+                zone: building.zone
+            })),
+            apartments: apartments.map(apartment => ({
+                name: apartment.label,
+                building: apartment.building,
+                street: apartment.street,
+                zone: apartment.zone
+            }))
+        };
+
+        try {
+            setLoading(true);
+            // First, create the estate
+            const createEstateResponse = await api.post(`/estates/create-estate`, payload);
+
+            if (createEstateResponse?.data) {
+                const estateData = createEstateResponse?.data?.data
+
+                const estateId = estateData._id; // Adjust based on your API response
+                const estateManId = estateData?.associatedIds?.organizationId
+                // Then upload the cover photo if it exists
+                if (coverPhoto) {
+                    // Convert data URL to blob
+                    const blob = await fetch(coverPhoto).then(res => res.blob());
+
+                    const formData = new FormData();
+                    formData.append('coverImage', blob, 'cover-photo.jpg');
+
+                    await api.patch(`/estates/upload/single/cover-photo/${estateManId}/${estateId}`, formData);
+                }
+
+            }
+            // On success
+            setIsOpen(true);
+        } catch (error: any) {
+            const majorBackendError = error?.response?.data?.errors?.[0]?.message
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "An error occurred during login";
+
+            // Show toast notification
+            toast.error(
+                majorBackendError ||
+                backendMessage ||
+                backendMessageTwo ||
+                fallbackMessage,
+                {
+                    position: "top-center",
+                    duration: 5000,
+                }
+            );
+        } finally {
+            setLoading(false)
+        }
+    };
 
     // Update URL when active page changes
     const handlePageChange = (index: number) => {
@@ -85,11 +189,8 @@ const EstateForm = () => {
         }
     };
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+    const handleInputChange = (field: keyof EstateFormData, value: string) => {
+        setFormData({ [field]: value });
     };
 
     const renderFormContent = () => {
@@ -104,29 +205,21 @@ const EstateForm = () => {
             case 1:
                 return (
                     <AddZone
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 2:
                 return (
                     <AddStreet
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 3:
                 return (
                     <AddBuilding
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             case 4:
                 return (
                     <AppApartment
-                        handleInputChange={handleInputChange}
-                        formData={formData}
                     />
                 );
             default:
@@ -143,7 +236,11 @@ const EstateForm = () => {
                         title='Estate Created Successfully'
                         successText='You can now manage estate information, invite residents and add bills.'
                         submitText='Invite Residents'
-                        handleSubmit={handleSubmit}
+                        handleSubmit={() => {
+                            // setUserData(true);
+                            clearForm();
+                            router.push("/dashboard");
+                        }}
                         handleBack={() => setIsOpen(false)}
                         isOpen={isOpen}
                         closeSuccessModal={() => setIsOpen(false)}
@@ -229,16 +326,24 @@ const EstateForm = () => {
                         <button
                             onClick={() => {
                                 if (active === widgetHeaders.length - 1) {
-                                    handleOpenModal()
+                                    handleSubmit()
                                 }
                                 else {
                                     handleNext()
                                 }
                             }}
-                            className={`ml-auto px-3 py-2 rounded-[4px] text-sm font-medium flex items-center gap-1 text-white bg-BlueHomz hover:bg-blue-700`}
+                            className={`${loading && "pointer-events-none flex justify-center items-center h-[35px] w-[120px]"} ml-auto px-3 py-2 rounded-[4px] text-sm font-medium flex items-center gap-1 text-white bg-BlueHomz hover:bg-blue-700`}
                         >
-                            {active === widgetHeaders.length - 1 ? 'Create Estate' : 'Next'}
-                            {active !== widgetHeaders.length - 1 && <ArrowRightWhite />}
+                            {
+                                loading ? (
+                                    <DotLoader />
+                                ) : (
+                                    <>
+                                        {active === widgetHeaders.length - 1 ? 'Create Estate' : 'Next'}
+                                        {active !== widgetHeaders.length - 1 && <ArrowRightWhite />}
+                                    </>
+                                )
+                            }
                         </button>
                     </div>
                 </div>

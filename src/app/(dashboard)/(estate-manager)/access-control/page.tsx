@@ -99,7 +99,7 @@ const AccessControl = () => {
                 :
                 <div className='p-8'>
                     <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Visitor Access Control</h1>
-                    <h3 className='text-GrayHomz font-normal text-sm md:tex t-[16px]'>Visitor records of all your Residents will be displayed here</h3>
+                    <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Visitor records of all your Residents will be displayed here</h3>
                     <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
                         <div className='flex flex-col items-center gap-2'>
                             <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>

@@ -184,11 +184,11 @@ const Table = ({ fromDefault = true }: TableProps) => {
                     </div>
                 </CustomModal>
             }
-            <div className="border overflow-x-auto scrollbar-container">
+            <div className="border-y overflow-x-auto scrollbar-container">
                 <div className="w-[700%] md:w-[150%]">
                     <table border={1} className="w-full">
                         <thead>
-                            <tr className="bg-whiteblue h-[50px] text-[13px] font-[500] text-BlackHomz">
+                            <tr className="bg-[#E6E6E6] h-[50px] text-[13px] font-[500] text-BlackHomz">
                                 <th className="text-left pl-4" style={{ width: "40px" }}></th>
                                 <th className="text-left" style={{ width: "110px" }}>Visitor</th>
                                 <th className="text-left" style={{ width: "90px" }}>Phone Number</th>

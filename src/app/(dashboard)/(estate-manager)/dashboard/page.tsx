@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import AddBlue from '@/components/icons/addBlue';
 import AddIcon from '@/components/icons/addIcon';
@@ -6,7 +7,6 @@ import EmptyEstateIcon from '@/components/icons/estateManager&Resident/desktop/e
 import RegisterTenantIcon from '@/components/icons/estateManager&Resident/desktop/registerTenantIcon';
 import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/mobile/registerTenantIcon';
 import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
-import { useUserStore } from '@/store/useUserStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react'
@@ -15,12 +15,20 @@ import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
 import PickEstate from '../components/pickEstate';
+import { useAuthSlice } from '@/store/authStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+// import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
     const [data, setData] = React.useState<boolean>(false)
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
-    const userData = useUserStore((state) => state.userData);
     const router = useRouter();
+    const { estatesData, getCommunityManaProfile } = useAuthSlice();
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    // Load state 
+    React.useEffect(() => {
+        getCommunityManaProfile()
+    }, []);
 
     return (
         <div className='mb-[150px]'>
@@ -29,20 +37,29 @@ const Dashboard = () => {
                     <PickEstate />
                 </CustomModal>
             }
-            {userData ?
+            {estatesData && estatesData?.length > 0 && selectedCommunity &&
                 <div className='p-8'>
                     <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
                         <div className='flex gap-2 items-center'>
                             <div className="w-6 h-6 rounded-full overflow-hidden">
-                                <Image
-                                    src={"/houses.jpg"}
-                                    alt={"estate-img"}
-                                    width={24}
-                                    height={24}
-                                    className="object-cover w-full h-full"
-                                />
+                                {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                    <Image
+                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                        alt={"estate-img"}
+                                        width={40}
+                                        height={40}
+                                        className="object-cover w-full h-full"
+                                    /> :
+                                    <Image
+                                        src={"/houses.jpg"}
+                                        alt={"estate-img"}
+                                        width={40}
+                                        height={40}
+                                        className="object-cover w-full h-full"
+                                    />
+                                }
                             </div>
-                            Golden Palms Estate
+                            {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
@@ -85,7 +102,7 @@ const Dashboard = () => {
                     <div className={`mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] p-4 ${data ? "h-auto" : "h-[450px] md:h-[600px]"}`}>
                         <h3 className='text-sm font-medium text-GrayHomz'>Access Control</h3>
                         {
-                            data ?
+                            estatesData && estatesData?.length > 0 ?
                                 <div>
                                     <Table />
                                 </div>
@@ -106,7 +123,8 @@ const Dashboard = () => {
                         }
                     </div>
                 </div>
-                :
+            }
+            {!estatesData || estatesData?.length === 0 &&
                 <div className='p-8'>
                     <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Welcome, Victor</h1>
                     <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Add a new estate to get started</h3>

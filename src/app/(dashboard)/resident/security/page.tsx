@@ -14,8 +14,8 @@ const Security = () => {
 
     return (
         <div className='p-8 mb-[150px]'>
-            <div className='flex gap-2 items-center'>
-                <div onClick={() => router.back()} className='cursor-pointer'><ArrowLeft16Long /></div>
+            <div onClick={() => router.back()} className='flex gap-2 items-center cursor-pointer'>
+                <div><ArrowLeft16Long /></div>
                 <h1 className='text-[16px] md:text-[20px] text-BlackHomz font-normal md:font-medium'>
                     Security
                 </h1>
@@ -62,11 +62,11 @@ const Security = () => {
                         <div className="text-error italic text-[11px]">{passwordError}</div>
                     )}
                 </div>
-            <button
-                className={`text-white bg-BlueHomz md:bg-transparent md:text-BlueHomz md:border md:border-BlueHomz rounded-[4px] mt-8 md:text-[16px] text-sm font-normal h-[48px] w-full md:w-auto flex justify-center items-center px-3`}
-            >
-                Change Password
-            </button>
+                <button
+                    className={`text-white bg-BlueHomz md:bg-transparent md:text-BlueHomz md:border md:border-BlueHomz rounded-[4px] mt-8 md:text-[16px] text-sm font-normal h-[48px] w-full md:w-auto flex justify-center items-center px-3`}
+                >
+                    Change Password
+                </button>
             </div>
 
         </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -10,7 +11,8 @@ import ArrowUpII from "../icons/arrowUpII";
 import PropertyManagement from "../icons/estateHomePage/propertyManagement";
 import PropertyListing from "../icons/estateHomePage/propertyListing";
 import { usePathname } from "next/navigation";
-import EnterpriseDoc from "../icons/enterpriseDoc";
+import { useAuthSlice } from "@/store/authStore";
+import { getToken } from "@/utils/cookies";
 interface HeaderState {
   subMenuOpen: boolean;
   active: boolean;
@@ -19,6 +21,22 @@ interface HeaderState {
   openModalForBusi: boolean;
   open: boolean;
 }
+
+// Function to extract username from email address
+const extractUsername = (userOrEmail: string) => {
+  if (userOrEmail) {
+    const email = userOrEmail;
+    // Split the email address by "@" to get an array
+    const parts = email?.split("@");
+
+    // The username is the first part of the array (index 0)
+    const username = parts[0];
+
+    return username;
+  } else {
+    return;
+  }
+};
 
 const Header = () => {
   const pathname = usePathname();
@@ -30,7 +48,24 @@ const Header = () => {
     openModalForBusi: false,
     open: false
   });
+  const { logOutUser, userData } = useAuthSlice();
+  const [open] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
+  // delete used to stop error
+  // const dashWOrd = () => {
+  //   setOpen(false)
+  // }
+  // console.log(dashWOrd());
+
+
+  React.useEffect(() => {
+    (async () => {
+      const t = await getToken();
+      setToken(t as any);
+    })();
+  }, []);
+  
   const toggleState = (key: keyof HeaderState) => {
     setState(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -222,18 +257,44 @@ const Header = () => {
       <div
         className={`mt-[20px] md:mt-0 md:text-[12px] lg:text-[16px] ml-0 md:ml-[-20px] lg:ml-0 md:flex md:justify-center space-y-4 md:space-y-0 items-center md:space-x-4 space-x-0 ${state.open ? "block" : "hidden md:flex"}`}
       >
-            <Link
-              href="/"
-              className={`hover:text-blue-400 ${state.open ? "text-[12px]" : ""}`}
-            >
-              Sign in
+        {userData && token ? (
+          <div
+            className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
+              }`}
+          >
+            <Link href={(userData && token) ? "/dashboard" : "/"}>
+              <p className={`w-full ${open ? "text-[12px] " : ""}`}>
+                Hi, {extractUsername(userData?.email)}!
+              </p>
             </Link>
-            <Link
-              href="/"
-              className={`w-[147px] rounded-[4px] text-white bg-BlueHomz items-center flex justify-center h-[48px] py-1 hover:bg-blue-400 ${state.open ? "text-[12px] " : ""}`}
+            <button
+              onClick={async () => {
+                await logOutUser()
+              }}
+              className={`w-[110px] rounded-[4px] px-2 text-white bg-BlueHomz h-[48px] py-1 hover:bg-blue-400 ${open ? "text-[12px]" : ""
+                }`}
             >
-              Create Account
-            </Link>
+              Logout
+            </button>
+            {/* Add more user information or actions as needed */}
+          </div>
+        ) :
+          (
+            <>
+              <Link
+                href="/login"
+                className={`hover:text-blue-400 ${state.open ? "text-[12px]" : ""}`}
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className={`w-[147px] rounded-[4px] text-white bg-BlueHomz items-center flex justify-center h-[48px] py-1 hover:bg-blue-400 ${state.open ? "text-[12px] " : ""}`}
+              >
+                Create Account
+              </Link>
+            </>
+          )}
         <div
           className="md:hidden border absolute right-8 top-[48px] cursor-pointer"
           onClick={() => toggleState('open')}

@@ -3,144 +3,163 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthSlider from "@/components/auth/authSlider";
-
+import api from "@/utils/api";
+import { useAuthSlice } from "@/store/authStore";
+import toast from "react-hot-toast";
+import DotLoader from "@/components/general/dotLoader";
 
 const VerifyEmail = () => {
   const router = useRouter();
-  const [email, setEmail] = useState(null);
+  const { userData } = useAuthSlice();
+  const email = userData?.email;
   const [error, setError] = useState(false);
   const [error2, setError2] = useState("");
   const [verificationSuccess, setVerificationSuccess] = useState(false);
-  const [otp, setOTP] = useState(["", "", "", ""]);
-  // const inputRefs = useRef([]);
+  const [otp, setOTP] = useState<string[]>(["", "", "", ""]);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
-  // const [showLongLoadingMessage, setShowLongLoadingMessage] = useState(false);
 
   const startTimer = () => {
-    setSeconds(60)
-    setTimer(true)
+    setSeconds(60);
+    setTimer(true);
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedEmail = localStorage.getItem('email');
-      setEmail(storedEmail || '' as any);
-      startTimer();
+    let countdownInterval: NodeJS.Timeout;
+
+    if (timer) {
+      countdownInterval = setInterval(() => {
+        setSeconds((prevSeconds) => {
+          if (prevSeconds <= 1) {
+            clearInterval(countdownInterval);
+            setTimer(false);
+            return 0;
+          }
+          return prevSeconds - 1;
+        });
+      }, 1000);
     }
-  }, []);
 
-  // useEffect(() => {
-  //   if (email !== null && profile?.isVerified === false) {
-  //     (async () => {
-  //       const response = await api.get("/user/profile");
-  //       if (response?.data?.user?.isVerified === false) {
-  //         await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
-  //         startTimer();
-  //       }
-  //     })();
-  //   }
-  // }, [email])
+    return () => clearInterval(countdownInterval);
+  }, [timer]);
 
-  // useEffect(() => {
-  //   let countdownInterval;
+  const generateToken = () => {
+    // A simple random string token (not cryptographically secure)
+    return crypto.randomUUID();
+    // or: return Math.random().toString(36).substring(2) + Date.now();
+  };
 
-  //   if (timer) {
-  //     countdownInterval = setInterval(() => {
-  //       setSeconds(prevSeconds => {
-  //         if (prevSeconds <= 1) {
-  //           clearInterval(countdownInterval);
-  //           setTimer(false);
-  //           return 0;
-  //         }
-  //         return prevSeconds - 1;
-  //       });
-  //     }, 1000);
-  //   }
-
-  //   return () => clearInterval(countdownInterval);
-  // }, [timer]);
-
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setVerificationSuccess(false)
-    setError2("")
-    // try {
-    //   await api.post("/auth/verification", { email, pincode: otp.join("") });
-    //   setVerificationSuccess(true);
-    //   setError(false);
-    //   setError2("");
-    //   setLoading(false);
-    // } catch (error) {
-    //   setError2(error.response.data.error);
-    //   setError(true);
-    //   setLoading(false);
+    setVerificationSuccess(false);
+    setError2("");
 
-    //   if (error.response) {
-    //     setError2(error.response.data.error);
-    //   } else if (error.request) {
-    //     setError2("No response received from the server");
-    //   } else {
-    //     setError2("Error occurred while making the request");
-    //   }
-    // }
+    try {
+      // Create a token on the fly
+      const token = generateToken();
+
+      // Send OTP request with token
+      await api.post(
+        "/auth/verify-otp",
+        { email, pincode: otp.join("") },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setVerificationSuccess(true);
+      setError(false);
+      setError2("");
+      setLoading(false);
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message;
+      const backendMes = error?.response?.data?.error;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "An error occurred";
+      setError2(backendMessage || backendMessageTwo || backendMes || fallbackMessage);
+      setError(true);
+      setLoading(false);
+    }
   };
 
-  const ResendOtp = async (e: any) => {
-    e.preventDefault();
+  const ResendOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setResend(true);
-    // try {
-    //   await api.post("/auth/requestnewopt", { email, pincode: otp.join("") });
-    //   toast.success('OTP SENT');
-    //   startTimer();
-    //   setResend(false);
-    // } catch (error) {
-    //   toast.error(error.response?.data?.message);
-    //   setResend(false);
-    // } finally {
-    //   setResend(false);
-    // }
+    try {
+      // Create a token on the fly
+      const token = generateToken();
+
+      // Send OTP request with token
+      await api.post(
+        "/auth/resend-otp",
+        { email },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success('OTP SENT');
+      startTimer();
+      setResend(false);
+    } catch (error: any) {
+      const backendMessage = error?.response?.data?.message;
+      const backendMessageTwo = error?.response?.data?.message?.[0];
+      const fallbackMessage = error?.message || "Failed to resend OTP";
+
+      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
+      setResend(false);
+    }
   };
 
-  const handleEmailVerification = (e: any) => {
+  
+  useEffect(() => {
+    startTimer()
+  }, [])
+
+
+  const handleEmailVerification = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/select-plan");
+    router.push("/select-profile");
   };
 
-  const handleInputChange = (index: any, value: any) => {
-    console.log(index)
-    console.log(value)
-
-    // if (/^\d$/.test(value)) {
-    //   const newOTP = [...otp];
-    //   newOTP[index] = value;
-    //   setOTP(newOTP);
-    //   setError(false);
-    //   if (value && index < otp.length - 1) {
-    //     inputRefs.current[index + 1].focus();
-    //   }
-    // } else if (value === "" && index >= 0) {
-    //   const newOTP = [...otp];
-    //   newOTP[index] = "";
-    //   setOTP(newOTP);
-    //   setError(false);
-    //   if (index === 0) {
-    //     setError(false);
-    //   } else {
-    //     inputRefs.current[index - 1].focus();
-    //   }
-    // } else {
-    //   setError(true);
-    // }
+  const handleInputChange = (index: number, value: string) => {
+    if (/^\d$/.test(value)) {
+      const newOTP = [...otp];
+      newOTP[index] = value;
+      setOTP(newOTP);
+      setError(false);
+      if (value && index < otp.length - 1) {
+        const nextInput = inputRefs.current[index + 1];
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }
+    } else if (value === "" && index >= 0) {
+      const newOTP = [...otp];
+      newOTP[index] = "";
+      setOTP(newOTP);
+      setError(false);
+      if (index > 0) {
+        const prevInput = inputRefs.current[index - 1];
+        if (prevInput) {
+          prevInput.focus();
+        }
+      }
+    } else {
+      setError(true);
+    }
   };
 
-  const handlePaste = (event: any) => {
+  const handlePaste = (event: React.ClipboardEvent) => {
     event.preventDefault();
     const pastedValue = event.clipboardData.getData('text');
     if (pastedValue.length === 4 && /^\d+$/.test(pastedValue)) {
@@ -151,26 +170,12 @@ const VerifyEmail = () => {
 
   const isOTPComplete = otp.every((digit) => /^\d$/.test(digit));
 
-  // useEffect(() => {
-  //   let timer;
+  // Initialize the refs array in useEffect
+  useEffect(() => {
+    inputRefs.current = inputRefs.current.slice(0, otp.length);
+  }, [otp.length]);
 
-  //   if (loading) {
-  //     // Set a timer to show the long loading message after 3 seconds
-  //     timer = setTimeout(() => {
-  //       setShowLongLoadingMessage(true);
-  //     }, 20000); // 20 seconds
-  //   } else {
-  //     // Reset when loading is false
-  //     setShowLongLoadingMessage(false);
-  //   }
 
-  //   // Cleanup the timer on component unmount or when loading changes
-  //   return () => clearTimeout(timer);
-  // }, [loading]);
-
-  // const closeModal = () => {
-  //   setShowLongLoadingMessage(false);
-  // };
 
   return (
     <div className="">
@@ -196,12 +201,16 @@ const VerifyEmail = () => {
                         <input
                           key={index}
                           type="text"
-                          // maxLength="1"
+                          maxLength={1}
                           value={digit}
                           onChange={(e) => handleInputChange(index, e.target.value)}
                           className={`border rounded-md text-[41px] font-[700] text-GrayHomz w-[60px] sm:w-[80px] p-2 text-center ${error ? "border-red-500" : ""}`}
-                          // ref={(el) => (inputRefs.current[index] = el)}
-                          onPaste={handlePaste} // Add onPaste event handler
+                          ref={(el) => {
+                            if (el) {
+                              inputRefs.current[index] = el;
+                            }
+                          }}
+                          onPaste={handlePaste}
                         />
                       ))}
                     </div>
@@ -212,16 +221,16 @@ const VerifyEmail = () => {
                     {isOTPComplete ? (
                       <button
                         type="submit"
-                        onClick={handleSubmit}
                         className={`mt-4 bg-BlueHomz text-white font-[700] text-[16px] w-full rounded-[4px] h-[47px] hover:bg-white hover:text-BlueHomz hover:border hover:border-BlueHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""}`}
+                        disabled={loading}
                       >
-                     
-                     Verify Email
+                        {loading ? <DotLoader /> : "Verify Email"}
                       </button>
                     ) : (
                       <button
                         type="button"
-                        className="mt-4 bg-GrayHomz6 text-GrayHomz5 font-[700] text-[16px] w-full rounded-[4px] h-[47px] opacity-50 "
+                        className="mt-4 bg-GrayHomz6 text-GrayHomz5 font-[700] text-[16px] w-full rounded-[4px] h-[47px] opacity-50"
+                        disabled
                       >
                         Verify Email
                       </button>
@@ -231,21 +240,19 @@ const VerifyEmail = () => {
                     <p className={`${timer ? "pointer-events-none" : ""} text-center font-[400] text-[12px] md:text-[14px]`}>
                       Didn&apos;t receive the email?
                     </p>
-                    {
-                      timer ?
-                        <div
-                          className={`text-GrayHomz6 pointer-events-none text-center font-[700] text-[12px] md:text-[14px] ml-1`}
-                        >
-                          Click to resend
-                        </div> :
-                        <button
-                          onClick={ResendOtp}
-                          className={`${resend ? "pointer-events-none" : ""} text-BlueHomz text-center font-[700] text-[12px] md:text-[14px] ml-1`}
-                          // href={""}
-                        >
-                          Click to resend
-                        </button>
-                    }
+                    {timer ? (
+                      <div className="text-GrayHomz6 pointer-events-none text-center font-[700] text-[12px] md:text-[14px] ml-1">
+                        Click to resend
+                      </div>
+                    ) : (
+                      <button
+                        onClick={ResendOtp}
+                        className={`${resend ? "pointer-events-none" : ""} text-BlueHomz text-center font-[700] text-[12px] md:text-[14px] ml-1`}
+                        disabled={resend}
+                      >
+                        {resend ? "Sending..." : "Click to resend"}
+                      </button>
+                    )}
                     {timer && (
                       <div className="flex justify-center items-center">
                         <p className="text-[12px] text-BlueHomz font-[400]">{seconds} Seconds</p>
@@ -258,7 +265,7 @@ const VerifyEmail = () => {
                       className=""
                       height={17}
                       width={16}
-                      alt="img"
+                      alt="Back arrow"
                     />
                     <Link
                       href={"/register"}
@@ -290,7 +297,7 @@ const VerifyEmail = () => {
                     className=""
                     height={17}
                     width={16}
-                    alt="img"
+                    alt="Back arrow"
                   />
                   <Link
                     href={"/login"}
