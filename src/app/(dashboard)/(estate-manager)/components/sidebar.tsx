@@ -50,7 +50,7 @@ const Data = [
         subMenuItems: [
             {
                 title: "Manage Residents",
-                link: "/manage-resident",
+                link: "/manage-resident/residents",
                 image: <ManageResidentIcon h='14' w='14' />,
                 image2: (
                     <ManageResidentIcon h='14' w='14' className='#006AFF' classNameII='#006AFF' />

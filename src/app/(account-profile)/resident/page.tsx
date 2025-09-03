@@ -16,25 +16,6 @@ import api from '@/utils/api'
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 
-const buildingOptions = Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    label: `Building Name ${i + 1}`
-}))
-
-const apartmentOptions = Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    label: `Apartment Name ${i + 1}`
-}))
-
-const selectZoneOptions = Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    label: `Zone Name ${i + 1}`
-}))
-
-const streetOptions = Array.from({ length: 8 }, (_, i) => ({
-    id: i + 1,
-    label: `Street Name ${i + 1}`
-}))
 
 const ownerTypeOption = [
     {
@@ -78,17 +59,41 @@ const Resident = () => {
     const [loading, setLoading] = useState(false);
     const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
 
+
+    // Zones
+    const zoneOptions = publicCommunity?.zones.map((z) => ({
+        id: z.name,
+        label: z.name,
+    }));
+
+    // Streets
+    const streetOptions = publicCommunity?.streets.map((s) => ({
+        id: s.name,
+        label: s.name,
+    }));
+
+    // Buildings
+    const buildingOptions = publicCommunity?.buildings.map((b) => ({
+        id: b.name,
+        label: b.name,
+    }));
+
+    // Apartments
+    const apartmentOptions = publicCommunity?.apartments.map((a) => ({
+        id: a.name,
+        label: a.name,
+    }));
+
+
     // Extract data from the store
     const { token: residentToken, organizationId, estateId, isResident } = useResidentStore();
 
     const getPublicEstate = async () => {
         try {
-            const response = await api.get(
-                `/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
-
-            );
-
-            setPublicCommunity(response?.data?.data?.estates);
+            const response: any = await fetch(`http://localhost:4000/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
+            const data = await response.json();
+            console.log("Public Estate Response:", data);
+            setPublicCommunity(data?.data);
         } catch (error) {
             console.error("Failed to fetch estates:", error);
         };
@@ -199,7 +204,7 @@ const Resident = () => {
         setLoading(true);
         try {
             // Validate required fields
-            if (!formData.estateName || !formData.firstName || !formData.lastName || !selectedStreetName || !selectedBuilding || !selectedApartment || !selectedOwner) {
+            if (!formData.firstName || !formData.lastName || !selectedStreetName || !selectedBuilding || !selectedApartment || !selectedOwner) {
                 toast.error("Please fill in all required fields", {
                     position: "top-center",
                     duration: 3000,
@@ -220,7 +225,7 @@ const Resident = () => {
                 email: userData?.email || "",
                 firstName: formData.firstName,
                 lastName: formData.lastName,
-                estateName: formData.estateName,
+                estateName: publicCommunity?.basicDetails?.name,
                 zone: selectedStreetZone || undefined, // Optional
                 streetName: selectedStreetName,
                 building: selectedBuilding,
@@ -336,7 +341,7 @@ const Resident = () => {
                 </div>
             </div>
             {/* Header */}
-            <div className="max-w-[720px] mx-auto mt-5 md:mt-10 p-4 md:p-2">
+            <div className="max-w-[750px] mx-auto mt-5 md:mt-10 p-4 md:p-2">
                 <h1 className='text-[23px] font-semibold text-BlackHomz'>
                     Set Up Your Residential Details
                 </h1>
@@ -347,7 +352,37 @@ const Resident = () => {
 
 
             {/* Form Section */}
-            <div className="max-w-[720px] mx-auto mt-4 md:mt-1 md:p-2 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
+            <div className="max-w-[750px] mx-auto mt-4 p-4 pb-5 bg-[#FCFCFC] hidden md:grid grid-cols-2 gap-6">
+                <div className='w-full md:w-[100%]'>
+                    <label className="text-sm text-BlackHomz font-medium">
+                        First Name <span className="text-red-500">*</span>
+                    </label>
+                    <CustomInput
+                        borderColor="#4E4E4E"
+                        type="text"
+                        placeholder='e.g, Hunter'
+                        className="h-[45px] px-4 mt-1"
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        required
+                    />
+                </div>
+                <div className='w-full md:w-[100%]'>
+                    <label className="text-sm text-BlackHomz font-medium">
+                        Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <CustomInput
+                        borderColor="#4E4E4E"
+                        type="text"
+                        placeholder='e.g, Jude'
+                        className="h-[45px] px-4 mt-1"
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        required
+                    />
+                </div>
+            </div>
+
+
+            <div className="max-w-[750px] mx-auto mt-4 md:p-2 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium mb-1">
@@ -363,19 +398,16 @@ const Resident = () => {
                         <label className="text-sm text-BlackHomz font-medium">
                             Estate Name <span className="text-red-500">*</span>
                         </label>
-                        <CustomInput
-                            borderColor="#4E4E4E"
-                            type="text"
-                            placeholder='e.g, Doe Estate'
-                            className="h-[45px] px-4 mt-1"
-                            onChange={(e) => handleInputChange('estateName', e.target.value)}
-                            required
+                        <input
+                            value={`${publicCommunity?.basicDetails?.name ? publicCommunity?.basicDetails?.name : ""}`}
+                            className='h-[45px] mt-1 w-full rounded-[4px] bg-[#E6E6E6] px-6 flex justify-between items-center'
+                            disabled
                         />
                     </div>
                 </div>
 
                 {/* Name */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                <div className="md:hidden grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
                     <div className='w-full md:w-[100%]'>
                         <label className="text-sm text-BlackHomz font-medium">
                             First Name <span className="text-red-500">*</span>
@@ -411,7 +443,7 @@ const Resident = () => {
                             Select Zone <span className="font-normal"> (optional)</span>
                         </label>
                         <Dropdown
-                            options={selectZoneOptions}
+                            options={zoneOptions || []}
                             onSelect={handleZoneSelect}
                             selectOption="N/A"
                         />
@@ -423,7 +455,7 @@ const Resident = () => {
                             Street Name <span className="text-red-500">*</span>
                         </label>
                         <Dropdown
-                            options={streetOptions}
+                            options={streetOptions || []}
                             onSelect={handleStreetSelect}
                             selectOption="Select Street"
                         />
@@ -437,7 +469,7 @@ const Resident = () => {
                             Building <span className="text-red-500">*</span>
                         </label>
                         <Dropdown
-                            options={buildingOptions}
+                            options={buildingOptions || []}
                             onSelect={handleBuildingSelect}
                             selectOption="Select Building"
                         />
@@ -449,7 +481,7 @@ const Resident = () => {
                             Apartment <span className="text-red-500">*</span>
                         </label>
                         <Dropdown
-                            options={apartmentOptions}
+                            options={apartmentOptions  || []}
                             onSelect={handleApartmentSelect}
                             selectOption="Select Apartment"
                         />

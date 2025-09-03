@@ -28,6 +28,7 @@ export interface ResidentData {
     building: string;
     status: string;
     apartment: string;
+    zone: string;
     ownershipType: string;
     rentedDetails: RentedDetails;
     isActive: boolean;

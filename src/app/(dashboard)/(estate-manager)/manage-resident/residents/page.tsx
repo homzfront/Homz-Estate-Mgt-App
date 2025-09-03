@@ -5,7 +5,7 @@ import ManageResidentEmptyIcon from '@/components/icons/estateManager&Resident/d
 import ManualAddIcon from '@/components/icons/estateManager&Resident/desktop/manualAddIcon';
 import React from 'react'
 import InviteResident from './components/inviteResident';
-import SuccessModal from '../../components/successModal';
+import SuccessModal from '../../../components/successModal';
 import HeaderFilter from './components/headerFilter';
 import Table from './components/table';
 import ManualForm from './components/manualForm';
