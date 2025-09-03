@@ -469,7 +469,7 @@ const Request = () => {
                                                 <Close />
                                             </button>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] bg-inputBg p-2 rounded-[12px] text-GrayHomz font-normal">
+                                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] bg-inputBg py-2 px-3 rounded-[12px] text-GrayHomz font-normal">
                                             <span className="">Resident Name:</span>
                                             <span className='text-BlackHomz'>{selectedData.firstName} {selectedData.lastName}</span>
                                             <span className="">Estate:</span>
