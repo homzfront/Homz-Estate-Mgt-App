@@ -2,7 +2,7 @@
 import api from '@/utils/api';
 import { storeToken } from '@/utils/cookies';
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import { useResidentStore } from "@/store/useResidentStore";
 
 export interface RegisterUser {
@@ -182,7 +182,7 @@ export const useAuthSlice = create<AuthState>()(
             },
 
             createUser: async (payload: RegisterUser) => {
-                const { isResident, estateId, organizationId } = useResidentStore.getState();
+                // const { isResident, estateId, organizationId } = useResidentStore.getState();
                 try {
                     set({ isSigningUP: true, error: null });
                     let response = null

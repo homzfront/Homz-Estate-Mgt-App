@@ -7,15 +7,15 @@ import { Visitor, Visitors } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
 import StatusDropDown from '../../../components/statusDropDown';
 import { useRouter, useSearchParams } from 'next/navigation';
-import ArrowDown from '@/components/icons/arrowDown';
+// import ArrowDown from '@/components/icons/arrowDown';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
-import ProfileWhite from '@/components/icons/profileWhite';
-import { useAccessStore } from '@/store/useAccessStore';
+// import ProfileWhite from '@/components/icons/profileWhite';
+// import { useAccessStore } from '@/store/useAccessStore';
 import RevokeAccess from '@/components/icons/revokeAccess';
 
 // Define status types
-type Status = "Pending" | "Signed In" | "Signed Out";
+// type Status = "Pending" | "Signed In" | "Signed Out";
 
 interface TableProps {
     fromDefault?: boolean

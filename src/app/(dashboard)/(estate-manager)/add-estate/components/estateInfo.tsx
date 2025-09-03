@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CustomInput from '@/components/general/customInput'
 import AddBlue from '@/components/icons/addBlue'
 import useAreaStore from '@/store/useStateAndAreaStore/useAreaStore';
@@ -29,7 +30,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
     const { stateList, loading } = useStateStore()
     const {
         setCoverPhoto,
-        clearForm
+        // clearForm
     } = useEstateFormStore();
     const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
 

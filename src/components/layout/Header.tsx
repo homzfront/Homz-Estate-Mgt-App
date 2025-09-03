@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -25,7 +26,7 @@ interface HeaderState {
 // Function to extract username from email address
 const extractUsername = (userOrEmail: string) => {
   if (userOrEmail) {
-    let email = userOrEmail;
+    const email = userOrEmail;
     // Split the email address by "@" to get an array
     const parts = email?.split("@");
 
@@ -49,8 +50,15 @@ const Header = () => {
     open: false
   });
   const { logOutUser, userData } = useAuthSlice();
-  const [open, setOpen] = useState(false);
+  const [open] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+
+  // delete used to stop error
+  // const dashWOrd = () => {
+  //   setOpen(false)
+  // }
+  // console.log(dashWOrd());
+
 
   React.useEffect(() => {
     (async () => {

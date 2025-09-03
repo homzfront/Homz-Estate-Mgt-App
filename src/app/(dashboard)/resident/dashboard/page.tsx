@@ -4,12 +4,12 @@ import CustomModal from '@/components/general/customModal';
 import ArrowDown from '@/components/icons/arrowDown'
 import Image from 'next/image'
 import React from 'react'
-import Dropdown from '@/components/general/dropDown';
-import HomDashIcon from '@/components/icons/homDashIcon';
-import NoHomDashIcon from '@/components/icons/noHomDashIcon';
+// import Dropdown from '@/components/general/dropDown';
+// import HomDashIcon from '@/components/icons/homDashIcon';
+// import NoHomDashIcon from '@/components/icons/noHomDashIcon';
 import AddIcon from '@/components/icons/addIcon';
 import AccessIcon from '@/components/icons/accessIcon';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import PickEstate from '../components/pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
@@ -24,7 +24,7 @@ const option = [
 ]
 
 const Dashboard = () => {
-  const router = useRouter();
+  // const router = useRouter();
   const [formData, setFormData] = React.useState({
     property: '',
   });
@@ -38,12 +38,12 @@ const Dashboard = () => {
   useClickOutside(closeRef as any, () => {
     setOpenEstateList(false);
   });
-  const options = [
-    { id: 1, label: 'Property1' },
-    { id: 2, label: 'Property2' },
-    { id: 3, label: 'Property3' },
-    { id: 4, label: 'Property4' },
-  ];
+  // const options = [
+  //   { id: 1, label: 'Property1' },
+  //   { id: 2, label: 'Property2' },
+  //   { id: 3, label: 'Property3' },
+  //   { id: 4, label: 'Property4' },
+  // ];
 
   const secondOptions = [
     { id: 1, name: '[Primary Resident] / [Co-Resident]', extra: "Role" },

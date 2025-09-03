@@ -5,14 +5,14 @@ import ChangePassword from './components/changePassword'
 import UpdateResidentAccount from './components/updateResidentAccount'
 import { useResidentStore } from '@/store/useResidentStore'
 import { useResidentParams } from '@/hooks/useResidentParams'
-import { useSelectedCommunity } from '@/store/useSelectedCommunity'
-import api from '@/utils/api'
+// import { useSelectedCommunity } from '@/store/useSelectedCommunity'
+// import api from '@/utils/api'
 
 const pages = ['Create Account', 'Review Property Details']
 
 const ResidentSignup = () => {
   const [active, setActive] = React.useState<number>(0);
-  const { setPublicCommunity } = useSelectedCommunity()
+  // const { setPublicCommunity } = useSelectedCommunity()
   // Extract data from the store
   const {  organizationId, estateId } = useResidentStore();
   // Handle URL parameters

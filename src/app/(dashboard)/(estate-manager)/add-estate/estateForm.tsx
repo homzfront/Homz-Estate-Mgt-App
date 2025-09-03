@@ -3,7 +3,7 @@ import ArrowLeft from '@/components/icons/arrowLeft'
 import ArrowLeft16Long from '@/components/icons/arrowLeft16Long'
 import ArrowLeftMob from '@/components/icons/arrowLeftMob'
 import ArrowRightWhite from '@/components/icons/arrowRightWhite'
-import { useUserStore } from '@/store/useUserStore'
+// import { useUserStore } from '@/store/useUserStore'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import SuccessModal from '../../components/successModal'
@@ -31,7 +31,7 @@ const EstateForm = () => {
     const [loading, setLoading] = React.useState<boolean>(false);
     const [completedSteps, setCompletedSteps] = React.useState<number[]>([]);
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
-    const setUserData = useUserStore((state) => state.setUserData);
+    // const setUserData = useUserStore((state) => state.setUserData);
     const {
         formData,
         setFormData,

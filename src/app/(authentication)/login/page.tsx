@@ -5,7 +5,7 @@ import Eye from "@/components/icons/Eye";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
 import { storeToken } from "@/utils/cookies";
@@ -24,9 +24,9 @@ const Login = () => {
   const router = useRouter();
   const { setUserData } = useAuthSlice();
   const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
-  const handleGoogleSignIn = () => {
-    // Empty function as requested
-  };
+  // const handleGoogleSignIn = () => {
+  //   // Empty function as requested
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

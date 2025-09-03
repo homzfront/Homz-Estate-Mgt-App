@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import AddBlue from '@/components/icons/addBlue';
 import AddIcon from '@/components/icons/addIcon';

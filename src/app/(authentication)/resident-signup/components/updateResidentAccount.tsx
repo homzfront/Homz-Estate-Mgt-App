@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import DotLoader from '@/components/general/dotLoader';
+import { useAuthSlice } from '@/store/authStore';
 import { useResidentStore } from '@/store/useResidentStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import api from '@/utils/api';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const UpdateResidentAccount = () => {
     const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
     const { organizationId, estateId } = useResidentStore();
+    const { userData } = useAuthSlice();
+    const router = useRouter();
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [formData, setFormData] = useState({
         firstName: '[Autofilled - First Name]',
         lastName: '[Autofilled - Last Name]',
@@ -41,10 +49,49 @@ const UpdateResidentAccount = () => {
         getPublicEstate();
     }, [organizationId, estateId]);
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         // Handle form submission logic here
-        console.log('Form submitted:', formData);
+        try {
+            setIsLoading(true)
+            const payload = {
+                "firstName": formData?.firstName,
+                "lastName": formData?.lastName,
+            }
+            await api.patch(`/resident/update-profile/organizations/${organizationId}/estates/${estateId}/residents/${userData?._id}`, payload);
+            toast.success("Profile created successfully!", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#E8F5E9",
+                    color: "#2E7D32",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+            router.push("/resident/dashboard")
+        } catch (error: any) {
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "An error occurred while updating your profile";
+
+            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+                position: "top-center",
+                duration: 4000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#D32F2F",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     console.log("Public Community:", publicCommunity);
@@ -176,10 +223,11 @@ const UpdateResidentAccount = () => {
                 {/* Submit Button */}
                 <div className='flex justify-end'>
                     <button
+                        disabled={isLoading}
                         type="submit"
-                        className="bg-BlueHomz text-white py-3 w-full md:w-[240px] text-[16px] rounded font-medium hover:bg-blue-700 transition-colors mt-4"
+                        className={`bg-BlueHomz text-white py-3 w-full md:w-[240px] text-[16px] rounded font-medium hover:bg-blue-700 transition-colors mt-4 ${isLoading && "flex justify-center items-center"}`}
                     >
-                        Confirm & Go to Dashboard
+                        {isLoading ? <DotLoader /> : "Confirm & Go to Dashboard"}
                     </button>
                 </div>
             </form>

@@ -1,4 +1,5 @@
-import CustomInput from '@/components/general/customInput';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// import CustomInput from '@/components/general/customInput';
 import CopyIcon from '@/components/icons/copyIcon';
 import { useAuthSlice } from '@/store/authStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
@@ -12,28 +13,28 @@ interface InviteResidentProps {
     setOpenInvite: (data: boolean) => void;
 }
 
-const InviteResident = ({ setOpenInvite, setOpenSuccessModal }: InviteResidentProps) => {
+const InviteResident = ({ }: InviteResidentProps) => {
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const communityProfile = useAuthSlice((state) => state.communityProfile);
 
     const { getInviteLink, setInviteLink } = useInviteLinkStore();
 
-    const [formData, setFormData] = useState({ sendCode: '' });
+    // const [formData, setFormData] = useState({ sendCode: '' });
     const [inviteLink, setInviteLinkState] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
+    // const handleInputChange = (field: string, value: string) => {
+    //     setFormData(prev => ({
+    //         ...prev,
+    //         [field]: value
+    //     }));
+    // };
 
-    const handleSubmit = () => {
-        const payload = formData
-        console.log(payload)
-        setOpenInvite(false);
-    }
+    // const handleSubmit = () => {
+    //     const payload = formData
+    //     console.log(payload)
+    //     setOpenInvite(false);
+    // }
 
     useEffect(() => {
         if (!selectedCommunity?._id) return;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";

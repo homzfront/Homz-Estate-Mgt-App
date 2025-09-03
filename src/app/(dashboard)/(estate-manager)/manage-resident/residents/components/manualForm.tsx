@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission';
 import CustomInput from '@/components/general/customInput';
 import DotLoader from '@/components/general/dotLoader';
@@ -227,19 +228,6 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
 
             // Make API call
             await api.post(`/community-manager/resident/create-profile/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`, payload);
-
-            toast.success("Profile created successfully!", {
-                position: "top-center",
-                duration: 2000,
-                style: {
-                    background: "#E8F5E9",
-                    color: "#2E7D32",
-                    fontWeight: 500,
-                    padding: "12px 20px",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                },
-            });
 
             // Open Success Modal && CloseModal
             setOpenSuccessModal(true)

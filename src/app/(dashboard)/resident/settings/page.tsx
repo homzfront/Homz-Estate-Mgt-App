@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from 'react'
 import ArrowDown from '@/components/icons/arrowDown';
@@ -8,7 +9,7 @@ import SuccessModal from '../../components/successModal';
 import Table from './components/table';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import CustomModal from '@/components/general/customModal';
-import BlueTick from '@/components/icons/blueTick';
+// import BlueTick from '@/components/icons/blueTick';
 import Close from '@/components/icons/Close';
 import InfoIcon from '@/components/icons/infoIcon';
 
@@ -38,8 +39,8 @@ const Settings = () => {
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const [isOpenRole, setIsOpenRole] = React.useState(false);
   const [selectedOption, setSelectedOption] = React.useState<any>(null);
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [searchTerm] = React.useState("");
+  const [isLoading] = React.useState(false);
   const [showRoleContent, setShowRoleContent] = React.useState<string | any>(null);
 
   const toggleDropdown = () => {
@@ -99,6 +100,13 @@ const Settings = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // delete used to stop error
+  // const dashWOrd = () => {
+  //   setSearchTerm("")
+  //   setIsLoading(false)
+  // }
+  // console.log(dashWOrd());
 
 
   const handleInputChange = (field: string, value: string) => {

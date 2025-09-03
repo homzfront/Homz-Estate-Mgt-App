@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { removeEmptyFields } from '@/app/utils/removeEmptyFields';
 import DotLoader from '@/components/general/dotLoader';

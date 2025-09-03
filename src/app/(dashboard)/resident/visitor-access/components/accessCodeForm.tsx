@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CustomInput from '@/components/general/customInput';
 import ActiveToggle from '@/components/icons/activeToggle';
-import ArrowDown from '@/components/icons/arrowDown';
+// import ArrowDown from '@/components/icons/arrowDown';
 import CopyIcon from '@/components/icons/copyIcon';
 import DateIcon from '@/components/icons/dateIcon';
 import InactiveToggle from '@/components/icons/inactiveToggle';
@@ -11,7 +12,7 @@ interface AccessCodeFormProps {
     setOpenSuccessModal: (data: boolean) => void;
 }
 const AccessCodeForm = ({ setOpenAccessCodeForm, setOpenSuccessModal }: AccessCodeFormProps) => {
-    const [isOpen, setIsOpen] = React.useState(true);
+    // const [isOpen, setIsOpen] = React.useState(true);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
     const [formData, setFormData] = React.useState({
         visitorName: '',
@@ -20,9 +21,9 @@ const AccessCodeForm = ({ setOpenAccessCodeForm, setOpenSuccessModal }: AccessCo
         NoOfPersons: '',
     });
     const [timeCode, setTimeCode] = React.useState<string>("One-Time");
-    const handleDropdownToggle = () => {
-        setIsOpen(prev => !prev);
-    };
+    // const handleDropdownToggle = () => {
+    //     setIsOpen(prev => !prev);
+    // };
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({

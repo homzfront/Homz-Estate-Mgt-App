@@ -1,6 +1,6 @@
 import Close from '@/components/icons/Close';
-import CloseIcon from '@/components/icons/closeIcon';
-import WarningIcon from '@/components/icons/warningIcon';
+// import CloseIcon from '@/components/icons/closeIcon';
+// import WarningIcon from '@/components/icons/warningIcon';
 import WarningIconTwo from '@/components/icons/warningIconTwo';
 import React from 'react'
 interface PendingProps {

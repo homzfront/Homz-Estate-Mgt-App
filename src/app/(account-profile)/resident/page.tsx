@@ -86,7 +86,7 @@ const Resident = () => {
 
 
     // Extract data from the store
-    const { token: residentToken, organizationId, estateId, isResident } = useResidentStore();
+    const { token: residentToken, organizationId, estateId } = useResidentStore();
 
     const getPublicEstate = async () => {
         try {

@@ -5,7 +5,7 @@ import Eye from "@/components/icons/Eye";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
 import { useAuthSlice } from "@/store/authStore";

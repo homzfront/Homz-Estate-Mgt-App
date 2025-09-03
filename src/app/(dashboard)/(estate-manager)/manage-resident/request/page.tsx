@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Pagination from '@/app/(dashboard)/components/pagination';
 import useClickOutside from '@/app/utils/useClickOutside';
@@ -18,7 +19,7 @@ import { ResidentData, useRequestSlice } from '@/store/useRequestStore';
 import api from '@/utils/api';
 import { getToken } from '@/utils/cookies';
 import Image from 'next/image';
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 
 const Request = () => {
@@ -34,15 +35,51 @@ const Request = () => {
     const [selectedData, setSelectedData] = React.useState<null | ResidentData>(null);
     const [isRequesting, setIsRequesting] = React.useState<boolean>(false);
     const [detailsOpen, setDetailsOpen] = React.useState(false);
-
+    const [search, setSearch] = React.useState<string>("");
     const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const actionsMenuRef = useRef<HTMLDivElement>(null);
+    // Add a new state to track if search is in progress
+    const [isSearching, setIsSearching] = React.useState(false);
+
     useClickOutside(actionsMenuRef as any, () => setActionsMenuOpen(false));
 
     // Close pop-up menu when clicking outside
     useClickOutside(menuRef as any, () => {
         setPopUpMenu(false);
     });
+
+    // Debounced search function
+    const debouncedSearch = useCallback((searchValue: string) => {
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+
+        setIsSearching(true);
+
+        searchTimeoutRef.current = setTimeout(() => {
+            getRequest(pageNo, pageSize, searchValue);
+            setIsSearching(false);
+        }, 2000); // 2 seconds delay
+    }, [pageNo, pageSize, getRequest]);
+
+    // Handle search input change
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearch(value);
+        debouncedSearch(value);
+    };
+
+    // Clean up timeout on unmount
+    React.useEffect(() => {
+        return () => {
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // fetch requests when page changes
     React.useEffect(() => {
         getRequest(pageNo, pageSize);
     }, [pageNo]);
@@ -201,23 +238,23 @@ const Request = () => {
     };
 
     // Skeleton Loader
-    const SkeletonLoader = () => (
-        <tr>
-            <td colSpan={9}>
-                <div className="flex items-center min-h-[60px]">
-                    <div className="py-[15px] pl-4 " style={{ width: "40px" }}><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "150px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "40px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
-                    <div className="" style={{ width: "40px" }}><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
-                </div>
-            </td>
-        </tr>
-    );
+    // const SkeletonLoader = () => (
+    //     <tr>
+    //         <td colSpan={9}>
+    //             <div className="flex items-center min-h-[60px]">
+    //                 <div className="py-[15px] pl-4 " style={{ width: "40px" }}><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "150px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "40px" }}><div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div></div>
+    //                 <div className="" style={{ width: "40px" }}><div className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div></div>
+    //             </div>
+    //         </td>
+    //     </tr>
+    // );
 
     console.log("selectedData:", selectedData)
 
@@ -269,7 +306,7 @@ const Request = () => {
                 </div>
             </CustomModal >
 
-            {(!requestResponse || requestResponse?.results?.length === 0) && !isLoading && (
+            {(!requestResponse || requestResponse?.results?.length === 0) && !isLoading && search?.length === 0 && !isSearching && (
                 <div>
                     <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
                     <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] max-w-[600px]'>View and manage pending requests from residents who want to join the estate. You can approve or decline each request.</h3>
@@ -294,15 +331,16 @@ const Request = () => {
                 )
             }
             {
-                requestResponse?.results && requestResponse?.results.length > 0 && !isLoading && (
+                (search?.length > 0 || requestResponse?.results && requestResponse?.results.length > 0) && !isLoading && (
                     <div className=''>
                         {/* Header Section */}
                         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
                             <div>
                                 <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
-                                <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] w-full md:w-[600px]'>
-                                    View and manage pending requests from residents who want to join the estate. You can approve or decline each request.
+                                <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] w-full'>
+                                    View and manage pending requests from residents who want to join the estate.
                                 </h3>
+                                <span className='hidden md:block text-GrayHomz font-normal text-[16px]'>You can approve or decline each request.</span>
                             </div>
                             {/* Mobile: Search + Actions */}
                             <div className="flex gap-2 mt-4 md:mt-0 md:justify-end md:items-center relative">
@@ -314,6 +352,8 @@ const Request = () => {
                                         </svg>
                                         <input
                                             type="text"
+                                            value={search}
+                                            onChange={handleSearchChange}
                                             placeholder="Search"
                                             className="bg-transparent h-[40px] rounded-[4px] outline-none text-GrayHomz2 text-sm w-full"
                                         />

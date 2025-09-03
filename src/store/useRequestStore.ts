@@ -58,7 +58,7 @@ export interface RequestState {
 
 export const useRequestSlice = create<RequestState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             isLoading: true,
             requestResponse: null,
 

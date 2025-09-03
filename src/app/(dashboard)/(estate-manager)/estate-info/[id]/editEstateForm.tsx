@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ArrowLeft16Long from '@/components/icons/arrowLeft16Long';
 import ArrowLeftMob from '@/components/icons/arrowLeftMob';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -28,7 +29,7 @@ const EditEstateForm = () => {
     const { formData, setFormData, setZones, setStreets, setBuildings, setApartments, clearForm } = useEstateFormStore();
     // zustand for state 
     const { chooseState } = useStateStore();
-    const { getEstates, estatesData, communityProfile } = useAuthSlice();
+    const { getEstates, estatesData } = useAuthSlice();
     // Header 
     const widgetHeaders = ["Estate Information", "Add Zones (Optional)", "Add Streets", "Add Buildings", "Add Apartments"]
 
