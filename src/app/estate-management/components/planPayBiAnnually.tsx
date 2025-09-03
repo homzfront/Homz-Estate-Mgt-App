@@ -186,7 +186,7 @@ const PlanPayBiAnnually = () => {
                 <p className="text-[14px] mt-[-10px] text-center font-[500] text-BlueHomz">
                   {plan.billing}
                 </p>
-                <Link href={"/contact-page"}
+                <Link href={"/"}
                   className={`h-[48px] rounded-lg text-[16px] w-full flex justify-center items-center ${plan.status === true
                     ? "bg-BlueHomz hover:bg-blue-400 text-white"
                     : " hidden"
@@ -261,7 +261,7 @@ const PlanPayBiAnnually = () => {
                 <p className="text-[12px] mt-[-10px] text-center font-[500] text-BlueHomz">
                   {plan.billing}
                 </p>
-                <Link href={"/contact-page"}
+                <Link href={"/"}
                   className={`h-[48px] rounded-lg text-[14px] w-full flex justify-center items-center ${plan.status === true
                     ? "bg-BlueHomz hover:bg-blue-400 text-white"
                     : " hidden"
