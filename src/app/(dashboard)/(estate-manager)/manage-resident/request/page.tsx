@@ -315,7 +315,7 @@ const Request = () => {
                                         <input
                                             type="text"
                                             placeholder="Search"
-                                            className="bg-transparent h-[40px] rounded-[4px] outline-none text-GrayHomz2 text-sm flex-1"
+                                            className="bg-transparent h-[40px] rounded-[4px] outline-none text-GrayHomz2 text-sm w-full"
                                         />
                                     </div>
                                 </div>
