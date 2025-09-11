@@ -26,7 +26,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const { token, email, estateId, organizationId } = useResidentStore();
-    const { getResidentProfile, setUserData } = useAuthSlice();
+    const {userData, getResidentProfile, setUserData } = useAuthSlice();
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
         if (passwordError) {
@@ -134,7 +134,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             setIsSigningUp(false);
         }
     };
-
+console.log("userData:", userData)
     return (
         <div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">

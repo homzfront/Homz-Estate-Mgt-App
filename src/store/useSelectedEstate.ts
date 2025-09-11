@@ -1,20 +1,23 @@
 import { create } from 'zustand';
-
-
-interface EstateType {
-    id: number;
-    estate: string;
-    building: string;
-    apartmentName: string;
-    residents: number;
-}
+import { persist } from 'zustand/middleware';
+import { ResidentCommunityType } from './useResidentCommunity';
 
 interface EstateStore {
-  selectedEstate: EstateType | null;
-  setSelectedEstate: (data: EstateType | null) => void;
+  selectedEstate: ResidentCommunityType | null;
+  setSelectedEstate: (data: ResidentCommunityType | null) => void;
 }
 
-export const useSelectedEsate = create<EstateStore>((set) => ({
-    selectedEstate: null,
-    setSelectedEstate: (data) => set({ selectedEstate: data }),
-}));
+export const useSelectedEsate = create<EstateStore>()(
+  persist(
+    (set) => ({
+      selectedEstate: null,
+      setSelectedEstate: (data) => set({ selectedEstate: data }),
+    }),
+    {
+      name: 'selected-estate', // localStorage key
+      partialize: (state) => ({
+        selectedEstate: state.selectedEstate,
+      }),
+    }
+  )
+);  

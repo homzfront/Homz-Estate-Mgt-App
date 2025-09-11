@@ -5,7 +5,7 @@ import HourGlassLoader from "@/components/general/hourGlassLoader";
 import ArrowDown from "@/components/icons/arrowDown";
 
 // Define status types
-type Status = "Pending" | "Signed In" | "Signed Out";
+type Status = "pending" | "expired" | "revoke";
 
 interface StatusDropDownMainProps {
     handleStatusChange: (status: Status) => void;
@@ -20,11 +20,11 @@ interface StatusDropDownMainProps {
 
 const getStatusStyles = (status: Status | null): string => {
     switch (status) {
-        case "Pending":
+        case "pending":
             return "bg-warningBg text-warning2";
-        case "Signed In":
-            return "bg-successBg text-Success";
-        case "Signed Out":
+        case "expired":
+            return "bg-error text-white";
+        case "revoke":
             return "bg-error text-white";
         default:
             return "";
@@ -59,10 +59,10 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
                         <div className="flex gap-2 items-center">
                             <p>{capitalizeFirstLetter(displayStatus)}</p>
                             <div className={`${isOpen ? "transform rotate-180 mt-[5px]" : "mb-[5px]"}`}>
-                                <ArrowDown size={12} className={displayStatus === "Pending"
+                                <ArrowDown size={12} className={displayStatus === "pending"
                                     ? "#dc6803"
-                                    : displayStatus === "Signed In"
-                                        ? "#039855"
+                                    : displayStatus === "expired" || displayStatus === "revoke"
+                                        ? "#ffffff"
                                         : "#ffffff"} />
                             </div>
                         </div>
@@ -71,18 +71,18 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
                             className={`dropdown-menu absolute top-[17px] left-0 z-50 mt-2 w-[95px] h-[80px] flex flex-col items-start justify-around px-2 py-1 bg-white shadow-md rounded-md ring-1 ring-black ring-opacity-5 focus:outline-none ${isOpen ? "block" : "hidden"
                                 }`}
                         >
-                            {["Pending", "Signed In", "Signed Out"].map((status) => (
+                            {["pending", "expired", "revoke"].map((status) => (
                                 <li key={status}>
                                     <span
                                         onClick={() => {
                                             setSelectedStatus(status as Status);
                                             handleStatusChange(status as Status);
                                         }}
-                                        className={`cursor-pointer dropdown-item text-GrayHomz text-start w-[80px] rounded-md px-2 h-[20px] ${status === "Pending"
+                                        className={`cursor-pointer dropdown-item text-GrayHomz text-start w-[80px] rounded-md px-2 h-[20px] ${status === "pending"
                                             ? "hover:bg-warningBg hover:text-warning2"
-                                            : status === "Signed In"
-                                                ? "hover:bg-successBg hover:text-Success"
-                                                : "hover:bg-error hover:text-white"
+                                            : status === "revoke" || status === "expired"
+                                            ? "hover:bg-error hover:text-white"
+                                            : "hover:bg-successBg hover:text-Success"
                                             }`}
                                     >
                                         {status}

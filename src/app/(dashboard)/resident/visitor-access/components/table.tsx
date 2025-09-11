@@ -6,49 +6,47 @@ import Image from 'next/image';
 import { Visitor, Visitors } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
 import StatusDropDown from '../../../components/statusDropDown';
-import { useRouter, useSearchParams } from 'next/navigation';
-// import ArrowDown from '@/components/icons/arrowDown';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
-// import ProfileWhite from '@/components/icons/profileWhite';
-// import { useAccessStore } from '@/store/useAccessStore';
 import RevokeAccess from '@/components/icons/revokeAccess';
-
-// Define status types
-// type Status = "Pending" | "Signed In" | "Signed Out";
+import { AccessCodeType, useAccessCodeSlice } from '@/store/useAccessCode';
+import DotLoader from '@/components/general/dotLoader';
+import api from '@/utils/api';
+import toast from 'react-hot-toast';
 
 interface TableProps {
-    fromDefault?: boolean
+    fromDefault?: boolean;
+    pageNo: number;
+    handlePageClick: (page: number) => void;
+    handleNext: () => void;
+    handlePrev: () => void;
+    totalPages: number;
+    pageSize: number;
+    fetchAccessCode: () => Promise<void>;
 }
 
-const Table = ({ fromDefault = true }: TableProps) => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const initialPage = parseInt(searchParams.get('page') || '1', 10);
+const Table = ({
+    fromDefault = true,
+    pageNo,
+    totalPages,
+    pageSize,
+    fetchAccessCode,
+    handlePageClick,
+    handleNext,
+    handlePrev,
+}: TableProps) => {
     const [openDetails, setOpenDetails] = React.useState<boolean>(false);
     const [openRevoke, setOpenRevoke] = React.useState<boolean>(false);
-    const [totalPages, setTotalPages] = React.useState(1);
+    const [isRevoking, setIsRevoking] = React.useState<boolean>(false);
     // const [loading, setLoading] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
-    const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
+    const [selectedData, setSelectedData] = React.useState<AccessCodeType | null>(null);
     const [popUp, setpopUp] = React.useState(false);
-    // const dropdownRef = React.useRef(null);
-    const [pageNo, setPageNo] = React.useState<number>(initialPage);
-    const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
-    const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
-    const pageSize = 8;
-    // const { setResidentData } = useAccessStore();
-    React.useEffect(() => {
-        setTotalPages(Math.ceil(Visitors.length / pageSize));
-    }, [Visitors.length]);
+    const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
+    const [openDropdownIndex, setOpenDropdownIndex] = React.useState<string | null>(null);
+    const { accessCode } = useAccessCodeSlice();
 
-    React.useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('page', pageNo.toString());
-        router.push(`?${params.toString()}`, { scroll: false });
-    }, [pageNo, router, searchParams]);
-
-    const toggleDropdown = (index: number) => {
+    const toggleDropdown = (index: string) => {
         setOpenDropdownIndex((prev) => (prev === index ? null : index));
     };
 
@@ -57,45 +55,56 @@ const Table = ({ fromDefault = true }: TableProps) => {
         setSelectedDataId(id);
     };
 
-    const handlePageClick = (page: number) => {
-        setPageNo(page);
-    };
-
-    const handleNext = () => {
-        if (pageNo < totalPages) {
-            setPageNo(pageNo + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (pageNo > 1) {
-            setPageNo(pageNo - 1);
-        }
-    };
-
     const firstThreePages = [1, 2, 3];
     const lastThreePages = [totalPages - 2, totalPages - 1, totalPages];
 
-    const indexOfLastItem = pageNo * pageSize;
-    const indexOfFirstItem = indexOfLastItem - pageSize;
-    const currentData = Visitors.slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = accessCode;
 
-    // const getStatusStyles = (status: Status | null): string => {
-    //     switch (status) {
-    //         case "Pending":
-    //             return "bg-warningBg text-warning2 border border-warning2";
-    //         case "Signed In":
-    //             return "bg-successBg text-Success border border-Success";
-    //         case "Signed Out":
-    //             return "bg-error text-white border border-white";
-    //         default:
-    //             return "";
-    //     }
-    // };
+    const revokeAccessCode = async () => {
+        if (!selectedData) return;
+        setIsRevoking(true);
+        try {
+            const response = await api.patch(`/access-control/residents/revoke-access/${selectedData?._id}/organizations/${selectedData?.associatedIds?.organizationId}/estates/${selectedData.estateId}`)
+            if (response.status === 200) {
+                setIsRevoking(false);
+                setOpenRevoke(false);
+                setSelectedData(null);
+                await fetchAccessCode();
+                toast.success("Visitor access revoked successfully!", {
+                    position: "top-center",
+                    duration: 2000,
+                    style: {
+                        background: "#E8F5E9",
+                        color: "#2E7D32",
+                        fontWeight: 500,
+                        padding: "12px 20px",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    },
+                });
+            }
 
-
-
-    // const buttonStyle = getStatusStyles(selectedData?.accessStatus as any);
+        }
+        catch (error: any) {
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "Could not revoke access at this time";
+            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#C62828",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } finally {
+            setIsRevoking(false);
+        }
+    };
 
     return (
         <div className="mt-6 w-full mx-auto">
@@ -124,10 +133,10 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                 Cancel
                             </button>
                             <button
-                                className={`w-full flex justify-center items-center font-normal text-sm bg-error text-white cursor-pointer h-[48px] rounded-[4px]`}
-                                onClick={() => setOpenRevoke(false)}
+                                className={`w-full flex justify-center items-center font-normal text-sm bg-error text-white cursor-pointer h-[48px] rounded-[4px] ${isRevoking && "flex justify-center items-center"}`}
+                                onClick={() => revokeAccessCode()}
                             >
-                                Revoke Access
+                                {isRevoking ? <DotLoader /> : "Revoke Access"}
                             </button>
                         </div>
                     </div>
@@ -151,13 +160,14 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                     Resident’s Name
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.residentName}
+                                    {selectedData?.resident?.firstName}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Role
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    [Resident’s Role]
+                                    {/* [Resident’s Role] */}
+                                    {selectedData?.resident?.ownershipType}
                                 </p>
                             </div>
                         </div>
@@ -193,14 +203,14 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                     Date of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.dateOfVisit}
+                                    {selectedData?.arrivalDate}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Expected time
                                     of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.expectedArrivalTime}
+                                    {selectedData?.expectedArrivalTime?.from}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Code
@@ -212,7 +222,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                     Code Type
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    [One Time] / [Permanent]
+                                    {selectedData?.codeType}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Status
@@ -240,13 +250,13 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                     Time In
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.timeIn}
+                                    {selectedData?.expectedArrivalTime?.from}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Time Out
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.timeOut}
+                                    {selectedData?.expectedArrivalTime?.to}
                                 </p>
                             </div>
                         </div>
@@ -298,14 +308,14 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                 //     </>
                                 // ) :
                                 currentData &&
-                                currentData.map((data, index) => (
+                                currentData.map((data) => (
                                     <tr
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             // setOpenDetails(true)
                                             setSelectedData(data)
                                         }}
-                                        key={index}
+                                        key={data?._id}
                                         className="w-2 border-t-[1px] items-center"
                                     >
                                         <td className="text-GrayHomz py-[25px] font-[500] text-[11px] flex items-center justify-center">
@@ -326,24 +336,24 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                             {data.numberOfVisitors}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data?.dateOfVisit}
+                                            {data?.arrivalDate}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.expectedArrivalTime}
+                                            {data?.expectedArrivalTime?.from}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             {data.accessCode}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            [One-Time]
+                                            {data?.codeType}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             <StatusDropDown
-                                                value={data.accessStatus as any}
+                                                value={data?.accessStatus as any}
                                                 loading={false}
-                                                isOpen={openDropdownIndex === index}
-                                                toggleDropdown={() => toggleDropdown(index)}
-                                                selectedStatus={selectedStatus}
+                                                isOpen={openDropdownIndex === data?._id}
+                                                toggleDropdown={() => toggleDropdown(data?._id)}
+                                                selectedStatus={data?.accessStatus as any}
                                                 setSelectedStatus={setSelectedStatus}
                                                 handleStatusChange={(status) => {
                                                     console.log("Selected:", status);
@@ -351,23 +361,23 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                             />
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.timeIn}
+                                            {data?.expectedArrivalTime?.from}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data.timeOut}
+                                            {data?.expectedArrivalTime?.to}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             <span className='flex items-center gap-2'>
-                                                [Resident’s Full Name]
+                                                {data?.resident?.firstName}
                                             </span>
                                             <span className='font-[400]'>
-                                                [Resident’s Role]
+                                                {data?.resident?.ownershipType}
                                             </span>
                                         </td>
                                         <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
                                             <button onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleToggleMenu(index)
+                                                handleToggleMenu(data?._id)
                                                 setSelectedData(data)
                                             }}>
                                                 <Image
@@ -378,7 +388,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                                     style={{ height: "auto", width: "auto" }}
                                                 />
                                             </button>
-                                            {popUp && selectedDataId === index && (
+                                            {popUp && selectedDataId === data?._id && (
                                                 <PopUp
                                                     setOpenDetails={setOpenDetails}
                                                     fromDefault={fromDefault}

@@ -22,11 +22,13 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setUserData } = useAuthSlice();
+  const { userData, setUserData } = useAuthSlice();
   const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
   // const handleGoogleSignIn = () => {
   //   // Empty function as requested
   // };
+
+  console.log("userData:", userData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +73,7 @@ const Login = () => {
         email: email
       })
 
-      
+
       // Store tokens using the right keys
       await storeToken({
         token: data.accessToken,
@@ -83,7 +85,8 @@ const Login = () => {
 
       // Store user data
       setUserData(profile.data.data);
-
+      // console.log("profile data:", profile.data.data);
+      // setUserID(profile.data.data?._id);
 
       // console.log("profile:", profile)
       if (profile?.data?.data?.accounts?.length === 0) {

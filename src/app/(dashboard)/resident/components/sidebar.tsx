@@ -13,6 +13,9 @@ import { useSelectedEsate } from '@/store/useSelectedEstate';
 import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
+import api from '@/utils/api';
+import { useResidentCommunity } from '@/store/useResidentCommunity';
+import { useAuthSlice } from '@/store/authStore';
 
 const Data = [
     {
@@ -70,8 +73,33 @@ const Data = [
 const Sidebar = () => {
     const pathname = usePathname();
     const { setOpenEstateList } = useOpenCommunityListStore();
+    const { userData } = useAuthSlice();
+    const userID = userData?._id;
     const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
+    const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
+    const { residentCommunity, setResidentCommunity } = useResidentCommunity();
 
+    const fetchResidentEstate = async () => {
+        try {
+            const response: any = await api.get(`estates/resident/all-estates/users/${userID}`);
+            // console.log("Resident Estate Response:", response);
+            setResidentCommunity(response?.data?.data?.estates?.results)
+        } catch (error) {
+            console.error("Error fetching resident estates:", error);
+        }
+    }
+
+    React.useEffect(() => {
+        if (userData) {
+            fetchResidentEstate();
+        }
+    }, [userData]);
+
+    React.useEffect(() => {
+        if (!selectedEstate && residentCommunity && residentCommunity.length > 0) {
+            setSelectedEstate(residentCommunity?.[0]);
+        }
+    }, [selectedEstate, residentCommunity, setSelectedEstate]);
 
     const isActive = (data: any, pathname: string) => {
         // 1. First check if the full path matches exactly
@@ -116,9 +144,9 @@ const Sidebar = () => {
                                 />
                             </div>
                             <div className='flex flex-col'>
-                                <p>{selectedEstate ? selectedEstate?.estate : "Golden Palms Estate"}</p>
+                                <p>{selectedEstate ? selectedEstate?.estateName : ""}</p>
                                 <span className='text-xs'>
-                                    [Block 6], [Apartment 1]
+                                    {/* [Block 6], [Apartment 1] */}
                                 </span>
                             </div>
                         </div>
