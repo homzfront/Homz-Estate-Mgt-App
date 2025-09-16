@@ -64,28 +64,23 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                 `/access-control/community-manager/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`,
                 removeEmptyFields(payload)
             );
-            console.log("response:", response)
-            // setAccessCodeResponse(response?.data?.data);
-            // Extract the access code from the response
-            const generatedCode = response?.data?.data?.accessCode || ""; // Fallback for demo
-            setAccessCode(generatedCode);
-            setCodeGenerated(true);
+            setOpenSuccessModal(true);
+            setOpenAddManual(false);
+            // // Show success toast
+            // toast.success("Code generated!", {
+            //     position: "top-center",
+            //     duration: 2000,
+            //     style: {
+            //         background: "#E8F5E9",
+            //         color: "#2E7D32",
+            //         fontWeight: 500,
+            //         padding: "12px 20px",
+            //         borderRadius: "8px",
+            //         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            //     },
+            // });
 
-            // Show success toast
-            toast.success("Code generated!", {
-                position: "top-center",
-                duration: 2000,
-                style: {
-                    background: "#E8F5E9",
-                    color: "#2E7D32",
-                    fontWeight: 500,
-                    padding: "12px 20px",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                },
-            });
-
-            setCodeGenerated(true);
+            // setCodeGenerated(true);
 
         } catch (error: any) {
             console.log(error)

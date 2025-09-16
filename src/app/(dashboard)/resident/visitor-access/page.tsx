@@ -14,6 +14,7 @@ import Close from '@/components/icons/Close';
 import DateIcon from '@/components/icons/dateIcon';
 import { useAccessCodeSlice } from '@/store/useAccessCode';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSelectedEsate } from '@/store/useSelectedEstate';
 
 const VisitorAccess = () => {
   const router = useRouter();
@@ -30,6 +31,7 @@ const VisitorAccess = () => {
   const [pageNo, setPageNo] = React.useState<number>(initialPage);
   const [dateFilter, setDateFilter] = React.useState<string>('');
   const { isLoading, accessCode, getAccessCode } = useAccessCodeSlice();
+  const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
   const selectedEsate = useAccessCodeSlice((state) => state.accessCode);
   const [loading, setLoading] = React.useState<boolean>(true);
   const pages = [
@@ -58,22 +60,26 @@ const VisitorAccess = () => {
   }, [accessCode]);
 
   React.useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', pageNo.toString());
-    router.push(`?${params.toString()}`, { scroll: false });
+    const current = searchParams.get('page') || '1';
+    const next = String(pageNo);
+    if (current !== next) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', next);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
   }, [pageNo, router, searchParams]);
 
   const fetchAccessCode = async () => {
-    await getAccessCode(pageNo, pageSize, search, dateFilter);
+    if (selectedEstate) {
+      await getAccessCode(pageNo, pageSize, search, dateFilter);
+    }
   };
 
   React.useEffect(() => {
-    fetchAccessCode();
-  }, [pageNo, pageSize, search, dateFilter]);
-
-  React.useEffect(() => {
-    getAccessCode(pageNo, pageSize, search, dateFilter);
-  }, [pageNo, getAccessCode, search, dateFilter, pageSize]);
+    if (selectedEstate) {
+      getAccessCode(pageNo, pageSize, search, dateFilter);
+    }
+  }, [selectedEstate, pageNo, pageSize, search, dateFilter, getAccessCode]);
 
   React.useEffect(() => {
     if (accessCode && accessCode.length > 0) {

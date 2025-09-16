@@ -81,6 +81,7 @@ interface AccessCodeSlice {
     totalPages: number;
     totalResults: number;
     isLoading: boolean;
+    hasAnyData: boolean;
     getAccessCode: (
         pageNo?: number,
         pageSize?: number,
@@ -96,6 +97,7 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
             totalPages: 1,
             totalResults: 0,
             isLoading: false,
+            hasAnyData: false,
             getAccessCode: async (pageNo = 1, pageSize = 10, search = '', date?: string | Date) => {
                 console.log("Fetching access codes with params:", { pageNo, pageSize, search, date });  
                 set({ isLoading: true });
@@ -117,12 +119,13 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
 
                     const res = await api.get(url);
                     console.log('Resident Community Response:', res.data);
-                    set({
+                    set((prev) => ({
                         accessCode: res.data.data.results,
                         totalPages: res.data.data.totalPages,
                         totalResults: res.data.data.totalResults,
                         isLoading: false,
-                    });
+                        hasAnyData: (search || date) ? (prev as any).hasAnyData : (res.data.data.results?.length ?? 0) > 0,
+                    }));
                 } catch (e) {
                     set({ isLoading: false, accessCode: null });
                 }
@@ -134,6 +137,7 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                 AccessCode: state.accessCode,
                 totalPages: state.totalPages,
                 totalResults: state.totalResults,
+                hasAnyData: state.hasAnyData,
             }),
         }
     )

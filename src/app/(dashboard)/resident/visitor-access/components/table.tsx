@@ -3,9 +3,7 @@ import React from 'react'
 import PopUp from './popUp'
 // import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import { Visitor, Visitors } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
-import StatusDropDown from '../../../components/statusDropDown';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import RevokeAccess from '@/components/icons/revokeAccess';
@@ -13,6 +11,8 @@ import { AccessCodeType, useAccessCodeSlice } from '@/store/useAccessCode';
 import DotLoader from '@/components/general/dotLoader';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
+import { formatDateDisplay, formatExpectedRange } from '@/app/utils/formatDateTime';
+import StatusDropDown from '@/app/(dashboard)/components/statusDropDown';
 
 interface TableProps {
     fromDefault?: boolean;
@@ -44,7 +44,7 @@ const Table = ({
     const [popUp, setpopUp] = React.useState(false);
     const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<string | null>(null);
-    const { accessCode } = useAccessCodeSlice();
+    const { accessCode, isLoading } = useAccessCodeSlice();
 
     const toggleDropdown = (index: string) => {
         setOpenDropdownIndex((prev) => (prev === index ? null : index));
@@ -250,13 +250,13 @@ const Table = ({
                                     Time In
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.expectedArrivalTime?.from}
+                                    {/* {selectedData?.expectedArrivalTime?.from} */}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Time Out
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.expectedArrivalTime?.to}
+                                    {/* {selectedData?.expectedArrivalTime?.to} */}
                                 </p>
                             </div>
                         </div>
@@ -295,20 +295,27 @@ const Table = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                // loading ? (
-                                //     // Show skeleton loaders when loading
-                                //     <>
-                                //         <SkeletonTableLoader />
-                                //         <SkeletonTableLoader />
-                                //         <SkeletonTableLoader />
-                                //         <SkeletonTableLoader />
-                                //         <SkeletonTableLoader />
-                                //         <SkeletonTableLoader />
-                                //     </>
-                                // ) :
-                                currentData &&
-                                currentData.map((data) => (
+                            {isLoading && (
+                                Array.from({ length: 6 }).map((_, sk) => (
+                                    <tr key={`sk-${sk}`} className="border-t-[1px]">
+                                        <td className="py-[25px]"><span className='w-[8px] h-[8px] rounded-full bg-whiteblue inline-block' /></td>
+                                        <td className="py-[15px]"><div className="h-3 w-24 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-20 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-20 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-10 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-24 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-28 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-16 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-3 w-16 bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"><div className="h-6 w-[100px] bg-whiteblue rounded animate-pulse"></div></td>
+                                        <td className="py-[15px]"></td>
+                                        <td className="py-[15px]"></td>
+                                        <td className="py-[15px]"></td>
+                                        <td className="py-[15px]"></td>
+                                    </tr>
+                                ))
+                            )}
+                            {!isLoading && currentData && currentData.map((data) => (
                                     <tr
                                         onClick={(e) => {
                                             e.stopPropagation()
@@ -335,36 +342,49 @@ const Table = ({
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             {data.numberOfVisitors}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data?.arrivalDate}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data?.expectedArrivalTime?.from}
-                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">{formatDateDisplay(data?.arrivalDate)}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">{formatExpectedRange(data?.expectedArrivalTime?.from, data?.expectedArrivalTime?.to)}</td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             {data.accessCode}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             {data?.codeType}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            <StatusDropDown
-                                                value={data?.accessStatus as any}
-                                                loading={false}
-                                                isOpen={openDropdownIndex === data?._id}
-                                                toggleDropdown={() => toggleDropdown(data?._id)}
-                                                selectedStatus={data?.accessStatus as any}
-                                                setSelectedStatus={setSelectedStatus}
-                                                handleStatusChange={(status) => {
-                                                    console.log("Selected:", status);
-                                                }}
-                                            />
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
+                                            {['pending','signed in','signed out'].includes((data.accessStatus || '').toLowerCase()) ? (
+                                                <div className="flex items-center gap-2">
+                                                    <StatusDropDown
+                                                        value={(data.accessStatus === 'pending' ? 'Pending' : data.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
+                                                        loading={false}
+                                                        isOpen={openDropdownIndex === data?._id}
+                                                        toggleDropdown={() => toggleDropdown(data?._id)}
+                                                        selectedStatus={null}
+                                                        setSelectedStatus={() => {}}
+                                                        handleStatusChange={(status) => {
+                                                            // TODO: Wire resident-side status update if needed
+                                                            toggleDropdown(data?._id);
+                                                        }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <span
+                                                    className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px]
+                                                    ${data.accessStatus?.toLowerCase() === 'approved' ? 'bg-successBg text-Success' : ''}
+                                                    ${data.accessStatus?.toLowerCase() === 'rejected' ? 'bg-error text-white' : ''}
+                                                    ${data.accessStatus?.toLowerCase() === 'expired' ? 'bg-warningBg text-warning2' : ''}
+                                                    ${data.accessStatus?.toLowerCase() === 'revoke' ? 'bg-error text-white' : ''}
+                                                    ${data.accessStatus?.toLowerCase() === 'used' ? 'bg-whiteblue text-GrayHomz' : ''}
+                                                `}
+                                                >
+                                                    {data.accessStatus}
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data?.expectedArrivalTime?.from}
+                                            {/* {data?.expectedArrivalTime?.from} */}-
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
-                                            {data?.expectedArrivalTime?.to}
+                                            {/* {data?.expectedArrivalTime?.to} */}-
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
                                             <span className='flex items-center gap-2'>
@@ -375,11 +395,13 @@ const Table = ({
                                             </span>
                                         </td>
                                         <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
-                                            <button onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleToggleMenu(data?._id)
-                                                setSelectedData(data)
-                                            }}>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleMenu(data?._id);
+                                                    setSelectedData(data);
+                                                }}
+                                            >
                                                 <Image
                                                     src="/dots-vertical.png"
                                                     alt="Options"
@@ -398,11 +420,16 @@ const Table = ({
                                         </td>
                                     </tr>
                                 ))}
+                            {!isLoading && (!currentData || currentData.length === 0) && (
+                                <tr>
+                                    <td colSpan={14} className="text-center text-sm text-GrayHomz py-8">No records found</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
-            {currentData && currentData.length >= 1 && <div className="mt-6">
+            {!isLoading && currentData && currentData.length >= 1 && <div className="mt-6">
                 <Pagination
                     firstThreePages={firstThreePages}
                     currentPage={pageNo}
