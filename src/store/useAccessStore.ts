@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Resident } from '@/app/(dashboard)/(estate-manager)/manage-resident/residents/components/resident';
 import { Visitor } from '@/app/(dashboard)/components/visitors';
 import { create } from 'zustand';

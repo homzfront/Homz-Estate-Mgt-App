@@ -2,10 +2,10 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAccessStore } from '@/store/useAccessStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
-import Pagination from '@/app/(dashboard)/components/pagination';
+// import Pagination from '@/app/(dashboard)/components/pagination';
 import ArrowDown from '@/components/icons/arrowDown';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
@@ -15,9 +15,16 @@ import { formatDateDisplay, formatExpectedRange } from '@/app/utils/formatDateTi
 import PopUp from '../../dashboard/components/popUp';
 import useClickOutside from '@/app/utils/useClickOutside';
 import StatusDropDown from '@/app/(dashboard)/components/statusDropDown';
+import toast from 'react-hot-toast';
+import api from '@/utils/api';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import DotLoader from '@/components/general/dotLoader';
 
-const AccessTable: React.FC = () => {
-    const router = useRouter();
+interface AccessTableProps {
+    steps: number;
+}
+
+const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
     const searchParams = useSearchParams();
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
     const {
@@ -30,14 +37,16 @@ const AccessTable: React.FC = () => {
         fetchManagerAccess,
         updateManagerAccessStatus,
     } = useAccessStore();
-    console.log("pageLoading:", pageLoading)
+    const [isRevoking, setIsRevoking] = React.useState<boolean>(false);
     const [openDetails, setOpenDetails] = React.useState(false);
     const [openRevoke, setOpenRevoke] = React.useState(false);
+    const [revokeId, setRevokeId] = React.useState<string | null>(null);
     const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
     const [openPopIndex, setOpenPopIndex] = React.useState<number | null>(null);
     const popupRef = React.useRef<HTMLTableCellElement | null>(null);
     const [openStatusIndex, setOpenStatusIndex] = React.useState<number | null>(null);
     const statusDropdownRef = React.useRef<HTMLDivElement | null>(null);
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
 
     useClickOutside(popupRef as React.RefObject<HTMLTableCellElement>, () => {
         if (openPopIndex !== null) setOpenPopIndex(null);
@@ -53,11 +62,51 @@ const AccessTable: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    React.useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('page', (currentPage || 1).toString());
-        router.push(`?${params.toString()}`, { scroll: false });
-    }, [currentPage, router, searchParams]);
+    const revokeAccessCode = async () => {
+        if (!selectedCommunity) return;
+        setIsRevoking(true);
+        try {
+            const response = await api.patch(`/access-control/community-manager/revoke-access/${revokeId}/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`)
+            if (response.status === 200) {
+                setIsRevoking(false);
+                setOpenRevoke(false);
+                setRevokeId(null);
+                await fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
+                toast.success("Visitor access revoked successfully!", {
+                    position: "top-center",
+                    duration: 2000,
+                    style: {
+                        background: "#E8F5E9",
+                        color: "#2E7D32",
+                        fontWeight: 500,
+                        padding: "12px 20px",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    },
+                });
+            }
+
+        }
+        catch (error: any) {
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "Could not revoke access at this time";
+            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#C62828",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } finally {
+            setIsRevoking(false);
+        }
+    };
 
     const selected = selectedIndex !== null ? items[selectedIndex] : null;
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
@@ -90,7 +139,7 @@ const AccessTable: React.FC = () => {
                         </div>
                         <div className='flex items-center gap-4'>
                             <button className="w-full border border-BlueHomz text-BlueHomz text-sm rounded-[4px] h-[48px]" onClick={() => setOpenRevoke(false)}>Cancel</button>
-                            <button className="w-full bg-error text-white text-sm h-[48px] rounded-[4px]" onClick={() => setOpenRevoke(false)}>Revoke Access</button>
+                            <button className={`w-full bg-error text-white text-sm h-[48px] rounded-[4px] min-w-[140px] ${isRevoking && "flex items-center justify-center"}`} onClick={() => revokeAccessCode()}>{isRevoking ? <DotLoader color='#fff' /> : 'Revoke Access'}</button>
                         </div>
                     </div>
                 </CustomModal>
@@ -174,7 +223,7 @@ const AccessTable: React.FC = () => {
                                     <tr key={`sk-${sk}`} className="border-t-[1px]">
                                         <td className="hidden md:table-cell py-[20px]"></td>
                                         <td className="hidden md:table-cell py-[20px]"></td>
-                                        <td className="py-[15px]">
+                                        <td className="py-[15px] pl-4 md:pl-0">
                                             <div className="h-3 w-24 bg-whiteblue rounded animate-pulse"></div>
                                         </td>
                                         <td className="hidden md:table-cell">
@@ -213,73 +262,74 @@ const AccessTable: React.FC = () => {
                                         <td className="text-GrayHomz py-[25px] font-[500] text-[11px] hidden md:table-cell text-center">
                                             <span className='inline-block w-[8px] h-[8px] rounded-full bg-error' />
                                         </td>
-                                    <td className="text-BlueHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                        <span onClick={(e) => { e.stopPropagation(); setSelectedIndex(idx); setOpenDetails(true); }} className='flex items-center gap-2'>
-                                            {row.resident ? `${row.resident.firstName} ${row.resident.lastName}` : '-'} <ArrowDown />
-                                        </span>
-                                    </td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] pl-4 md:pl-0">{row.visitor}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.phoneNumber}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.purpose}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.numberOfVisitors}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatDateDisplay(row.arrivalDate)}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatExpectedRange(row.expectedArrivalTime?.from, row.expectedArrivalTime?.to)}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.accessCode}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
-                                        {['pending','signed in','signed out'].includes((row.accessStatus || '').toLowerCase()) ? (
-                                            <div className="flex items-center gap-2">
-                                                <StatusDropDown
-                                                    value={(row.accessStatus === 'pending' ? 'Pending' : row.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
-                                                    loading={false}
-                                                    isOpen={openStatusIndex === idx}
-                                                    toggleDropdown={() => setOpenStatusIndex((prev) => (prev === idx ? null : idx))}
-                                                    selectedStatus={null}
-                                                    setSelectedStatus={() => {}}
-                                                    dropdownRef={openStatusIndex === idx ? (statusDropdownRef as any) : undefined}
-                                                    handleStatusChange={(status) => {
-                                                        const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
-                                                        updateManagerAccessStatus(row._id, next as any);
-                                                        setOpenStatusIndex(null);
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <span
-                                                className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px]
+                                        <td className="text-BlueHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                            <span onClick={(e) => { e.stopPropagation(); setSelectedIndex(idx); setOpenDetails(true); }} className='flex items-center gap-2'>
+                                                {row.resident ? `${row.resident.firstName} ${row.resident.lastName}` : '-'} <ArrowDown />
+                                            </span>
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] pl-4 md:pl-0">{row.visitor}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.phoneNumber}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.purpose}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.numberOfVisitors}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatDateDisplay(row.arrivalDate)}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatExpectedRange(row.expectedArrivalTime?.from, row.expectedArrivalTime?.to)}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.accessCode}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
+                                            {['pending', 'signed in', 'signed out'].includes((row.accessStatus || '').toLowerCase()) ? (
+                                                <div className="flex items-center gap-2">
+                                                    <StatusDropDown
+                                                        value={(row.accessStatus === 'pending' ? 'Pending' : row.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
+                                                        loading={false}
+                                                        isOpen={openStatusIndex === idx}
+                                                        toggleDropdown={() => setOpenStatusIndex((prev) => (prev === idx ? null : idx))}
+                                                        selectedStatus={null}
+                                                        setSelectedStatus={() => { }}
+                                                        dropdownRef={openStatusIndex === idx ? (statusDropdownRef as any) : undefined}
+                                                        handleStatusChange={(status) => {
+                                                            const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
+                                                            updateManagerAccessStatus(row._id, next as any);
+                                                            setOpenStatusIndex(null);
+                                                        }}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <span
+                                                    className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px]
                                                 ${row.accessStatus?.toLowerCase() === 'approved' ? 'bg-successBg text-Success' : ''}
                                                 ${row.accessStatus?.toLowerCase() === 'rejected' ? 'bg-error text-white' : ''}
                                                 ${row.accessStatus?.toLowerCase() === 'expired' ? 'bg-warningBg text-warning2' : ''}
                                                 ${row.accessStatus?.toLowerCase() === 'revoke' ? 'bg-error text-white' : ''}
                                                 ${row.accessStatus?.toLowerCase() === 'used' ? 'bg-whiteblue text-GrayHomz' : ''}
                                             `}
+                                                >
+                                                    {row.accessStatus}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeIn ? new Date(row.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeOut ? new Date(row.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
+                                        <td ref={openPopIndex === idx ? popupRef : undefined} className={`sticky right-0 bg-white py-[15px] pr-4 z-10`}>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedIndex(idx);
+                                                    setRevokeId(row._id);
+                                                    setOpenPopIndex((prev) => (prev === idx ? null : idx));
+                                                }}
                                             >
-                                                {row.accessStatus}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeIn ? new Date(row.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
-                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeOut ? new Date(row.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
-                                    <td ref={openPopIndex === idx ? popupRef : undefined} className={`sticky right-0 bg-white py-[15px] pr-4 z-10`}>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedIndex(idx);
-                                                setOpenPopIndex((prev) => (prev === idx ? null : idx));
-                                            }}
-                                        >
-                                            <Image src="/dots-vertical.png" alt="Options" height={21} width={20} style={{ height: 'auto', width: 'auto' }} />
-                                        </button>
-                                        {openPopIndex === idx && (
-                                            <PopUp
-                                                setOpenDetails={(val) => { setOpenDetails(val); setOpenPopIndex(null); }}
-                                                fromDefault={false}
-                                                setOpenRevoke={(val) => { setOpenRevoke(val); setOpenPopIndex(null); }}
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
+                                                <Image src="/dots-vertical.png" alt="Options" height={21} width={20} style={{ height: 'auto', width: 'auto' }} />
+                                            </button>
+                                            {openPopIndex === idx && (
+                                                <PopUp
+                                                    setOpenDetails={(val) => { setOpenDetails(val); setOpenPopIndex(null); }}
+                                                    fromDefault={false}
+                                                    setOpenRevoke={(val) => { setOpenRevoke(val); setOpenPopIndex(null); }}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
                                 )
-                            ))}
+                                ))}
                             {items.length === 0 && !pageLoading && (
                                 <tr>
                                     <td colSpan={13} className="text-center text-sm text-GrayHomz py-8">{pageLoading ? 'Loading...' : 'No records found'}</td>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import AddIcon from '@/components/icons/addIcon';
 import BigKeyIcon from '@/components/icons/estateManager&Resident/desktop/bigKeyIcon';
@@ -22,21 +23,21 @@ const VisitorAccess = () => {
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
   const [totalPages, setTotalPages] = React.useState(1);
-  const [steps, setSteps] = React.useState<number>(0);
+  // const [steps, setSteps] = React.useState<number>(0);
   const [openAccessCodeForm, setOpenAccessCodeForm] = React.useState<boolean>(false);
-  const [accessData, setAccessData] = React.useState<boolean>(true);
+  // const [accessData, setAccessData] = React.useState<boolean>(true);
   const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = React.useState<boolean>(false);
-  const [search, setSearch] = React.useState<string>('');
+  const [search] = React.useState<string>('');
   const [pageNo, setPageNo] = React.useState<number>(initialPage);
   const [dateFilter, setDateFilter] = React.useState<string>('');
   const { isLoading, accessCode, getAccessCode } = useAccessCodeSlice();
   const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
   const selectedEsate = useAccessCodeSlice((state) => state.accessCode);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const pages = [
-    "All", "Co-owner", "Admin", "Staff", "Dependent"
-  ];
+  // const pages = [
+  //   "All", "Co-owner", "Admin", "Staff", "Dependent"
+  // ];
 
 
   const handlePageClick = (page: number) => {
@@ -148,7 +149,7 @@ const VisitorAccess = () => {
           color='text-BlueHomz'
           handleBack={() => {
             setOpenSuccessModal(false)
-            setAccessData(true)
+            // setAccessData(true)
           }}
           closeSuccessModal={() => setOpenSuccessModal(false)}
         />

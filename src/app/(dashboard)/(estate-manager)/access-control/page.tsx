@@ -149,7 +149,9 @@ const AccessControl = () => {
                             {initialLoading ? (
                                 <div className='h-[300px] w-full flex items-center justify-center text-GrayHomz'><LoadingSpinner /></div>
                             ) : (
-                                <AccessTable />
+                                <AccessTable
+                                    steps={steps}
+                                />
                             )}
                         </div>
                     </div>

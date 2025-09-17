@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { removeEmptyFields } from '@/app/utils/removeEmptyFields';
 import CustomInput from '@/components/general/customInput';
 import DotLoader from '@/components/general/dotLoader';
@@ -17,7 +18,7 @@ interface AddManualFormProps {
 }
 const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormProps) => {
     const [isOpen, setIsOpen] = React.useState(true);
-    const [accessCode, setAccessCode] = React.useState<string>("");
+    // const [accessCode, setAccessCode] = React.useState<string>("");
     const [loading, setLoading] = React.useState(false);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
@@ -60,7 +61,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
             };
 
             // Make API request
-            const response = await api.post(
+            await api.post(
                 `/access-control/community-manager/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`,
                 removeEmptyFields(payload)
             );
@@ -108,7 +109,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
     const copyToClipboard = () => {
         const message = `Hi ${formData.visitorName},
 
-        Your ${timeCode.toLowerCase()} access code is: ${accessCode}
+        Your ${timeCode.toLowerCase()} access code is: 
 
         Location: ${selectedCommunity?.basicDetails?.name}
         From: ${formData.arrivalDate}, ${formData.startTime}
@@ -270,7 +271,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                             <div className="text-GrayHomz text-sm font-medium space-y-4">
                                 <p>Hi {formData.visitorName},</p>
 
-                                <p>Your {timeCode.toLowerCase()} access code is: <strong>{accessCode}</strong></p>
+                                <p>Your {timeCode.toLowerCase()} access code is: <strong></strong></p>
 
                                 <p>
                                     Location: {selectedCommunity?.basicDetails?.name} <br />

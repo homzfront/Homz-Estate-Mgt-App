@@ -20,9 +20,9 @@ import RequestUnsuccessful from '@/components/icons/estateManager&Resident/deskt
 import ExportIcon from '@/components/icons/estateManager&Resident/desktop/exportIcon';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
 
-const option = [
-  { id: 1, estate: 'Golden Gates Estate', building: "Building 10", apartmentName: "Apartment 10", residents: 20 },
-]
+// const option = [
+//   { id: 1, estate: 'Golden Gates Estate', building: "Building 10", apartmentName: "Apartment 10", residents: 20 },
+// ]
 
 const Dashboard = () => {
   // const router = useRouter();

@@ -7,7 +7,7 @@ import CopyIcon from '@/components/icons/copyIcon';
 import DateIcon from '@/components/icons/dateIcon';
 import InactiveToggle from '@/components/icons/inactiveToggle';
 import WarningIcon from '@/components/icons/warningIcon';
-import { useResidentCommunity } from '@/store/useResidentCommunity';
+// import { useResidentCommunity } from '@/store/useResidentCommunity';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 import api from '@/utils/api';
 import React from 'react'
@@ -25,8 +25,8 @@ const AccessCodeForm = ({
     setOpenAccessCodeForm,
     fetchAccessCode,
     setOpenSuccessModal,
-    organizationId = "",
-    estateId = ""
+    // organizationId = "",
+    // estateId = ""
 }: AccessCodeFormProps) => {
     const [loading, setLoading] = React.useState(false);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);

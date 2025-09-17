@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Community } from './authStore';
+// import { Community } from './authStore';
 
 interface AssociatedIds {
     userId: string;

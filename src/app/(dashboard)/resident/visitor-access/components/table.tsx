@@ -29,7 +29,7 @@ const Table = ({
     fromDefault = true,
     pageNo,
     totalPages,
-    pageSize,
+    // pageSize,
     fetchAccessCode,
     handlePageClick,
     handleNext,
@@ -42,7 +42,7 @@ const Table = ({
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
     const [selectedData, setSelectedData] = React.useState<AccessCodeType | null>(null);
     const [popUp, setpopUp] = React.useState(false);
-    const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
+    // const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<string | null>(null);
     const { accessCode, isLoading } = useAccessCodeSlice();
 
@@ -360,7 +360,7 @@ const Table = ({
                                                         toggleDropdown={() => toggleDropdown(data?._id)}
                                                         selectedStatus={null}
                                                         setSelectedStatus={() => {}}
-                                                        handleStatusChange={(status) => {
+                                                        handleStatusChange={() => {
                                                             // TODO: Wire resident-side status update if needed
                                                             toggleDropdown(data?._id);
                                                         }}

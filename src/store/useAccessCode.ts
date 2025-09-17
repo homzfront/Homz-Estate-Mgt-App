@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '@/utils/api'; // Adjust import to your API utility
@@ -92,7 +93,7 @@ interface AccessCodeSlice {
 
 export const useAccessCodeSlice = create<AccessCodeSlice>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             accessCode: null,
             totalPages: 1,
             totalResults: 0,
@@ -126,7 +127,8 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                         isLoading: false,
                         hasAnyData: (search || date) ? (prev as any).hasAnyData : (res.data.data.results?.length ?? 0) > 0,
                     }));
-                } catch (e) {
+                } catch (error: any) {
+                    console.error("Error fetching access codes:", error);
                     set({ isLoading: false, accessCode: null });
                 }
             },
