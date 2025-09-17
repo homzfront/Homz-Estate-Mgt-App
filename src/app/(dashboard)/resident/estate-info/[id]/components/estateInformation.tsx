@@ -14,7 +14,7 @@ const EstateInformation = () => {
                             Estate Name
                         </p>
                         <p className='text-sm text-GrayHomz font-normal'>
-                            {selectedEstate?.estate ?? "[Selected Estate Name]"}
+                            {selectedEstate?.estateName ?? "[Selected Estate Name]"}
                         </p>
                         <p className='text-sm text-BlackHomz font-medium md:font-normal '>
                             Location

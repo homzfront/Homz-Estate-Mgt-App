@@ -78,7 +78,7 @@ const StatusDropDown: React.FC<StatusDropDownMainProps> = ({
                                             setSelectedStatus(status as Status);
                                             handleStatusChange(status as Status);
                                         }}
-                                        className={`cursor-pointer dropdown-item text-GrayHomz text-start w-[80px] rounded-md px-2 h-[20px] ${status === "Pending"
+                                        className={`cursor-pointer dropdown-item text-GrayHomz p-1 text-start w-[80px] rounded-md px-2 h-[20px] ${status === "Pending"
                                             ? "hover:bg-warningBg hover:text-warning2"
                                             : status === "Signed In"
                                                 ? "hover:bg-successBg hover:text-Success"

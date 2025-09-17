@@ -26,6 +26,7 @@ interface DropdownProps {
     textColor?: string;
     bgColor?: string;
     openBorder?: string;
+    selectedId?: string | number | null;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -41,8 +42,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     bgColor = "bg-white",
     height = "h-[45px]",
     textColor = "text-BlackHomz",
-    openBorder = "border-GrayHomz"
+    openBorder = "border-GrayHomz",
+    selectedId,
 }) => {
+    const isControlled = typeof selectedId !== 'undefined';
+    const controlledSelected = isControlled ? options.find(o => o.id === selectedId) ?? null : null;
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +83,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 onClick={handleDropdownToggle}
             >
                 <span className="mr-2 truncate">
-                    {selectedOption?.label || selectOption}
+                    {isControlled ? (controlledSelected?.label || selectOption) : (selectedOption?.label || selectOption)}
                 </span>
                 <div className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}>
                     <ArrowDown className={arrowColor} />
@@ -117,11 +121,11 @@ const Dropdown: React.FC<DropdownProps> = ({
                             filteredOptions.map((option) => (
                                 <div
                                     key={option.id}
-                                    className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm ${selectedOption?.id === option.id ? "text-BlueHomz" : " hover:text-BlackHomz"
+                                    className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm ${(isControlled ? selectedId === option.id : selectedOption?.id === option.id) ? "text-BlueHomz" : " hover:text-BlackHomz"
                                         }`}
                                     onClick={() => handleOptionClick(option)}
                                 >
-                                    <div className="font-medium flex items-center justify-between">{option.label}  {selectedOption?.id === option.id && <BlueTick />}</div>
+                                    <div className="font-medium flex items-center justify-between">{option.label}  {(isControlled ? selectedId === option.id : selectedOption?.id === option.id) && <BlueTick />}</div>
                                     {option.zoneName && (
                                         <div className="text-sm text-GrayHomz font-normal mt-1">{option.zoneName}</div>
                                     )}

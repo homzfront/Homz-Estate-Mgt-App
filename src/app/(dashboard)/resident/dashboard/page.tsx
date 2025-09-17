@@ -18,10 +18,11 @@ import Table from './components/table';
 import LockWarning from '@/components/icons/estateManager&Resident/desktop/lockWarning';
 import RequestUnsuccessful from '@/components/icons/estateManager&Resident/desktop/requestUnsuccessful';
 import ExportIcon from '@/components/icons/estateManager&Resident/desktop/exportIcon';
+import { useResidentCommunity } from '@/store/useResidentCommunity';
 
-const option = [
-  { id: 1, estate: 'Golden Gates Estate', building: "Building 10", apartmentName: "Apartment 10", residents: 20 },
-]
+// const option = [
+//   { id: 1, estate: 'Golden Gates Estate', building: "Building 10", apartmentName: "Apartment 10", residents: 20 },
+// ]
 
 const Dashboard = () => {
   // const router = useRouter();
@@ -30,7 +31,8 @@ const Dashboard = () => {
   });
   const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
   const [showTable, setShowTable] = React.useState<boolean>(false);
-  const [unsucc, setUnsucc] = React.useState<boolean>(false);
+  const [unsucc, setUnsucc] = React.useState<boolean>(true);
+  const residentCommunity = useResidentCommunity((state) => state.residentCommunity);
   const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
   const closeRef = React.useRef<HTMLDivElement>(null);
@@ -58,8 +60,17 @@ const Dashboard = () => {
   };
 
   React.useEffect(() => {
-    setSelectedEstate(option[0]);
-  }, [setSelectedEstate]);
+    if (residentCommunity && residentCommunity?.length > 0) {
+      setSelectedEstate(residentCommunity?.[0]);
+    }
+  }, [setSelectedEstate, residentCommunity]);
+
+  React.useEffect(() => {
+    if (selectedEstate?.status === "accepted") {
+      setUnsucc(false)
+      setShowTable(true)
+    }
+  }, [selectedEstate])
 
   return (
     <div className='p-8 mb-[150px]'>
@@ -81,9 +92,9 @@ const Dashboard = () => {
               />
             </div>
             <div className='flex flex-col'>
-              <p>{selectedEstate ? selectedEstate?.estate : "Golden Palms Estate"}</p>
+              <p>{selectedEstate ? selectedEstate?.estateName : ""}</p>
               <span className='text-xs'>
-                [Block 6], [Apartment 1]
+                {/* [Block 6], [Apartment 1] {selectedEstate ? `, ${selectedEstate?.building}, ${selectedEstate?.apartmentName}` : ""  } */}
               </span>
             </div>
           </div>
@@ -92,11 +103,14 @@ const Dashboard = () => {
           </div>
         </button>
       }
-      <h1 className='text-BlackHomz font-bold text-[16px] md:text-[20px]'>Hello, [Resident’s First Name]</h1>
-      <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>{showTable ? "Welcome to your estate dashboard" : "You’ve successfully created your account and requested to join [Building name], [Apartment name] under [Estate Name]."}</h3>
-
-      {!showTable &&
-        (unsucc ?
+      {!unsucc &&
+        <>
+          <h1 className='text-BlackHomz font-bold text-[16px] md:text-[20px]'>Hello, [Resident’s First Name]</h1>
+          <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>{showTable ? "Welcome to your estate dashboard" : "You’ve successfully created your account and requested to join [Building name], [Apartment name] under [Estate Name]."}</h3>
+        </>
+      }
+      {(!showTable && !unsucc) &&
+        (selectedEstate?.status !== 'pending' ?
           <div className="flex flex-col md:flex-row mt-6 items-start gap-4 p-4 border border-[#D92D20] rounded-[12px] bg-[#FDF2F2] w-full md:w-[600px] lg:w-[900px]">
             {/* Left Circle with Icon */}
             <RequestUnsuccessful />
@@ -111,7 +125,7 @@ const Dashboard = () => {
                 <span className="font-medium">[Apartment name]</span> under <span className="font-medium">[Estate Name]</span> was reviewed and unfortunately not
                 approved by the estate manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
               </p>
-              <button onClick={() => setUnsucc(false)} className="text-sm text-BlueHomz font-normal flex items-center gap-2">
+              <button className="text-sm text-BlueHomz font-normal flex items-center gap-2">
                 Contact Support <ExportIcon className='#006AFF' />
               </button>
             </div>
@@ -132,10 +146,10 @@ const Dashboard = () => {
                 accepted, you&apos;ll be able to:
               </p>
               <ul className="list-disc list-inside text-sm text-GrayHomz font-normal space-y-1 mb-3">
-                <li onClick={() => setShowTable(true)} className="">
+                <li className="">
                   View estate and property details
                 </li>
-                <li onClick={() => setUnsucc(true)}>Request visitor access</li>
+                <li>Request visitor access</li>
                 <li>Make payments</li>
                 <li>Receive estate announcement</li>
               </ul>

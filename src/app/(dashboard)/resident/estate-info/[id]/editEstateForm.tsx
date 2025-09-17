@@ -67,14 +67,14 @@ const EditEstateForm = () => {
                             className="object-cover w-full h-full"
                         />
                     </div>
-                    {selectedEstate ? selectedEstate?.estate : "Diamond Estate"}
+                    {selectedEstate ? selectedEstate?.estateName : "Diamond Estate"}
                 </div>
                 <div className='mt-1.5'>
                     <ArrowDown size={20} className='#4E4E4E' />
                 </div>
             </button>
             <div className='hidden md:flex items-center gap-1 mb-1'>
-                <Link href={"/resident/dashboard"} className='text-[20px] text-BlackHomz font-medium'>{`${selectedEstate?.estate} >`}</Link>
+                <Link href={"/resident/dashboard"} className='text-[20px] text-BlackHomz font-medium'>{`${selectedEstate?.estateName} >`}</Link>
                 <p className='text-[20px] text-BlackHomz font-bold'>Estate Information</p>
             </div>
             <div className='md:hidden items-center gap-4 mb-1'>

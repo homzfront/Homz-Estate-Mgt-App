@@ -23,7 +23,7 @@ export const useResidentParams = () => {
         if (remainingData) {
             const decoded = decodeURIComponent(remainingData)
             const parts = decoded.split(' ')
-            // console.log({ parts })
+            console.log({ parts })
 
             if (parts.length >= 5) {
                 // estateId = parts[0] || ''
