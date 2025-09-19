@@ -3,11 +3,12 @@ import React from 'react'
 import PopUp from './popUp'
 // import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import Pagination from '../../../components/pagination';
+// Pagination removed for infinite scroll
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import RevokeAccess from '@/components/icons/revokeAccess';
 import { AccessCodeType, useAccessCodeSlice } from '@/store/useAccessCode';
+import LoadingSpinner from '@/components/general/loadingSpinner';
 import DotLoader from '@/components/general/dotLoader';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
@@ -16,24 +17,14 @@ import StatusDropDown from '@/app/(dashboard)/components/statusDropDown';
 
 interface TableProps {
     fromDefault?: boolean;
-    pageNo: number;
-    handlePageClick: (page: number) => void;
-    handleNext: () => void;
-    handlePrev: () => void;
     totalPages: number;
-    pageSize: number;
     fetchAccessCode: () => Promise<void>;
 }
 
 const Table = ({
     fromDefault = true,
-    pageNo,
     totalPages,
-    // pageSize,
     fetchAccessCode,
-    handlePageClick,
-    handleNext,
-    handlePrev,
 }: TableProps) => {
     const [openDetails, setOpenDetails] = React.useState<boolean>(false);
     const [openRevoke, setOpenRevoke] = React.useState<boolean>(false);
@@ -44,7 +35,8 @@ const Table = ({
     const [popUp, setpopUp] = React.useState(false);
     // const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<string | null>(null);
-    const { accessCode, isLoading } = useAccessCodeSlice();
+    const { accessCode, currentPage, initialLoading, pageLoading, isAppending, getAccessCode } = useAccessCodeSlice();
+    const loaderRef = React.useRef<HTMLDivElement | null>(null);
 
     const toggleDropdown = (index: string) => {
         setOpenDropdownIndex((prev) => (prev === index ? null : index));
@@ -55,10 +47,20 @@ const Table = ({
         setSelectedDataId(id);
     };
 
-    const firstThreePages = [1, 2, 3];
-    const lastThreePages = [totalPages - 2, totalPages - 1, totalPages];
-
     const currentData = accessCode;
+    React.useEffect(() => {
+        if (!loaderRef.current) return;
+        const el = loaderRef.current;
+        const observer = new IntersectionObserver((entries) => {
+            const first = entries[0];
+            if (first.isIntersecting && !pageLoading && (currentPage ?? 1) < totalPages) {
+                getAccessCode((currentPage ?? 1) + 1);
+            }
+        }, { rootMargin: '200px' });
+        observer.observe(el);
+        return () => observer.unobserve(el);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loaderRef.current, pageLoading, currentPage, totalPages]);
 
     const revokeAccessCode = async () => {
         if (!selectedData) return;
@@ -274,28 +276,28 @@ const Table = ({
                 </CustomModal>
             }
             <div className="border overflow-x-auto scrollbar-container">
-                <div className="w-[700%] md:w-[150%]">
+                <div className="w-[100%] md:w-[150%]">
                     <table border={1} className="w-full">
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-[500] text-BlackHomz">
-                                <th className="text-left pl-4" style={{ width: "40px" }}></th>
-                                <th className="text-left" style={{ width: "110px" }}>Visitor</th>
-                                <th className="text-left" style={{ width: "90px" }}>Phone Number</th>
-                                <th className="text-left" style={{ width: "90px" }}>Purpose</th>
-                                <th className="text-left" style={{ width: "90px" }}>No of visitors</th>
-                                <th className="text-left" style={{ width: "90px" }}>Date of visit</th>
-                                <th className="text-left" style={{ width: "110px" }}>Expected arrival time</th>
-                                <th className="text-left" style={{ width: "90px" }}>Access Code</th>
-                                <th className="text-left" style={{ width: "90px" }}>Code Type</th>
+                                <th className="text-left pl-4 hidden md:table-cell" style={{ width: "40px" }}></th>
+                                <th className="text-left pl-4 md:pl-0" style={{ width: "110px" }}>Visitor</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Phone Number</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Purpose</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>No of visitors</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Date of visit</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "110px" }}>Expected arrival time</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Access Code</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Code Type</th>
                                 <th className="text-left" style={{ width: "90px" }}>Access Status</th>
-                                <th className="text-left" style={{ width: "90px" }}>Time In</th>
-                                <th className="text-left" style={{ width: "90px" }}>Time Out</th>
-                                <th className="text-left" style={{ width: "110px" }}>Resident Info</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Time In</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Time Out</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "110px" }}>Resident Info</th>
                                 <th style={{ width: "50px" }}></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {isLoading && (
+                            {(initialLoading || (pageLoading && !isAppending)) && (
                                 Array.from({ length: 6 }).map((_, sk) => (
                                     <tr key={`sk-${sk}`} className="border-t-[1px]">
                                         <td className="py-[25px]"><span className='w-[8px] h-[8px] rounded-full bg-whiteblue inline-block' /></td>
@@ -315,7 +317,7 @@ const Table = ({
                                     </tr>
                                 ))
                             )}
-                            {!isLoading && currentData && currentData.map((data) => (
+                            {!initialLoading && !(pageLoading && !isAppending) && currentData && currentData.map((data) => (
                                     <tr
                                         onClick={(e) => {
                                             e.stopPropagation()
@@ -325,29 +327,29 @@ const Table = ({
                                         key={data?._id}
                                         className="w-2 border-t-[1px] items-center"
                                     >
-                                        <td className="text-GrayHomz py-[25px] font-[500] text-[11px] flex items-center justify-center">
+                                        <td className="text-GrayHomz py-[25px] font-[500] text-[11px] md:flex items-center justify-center hidden pl-4 md:pl-0">
                                             <span className='w-[8px] h-[8px] rounded-full bg-error' />
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] pl-4 md:pl-0">
                                             {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
                                             {data?.visitor}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data?.phoneNumber}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
 
                                             {data.purpose}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data.numberOfVisitors}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">{formatDateDisplay(data?.arrivalDate)}</td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">{formatExpectedRange(data?.expectedArrivalTime?.from, data?.expectedArrivalTime?.to)}</td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatDateDisplay(data?.arrivalDate)}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatExpectedRange(data?.expectedArrivalTime?.from, data?.expectedArrivalTime?.to)}</td>
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data.accessCode}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data?.codeType}
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
@@ -380,13 +382,13 @@ const Table = ({
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {/* {data?.expectedArrivalTime?.from} */}-
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {/* {data?.expectedArrivalTime?.to} */}-
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px]">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             <span className='flex items-center gap-2'>
                                                 {data?.resident?.firstName}
                                             </span>
@@ -420,26 +422,28 @@ const Table = ({
                                         </td>
                                     </tr>
                                 ))}
-                            {!isLoading && (!currentData || currentData.length === 0) && (
+                            {!initialLoading && (!currentData || currentData.length === 0) && (
                                 <tr>
                                     <td colSpan={14} className="text-center text-sm text-GrayHomz py-8">No records found</td>
+                                </tr>
+                            )}
+                            {(currentPage ?? 1) < totalPages && (
+                                <tr>
+                                    <td colSpan={14} className="py-2">
+                                        <div ref={loaderRef} className="h-1" />
+                                        {isAppending && (
+                                            <div className="w-full max-w-[1000px] flex items-center justify-center py-3">
+                                                <LoadingSpinner size={24} />
+                                            </div>
+                                        )}
+                                    </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
             </div>
-            {!isLoading && currentData && currentData.length >= 1 && <div className="mt-6">
-                <Pagination
-                    firstThreePages={firstThreePages}
-                    currentPage={pageNo}
-                    totalPages={totalPages}
-                    handleNext={handleNext}
-                    handlePageClick={handlePageClick}
-                    handlePrev={handlePrev}
-                    lastThreePages={lastThreePages}
-                />
-            </div>}
+            {/* Pagination removed in favor of infinite scroll */}
         </div>
     )
 }

@@ -10,6 +10,7 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import api from '@/utils/api';
 import React from 'react'
 import toast from 'react-hot-toast';
+import { useResidentsListStore } from '@/store/useResidentsListStore';
 
 interface ManualFormProps {
     setOpenManualForm: (data: boolean) => void;
@@ -37,6 +38,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
         rentDueDate: '',
         rentDurationType: 'months',
     });
+    const { fetchResidents } = useResidentsListStore();
 
     const community = selectedCommunity;
 
@@ -232,6 +234,8 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             // Open Success Modal && CloseModal
             setOpenSuccessModal(true)
             setOpenManualForm(false)
+            // Refresh residents list
+            fetchResidents({ page: 1, silent: true })
 
         } catch (error: any) {
             const backendMessage = error?.response?.data?.message;
