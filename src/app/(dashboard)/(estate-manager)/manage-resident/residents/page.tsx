@@ -9,12 +9,25 @@ import SuccessModal from '../../../components/successModal';
 import HeaderFilter from './components/headerFilter';
 import Table from './components/table';
 import ManualForm from './components/manualForm';
+import { useResidentsListStore } from '@/store/useResidentsListStore';
+import { LoaderIcon } from 'react-hot-toast';
 
 const ManageResidents = () => {
-    const [residentData, setResidentData] = React.useState<boolean>(false);
+    const [residentData, setResidentData] = React.useState<boolean>(true);
     const [openInvite, setOpenInvite] = React.useState<boolean>(false);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
     const [openManualForm, setOpenManualForm] = React.useState<boolean>(false);
+    const { initialLoading, hasAnyData, fetchResidents, items, search } = useResidentsListStore();
+    React.useEffect(() => {
+        if (items.length === 0) {
+            fetchResidents({ page: 1, limit: 8 });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    React.useEffect(() => {
+        // keep legacy flag in sync with store's hasAnyData
+        setResidentData(hasAnyData);
+    }, [hasAnyData]);
     return (
         <div className='p-8'>
             {
@@ -31,7 +44,13 @@ const ManageResidents = () => {
                 <CustomModal isOpen={openManualForm} onRequestClose={() => setOpenManualForm(false)}>
                     <ManualForm
                         setOpenManualForm={setOpenManualForm}
-                        setOpenSuccessModal={setOpenSuccessModal}
+                        setOpenSuccessModal={(val) => {
+                            setOpenSuccessModal(val);
+                            if (val === true) {
+                                // refetch residents after successful manual creation
+                                fetchResidents({ page: 1, silent: true });
+                            }
+                        }}
                     />
                 </CustomModal>
             }
@@ -53,17 +72,18 @@ const ManageResidents = () => {
                 />
 
             }
-            {
-                residentData ?
-                    <div>
-                        <HeaderFilter
-                            setOpenInvite={setOpenInvite}
-                            setOpenManualForm={setOpenManualForm}
-                        />
-                        <Table />
-                    </div>
-                    :
-                    <div>
+            {initialLoading ? (
+                <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
+            ) : (residentData || !!search) ? (
+                <div>
+                    <HeaderFilter
+                        setOpenInvite={setOpenInvite}
+                        setOpenManualForm={setOpenManualForm}
+                    />
+                    <Table />
+                </div>
+            ) : (
+                <div>
                         <div className='flex items-center gap-2 space-x-1'>
                             <h2 className='font-medium text-[16px] md:text-[20px] text-BlackHomz'>Residents </h2>
                             <p className='text-sm md:text-[18px] text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>0</p>
@@ -95,8 +115,8 @@ const ManageResidents = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-            }
+                </div>
+            )}
         </div>
     )
 }

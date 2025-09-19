@@ -14,13 +14,13 @@ import FilterIconBlue from '@/components/icons/filterIconBlue';
 import Close from '@/components/icons/Close';
 import DateIcon from '@/components/icons/dateIcon';
 import { useAccessCodeSlice } from '@/store/useAccessCode';
-import { useRouter, useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
+import { LoaderIcon } from 'react-hot-toast';
 
 const VisitorAccess = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialPage = parseInt(searchParams.get('page') || '1', 10);
+  // const searchParams = useSearchParams();
+  // const initialPage = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
   const [totalPages, setTotalPages] = React.useState(1);
   // const [steps, setSteps] = React.useState<number>(0);
@@ -29,66 +29,37 @@ const VisitorAccess = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = React.useState<boolean>(false);
   const [search] = React.useState<string>('');
-  const [pageNo, setPageNo] = React.useState<number>(initialPage);
+  // Remove explicit page state; store manages pagination
   const [dateFilter, setDateFilter] = React.useState<string>('');
-  const { isLoading, accessCode, getAccessCode } = useAccessCodeSlice();
+  const { isLoading, accessCode, getAccessCode, initialLoading } = useAccessCodeSlice();
   const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
-  const selectedEsate = useAccessCodeSlice((state) => state.accessCode);
   const [loading, setLoading] = React.useState<boolean>(true);
-  // const pages = [
-  //   "All", "Co-owner", "Admin", "Staff", "Dependent"
-  // ];
-
-
-  const handlePageClick = (page: number) => {
-    setPageNo(page);
-  };
-
-  const handleNext = () => {
-    if (pageNo < totalPages) {
-      setPageNo(pageNo + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (pageNo > 1) {
-      setPageNo(pageNo - 1);
-    }
-  };
+ 
+  // Pagination handled via infinite scroll in table
 
   React.useEffect(() => {
     if (accessCode) setTotalPages(Math.ceil(accessCode?.length / pageSize));
   }, [accessCode]);
 
-  React.useEffect(() => {
-    const current = searchParams.get('page') || '1';
-    const next = String(pageNo);
-    if (current !== next) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('page', next);
-      router.replace(`?${params.toString()}`, { scroll: false });
-    }
-  }, [pageNo, router, searchParams]);
-
   const fetchAccessCode = async () => {
     if (selectedEstate) {
-      await getAccessCode(pageNo, pageSize, search, dateFilter);
+      await getAccessCode(1, pageSize, search, dateFilter);
     }
   };
 
   React.useEffect(() => {
     if (selectedEstate) {
-      getAccessCode(pageNo, pageSize, search, dateFilter);
+      // Reset to first page on filter change
+      getAccessCode(1, pageSize, search, dateFilter);
     }
-  }, [selectedEstate, pageNo, pageSize, search, dateFilter, getAccessCode]);
+  }, [selectedEstate, pageSize, search, dateFilter, getAccessCode]);
 
   React.useEffect(() => {
     if (accessCode && accessCode.length > 0) {
       setLoading(false);
     }
   }, [accessCode]);
-  console.log(accessCode)
-  console.log(selectedEsate)
+  
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -97,8 +68,8 @@ const VisitorAccess = () => {
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
   }, []);
 
-  if (loading || isLoading) {
-    return <div className='h-screen flex justify-center items-center w-full'>Loading...</div>
+  if (loading || isLoading || initialLoading) {
+    return <div className='h-screen flex justify-center items-center w-full'><LoaderIcon /></div>
   }
   return (
     <div className='p-8'>
@@ -211,11 +182,6 @@ const VisitorAccess = () => {
               <Table
                 totalPages={totalPages}
                 fromDefault={false}
-                pageSize={pageSize}
-                pageNo={pageNo}
-                handlePageClick={handlePageClick}
-                handleNext={handleNext}
-                handlePrev={handlePrev}
                 fetchAccessCode={fetchAccessCode}
               />
             </div>

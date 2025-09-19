@@ -81,13 +81,21 @@ interface AccessCodeSlice {
     accessCode: AccessCodeType[] | null;
     totalPages: number;
     totalResults: number;
-    isLoading: boolean;
+    isLoading: boolean; // legacy field
+    // New pagination/loading helpers
+    currentPage?: number;
+    limit?: number;
+    initialLoading?: boolean;
+    pageLoading?: boolean;
+    isAppending?: boolean;
+    lastSearch?: string;
+    lastDate?: string;
     hasAnyData: boolean;
     getAccessCode: (
         pageNo?: number,
         pageSize?: number,
         search?: string,
-        date?: string
+        date?: string | Date
     ) => Promise<void>;
 }
 
@@ -98,10 +106,24 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
             totalPages: 1,
             totalResults: 0,
             isLoading: false,
+            currentPage: 1,
+            limit: 10,
+            initialLoading: true,
+            pageLoading: false,
+            isAppending: false,
+            lastSearch: '',
+            lastDate: '',
             hasAnyData: false,
             getAccessCode: async (pageNo = 1, pageSize = 10, search = '', date?: string | Date) => {
-                console.log("Fetching access codes with params:", { pageNo, pageSize, search, date });  
-                set({ isLoading: true });
+                // Decide loaders and clear items on page reset
+                set((state) => ({
+                    isLoading: state.accessCode === null,
+                    initialLoading: state.accessCode === null && pageNo === 1,
+                    pageLoading: state.accessCode !== null && pageNo === 1,
+                    isAppending: state.accessCode !== null && pageNo > 1,
+                    limit: pageSize,
+                    accessCode: pageNo === 1 ? null : state.accessCode,
+                }));
                 try {
                     // Use selectedEstate
                     const selectedEstate = useSelectedEsate.getState().selectedEstate as ResidentCommunityType | null;
@@ -113,23 +135,42 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
 
                     let url = `/access-control/residents/all/organizations/${organizationId}/estates/${estateId}/organizationsResident/${residentOrganizationId}?page=${pageNo}&limit=${pageSize}`;
                     if (search) url += `&search=${encodeURIComponent(search)}`;
-                  
-                    if (date && date instanceof Date && !isNaN(date.getTime())) {
-                        url += `&date=${encodeURIComponent(date.toISOString())}`;
+                    if (date) {
+                        if (date instanceof Date && !isNaN(date.getTime())) {
+                            url += `&date=${encodeURIComponent(date.toISOString())}`;
+                        } else if (typeof date === 'string' && date.trim().length > 0) {
+                            const strToDate = new Date(date);
+                            if (!isNaN(strToDate.getTime())) {
+                                url += `&date=${encodeURIComponent(strToDate.toISOString())}`;
+                            }
+                        }
                     }
 
                     const res = await api.get(url);
                     console.log('Resident Community Response:', res.data);
-                    set((prev) => ({
-                        accessCode: res.data.data.results,
-                        totalPages: res.data.data.totalPages,
-                        totalResults: res.data.data.totalResults,
-                        isLoading: false,
-                        hasAnyData: (search || date) ? (prev as any).hasAnyData : (res.data.data.results?.length ?? 0) > 0,
-                    }));
+                    set((prev) => {
+                        const results: AccessCodeType[] = res?.data?.data?.results || [];
+                        const nextItems = pageNo > 1 && prev.accessCode
+                            ? Array.from(new Map([...(prev.accessCode || []), ...results].map((it) => [it._id, it])).values())
+                            : results;
+                        return {
+                            accessCode: nextItems,
+                            totalPages: res.data.data.totalPages,
+                            totalResults: res.data.data.totalResults,
+                            isLoading: false,
+                            currentPage: pageNo,
+                            limit: pageSize,
+                            initialLoading: false,
+                            pageLoading: false,
+                            isAppending: false,
+                            lastSearch: search,
+                            lastDate: typeof date === 'string' ? date : (date instanceof Date ? date.toISOString() : ''),
+                            hasAnyData: (search || date) ? (prev as any).hasAnyData : (results?.length ?? 0) > 0,
+                        } as AccessCodeSlice;
+                    });
                 } catch (error: any) {
                     console.error("Error fetching access codes:", error);
-                    set({ isLoading: false, accessCode: null });
+                    set({ isLoading: false, initialLoading: false, pageLoading: false, isAppending: false, accessCode: null });
                 }
             },
         }),
