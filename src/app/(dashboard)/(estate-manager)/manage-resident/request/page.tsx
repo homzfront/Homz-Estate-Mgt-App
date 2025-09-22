@@ -103,6 +103,8 @@ const Request = () => {
         );
     };
 
+    console.log(requestResponse);
+
     // Pop-up menu logic
     const handleToggleMenu = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -122,7 +124,7 @@ const Request = () => {
             }
             setIsRequesting(true);
             const jwtToken = await getToken();
-            const response = await api.post(`/resident-invitation/residents/${id}/accept/tokens/${jwtToken}`, payload)
+            const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
             getRequest(pageNo, pageSize);
             console.log(response);
@@ -160,7 +162,7 @@ const Request = () => {
             }
             setIsRequesting(true);
             const jwtToken = await getToken();
-            const response = await api.post(`/resident-invitation/residents/${id}/reject/tokens/${jwtToken}`, payload)
+            const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
             getRequest(pageNo, pageSize);
             console.log(response);

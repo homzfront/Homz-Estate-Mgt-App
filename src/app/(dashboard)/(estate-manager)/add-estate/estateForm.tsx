@@ -117,7 +117,7 @@ const EstateForm = () => {
         try {
             setLoading(true);
             // First, create the estate
-            const createEstateResponse = await api.post(`/estates/create-estate`, payload);
+            const createEstateResponse = await api.post(`/estates/community-manager/create-estate`, payload);
 
             if (createEstateResponse?.data) {
                 const estateData = createEstateResponse?.data?.data

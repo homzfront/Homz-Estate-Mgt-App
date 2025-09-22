@@ -126,6 +126,7 @@ export interface AuthState {
     getEstates: () => Promise<void>;
     estateLoading: boolean;
     getResidentProfile: (residentId: string) => Promise<void>;
+    isCommunityManager: boolean;
 }
 
 export const useAuthSlice = create<AuthState>()(
@@ -139,7 +140,7 @@ export const useAuthSlice = create<AuthState>()(
             estatesData: null,
             estateLoading: true,
             residentProfile: null,
-
+            isCommunityManager: false,
             setUserData: (data) => set({ userData: data }),
             setUserAccountDetails: (data) => set({ userAccountDetails: data }),
 
@@ -214,6 +215,7 @@ export const useAuthSlice = create<AuthState>()(
 
             getCommunityManaProfile: async () => {
                 try {
+                    set({ isCommunityManager: true });
                     const response = await api.get("/community-manager/current-profile");
                     const data = response.data.data;
                     set({ communityProfile: data });
@@ -221,6 +223,9 @@ export const useAuthSlice = create<AuthState>()(
                     console.error("failed to fetch community manager profile:", error);
                     set({ error: error.message || "failed" });
                     throw error;
+                }
+                finally {
+                    set({ isCommunityManager: false });
                 }
             },
 
