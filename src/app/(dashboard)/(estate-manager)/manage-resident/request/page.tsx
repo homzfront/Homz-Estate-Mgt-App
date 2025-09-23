@@ -103,6 +103,8 @@ const Request = () => {
         );
     };
 
+    console.log(requestResponse);
+
     // Pop-up menu logic
     const handleToggleMenu = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
@@ -112,7 +114,7 @@ const Request = () => {
 
 
     // Approve/Decline actions (stub)
-    const handleApprove = async (id: string) => {
+    const handleApprove = async () => {
         try {
             const payload = {
                 "validationIds": {
@@ -121,8 +123,8 @@ const Request = () => {
                 }
             }
             setIsRequesting(true);
-            const jwtToken = await getToken();
-            const response = await api.post(`/resident-invitation/residents/${id}/accept/tokens/${jwtToken}`, payload)
+            await getToken();
+            const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
             getRequest(pageNo, pageSize);
             console.log(response);
@@ -150,7 +152,7 @@ const Request = () => {
         }
     };
 
-    const handleDecline = async (id: string) => {
+    const handleDecline = async () => {
         try {
             const payload = {
                 "validationIds": {
@@ -159,8 +161,8 @@ const Request = () => {
                 }
             }
             setIsRequesting(true);
-            const jwtToken = await getToken();
-            const response = await api.post(`/resident-invitation/residents/${id}/reject/tokens/${jwtToken}`, payload)
+            await getToken();
+            const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
             getRequest(pageNo, pageSize);
             console.log(response);
@@ -286,8 +288,8 @@ const Request = () => {
                         <button
                             className={`flex-1 ${modelOpen === 'approve' ? 'bg-BlueHomz' : 'bg-error'} text-white rounded-[4px] h-[48px] p-[12px] ${isRequesting && "pointer-events-none flex justify-center items-center"}`}
                             onClick={() => {
-                                if (modelOpen === 'approve' && selectedData) handleApprove(selectedData?.userId ?? '');
-                                if (modelOpen === 'decline' && selectedData) handleDecline(selectedData?.userId ?? '');
+                                if (modelOpen === 'approve' && selectedData) handleApprove();
+                                if (modelOpen === 'decline' && selectedData) handleDecline();
                             }}
                         >
                             {isRequesting ? <DotLoader /> : modelOpen === 'approve' ? "Yes, Approve" : "Decline Request"}

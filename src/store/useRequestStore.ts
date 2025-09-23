@@ -33,6 +33,7 @@ export interface ResidentData {
     rentedDetails: RentedDetails;
     isActive: boolean;
     createdAt: string;
+    invitationToken: string;
     updatedAt: string;
 }
 
