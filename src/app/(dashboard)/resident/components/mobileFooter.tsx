@@ -45,13 +45,14 @@ const Data = [
     },
     {
         id: 3,
-        image: <DuesAndPaymentIcon className="#202020" />,
-        image2: (
-            <DuesAndPaymentIcon className='#006AFF' />
-        ),
-        link: "/resident/dues-payments",
-        name: "Dues & Payments",
-        extra: false,
+            image: <DuesAndPaymentIcon className="#202020" />,
+            image2: (
+                <DuesAndPaymentIcon className='#006AFF' />
+            ),
+            link: null,
+            name: "Dues & Payments",
+            extra: false,
+            comingSoon: true,
     },
     {
         id: 4,
@@ -140,34 +141,49 @@ const MobileFooter = () => {
                 </CustomModal>
             }
             <div className='flex justify-between items-center px-4'>
-                {Data.map((data) => (
-                    <Link
-                        key={data.id}
-                        href={data?.link ? data.link : ""}
-                        onClick={() => {
-                            if (data?.extra) {
-                                setSubOpen(data as DataType)
-                            }
-                        }}
-                        className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link
-                            ? "text-BlueHomz"
-                            : "text-GrayHomz"
-                            } `}
-                    >
-                        {pathname === data.link ? (
-                            <div>
-                                {data.image2}
-                            </div>
-                        ) : (
-                            <div>
-                                {data.image}
-                            </div>
-                        )}
-                        <div className={`flex items-center w-full truncate`}>
-                            <span>{data.name}</span>
-                        </div>
-                    </Link>
-                ))}
+                    {Data.map((data) => {
+                        if (data.comingSoon) {
+                            return (
+                                <div
+                                    key={data.id}
+                                    className="flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] opacity-50 pointer-events-none"
+                                >
+                                    <div>{data.image}</div>
+                                    <div className={`flex items-center w-full truncate`}>
+                                        <span>{data.name}</span>
+                                    </div>
+                                </div>
+                            );
+                        }
+                        return (
+                            <Link
+                                key={data.id}
+                                href={data?.link ? data.link : ""}
+                                onClick={() => {
+                                    if (data?.extra) {
+                                        setSubOpen(data as DataType)
+                                    }
+                                }}
+                                className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link
+                                    ? "text-BlueHomz"
+                                    : "text-GrayHomz"
+                                    } `}
+                            >
+                                {pathname === data.link ? (
+                                    <div>
+                                        {data.image2}
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {data.image}
+                                    </div>
+                                )}
+                                <div className={`flex items-center w-full truncate`}>
+                                    <span>{data.name}</span>
+                                </div>
+                            </Link>
+                        );
+                    })}
             </div>
         </div>
     )

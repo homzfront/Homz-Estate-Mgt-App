@@ -15,7 +15,6 @@ import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon
 import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -122,16 +121,16 @@ const Data = [
         active: false,
         coming_Soon: true,
     },
-    {
-        id: 7,
-        image: <SupportIcon />,
-        image2: (
-            <SupportIcon className='#FFFFFF' />
-        ),
-        link: "/support",
-        name: "Support",
-        active: false,
-    },
+    // {
+    //     id: 7,
+    //     image: <SupportIcon />,
+    //     image2: (
+    //         <SupportIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/support",
+    //     name: "Support",
+    //     active: false,
+    // },
 ];
 
 const More = [
@@ -194,12 +193,12 @@ const Sidebar = () => {
     const [selectedMoreName, setSelecetedMoreName] = React.useState(null);
     const toggleSub = (name: any) => {
         setSubOpen(!subOpen);
-        setSelecetedName(name)
+        setSelecetedName(name);
     };
 
     const toggleSubMore = (name: any) => {
         setSubMoreOpen(!subMoreOpen);
-        setSelecetedMoreName(name)
+        setSelecetedMoreName(name);
     };
 
     const isActive = (data: any, pathname: string) => {
@@ -282,7 +281,7 @@ const Sidebar = () => {
                                     >
                                         <Link
                                             href={data.link}
-                                            className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
+                                            className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} relative h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
                                                     ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
                                                     `}
                                         >
@@ -291,7 +290,8 @@ const Sidebar = () => {
 
                                             {/* Name and Arrow */}
                                             <div className="flex items-center justify-between flex-1">
-                                                <span className="text-start">{data.name}</span>
+                                                <span className="text-start">{data.name}  {data?.coming_Soon && <span className='absolute top-3 right-8 text-xs text-Success italic font-normal'>coming soon!</span>}
+                                                </span>
 
                                                 {/* Arrow - rotates only if this item is open */}
                                                 <div className={`transition-transform ${subMoreOpen ? "rotate-180" : ""}`}>
@@ -351,7 +351,7 @@ const Sidebar = () => {
                                 <Link
                                     key={data.id}
                                     href={data.link}
-                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
+                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} relative h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
                                         ? "bg-BlueHomz text-white"
                                         : " hover:bg-whiteblue"
                                         } `}
@@ -367,7 +367,7 @@ const Sidebar = () => {
                                     )}
                                     <div className="flex items-center w-full">
                                         <span className="w-[150px] text-start">{data.name}
-                                            {/* {data?.coming_Soon && <span className='text-xs text-Success italic font-normal'>coming soon!</span>} */}
+                                            {data?.coming_Soon && <span className='absolute top-3 right-0 text-xs text-Success italic font-normal'>coming soon!</span>}
                                         </span>
                                         <p
                                             className={`${data?.active === true ? "bg-error" : "bg-transparent"
