@@ -207,9 +207,9 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                 <th className="text-left pl-4 md:pl-0" style={{ width: "110px" }}>Visitor</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Phone Number</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Purpose</th>
-                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>No of visitors</th>
-                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Date of visit</th>
-                                <th className="text-left hidden md:table-cell" style={{ width: "110px" }}>Expected arrival time</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>No of Visitors</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Date of Visit</th>
+                                <th className="text-left hidden md:table-cell" style={{ width: "110px" }}>Expected Arrival Time</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Access Code</th>
                                 <th className="text-left" style={{ width: "90px" }}>Access Status</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "90px" }}>Time In</th>
