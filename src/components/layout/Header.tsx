@@ -49,7 +49,7 @@ const Header = () => {
     openModalForBusi: false,
     open: false
   });
-  const { logOutUser, userData } = useAuthSlice();
+  const { logOutUser, userData, residentProfile } = useAuthSlice();
   const [open] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
@@ -59,7 +59,7 @@ const Header = () => {
       setToken(t as any);
     })();
   }, []);
-  
+
   const toggleState = (key: keyof HeaderState) => {
     setState(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -256,7 +256,7 @@ const Header = () => {
             className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
               }`}
           >
-            <Link href={(userData && token) ? "/dashboard" : "/"}>
+            <Link href={residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
               <p className={`w-full ${open ? "text-[12px] " : ""}`}>
                 Hi, {extractUsername(userData?.email)}!
               </p>

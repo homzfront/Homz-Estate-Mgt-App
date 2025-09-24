@@ -28,7 +28,6 @@ import React from 'react'
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Pricing from './components/Pricing'
 
 const EstateHomePage = () => {
     const [activeBilling, setActiveBilling] = React.useState<any>(null);
@@ -384,7 +383,7 @@ const EstateHomePage = () => {
                             Access billing reports, visitor logs, and personnel activity, exportable anytime. Make informed decisions with accurate estate data at your fingertips.
                         </p>
                         <p className='md:hidden text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[700px] m-auto'>
-                             Access billing reports, visitor logs, and personnel activity, exportable anytime. 
+                            Access billing reports, visitor logs, and personnel activity, exportable anytime.
                         </p>
                     </div>
                     <div className='mt-[40px] flex flex-col-reverse gap-8 md:flex-row-reverse w-full items-center'>
@@ -421,22 +420,24 @@ const EstateHomePage = () => {
                 </div>
 
             </div>
-            <Pricing hidden={true}  />
-            <div className="mt-[100px] max-w-[1160px] m-auto px-8 md:px-0">
-                <div className="flex flex-col gap-2 justify-around items-center py-[60px] px-8 bg-[url('/Background_image.png')] text-white rounded-[20px] shadow-2xl bg-cover bg-center bg-black max-w-full sm:w-[670px]  md:w-[786px] lg:w-[824px] xl:w-[1159px]">
-                    <h1 className="font-[700] text-center text-[30px] md:text-[36px]">
-                        Start Managing Your Estate Like a Pro
-                    </h1>
-                    <p className='text-[16px] md:text-[20px] font-normal md:font-medium text-[#E6E6E6] max-w-[720px] m-auto text-center'>
-                        Join estate managers who trust our platform to run safer, smarter, and more organized communities.
-                    </p>
-                    <div className="mt-4 sm:mt-0 flex w-full flex-col sm:flex-row sm:w-auto gap-4">
-                        <button className='w-full mt-2 text-BlackHomz text-[16px] font-normal bg-white md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                            <span className='md:hidden'>Get Started</span><span className='hidden md:block'>Start Your 14-Day Free Trial</span> <ArrowRight className='#202020' />
-                        </button>
+            {/* <Pricing hidden={true}  /> */}
+            {/* <div className='w-full flex justify-center items-center'>
+                <div className="mt-[100px] max-w-[1160px] m-auto px-8 md:px-0">
+                    <div className="flex flex-col gap-2 justify-around items-center py-[60px] px-8 bg-[url('/Background_image.png')] text-white rounded-[20px] shadow-2xl bg-cover bg-center bg-black max-w-full sm:w-[670px]  md:w-[786px] lg:w-[824px] xl:w-[1159px]">
+                        <h1 className="font-[700] text-center text-[24px] md:text-[36px]">
+                            Start Managing Your Estate Like a Pro
+                        </h1>
+                        <p className='text-[16px] md:text-[20px] font-normal md:font-medium text-[#E6E6E6] max-w-[720px] m-auto text-center'>
+                            Join estate managers who trust our platform to run safer, smarter, and more organized communities.
+                        </p>
+                        <div className="mt-4 sm:mt-0 flex w-full flex-col sm:flex-row sm:w-auto gap-4">
+                            <button className='w-full mt-2 text-BlackHomz text-[16px] font-normal bg-white md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                <span className='md:hidden'>Get Started</span><span className='hidden md:block'>Start Your 14-Day Free Trial</span> <ArrowRight className='#202020' />
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

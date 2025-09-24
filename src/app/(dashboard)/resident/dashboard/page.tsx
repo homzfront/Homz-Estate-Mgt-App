@@ -14,27 +14,32 @@ import PickEstate from '../components/pickEstate';
 import useClickOutside from '@/app/utils/useClickOutside';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 import ArrowRight from '@/components/icons/arrowRight';
-import Table from './components/table';
 import LockWarning from '@/components/icons/estateManager&Resident/desktop/lockWarning';
 import RequestUnsuccessful from '@/components/icons/estateManager&Resident/desktop/requestUnsuccessful';
 import ExportIcon from '@/components/icons/estateManager&Resident/desktop/exportIcon';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
+import { useAuthSlice } from '@/store/authStore';
+import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter';
+import formatDateReadable from '@/app/utils/formatDateReadable';
+import { useRouter } from 'next/navigation';
+import { useAccessCodeSlice } from '@/store/useAccessCode';
+import { LoaderIcon } from 'react-hot-toast';
+import Table from '../visitor-access/components/table';
 
 // const option = [
 //   { id: 1, estate: 'Golden Gates Estate', building: "Building 10", apartmentName: "Apartment 10", residents: 20 },
 // ]
 
 const Dashboard = () => {
-  // const router = useRouter();
-  const [formData, setFormData] = React.useState({
-    property: '',
-  });
+  const router = useRouter();
   const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
   const [showTable, setShowTable] = React.useState<boolean>(false);
   const [unsucc, setUnsucc] = React.useState<boolean>(true);
   const residentCommunity = useResidentCommunity((state) => state.residentCommunity);
+  const residentProfile = useAuthSlice((state) => state.residentProfile);
   const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
+  const { accessCode, getAccessCode, initialLoading,isLoading, pageLoading } = useAccessCodeSlice();
   const closeRef = React.useRef<HTMLDivElement>(null);
 
   useClickOutside(closeRef as any, () => {
@@ -48,20 +53,21 @@ const Dashboard = () => {
   // ];
 
   const secondOptions = [
-    { id: 1, name: '[Primary Resident] / [Co-Resident]', extra: "Role" },
-    { id: 2, name: '[Renter]/[Owner]', extra: "Ownership Type" },
-    { id: 3, name: '[Rent Due Date]', extra: "Rent Due Date" },
-  ]
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    { id: 1, name: 'Primary Resident', extra: "Role" },
+    { id: 2, name: capitalizeFirstLetter(residentProfile?.ownershipType), extra: "Ownership Type" },
+    { id: 3, name: formatDateReadable(residentProfile?.rentedDetails?.rentDueDate), extra: "Rent Due Date" },
+  ];
+
+  const fetchAccessCode = async () => {
+    if (selectedEstate) {
+      await getAccessCode(1,8, '', '');
+    }
   };
 
   React.useEffect(() => {
     if (residentCommunity && residentCommunity?.length > 0) {
       setSelectedEstate(residentCommunity?.[0]);
+      fetchAccessCode();
     }
   }, [setSelectedEstate, residentCommunity]);
 
@@ -70,8 +76,8 @@ const Dashboard = () => {
       setUnsucc(false)
       setShowTable(true)
     }
-  }, [selectedEstate])
-
+  }, [selectedEstate]);
+  
   return (
     <div className='p-8 mb-[150px]'>
       {openEstateList &&
@@ -103,14 +109,40 @@ const Dashboard = () => {
           </div>
         </button>
       }
-      {!unsucc &&
+      {(!unsucc && residentProfile?.firstName) &&
         <>
-          <h1 className='text-BlackHomz font-bold text-[16px] md:text-[20px]'>Hello, [Resident’s First Name]</h1>
+          <h1 className='text-BlackHomz font-bold text-[16px] md:text-[20px]'>Hello, {residentProfile?.firstName}</h1>
           <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>{showTable ? "Welcome to your estate dashboard" : "You’ve successfully created your account and requested to join [Building name], [Apartment name] under [Estate Name]."}</h3>
         </>
       }
-      {(!showTable && !unsucc) &&
-        (selectedEstate?.status !== 'pending' ?
+      {(!showTable && selectedEstate?.status === 'pending' ?
+        <div className="flex flex-col md:flex-row mt-6 items-start gap-4 p-4 border border-warning2 rounded-[12px] bg-warningBg w-full md:w-[600px] lg:w-[900px]">
+          {/* Left Circle with Icon */}
+          <LockWarning />
+
+          {/* Right Content */}
+          <div className="flex-1">
+            <h2 className="text-[18px] font-medium text-warning2 mb-2">
+              Join Request Pending
+            </h2>
+            <p className="text-sm text-GrayHomz font-normal mb-3">
+              Your request to join <span className="font-medium">{selectedEstate?.estateName}</span> is currently
+              pending approval from the estate manager. Once your request is
+              accepted, you&apos;ll be able to:
+            </p>
+            <ul className="list-disc list-inside text-sm text-GrayHomz font-normal space-y-1 mb-3">
+              <li className="">
+                View estate and property details
+              </li>
+              <li>Request visitor access</li>
+              <li>Make payments</li>
+              <li>Receive estate announcement</li>
+            </ul>
+            <p className="text-sm text-GrayHomz font-normal">
+              We&apos;ll notify you as soon as your request is accepted.
+            </p>
+          </div>
+        </div> : selectedEstate?.status === 'rejected' ?
           <div className="flex flex-col md:flex-row mt-6 items-start gap-4 p-4 border border-[#D92D20] rounded-[12px] bg-[#FDF2F2] w-full md:w-[600px] lg:w-[900px]">
             {/* Left Circle with Icon */}
             <RequestUnsuccessful />
@@ -121,44 +153,15 @@ const Dashboard = () => {
                 Your Join Request Was Not Approved
               </h2>
               <p className="text-sm text-GrayHomz font-normal mb-3">
-                Your request to join <span className="font-medium">[Building name]</span>,{" "}
-                <span className="font-medium">[Apartment name]</span> under <span className="font-medium">[Estate Name]</span> was reviewed and unfortunately not
+                Your request to join <span className="font-medium">{selectedEstate?.estateName}</span> was reviewed and unfortunately not
                 approved by the estate manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
               </p>
               <button className="text-sm text-BlueHomz font-normal flex items-center gap-2">
                 Contact Support <ExportIcon className='#006AFF' />
               </button>
             </div>
-          </div>
-          : <div className="flex flex-col md:flex-row mt-6 items-start gap-4 p-4 border border-warning2 rounded-[12px] bg-warningBg w-full md:w-[600px] lg:w-[900px]">
-            {/* Left Circle with Icon */}
-            <LockWarning />
-
-            {/* Right Content */}
-            <div className="flex-1">
-              <h2 className="text-[18px] font-medium text-warning2 mb-2">
-                Join Request Pending
-              </h2>
-              <p className="text-sm text-GrayHomz font-normal mb-3">
-                Your request to join <span className="font-medium">[Building name]</span>,{" "}
-                <span className="font-medium">[Apartment name]</span> is currently
-                pending approval from the estate manager. Once your request is
-                accepted, you&apos;ll be able to:
-              </p>
-              <ul className="list-disc list-inside text-sm text-GrayHomz font-normal space-y-1 mb-3">
-                <li className="">
-                  View estate and property details
-                </li>
-                <li>Request visitor access</li>
-                <li>Make payments</li>
-                <li>Receive estate announcement</li>
-              </ul>
-              <p className="text-sm text-GrayHomz font-normal">
-                We&apos;ll notify you as soon as your request is accepted.
-              </p>
-            </div>
-          </div>
-        )}
+          </div> : null
+      )}
       {showTable &&
         <div className='mt-4 md:mt-8'>
           {/* Occupancy Information */}
@@ -191,16 +194,22 @@ const Dashboard = () => {
       }
 
       {/* Visitor Access Section */}
-      {showTable &&
-        <div className={`mt-8 rounded-[12px]  ${formData && formData?.property?.length > 0 ? "bg-inputBg md:bg-white" : "bg-[#F6F6F6]"} md:border md:border-GrayHomz6 py-4 ${formData && formData?.property?.length > 0 ? "h-auto" : " h-[80vh] md:h-[500px]"}`}>
+      {(initialLoading ||isLoading ||pageLoading) ? (
+        <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
+      ) : showTable ? (
+        <div className={`mt-8 rounded-[12px]  ${accessCode && accessCode?.length > 0 ? "bg-inputBg md:bg-white" : "bg-[#F6F6F6]"} md:border md:border-GrayHomz6 py-4 ${accessCode && accessCode?.length > 0 ? "h-auto" : " h-[80vh] md:h-[500px]"}`}>
           <div className='flex justify-between items-center px-4'>
             <h3 className='text-sm md:text-[16px] font-semibold md:font-bold text-GrayHomz'>Visitor Access</h3>
-            {formData && formData?.property?.length > 0 && <span className='text-xs md:text-[13px] font-normal text-BlueHomz hidden md:flex items-center gap-1'>View More <ArrowRight className='#006AFF' /></span>}
+            {accessCode && accessCode?.length > 0 && <span onClick={() => router.push("/resident/visitor-access")} className='cursor-pointer text-xs md:text-[13px] font-normal text-BlueHomz hidden md:flex items-center gap-1'>View More <ArrowRight className='#006AFF' /></span>}
           </div>
           {
-            formData && formData?.property?.length > 0 ?
+            accessCode && accessCode?.length > 0 ?
               <div className='px-4 md:px-0'>
-                <Table />
+                <Table
+                  totalPages={1}
+                  fromDefault={false}
+                  fetchAccessCode={fetchAccessCode}
+                />
               </div>
               :
               <div className='p-6 w-full'>
@@ -208,13 +217,14 @@ const Dashboard = () => {
                   <AccessIcon />
                   <p className='text-[#141313] font-medium text-sm md:text-[16px] text-center'>No Visitor Access Requests Yet</p>
                   <h2 className='text-[#4E4E4E] font-normal text-sm md:text-[16px] text-center'>You haven’t requested access for any visitors yet. When you do, their details will show up here.</h2>
-                  <button onClick={() => handleInputChange('property', "Ajax")} className='text-BlueHomz cursor-ponter text-sm font-normal flex items-center gap-1'>
+                  <button onClick={() => router.push("/resident/visitor-access")} className='text-BlueHomz cursor-ponter text-sm font-normal flex items-center gap-1'>
                     <AddIcon /> Request Visitor Access
                   </button>
                 </div>
               </div>
           }
         </div>
+      ) : null
       }
     </div>
   )
