@@ -92,6 +92,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                         onClick={() => {
                             clearForm()
                             router.push("/add-estate")
+                            setOpenEstateList(false);
                         }}>
                         <AddIcon /> Add New Estate
                     </button>
