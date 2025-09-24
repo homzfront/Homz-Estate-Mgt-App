@@ -9,8 +9,7 @@ import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/
 import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react'
-import Table from './components/table';
+import React from 'react';
 import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
@@ -25,7 +24,6 @@ import { useResidentsListStore } from '@/store/useResidentsListStore';
 // import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
-    const [data, setData] = React.useState<boolean>(false)
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
     const { fetchManagerAccess, initialLoading: loaderTwo } = useAccessStore();
@@ -125,7 +123,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
-                    <div className={`mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] p-4 ${data ? "h-auto" : "h-[450px] md:h-[600px]"}`}>
+                    <div className={`mt-8 rounded-[12px] bg-[#F6F6F6] md:bg-white md:border md:border-[#E6E6E6] p-4 ${items ? "h-auto" : "h-[450px] md:h-[600px]"}`}>
                         <h3 className='text-sm font-medium text-GrayHomz'>Access Control</h3>
                         <div>
                             {initialLoading ? (
