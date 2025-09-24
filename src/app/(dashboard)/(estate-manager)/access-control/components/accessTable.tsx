@@ -198,7 +198,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
             )}
 
             <div className="border overflow-x-auto scrollbar-container">
-                <div className="w-[100%] md:w-[150%]">
+                <div className="w-[100%] md:w-[200%]">
                     <table className="w-full">
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-[500] text-BlackHomz">

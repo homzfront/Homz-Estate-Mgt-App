@@ -11,23 +11,28 @@ import Table from './components/table';
 import ManualForm from './components/manualForm';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import { LoaderIcon } from 'react-hot-toast';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 
 const ManageResidents = () => {
     const [residentData, setResidentData] = React.useState<boolean>(true);
     const [openInvite, setOpenInvite] = React.useState<boolean>(false);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
     const [openManualForm, setOpenManualForm] = React.useState<boolean>(false);
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const { initialLoading, hasAnyData, fetchResidents, items, search } = useResidentsListStore();
+    
     React.useEffect(() => {
-        if (items.length === 0) {
+        if (items.length === 0 && selectedCommunity) {
             fetchResidents({ page: 1, limit: 8 });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [selectedCommunity]);
+
     React.useEffect(() => {
         // keep legacy flag in sync with store's hasAnyData
         setResidentData(hasAnyData);
     }, [hasAnyData]);
+    
     return (
         <div className='p-8'>
             {

@@ -80,7 +80,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             };
 
             // Make the POST request
-            const response = await fetch('http://localhost:4000/api/v1/auth/resident/update-password', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resident/update-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
