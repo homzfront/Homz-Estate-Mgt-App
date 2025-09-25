@@ -104,7 +104,8 @@ const PopUpData = [
         image: <SupportIcon />,
         image2: <SupportIcon className='#006AFF' />,
         link: "/support",
-        name: "Support"
+        name: "Support",
+        coming_Soon: true,
     },
     {
         id: 5,

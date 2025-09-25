@@ -46,7 +46,8 @@ const Data = [
         ),
         link: "/resident/dues-payments",
         name: "Dues & Payments",
-        active: false,
+            active: false,
+            comingSoon: true,
     },
     {
         id: 4,
@@ -73,7 +74,7 @@ const Data = [
 const Sidebar = () => {
     const pathname = usePathname();
     const { setOpenEstateList } = useOpenCommunityListStore();
-    const { userData } = useAuthSlice();
+    const { userData, getResidentProfile } = useAuthSlice();
     const userID = userData?._id;
     const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
     const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
@@ -94,6 +95,12 @@ const Sidebar = () => {
             fetchResidentEstate();
         }
     }, [userData]);
+
+    React.useEffect(() => {
+        if (selectedEstate) {
+            getResidentProfile(selectedEstate?.associatedIds?.residentId);
+        }
+    }, [getResidentProfile, selectedEstate]);
 
     React.useEffect(() => {
         if (!selectedEstate && residentCommunity && residentCommunity.length > 0) {
@@ -156,37 +163,55 @@ const Sidebar = () => {
                     </button>
                     <div className='h-[70%] flex flex-col justify-between mt-10'>
                         <div className="flex flex-col gap-3">
-                            {Data?.slice(0, 3).map((data) =>
-                            (
-                                <Link
-                                    key={data.id}
-                                    href={data.link}
-                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
-                                        ? "bg-BlueHomz text-white"
-                                        : " hover:bg-whiteblue"
-                                        } `}
-                                >
-                                    {isActive(data, pathname) ? (
-                                        <div className={``}>
-                                            {data.image2}
-                                        </div>
-                                    ) : (
-                                        <div className={``}>
-                                            {data.image}
-                                        </div>
-                                    )}
-                                    <div className="flex items-center w-full">
-                                        <span className="w-[150px] text-start">
-                                            {data.name}
-                                        </span>
-                                        <p
-                                            className={`${data?.active === true ? "bg-error" : "bg-transparent"
-                                                } mt-1 ml-1 h-2 w-2 rounded-full`}
-                                        ></p>
-                                    </div>
-                                </Link>
-                            )
-                            )}
+                                {Data?.slice(0, 3).map((data) => {
+                                    if (data.comingSoon) {
+                                        return (
+                                            <div
+                                                key={data.id}
+                                                className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] opacity-50 cursor-not-allowed relative group`}
+                                            >
+                                                <div>{data.image}</div>
+                                                <div className="flex items-center w-full">
+                                                    <span className="w-[150px] text-start">
+                                                        {data.name}
+                                                    </span>
+                                                </div>
+                                                <div className="absolute right-2 top-[10px] -translate-y-1/2 ml-2 bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                                    Coming Soon
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return (
+                                        <Link
+                                            key={data.id}
+                                            href={data.link}
+                                            className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
+                                                ? "bg-BlueHomz text-white"
+                                                : " hover:bg-whiteblue"
+                                                } `}
+                                        >
+                                            {isActive(data, pathname) ? (
+                                                <div className={``}>
+                                                    {data.image2}
+                                                </div>
+                                            ) : (
+                                                <div className={``}>
+                                                    {data.image}
+                                                </div>
+                                            )}
+                                            <div className="flex items-center w-full">
+                                                <span className="w-[150px] text-start">
+                                                    {data.name}
+                                                </span>
+                                                <p
+                                                    className={`${data?.active === true ? "bg-error" : "bg-transparent"
+                                                        } mt-1 ml-1 h-2 w-2 rounded-full`}
+                                                ></p>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                         </div>
                         <div className="flex flex-col gap-3">
                             {Data?.slice(3, 5).map((data) =>
