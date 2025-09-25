@@ -119,8 +119,7 @@ const VisitorAccess = () => {
           title='Success! Access Code Sent'
           color='text-BlueHomz'
           handleBack={() => {
-            setOpenSuccessModal(false)
-            // setAccessData(true)
+            setOpenSuccessModal(false);
           }}
           closeSuccessModal={() => setOpenSuccessModal(false)}
         />

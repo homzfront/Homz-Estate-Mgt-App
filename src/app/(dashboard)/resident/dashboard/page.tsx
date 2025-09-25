@@ -39,7 +39,7 @@ const Dashboard = () => {
   const residentProfile = useAuthSlice((state) => state.residentProfile);
   const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
-  const { accessCode, getAccessCode, initialLoading,isLoading, pageLoading } = useAccessCodeSlice();
+  const { accessCode, getAccessCode, initialLoading, isLoading, pageLoading } = useAccessCodeSlice();
   const closeRef = React.useRef<HTMLDivElement>(null);
 
   useClickOutside(closeRef as any, () => {
@@ -60,7 +60,7 @@ const Dashboard = () => {
 
   const fetchAccessCode = async () => {
     if (selectedEstate) {
-      await getAccessCode(1,8, '', '');
+      await getAccessCode(1, 8, '', '');
     }
   };
 
@@ -77,7 +77,7 @@ const Dashboard = () => {
       setShowTable(true)
     }
   }, [selectedEstate]);
-  
+
   return (
     <div className='p-8 mb-[150px]'>
       {openEstateList &&
@@ -194,7 +194,7 @@ const Dashboard = () => {
       }
 
       {/* Visitor Access Section */}
-      {(initialLoading ||isLoading ||pageLoading) ? (
+      {((initialLoading || isLoading || pageLoading) && !showTable) ? (
         <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
       ) : showTable ? (
         <div className={`mt-8 rounded-[12px]  ${accessCode && accessCode?.length > 0 ? "bg-inputBg md:bg-white" : "bg-[#F6F6F6]"} md:border md:border-GrayHomz6 py-4 ${accessCode && accessCode?.length > 0 ? "h-auto" : " h-[80vh] md:h-[500px]"}`}>

@@ -26,7 +26,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const { token, email, estateId, organizationId } = useResidentStore();
-    const {userData, getResidentProfile, setUserData } = useAuthSlice();
+    const { setUserData } = useAuthSlice();
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
         if (passwordError) {
@@ -80,23 +80,8 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             };
 
             // Make the POST request
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resident/update-password`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-
-            // Check if the request was successful
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update password');
-            }
-
-            const responseData = await response.json();
+            const response = await api.post(`/auth/resident/update-password`, payload);
+            const responseData = response.data;
 
             // Store tokens using the right keys
             await storeToken({
@@ -109,8 +94,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
 
             // Store user data
             setUserData(profile.data.data);
-            const residentProfile = await getResidentProfile(profile.data.data?._id);
-            console.log(residentProfile);
+            // await getResidentProfile(profile.data.data?._id);
             setActive(1); // Move to the next step on success
             toast.success("Password updated successfully!", {
                 position: "top-center",
@@ -134,7 +118,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             setIsSigningUp(false);
         }
     };
-console.log("userData:", userData)
+
     return (
         <div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
