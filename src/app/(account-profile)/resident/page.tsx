@@ -90,8 +90,8 @@ const Resident = () => {
 
     const getPublicEstate = async () => {
         try {
-            const response: any = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
-            const data = await response.json();
+            const response = await api.get(`/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
+            const data = response;
             console.log("Public Estate Response:", data);
             setPublicCommunity(data?.data);
         } catch (error) {
