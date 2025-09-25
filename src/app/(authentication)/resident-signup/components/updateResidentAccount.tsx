@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const UpdateResidentAccount = () => {
-    const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
+    const { setPublicCommunity } = useSelectedCommunity();
     const { organizationId, estateId } = useResidentStore();
     const { userData } = useAuthSlice();
     const router = useRouter();
@@ -37,9 +37,8 @@ const UpdateResidentAccount = () => {
 
     const getPublicEstate = async () => {
         try {
-            const response: any = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
-            const data = await response.json();
-            setPublicCommunity(data?.data);
+            const response: any = await api.get(`/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
+            setPublicCommunity(response?.data?.data);
         } catch (error) {
             console.error("Failed to fetch estates:", error);
         };
@@ -94,7 +93,6 @@ const UpdateResidentAccount = () => {
         }
     };
 
-    console.log("Public Community:", publicCommunity);
 
     return (
         <div className="p-6 bg-[#FCFCFC] rounded-lg shadow-sm w-full">
