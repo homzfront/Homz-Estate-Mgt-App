@@ -27,9 +27,17 @@ const Dashboard = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
     const { fetchManagerAccess, initialLoading: loaderTwo } = useAccessStore();
-    const { isCommunityManager, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
+    const { isCommunityManager, estateLoading, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
     const { initialLoading, fetchResidents, items, totalCount } = useResidentsListStore();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    const [initialLoader, setInitialLoader] = React.useState(true);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setInitialLoader(false);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Load state 
     React.useEffect(() => {
@@ -51,8 +59,31 @@ const Dashboard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCommunity]);
 
-    if (isCommunityManager && (initialLoading || loaderTwo)) {
-        return <div className='h-screen w-full flex justify-center items-center'><LoaderIcon /></div>
+    if (isCommunityManager && (initialLoading || loaderTwo || initialLoader || estateLoading)) {
+        return <div className='h-screen w-full flex justify-center items-center'><LoaderIcon /></div>;
+    };
+    // If no estates, prompt to add one
+    if (!estatesData || estatesData.length === 0) {
+        return (
+            <div className='py-8 md:p-8'>
+                <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px] text-center md:text-start'>Welcome, {communityProfile?.personal.firstName}</h1>
+                <h3 className='text-GrayHomz font-normal text-sm md:text-[16px] text-center md:text-start'>Add a new estate to get started</h3>
+                <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+                    <div className='flex flex-col items-center gap-2'>
+                        <div className='hidden md:flex w-[144px] h-[144px] rounded-full bg-[#EEF5FF] justify-center items-center'>
+                            <EmptyEstateIcon />
+                        </div>
+                        <div className='md:hidden w-[112px] h-[112px] rounded-full bg-[#EEF5FF] flex justify-center items-center'>
+                            <EmptyEstateIconMobile />
+                        </div>
+                        <p className='text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
+                        <button onClick={() => router.push("/add-estate")} className='text-BlueHomz cursor-ponter text-sm font-normal flex items-center gap-1'>
+                            <AddIcon /> Add Estate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
     return (
         <div className='mb-[150px]'>
@@ -148,26 +179,7 @@ const Dashboard = () => {
                             }
                         </div>
                     </div>
-                </div> :
-                isCommunityManager ? <div className='h-screen w-full flex justify-center items-center'><LoaderIcon /></div> :
-                    <div className='p-8'>
-                        <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Welcome, Victor</h1>
-                        <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Add a new estate to get started</h3>
-                        <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                            <div className='flex flex-col items-center gap-2'>
-                                <div className='hidden md:flex w-[144px] h-[144px] rounded-full bg-[#EEF5FF] justify-center items-center'>
-                                    <EmptyEstateIcon />
-                                </div>
-                                <div className='md:hidden w-[112px] h-[112px] rounded-full bg-[#EEF5FF] flex justify-center items-center'>
-                                    <EmptyEstateIconMobile />
-                                </div>
-                                <p className='text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
-                                <button onClick={() => router.push("/add-estate")} className='text-BlueHomz cursor-ponter text-sm font-normal flex items-center gap-1'>
-                                    <AddIcon /> Add Estate
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                </div> : null
             }
         </div>
     )

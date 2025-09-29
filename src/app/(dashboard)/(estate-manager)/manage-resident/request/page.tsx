@@ -16,6 +16,7 @@ import Ticked from '@/components/icons/ticked';
 import UnTicked from '@/components/icons/unTicked';
 import UserAdd from '@/components/icons/userAdd';
 import { ResidentData, useRequestSlice } from '@/store/useRequestStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import api from '@/utils/api';
 import { getToken } from '@/utils/cookies';
 import Image from 'next/image';
@@ -41,7 +42,7 @@ const Request = () => {
     const actionsMenuRef = useRef<HTMLDivElement>(null);
     // Add a new state to track if search is in progress
     const [isSearching, setIsSearching] = React.useState(false);
-
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     useClickOutside(actionsMenuRef as any, () => setActionsMenuOpen(false));
 
     // Close pop-up menu when clicking outside
@@ -81,8 +82,10 @@ const Request = () => {
 
     // fetch requests when page changes
     React.useEffect(() => {
-        getRequest(pageNo, pageSize);
-    }, [pageNo]);
+        if (selectedCommunity?._id) {
+            getRequest(pageNo, pageSize)
+        };
+    }, [pageNo, selectedCommunity]);
 
 
     // Select all rows

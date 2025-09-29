@@ -4,6 +4,7 @@ import { storeToken } from '@/utils/cookies';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useSelectedEsate } from './useSelectedEstate';
+import { useResidentStore } from './useResidentStore';
 
 export interface RegisterUser {
     email: string;
@@ -229,9 +230,13 @@ export const useAuthSlice = create<AuthState>()(
                 }
             },
 
-            getResidentProfile: async (residentId: string ) => {
+            getResidentProfile: async (residentId: string) => {
+                const organizationId = useSelectedEsate.getState()?.selectedEstate?.associatedIds?.organizationId ||
+                    useResidentStore.getState().organizationId;
+                const estateId = useSelectedEsate.getState()?.selectedEstate?.estateId ||
+                    useResidentStore.getState().estateId;
                 try {
-                    const response = await api.get(`/resident/profile/organizations/${useSelectedEsate.getState()?.selectedEstate?.associatedIds?.organizationId}/estates/${useSelectedEsate.getState()?.selectedEstate?.estateId}/residents/${residentId}`);
+                    const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${residentId}`);
                     const data = response.data.data;
                     set({ residentProfile: data });
                 } catch (error: any) {

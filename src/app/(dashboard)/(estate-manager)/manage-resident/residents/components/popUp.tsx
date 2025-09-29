@@ -46,7 +46,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveTwo(true)}
                     onMouseLeave={() => setActiveTwo(false)}
-                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className="pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {
@@ -66,7 +66,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveThree(true)}
                     onMouseLeave={() => setActiveThree(false)}
-                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className="pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {
@@ -86,7 +86,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveFour(true)}
                     onMouseLeave={() => setActiveFour(false)}
-                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className=" pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {

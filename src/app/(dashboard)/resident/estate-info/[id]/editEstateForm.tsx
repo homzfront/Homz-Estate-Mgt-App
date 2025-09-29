@@ -47,8 +47,7 @@ const EditEstateForm = () => {
         e.preventDefault();
         setActive(id);
     };
-
-
+    
     return (
         <div className='p-8'>
             {openEstateList &&

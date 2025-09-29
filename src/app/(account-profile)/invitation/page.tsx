@@ -90,10 +90,8 @@ const Resident = () => {
 
     const getPublicEstate = async () => {
         try {
-            const response: any = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
-            const data = await response.json();
-            console.log("Public Estate Response:", data);
-            setPublicCommunity(data?.data);
+            const response: any = await api.get(`/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
+            setPublicCommunity(response?.data?.data);
         } catch (error) {
             console.error("Failed to fetch estates:", error);
         };

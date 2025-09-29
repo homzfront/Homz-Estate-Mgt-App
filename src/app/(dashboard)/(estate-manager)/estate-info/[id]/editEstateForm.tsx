@@ -187,8 +187,8 @@ const EditEstateForm = () => {
             setLoading(true);
             // First, update the estate
             const estateId = selectedCommunity?._id; // Adjust based on your API response
-            const estateManId = selectedCommunity?.associatedIds?.organizationId
-            const createEstateResponse = await api.patch(`estates/update-estate/${estateManId}/${estateId}`, payload);
+            const organizationId = selectedCommunity?.associatedIds?.organizationId
+            const createEstateResponse = await api.patch(`/estates/community-manager/update-estate/organizations/${organizationId}/estates/${estateId}`, payload);
 
             if (createEstateResponse?.data) {
 
@@ -200,7 +200,7 @@ const EditEstateForm = () => {
                     const formData = new FormData();
                     formData.append('coverImage', blob, 'cover-photo.jpg');
 
-                    await api.patch(`/estates/upload/single/cover-photo/${estateManId}/${estateId}`, formData);
+                    await api.patch(`/estates/upload/single/cover-photo/${organizationId}/${estateId}`, formData);
                 }
 
             }

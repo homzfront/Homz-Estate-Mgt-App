@@ -256,7 +256,7 @@ const Header = () => {
             className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
               }`}
           >
-            <Link href={residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
+            <Link href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
               <p className={`w-full ${open ? "text-[12px] " : ""}`}>
                 Hi, {extractUsername(userData?.email)}!
               </p>

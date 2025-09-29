@@ -3,7 +3,7 @@ import CustomModal from '@/components/general/customModal';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/accessControlIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
 import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
-import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
+// import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
@@ -44,7 +44,7 @@ const Data = [
         image2: (
             <ResidentIcon className='#006AFF' />
         ),
-        link: "/manage-resident",
+        link: "/manage-resident/residents",
         name: "Residents",
         extra: false,
     },
@@ -59,12 +59,11 @@ const Data = [
         extra: false,
     },
     {
-        id: 4,
-        image: <MoreIcon />,
-        image2: <MoreIcon className='#006AFF' />,
-        link: null,
-        name: "More",
-        extra: true,
+        id: 8,
+        image: <LogoutIcon />,
+        image2: <LogoutIcon />,
+        link: "",
+        name: "Logout"
     }
 ];
 
@@ -203,12 +202,12 @@ const MobileFooter = () => {
                         onClick={() => {
                             if (data?.extra) {
                                 setSubOpen(data as DataType)
+                            } else if (data?.name === "Logout") {
+                                logOutUser()
                             }
                         }}
-                        className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link
-                            ? "text-BlueHomz"
-                            : "text-GrayHomz"
-                            } `}
+                        className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link ? "text-BlueHomz" :data?.name === "Logout" ? "text-error" : "text-GrayHomz"} 
+                        `}
                     >
                         {pathname === data.link ? (
                             <div>

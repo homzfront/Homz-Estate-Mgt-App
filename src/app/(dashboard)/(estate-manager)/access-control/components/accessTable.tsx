@@ -190,7 +190,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                             </div>
                         </div>
 
-                        <button onClick={() => setOpenDetails(false)} className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'>
+                        <button disabled={true} onClick={() => setOpenDetails(false)} className='pointer-events-none opacity-50 mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'>
                             <ProfileWhite /> View Resident’s profile
                         </button>
                     </div>
@@ -263,7 +263,14 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                             <span className='inline-block w-[8px] h-[8px] rounded-full bg-error' />
                                         </td>
                                         <td className="text-BlueHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            <span onClick={(e) => { e.stopPropagation(); setSelectedIndex(idx); setOpenDetails(true); }} className='flex items-center gap-2'>
+                                            <span onClick={(e) => {
+                                                e.stopPropagation();
+                                                if(row?.resident?.firstName) {
+                                                    setSelectedIndex(idx);
+                                                    setOpenDetails(true);
+                                                }
+                                            }}
+                                                className='flex items-center gap-2'>
                                                 {row.resident ? `${row.resident.firstName} ${row.resident.lastName}` : '-'} <ArrowDown />
                                             </span>
                                         </td>

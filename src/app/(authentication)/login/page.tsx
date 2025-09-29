@@ -22,13 +22,11 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { userData, setUserData } = useAuthSlice();
+  const { setUserData } = useAuthSlice();
   const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
   // const handleGoogleSignIn = () => {
   //   // Empty function as requested
   // };
-
-  console.log("userData:", userData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
