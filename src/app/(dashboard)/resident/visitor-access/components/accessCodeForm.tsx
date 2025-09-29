@@ -32,8 +32,7 @@ const AccessCodeForm = ({
     const [loading, setLoading] = React.useState(false);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
     const [accessCode, setAccessCode] = React.useState<string>("");
-    const [accessCodeResponse, setAccessCodeResponse] = React.useState<null>(null);
-    const {residentProfile} = useAuthSlice()   
+    const { residentProfile } = useAuthSlice()
     const [formData, setFormData] = React.useState({
         visitorName: '',
         visitPurpose: '',
@@ -46,8 +45,6 @@ const AccessCodeForm = ({
     const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
     const [timeCode, setTimeCode] = React.useState<string>("One-Time");
 
-    
-    
     const onGenerateCode = async () => {
         setLoading(true);
         try {
@@ -70,8 +67,7 @@ const AccessCodeForm = ({
                 `/access-control/residents/organizations/${selectedEstate?.associatedIds?.organizationId}/estates/${selectedEstate?.estateId}`,
                 removeEmptyFields(payload)
             );
-            console.log("response:", response)
-            setAccessCodeResponse(response?.data?.data);
+
             // Extract the access code from the response
             const generatedCode = response?.data?.data?.accessCode || "2009757"; // Fallback for demo
             setAccessCode(generatedCode);
@@ -127,7 +123,6 @@ const AccessCodeForm = ({
 
         Your ${timeCode.toLowerCase()} access code is: ${accessCode}
 
-        Location: [Resident Address]
         Location: ${residentProfile?.streetName}, ${residentProfile?.zone}
         From: ${formData.arrivalDate}, ${formData.startTime}
         To: ${formData.arrivalDate}, ${formData.endTime}
@@ -151,9 +146,6 @@ const AccessCodeForm = ({
                 });
             });
     };
-
-    console.log("accessCodeResponse:", accessCodeResponse)
-    console.log("accessCode:", accessCode)
 
     return (
         <div className='p-4 rounded-[12px] bg-white w-[350px] md:w-[550px] mb-[50px] md:mb-0'>
@@ -284,7 +276,6 @@ const AccessCodeForm = ({
                                 <p>Your {timeCode.toLowerCase()} access code is: <strong>{accessCode}</strong></p>
 
                                 <p>
-                                    Location: [Resident Address] <br />
                                     Location: {residentProfile?.streetName}, {residentProfile?.zone} <br />
                                     From: {formData.arrivalDate}, {formData.startTime} <br />
                                     To: {formData.arrivalDate}, {formData.endTime}
@@ -356,3 +347,5 @@ const AccessCodeForm = ({
         </div >
     )
 }
+
+export default AccessCodeForm;
