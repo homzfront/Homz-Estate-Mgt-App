@@ -25,7 +25,7 @@ export const useResidentParams = () => {
             const parts = decoded.split(' ')
             console.log({ parts })
 
-            if (parts.length >= 5) {
+            if (parts.length >= 1) {
                 // estateId = parts[0] || ''
                 email = parts[1] || ''
                 estateName = parts[2] || ''

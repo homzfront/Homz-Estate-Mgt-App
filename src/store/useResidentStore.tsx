@@ -14,7 +14,7 @@ interface ResidentState {
   setResidentData: (data: {
     token: string
     organizationId: string
-    estateId: string
+    estateId?: string
     email?: string
     firstName?: string
     lastName?: string

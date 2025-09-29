@@ -137,6 +137,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
         }
     };
 
+
     return (
         <div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
