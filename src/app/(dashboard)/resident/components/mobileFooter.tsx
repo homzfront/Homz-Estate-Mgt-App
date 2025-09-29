@@ -1,7 +1,7 @@
 "use client"
 import CustomModal from '@/components/general/customModal';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
+// import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
@@ -10,8 +10,9 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
 import VisitorAccess from '@/components/icons/estateManager&Resident/mobile/visitorAccess';
-import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+// import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
+import { useAuthSlice } from '@/store/authStore';
 
 interface DataType {
     id: number;
@@ -42,26 +43,34 @@ const Data = [
         link: "/resident/visitor-access",
         name: "Visitor Access",
         extra: false,
+        comingSoon: false,
     },
+    // {
+    //     id: 3,
+    //         image: <DuesAndPaymentIcon className="#202020" />,
+    //         image2: (
+    //             <DuesAndPaymentIcon className='#006AFF' />
+    //         ),
+    //         link: null,
+    //         name: "Dues & Payments",
+    //         extra: false,
+    //         comingSoon: true,
+    // },
     {
         id: 3,
-            image: <DuesAndPaymentIcon className="#202020" />,
-            image2: (
-                <DuesAndPaymentIcon className='#006AFF' />
-            ),
-            link: null,
-            name: "Dues & Payments",
-            extra: false,
-            comingSoon: true,
+        image: <LogoutIcon />,
+        image2: <LogoutIcon />,
+        link: "",
+        name: "Logout"
     },
-    {
-        id: 4,
-        image: <MoreIcon />,
-        image2: <MoreIcon className='#006AFF' />,
-        link: null,
-        name: "More",
-        extra: true,
-    }
+    // {
+    //     id: 4,
+    //     image: <MoreIcon />,
+    //     image2: <MoreIcon className='#006AFF' />,
+    //     link: null,
+    //     name: "More",
+    //     extra: true,
+    // }
 ];
 
 const PopUpData = [
@@ -99,6 +108,7 @@ const PopUpData = [
 const MobileFooter = () => {
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState<DataType | null>(null);
+    const { logOutUser } = useAuthSlice();
 
     return (
         <div className='mobile-footer'>
@@ -141,49 +151,51 @@ const MobileFooter = () => {
                 </CustomModal>
             }
             <div className='flex justify-between items-center px-4'>
-                    {Data.map((data) => {
-                        if (data.comingSoon) {
-                            return (
-                                <div
-                                    key={data.id}
-                                    className="flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] opacity-50 pointer-events-none"
-                                >
-                                    <div>{data.image}</div>
-                                    <div className={`flex items-center w-full truncate`}>
-                                        <span>{data.name}</span>
-                                    </div>
-                                </div>
-                            );
-                        }
+                {Data.map((data) => {
+                    if (data.comingSoon) {
                         return (
-                            <Link
+                            <div
                                 key={data.id}
-                                href={data?.link ? data.link : ""}
-                                onClick={() => {
-                                    if (data?.extra) {
-                                        setSubOpen(data as DataType)
-                                    }
-                                }}
-                                className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link
-                                    ? "text-BlueHomz"
-                                    : "text-GrayHomz"
-                                    } `}
+                                className="flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] opacity-50 pointer-events-none"
                             >
-                                {pathname === data.link ? (
-                                    <div>
-                                        {data.image2}
-                                    </div>
-                                ) : (
-                                    <div>
-                                        {data.image}
-                                    </div>
-                                )}
+                                <div>{data.image}</div>
                                 <div className={`flex items-center w-full truncate`}>
                                     <span>{data.name}</span>
                                 </div>
-                            </Link>
+                            </div>
                         );
-                    })}
+                    }
+                    return (
+                        <Link
+                            key={data.id}
+                            href={data?.link ? data.link : ""}
+                            onClick={async  () => {
+                                if (data?.extra) {
+                                    setSubOpen(data as DataType)
+                                } else {
+                                    await logOutUser()
+                                }
+                            }}
+                            className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${data?.name === "Logout" ? "text-error" : ""} ${pathname === data.link
+                                ? "text-BlueHomz"
+                                : "text-GrayHomz"
+                                } `}
+                        >
+                            {pathname === data.link ? (
+                                <div>
+                                    {data.image2}
+                                </div>
+                            ) : (
+                                <div>
+                                    {data.image}
+                                </div>
+                            )}
+                            <div className={`flex items-center w-full truncate`}>
+                                <span>{data.name}</span>
+                            </div>
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     )

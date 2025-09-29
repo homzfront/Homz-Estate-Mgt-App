@@ -4,17 +4,17 @@ import AddIcon from '@/components/icons/addIcon';
 import ArrowDown from '@/components/icons/arrowDown';
 import EstateAddIcon from '@/components/icons/estateAddIcon';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/desktop/accessControlIcon';
-import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
+// import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
-import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
+// import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager&Resident/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager&Resident/desktop/manageResidentIcon';
-import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
+// import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
-import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
-import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
-import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
+// import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
+// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -46,6 +46,7 @@ const Data = [
         link: "#",
         active: false,
         submenu: true,
+        coming_Soon: false,
         subMenuItems: [
             {
                 title: "Manage Residents",
@@ -65,17 +66,17 @@ const Data = [
             },
         ],
     },
-    {
-        id: 3,
-        image: <BillAndUtiIcon />,
-        image2: (
-            <BillAndUtiIcon className='#FFFFFF' />
-        ),
-        link: "/bill-utility",
-        name: "Bills & Utilities",
-        coming_Soon: true,
-        active: false,
-    },
+    // {
+    //     id: 3,
+    //     image: <BillAndUtiIcon />,
+    //     image2: (
+    //         <BillAndUtiIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/bill-utility",
+    //     name: "Bills & Utilities",
+    //     coming_Soon: true,
+    //     active: false,
+    // },
     {
         id: 4,
         image: <AccessControlIcon />,
@@ -84,43 +85,43 @@ const Data = [
         name: "Access Control",
         active: false,
     },
-    {
-        id: 5,
-        image: <FinanceIcon />,
-        image2: (
-            <FinanceIcon className='#FFFFFF' />
-        ),
-        link: "#",
-        name: "Finance",
-        coming_Soon: true,
-        active: false,
-        submenu: true,
-        subMenuItems: [
-            {
-                title: "Payments",
-                link: "/finance/payment",
-                image: <PaymentIcon />,
-                image2: <PaymentIcon className='#006AFF' />,
-            },
-            {
-                title: "Expenses",
-                link: "/finance/expense",
-                image: <ExpensesIcon />,
-                image2: <ExpensesIcon className='#006AFF' />,
-            },
-        ],
-    },
-    {
-        id: 6,
-        image: <ManageUserIcon />,
-        image2: (
-            <ManageUserIcon className='#FFFFFF' classNameII='#FFFFFF' />
-        ),
-        link: "/manage-users",
-        name: "Manage Users",
-        active: false,
-        coming_Soon: true,
-    },
+    // {
+    //     id: 5,
+    //     image: <FinanceIcon />,
+    //     image2: (
+    //         <FinanceIcon className='#FFFFFF' />
+    //     ),
+    //     link: "#",
+    //     name: "Finance",
+    //     coming_Soon: true,
+    //     active: false,
+    //     submenu: true,
+    //     subMenuItems: [
+    //         {
+    //             title: "Payments",
+    //             link: "/finance/payment",
+    //             image: <PaymentIcon />,
+    //             image2: <PaymentIcon className='#006AFF' />,
+    //         },
+    //         {
+    //             title: "Expenses",
+    //             link: "/finance/expense",
+    //             image: <ExpensesIcon />,
+    //             image2: <ExpensesIcon className='#006AFF' />,
+    //         },
+    //     ],
+    // },
+    // {
+    //     id: 6,
+    //     image: <ManageUserIcon />,
+    //     image2: (
+    //         <ManageUserIcon className='#FFFFFF' classNameII='#FFFFFF' />
+    //     ),
+    //     link: "/manage-users",
+    //     name: "Manage Users",
+    //     active: false,
+    //     coming_Soon: true,
+    // },
     // {
     //     id: 7,
     //     image: <SupportIcon />,
@@ -145,18 +146,18 @@ const More = [
         active: false,
         submenu: true,
         subMenuItems: [
-            {
-                title: "Profile",
-                link: "/profile",
-                image: <ProfileIcon />,
-                image2: <ProfileIcon className='#006AFF' />,
-            },
-            {
-                title: "Settings",
-                link: "/settings",
-                image: <SettingsIcon />,
-                image2: <SettingsIcon className='#006AFF' />,
-            },
+            // {
+            //     title: "Profile",
+            //     link: "/profile",
+            //     image: <ProfileIcon />,
+            //     image2: <ProfileIcon className='#006AFF' />,
+            // },
+            // {
+            //     title: "Settings",
+            //     link: "/settings",
+            //     image: <SettingsIcon />,
+            //     image2: <SettingsIcon className='#006AFF' />,
+            // },
             {
                 title: "Logout",
                 link: "#",
@@ -413,7 +414,7 @@ const Sidebar = () => {
                                         <hr
                                             style={{
                                                 width: "1.5px",
-                                                height: "106px",
+                                                height: "30px",
                                                 borderWidth: "0",
                                                 background: "#4E4E4E",
                                             }}

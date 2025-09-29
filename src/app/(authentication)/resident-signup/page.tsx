@@ -3,7 +3,7 @@ import AuthSlider from '@/components/auth/authSlider'
 import React from 'react'
 import ChangePassword from './components/changePassword'
 import UpdateResidentAccount from './components/updateResidentAccount'
-import { useResidentStore } from '@/store/useResidentStore'
+// import { useResidentStore } from '@/store/useResidentStore'
 import { useResidentParams } from '@/hooks/useResidentParams'
 // import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 // import api from '@/utils/api'
@@ -12,26 +12,10 @@ const pages = ['Create Account', 'Review Property Details']
 
 const ResidentSignup = () => {
   const [active, setActive] = React.useState<number>(0);
-  // const { setPublicCommunity } = useSelectedCommunity()
-  // Extract data from the store
-  const {  organizationId, estateId } = useResidentStore();
+  
   // Handle URL parameters
   useResidentParams()
 
-  // const getPublicEstate = async () => {
-  //   try {
-  //     const response = await api.get(
-  //       `/api/v1/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`
-
-  //     );
-
-  //     setPublicCommunity(response?.data?.data?.estates);
-  //   } catch (error) {
-  //     console.error("Failed to fetch estates:", error);
-  //   };
-  // };
-
-  console.log(organizationId, estateId);
   return (
     <div className="flex m-auto max-w-[100%] sm:max-w-[1440px] h-[1024px]">
       <div className="w-[644px] hidden lg:flex flex-col py-8 justify-around bg-[url('/Background_image2.png')] bg-BlueHomz">

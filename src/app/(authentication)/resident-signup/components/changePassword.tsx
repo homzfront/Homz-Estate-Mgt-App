@@ -9,6 +9,8 @@ import { useResidentStore } from "@/store/useResidentStore";
 import { useAuthSlice } from "@/store/authStore";
 import api from "@/utils/api";
 import { storeToken } from "@/utils/cookies";
+import { useSelectedEsate } from "@/store/useSelectedEstate";
+import { useResidentCommunity } from "@/store/useResidentCommunity";
 
 
 
@@ -26,7 +28,9 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const { token, email, estateId, organizationId } = useResidentStore();
-    const { setUserData } = useAuthSlice();
+    const { getResidentProfile, setUserData } = useAuthSlice();
+    const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
+    const { setResidentCommunity } = useResidentCommunity();
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
         if (passwordError) {
@@ -80,7 +84,14 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             };
 
             // Make the POST request
-            const response = await api.post(`/auth/resident/update-password`, payload);
+            const response = await api.post('/auth/resident/update-password', payload);
+
+            // Check if the request was successful
+            if (response.status < 200 || response.status >= 300) {
+                const errorData = response.data;
+                throw new Error(errorData.message || 'Failed to update password');
+            }
+
             const responseData = response.data;
 
             // Store tokens using the right keys
@@ -94,7 +105,14 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
 
             // Store user data
             setUserData(profile.data.data);
-            // await getResidentProfile(profile.data.data?._id);
+
+            const responseTwo: any = await api.get(`estates/resident/all-estates/users/${profile.data.data?._id}`);
+            // console.log("Resident Estate Response:", response);
+            setResidentCommunity(responseTwo?.data?.data?.estates?.results)
+
+            await getResidentProfile(responseTwo?.data?.data?.estates?.results?.[0]?.associatedIds?.residentId);
+
+            setSelectedEstate(responseTwo?.data?.data?.estates?.results?.[0] || null);
             setActive(1); // Move to the next step on success
             toast.success("Password updated successfully!", {
                 position: "top-center",
@@ -118,6 +136,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             setIsSigningUp(false);
         }
     };
+
 
     return (
         <div>

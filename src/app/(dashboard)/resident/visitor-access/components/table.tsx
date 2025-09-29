@@ -205,14 +205,14 @@ const Table = ({
                                     Date of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.arrivalDate}
+                                    {formatDateDisplay(selectedData?.arrivalDate)}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Expected time
                                     of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.expectedArrivalTime?.from}
+                                    {formatExpectedRange(selectedData?.expectedArrivalTime?.from)}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Code
@@ -352,7 +352,7 @@ const Table = ({
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data?.codeType}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize pointer-events-auto">
                                             {['pending','signed in','signed out'].includes((data.accessStatus || '').toLowerCase()) ? (
                                                 <div className="flex items-center gap-2">
                                                     <StatusDropDown

@@ -8,14 +8,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 import VisitorShield from '@/components/icons/estateManager&Resident/desktop/visitorShield';
-import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+// import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
-import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
-import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+// import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
+// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import api from '@/utils/api';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
 import { useAuthSlice } from '@/store/authStore';
+// import { Coming_Soon } from 'next/font/google';
 
 const Data = [
     {
@@ -37,38 +38,39 @@ const Data = [
         link: "/resident/visitor-access",
         name: "Visitor Access",
         active: false,
+        comingSoon: false,
     },
-    {
-        id: 3,
-        image: <DuesAndPaymentIcon />,
-        image2: (
-            <DuesAndPaymentIcon className='#FFFFFF' />
-        ),
-        link: "/resident/dues-payments",
-        name: "Dues & Payments",
-            active: false,
-            comingSoon: true,
-    },
-    {
-        id: 4,
-        image: <Profile16Icon />,
-        image2: (
-            <Profile16Icon className='#FFFFFF' />
-        ),
-        link: "/resident/profile",
-        name: "Profile",
-        active: false,
-    },
-    {
-        id: 5,
-        image: <SettingsIcon w={"16"} h={"16"} className='#4E4E4E' />,
-        image2: (
-            <SettingsIcon w={"16"} h={"16"} className='#FFFFFF' />
-        ),
-        link: "/resident/settings",
-        name: "Settings",
-        active: false,
-    },
+    // {
+    //     id: 3,
+    //     image: <DuesAndPaymentIcon />,
+    //     image2: (
+    //         <DuesAndPaymentIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/resident/dues-payments",
+    //     name: "Dues & Payments",
+    //         active: false,
+    //         comingSoon: true,
+    // },
+    // {
+    //     id: 4,
+    //     image: <Profile16Icon />,
+    //     image2: (
+    //         <Profile16Icon className='#FFFFFF' />
+    //     ),
+    //     link: "/resident/profile",
+    //     name: "Profile",
+    //     active: false,
+    // },
+    // {
+    //     id: 5,
+    //     image: <SettingsIcon w={"16"} h={"16"} className='#4E4E4E' />,
+    //     image2: (
+    //         <SettingsIcon w={"16"} h={"16"} className='#FFFFFF' />
+    //     ),
+    //     link: "/resident/settings",
+    //     name: "Settings",
+    //     active: false,
+    // },
 ];
 
 const Sidebar = () => {

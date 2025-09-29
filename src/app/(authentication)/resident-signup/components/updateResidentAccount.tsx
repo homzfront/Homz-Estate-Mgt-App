@@ -2,16 +2,14 @@
 import DotLoader from '@/components/general/dotLoader';
 import { useAuthSlice } from '@/store/authStore';
 import { useResidentStore } from '@/store/useResidentStore';
-import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import api from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const UpdateResidentAccount = () => {
-    const { setPublicCommunity } = useSelectedCommunity();
     const { organizationId, estateId } = useResidentStore();
-    const { userData } = useAuthSlice();
+    const { residentProfile } = useAuthSlice();
     const router = useRouter();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [formData, setFormData] = useState({
@@ -25,7 +23,8 @@ const UpdateResidentAccount = () => {
         ownershipType: 'I am renting this apartment', // Non-editable as per image
         rentDuration: 'e.g 12', // Non-editable as per image
         rentStartDate: '[Rent Start Date]', // Non-editable as per image
-        rentDueDate: '[Rent Due Date]' // Non-editable as per image
+        rentDueDate: '[Rent Due Date]', // Non-editable as per image
+        durationType: 'Months/Years' // Non-editable as per image
     });
 
     const handleInputChange = (field: any, value: any) => {
@@ -35,19 +34,25 @@ const UpdateResidentAccount = () => {
         }));
     };
 
-    const getPublicEstate = async () => {
-        try {
-            const response: any = await api.get(`/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
-            setPublicCommunity(response?.data?.data);
-        } catch (error) {
-            console.error("Failed to fetch estates:", error);
-        };
-    }
-
     React.useEffect(() => {
-        getPublicEstate();
-    }, [organizationId, estateId]);
-
+        if (residentProfile) {
+            setFormData({
+                firstName: residentProfile.firstName || '',
+                lastName: residentProfile.lastName || '',
+                estateName: residentProfile.estateName || '',
+                zone: residentProfile.zone || '',
+                streetName: residentProfile.streetName || '',
+                building: residentProfile.building || '',
+                apartment: residentProfile.apartment || '',
+                ownershipType: residentProfile.ownershipType === 'rented' ? 'I am renting this apartment' : residentProfile.ownershipType || '',
+                rentDuration: residentProfile.rentedDetails?.rentDuration ? `e.g ${residentProfile.rentedDetails.rentDuration}` : '',
+                rentStartDate: residentProfile.rentedDetails?.rentStartDate ? new Date(residentProfile.rentedDetails.rentStartDate).toLocaleDateString() : '',
+                rentDueDate: residentProfile.rentedDetails?.rentDueDate ? new Date(residentProfile.rentedDetails.rentDueDate).toLocaleDateString() : '',
+                durationType: residentProfile.rentedDetails?.rentDurationType || 'Months/Years'
+            });
+        }
+    }, [residentProfile]);
+    
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         // Handle form submission logic here
@@ -57,7 +62,7 @@ const UpdateResidentAccount = () => {
                 "firstName": formData?.firstName,
                 "lastName": formData?.lastName,
             }
-            await api.patch(`/resident/update-profile/organizations/${organizationId}/estates/${estateId}/residents/${userData?._id}`, payload);
+            await api.patch(`/resident/update-profile/organizations/${organizationId}/estates/${estateId}/residents/${residentProfile?._id}`, payload);
             toast.success("Profile created successfully!", {
                 position: "top-center",
                 duration: 2000,
@@ -92,7 +97,6 @@ const UpdateResidentAccount = () => {
             setIsLoading(false);
         }
     };
-
 
     return (
         <div className="p-6 bg-[#FCFCFC] rounded-lg shadow-sm w-full">
@@ -194,7 +198,7 @@ const UpdateResidentAccount = () => {
                         Rent Duration <span className="text-red-500">*</span>
                     </label>
                     <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center justify-between px-3 text-gray-700">
-                        {formData.rentDuration}  <span>Months/Years</span>
+                        {formData.rentDuration}  <span>{formData.durationType}</span>
                     </div>
                 </div>
 
