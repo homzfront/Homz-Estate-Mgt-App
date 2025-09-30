@@ -4,25 +4,26 @@ import AddIcon from '@/components/icons/addIcon';
 import ArrowDown from '@/components/icons/arrowDown';
 import EstateAddIcon from '@/components/icons/estateAddIcon';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/desktop/accessControlIcon';
-import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
+// import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
-import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
+// import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager&Resident/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager&Resident/desktop/manageResidentIcon';
-import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
+// import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
-import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
-import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
-import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
-import { useUserStore } from '@/store/useUserStore';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
+// import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
+// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
-import PickEstate from './pickEstate';
-import useClickOutside from '@/app/utils/useClickOutside';
+import { useAuthSlice } from '@/store/authStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useEstateFormStore } from '@/store/useEstateFormStore';
+import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
+import UserTick from '@/components/icons/userTick';
 
 const Data = [
     {
@@ -41,21 +42,41 @@ const Data = [
         image2: (
             <ManageResidentIcon className='#FFFFFF' classNameII='#FFFFFF' />
         ),
-        link: "/manage-resident",
-        name: "Manage Residents",
+        name: "Residents",
+        link: "#",
         active: false,
+        submenu: true,
+        coming_Soon: false,
+        subMenuItems: [
+            {
+                title: "Manage Residents",
+                link: "/manage-resident/residents",
+                image: <ManageResidentIcon h='14' w='14' />,
+                image2: (
+                    <ManageResidentIcon h='14' w='14' className='#006AFF' classNameII='#006AFF' />
+                ),
+            },
+            {
+                title: "Join Requests",
+                link: "/manage-resident/request",
+                image2: <UserTick />,
+                image: (
+                    <UserTick color='#4E4E4E' />
+                ),
+            },
+        ],
     },
-    {
-        id: 3,
-        image: <BillAndUtiIcon />,
-        image2: (
-            <BillAndUtiIcon className='#FFFFFF' />
-        ),
-        link: "/bill-utility",
-        name: "Bills & Utilities",
-        coming_Soon: true,
-        active: false,
-    },
+    // {
+    //     id: 3,
+    //     image: <BillAndUtiIcon />,
+    //     image2: (
+    //         <BillAndUtiIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/bill-utility",
+    //     name: "Bills & Utilities",
+    //     coming_Soon: true,
+    //     active: false,
+    // },
     {
         id: 4,
         image: <AccessControlIcon />,
@@ -64,53 +85,53 @@ const Data = [
         name: "Access Control",
         active: false,
     },
-    {
-        id: 5,
-        image: <FinanceIcon />,
-        image2: (
-            <FinanceIcon className='#FFFFFF' />
-        ),
-        link: "#",
-        name: "Finance",
-        coming_Soon: true,
-        active: false,
-        submenu: true,
-        subMenuItems: [
-            {
-                title: "Payments",
-                link: "/finance/payment",
-                image: <PaymentIcon />,
-                image2: <PaymentIcon className='#006AFF' />,
-            },
-            {
-                title: "Expenses",
-                link: "/finance/expense",
-                image: <ExpensesIcon />,
-                image2: <ExpensesIcon className='#006AFF' />,
-            },
-        ],
-    },
-    {
-        id: 6,
-        image: <ManageUserIcon />,
-        image2: (
-            <ManageUserIcon className='#FFFFFF' classNameII='#FFFFFF' />
-        ),
-        link: "/manage-users",
-        name: "Manage Users",
-        active: false,
-        coming_Soon: true,
-    },
-    {
-        id: 7,
-        image: <SupportIcon />,
-        image2: (
-            <SupportIcon className='#FFFFFF' />
-        ),
-        link: "/support",
-        name: "Support",
-        active: false,
-    },
+    // {
+    //     id: 5,
+    //     image: <FinanceIcon />,
+    //     image2: (
+    //         <FinanceIcon className='#FFFFFF' />
+    //     ),
+    //     link: "#",
+    //     name: "Finance",
+    //     coming_Soon: true,
+    //     active: false,
+    //     submenu: true,
+    //     subMenuItems: [
+    //         {
+    //             title: "Payments",
+    //             link: "/finance/payment",
+    //             image: <PaymentIcon />,
+    //             image2: <PaymentIcon className='#006AFF' />,
+    //         },
+    //         {
+    //             title: "Expenses",
+    //             link: "/finance/expense",
+    //             image: <ExpensesIcon />,
+    //             image2: <ExpensesIcon className='#006AFF' />,
+    //         },
+    //     ],
+    // },
+    // {
+    //     id: 6,
+    //     image: <ManageUserIcon />,
+    //     image2: (
+    //         <ManageUserIcon className='#FFFFFF' classNameII='#FFFFFF' />
+    //     ),
+    //     link: "/manage-users",
+    //     name: "Manage Users",
+    //     active: false,
+    //     coming_Soon: true,
+    // },
+    // {
+    //     id: 7,
+    //     image: <SupportIcon />,
+    //     image2: (
+    //         <SupportIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/support",
+    //     name: "Support",
+    //     active: false,
+    // },
 ];
 
 const More = [
@@ -125,18 +146,18 @@ const More = [
         active: false,
         submenu: true,
         subMenuItems: [
-            {
-                title: "Profile",
-                link: "/profile",
-                image: <ProfileIcon />,
-                image2: <ProfileIcon className='#006AFF' />,
-            },
-            {
-                title: "Settings",
-                link: "/settings",
-                image: <SettingsIcon />,
-                image2: <SettingsIcon className='#006AFF' />,
-            },
+            // {
+            //     title: "Profile",
+            //     link: "/profile",
+            //     image: <ProfileIcon />,
+            //     image2: <ProfileIcon className='#006AFF' />,
+            // },
+            // {
+            //     title: "Settings",
+            //     link: "/settings",
+            //     image: <SettingsIcon />,
+            //     image2: <SettingsIcon className='#006AFF' />,
+            // },
             {
                 title: "Logout",
                 link: "#",
@@ -153,24 +174,32 @@ const Sidebar = () => {
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState(false);
     const [subMoreOpen, setSubMoreOpen] = React.useState(false);
-    const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
+    const { setOpenEstateList } = useOpenCommunityListStore();
     const [selectedName, setSelecetedName] = React.useState(null);
-    const closeRef = React.useRef<HTMLDivElement>(null);
+    const { clearForm } = useEstateFormStore()
+    const { logOutUser, getEstates, estatesData, communityProfile } = useAuthSlice();
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
-    useClickOutside(closeRef as any, () => {
-        setOpenEstateList(false);
-    });
+    React.useEffect(() => {
+        if (!selectedCommunity && estatesData && estatesData.length > 0) {
+            setSelectedCommunity(estatesData[0]); // default first estate
+        }
+    }, [selectedCommunity, estatesData, setSelectedCommunity]);
+
+    React.useEffect(() => {
+        if (communityProfile) getEstates()
+    }, [communityProfile]);
 
     const [selectedMoreName, setSelecetedMoreName] = React.useState(null);
     const toggleSub = (name: any) => {
         setSubOpen(!subOpen);
-        setSelecetedName(name)
+        setSelecetedName(name);
     };
-    const userData = useUserStore((state) => state.userData);
 
     const toggleSubMore = (name: any) => {
         setSubMoreOpen(!subMoreOpen);
-        setSelecetedMoreName(name)
+        setSelecetedMoreName(name);
     };
 
     const isActive = (data: any, pathname: string) => {
@@ -192,17 +221,6 @@ const Sidebar = () => {
     };
     return (
         <div className="sidebar relative">
-            {openEstateList && (
-                <div className="fixed inset-0 z-40 bg-black bg-opacity-50 flex justify-start">
-                    <div className="w-full h-fit mt-[12%] ml-[2%] shadow-lg">
-                        <PickEstate closeRef={closeRef} />
-                    </div>
-                </div>
-                //  <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
-                //  <PickEstate />
-                // </CustomModal>
-            )}
-
             <div className="shadow-lg">
                 <div className="w-full h-[1024px] px-6 flex flex-col py-10">
                     <Link href={"/"} className='w-full mt-2'>
@@ -214,25 +232,39 @@ const Sidebar = () => {
                         />
                     </Link>
 
-                    {userData ?
+                    {estatesData && estatesData?.length > 0 && selectedCommunity &&
                         <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                             <div className='flex gap-2 items-center'>
                                 <div className="w-6 h-6 rounded-full overflow-hidden">
-                                    <Image
-                                        src={"/houses.jpg"}
-                                        alt={"estate-img"}
-                                        width={24}
-                                        height={24}
-                                        className="object-cover w-full h-full"
-                                    />
+                                    {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                        <Image
+                                            src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                            alt={"estate-img"}
+                                            width={40}
+                                            height={40}
+                                            className="object-cover w-full h-full"
+                                        /> :
+                                        <Image
+                                            src={"/houses.jpg"}
+                                            alt={"estate-img"}
+                                            width={40}
+                                            height={40}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    }
                                 </div>
-                                Golden Palms Estate
+                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
                             </div>
                             <div className='mt-1.5'>
                                 <ArrowDown size={20} className='#4E4E4E' />
                             </div>
                         </button>
-                        : <button onClick={() => router.push("/add-estate")} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
+                    }
+                    {(communityProfile && estatesData?.length === 0) &&
+                        <button onClick={() => {
+                            clearForm()
+                            router.push("/add-estate")
+                        }} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-BlueHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                             <span className='flex gap-4 items-center'><EstateAddIcon /> Add New Estate</span> <AddIcon />
                         </button>
                     }
@@ -250,7 +282,7 @@ const Sidebar = () => {
                                     >
                                         <Link
                                             href={data.link}
-                                            className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
+                                            className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} relative h-[40px] px-2 flex items-center rounded-md gap-3 text-[16px] font-[500] 
                                                     ${isActive(data, pathname) ? "bg-BlueHomz text-white" : "hover:bg-whiteblue text-GrayHomz"}
                                                     `}
                                         >
@@ -259,7 +291,8 @@ const Sidebar = () => {
 
                                             {/* Name and Arrow */}
                                             <div className="flex items-center justify-between flex-1">
-                                                <span className="text-start">{data.name}</span>
+                                                <span className="text-start">{data.name}  {data?.coming_Soon && <span className='absolute top-3 right-8 text-xs text-Success italic font-normal'>coming soon!</span>}
+                                                </span>
 
                                                 {/* Arrow - rotates only if this item is open */}
                                                 <div className={`transition-transform ${subMoreOpen ? "rotate-180" : ""}`}>
@@ -319,7 +352,7 @@ const Sidebar = () => {
                                 <Link
                                     key={data.id}
                                     href={data.link}
-                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
+                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} relative h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${pathname === data.link
                                         ? "bg-BlueHomz text-white"
                                         : " hover:bg-whiteblue"
                                         } `}
@@ -335,7 +368,7 @@ const Sidebar = () => {
                                     )}
                                     <div className="flex items-center w-full">
                                         <span className="w-[150px] text-start">{data.name}
-                                            {/* {data?.coming_Soon && <span className='text-xs text-Success italic font-normal'>coming soon!</span>} */}
+                                            {data?.coming_Soon && <span className='absolute top-3 right-0 text-xs text-Success italic font-normal'>coming soon!</span>}
                                         </span>
                                         <p
                                             className={`${data?.active === true ? "bg-error" : "bg-transparent"
@@ -381,7 +414,7 @@ const Sidebar = () => {
                                         <hr
                                             style={{
                                                 width: "1.5px",
-                                                height: "106px",
+                                                height: "30px",
                                                 borderWidth: "0",
                                                 background: "#4E4E4E",
                                             }}
@@ -391,6 +424,11 @@ const Sidebar = () => {
                                                 return (
                                                     <Link
                                                         key={idx}
+                                                        onClick={async () => {
+                                                            if (subItem?.title === "Logout") {
+                                                                await logOutUser()
+                                                            }
+                                                        }}
                                                         href={subItem.link}
                                                         className={`flex flex-row space-x-2 items-center p-1 rounded-md hover:bg-whiteblue px-2 ${subItem.link === pathname
                                                             ? "text-BlueHomz" :

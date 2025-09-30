@@ -1,23 +1,35 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { removeEmptyFields } from '@/app/utils/removeEmptyFields';
 import CustomInput from '@/components/general/customInput';
+import DotLoader from '@/components/general/dotLoader';
 import ActiveToggle from '@/components/icons/activeToggle';
 import ArrowDown from '@/components/icons/arrowDown';
 import CopyIcon from '@/components/icons/copyIcon';
 import DateIcon from '@/components/icons/dateIcon';
 import InactiveToggle from '@/components/icons/inactiveToggle';
 import WarningIcon from '@/components/icons/warningIcon';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import api from '@/utils/api';
 import React from 'react'
+import toast from 'react-hot-toast';
 interface AddManualFormProps {
     setOpenAddManual: (data: boolean) => void;
     setOpenSuccessModal: (data: boolean) => void;
 }
 const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormProps) => {
     const [isOpen, setIsOpen] = React.useState(true);
+    // const [accessCode, setAccessCode] = React.useState<string>("");
+    const [loading, setLoading] = React.useState(false);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const [formData, setFormData] = React.useState({
         visitorName: '',
         visitPurpose: '',
         phoneNo: '',
         NoOfPersons: '',
+        arrivalDate: '',
+        startTime: '',
+        endTime: ''
     });
     const [timeCode, setTimeCode] = React.useState<string>("One-Time");
     const handleDropdownToggle = () => {
@@ -29,6 +41,98 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
             ...prev,
             [field]: value
         }));
+    };
+
+    const onGenerateCode = async () => {
+        setLoading(true);
+        try {
+            // Format the payload according to the expected structure
+            const payload = {
+                visitor: formData.visitorName,
+                purpose: formData.visitPurpose,
+                phoneNumber: formData.phoneNo,
+                numberOfVisitors: parseInt(formData.NoOfPersons) || 1,
+                arrivalDate: formData.arrivalDate ? new Date(formData.arrivalDate).toISOString() : "",
+                codeType: timeCode === "One-Time" ? "One-Time Code" : "Permanent Code",
+                expectedArrivalTime: timeCode === "One-Time" ? {
+                    from: formData.startTime ? new Date(`${formData.arrivalDate}T${formData.startTime}`).toISOString() : "",
+                    to: formData.endTime ? new Date(`${formData.arrivalDate}T${formData.endTime}`).toISOString() : ""
+                } : undefined
+            };
+
+            // Make API request
+            await api.post(
+                `/access-control/community-manager/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`,
+                removeEmptyFields(payload)
+            );
+            setOpenSuccessModal(true);
+            setOpenAddManual(false);
+            // // Show success toast
+            // toast.success("Code generated!", {
+            //     position: "top-center",
+            //     duration: 2000,
+            //     style: {
+            //         background: "#E8F5E9",
+            //         color: "#2E7D32",
+            //         fontWeight: 500,
+            //         padding: "12px 20px",
+            //         borderRadius: "8px",
+            //         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            //     },
+            // });
+
+            // setCodeGenerated(true);
+
+        } catch (error: any) {
+            console.log(error)
+            const majorBackendError = error?.response?.data?.errors?.[0]?.message
+            const backendMessage = error?.response?.data?.message;
+            const backendMessageTwo = error?.response?.data?.message?.[0];
+            const fallbackMessage = error?.message || "An error occurred, can't generate code";
+
+            // Show toast notification
+            toast.error(
+                majorBackendError ||
+                backendMessage ||
+                backendMessageTwo ||
+                fallbackMessage,
+                {
+                    position: "top-center",
+                    duration: 5000,
+                }
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const copyToClipboard = () => {
+        const message = `Hi ${formData.visitorName},
+
+        Your ${timeCode.toLowerCase()} access code is: 
+
+        Location: ${selectedCommunity?.basicDetails?.name}
+        From: ${formData.arrivalDate}, ${formData.startTime}
+        To: ${formData.arrivalDate}, ${formData.endTime}
+
+        To start enjoying Homz.ng access control in your community too, send an email to support@homz.ng.
+
+        Powered by Homz.ng`;
+
+        navigator.clipboard.writeText(message)
+            .then(() => {
+                toast.success("Message copied to clipboard!", {
+                    position: "top-center",
+                    duration: 2000,
+                });
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                toast.error("Failed to copy message", {
+                    position: "top-center",
+                    duration: 2000,
+                });
+            });
     };
 
     return (
@@ -155,8 +259,8 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                         }
 
                         <div className='mt-4 mb-2 font-medium text-sm flex flex-col-reverse gap-4 md:flex-row md:justify-end items-center md:gap-2'>
-                            <button onClick={() => setOpenAddManual(false)} className='w-full md:w-auto text-GrayHomz'>Close</button>
-                            <button onClick={() => setCodeGenerated(true)} className='w-full md:w-auto text-white bg-BlueHomz p-3 rounded-[4px]'>Add Record</button>
+                            <button disabled={loading} onClick={() => setOpenAddManual(false)} className='w-full md:w-auto text-GrayHomz'>Close</button>
+                            <button onClick={() => onGenerateCode()} className={`${loading ? "pointer-events-none flex justify-center h-[48px]" : ""} w-full md:w-auto text-white bg-BlueHomz p-3 rounded-[4px]`}>{loading ? <DotLoader /> : "Add Record"}</button>
                         </div>
                     </div>
                     :
@@ -165,28 +269,31 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                         <h4 className='mt-1 text-[13px] md:text-[16px] font-normal text-GrayHomz'>Copy and share the message below with your visitor.</h4>
                         <div className='mt-4 bg-inputBg p-4 rounded-[8px] space-y-4'>
                             <div className="text-GrayHomz text-sm font-medium space-y-4">
-                                <p>Hi [Visitor Name],</p>
+                                <p>Hi {formData.visitorName},</p>
 
-                                <p>Your [one-time/permanent] access code is: <strong>2009757</strong></p>
+                                <p>Your {timeCode.toLowerCase()} access code is: <strong></strong></p>
 
                                 <p>
-                                    Location: [Resident Address] <br />
-                                    From: [Start Date], [Start Time] <br />
-                                    To: [End Date], [End Time]
+                                    Location: {selectedCommunity?.basicDetails?.name} <br />
+                                    From: {formData.arrivalDate}, {formData.startTime} <br />
+                                    To: {formData.arrivalDate}, {formData.endTime}
                                 </p>
 
                                 <p>
-                                    To start enjoying [Company Name] access control in your community too, send an email to <span className="text-blue-600">[support@email.com]</span>.
+                                    To start enjoying Homz.ng access control in your community too, send an email to <span className="text-blue-600">support@homz.ng</span>.
                                 </p>
 
                                 <p className="font-bold">Powered by Homz.ng</p>
                             </div>
-                            <button className='flex gap-2 items-center text-[16px] text-BlueHomz font-normal'>
+                            <button
+                                onClick={copyToClipboard}
+                                className='flex gap-2 items-center text-[16px] text-BlueHomz font-normal'
+                            >
                                 <CopyIcon />
                                 Copy message
                             </button>
                         </div>
-                        <div className='flex justify-between items-center mt-6'>
+                        {/* <div className='flex justify-between items-center mt-6'>
                             <span className='border border-GrayHomz5 w-[45%]' />
                             <span className="font-normal w-[10%] text-center text-sm md:text-[16px] text-GrayHomz">
                                 OR
@@ -214,13 +321,23 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                                     Send Code
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
                         <div className='mt-4 flex items-start gap-2'>
                             <WarningIcon />
                             <span className='font-normal text-sm md:text-[15px] mt-0.5 text-GrayHomz'>
                                 Access codes are unique and expire after the stated date/time.
                             </span>
                         </div>
+                        <button
+                            onClick={async () => {
+                                setOpenSuccessModal(true);
+                                setCodeGenerated(false);
+                                setOpenAddManual(false);
+                            }}
+                            className='w-full mt-4 rounded-[4px] bg-BlueHomz text-white text-sm font-normal h-[45px] flex items-center justify-center'
+                        >
+                            Done
+                        </button>
                     </div>
             }
         </div>

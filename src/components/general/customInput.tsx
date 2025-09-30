@@ -69,6 +69,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         'pr-10': rightIcon,
       },
       borderColor ? `border border-[${borderColor}]` : 'border border-[#A9A9A9]',
+      type === 'number' ? '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none' : '',
       className
     );
 
