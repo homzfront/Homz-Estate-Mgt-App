@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import Sidebar from '../components/sidebar';
 import Header from '../../components/header';
 import MobileFooter from '../components/mobileFooter';
@@ -13,7 +13,9 @@ const Layout = ({
             <Sidebar />
             <div className='main w-full' >
                 <Header />
-                {children}
+                <Suspense fallback={<div className='h-screen flex justify-center items-center w-full'>Loading...</div>}>
+                    {children}
+                </Suspense>
                 <MobileFooter />
             </div>
         </div>

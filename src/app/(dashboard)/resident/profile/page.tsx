@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import CustomInput from '@/components/general/customInput'
 import ArrowLeft16Long from '@/components/icons/arrowLeft16Long'

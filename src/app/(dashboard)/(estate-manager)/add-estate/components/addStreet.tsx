@@ -1,190 +1,154 @@
-import CustomInput from '@/components/general/customInput'
-import Dropdown from '@/components/general/dropDown'
+import CustomInput from '@/components/general/customInput';
+import Dropdown from '@/components/general/dropDown';
 import AddIcon from '@/components/icons/addIcon';
 import ArrowDown from '@/components/icons/arrowDown';
-import MiniClose from '@/components/icons/miniClose'
+import MiniClose from '@/components/icons/miniClose';
 import RemoveIcon from '@/components/icons/removeIcon';
-import React from 'react'
+import { Street, useEstateFormStore } from '@/store/useEstateFormStore';
+import React from 'react';
 
-interface AddStreetProps {
-    handleInputChange: (field: string, value: string) => void;
-    formData: {
-        estateName: string;
-        area: string;
-        state: string;
-    };
-};
-
-const AddStreet = ({ handleInputChange, formData }: AddStreetProps) => {
+const AddStreet = () => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [isOpenTwo, setIsOpenTwo] = React.useState(false);
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
+    const toggleDropdown = () => setIsOpen(!isOpen);
+    const toggleDropdownTwo = () => setIsOpenTwo(!isOpenTwo);
+
+    const { formData, setStreets } = useEstateFormStore();
+    const [localStreets, setLocalStreets] = React.useState<Street[]>(
+        formData?.streets?.length ? formData?.streets : [{ id: 1, label: '', zone: '' }]
+    );
+
+    // Sync with store when localStreets change
+    React.useEffect(() => {
+        setStreets(localStreets.filter(street => street.label.trim() !== ''));
+    }, [localStreets, setStreets]);
+
+    const handleAddStreet = () => {
+        const newId = localStreets.length ? Math.max(...localStreets.map(s => s.id)) + 1 : 1;
+        setLocalStreets([...localStreets, { id: newId, label: '', zone: '' }]);
     };
-    const toggleDropdownTwo = () => {
-        setIsOpenTwo(!isOpenTwo);
+
+    const handleRemoveStreet = (id: number) => {
+        if (localStreets.length > 1) {
+            setLocalStreets(localStreets.filter(street => street.id !== id));
+        }
     };
-    const areaOptions = [
-        { id: 1, label: "Lekki Phase 1" },
-        { id: 2, label: "Victoria Island" },
-        { id: 3, label: "Ikoyi" }
-    ];
+
+    const handleUpdateStreetLabel = (id: number, value: string) => {
+        setLocalStreets(localStreets.map(street =>
+            street.id === id ? { ...street, label: value } : street
+        ));
+    };
+
+    const handleUpdateStreetZone = (id: number, value: string) => {
+        setLocalStreets(localStreets.map(street =>
+            street.id === id ? { ...street, zone: value } : street
+        ));
+    };
 
     return (
         <div className="mt-8">
-            {/** desk-top **/}
+            {/** Mobile View **/}
             <div className="md:hidden flex flex-col gap-6">
-                <div className='flex flex-col gap-4 '>
-                    <button onClick={toggleDropdown} className="bg-GrayHomz6 p-4 rounded-[12px] flex items-center justify-between w-full">
-                        <p className='text-sm font-medium text-BlackHomz'>
-                            [Street Name]
-                        </p>
-                        <span className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}>
-                            <ArrowDown size={20} className="#4E4E4E" />
-                        </span>
-                    </button>
-                    {
-                        isOpen && (
+                {localStreets && localStreets?.map((street, index) => (
+                    <div key={street.id} className='flex flex-col gap-4'>
+                        <button
+                            onClick={index === 0 ? toggleDropdown : toggleDropdownTwo}
+                            className="bg-GrayHomz6 p-4 rounded-[12px] flex items-center justify-between w-full"
+                        >
+                            <p className='text-sm font-medium text-BlackHomz'>
+                                {street.label || '[Street Name]'}
+                            </p>
+                            <span className={`w-5 h-5 transition-transform duration-200 ${(index === 0 && isOpen) || (index !== 0 && isOpenTwo) ? "transform rotate-180" : ""}`}>
+                                <ArrowDown size={20} className="#4E4E4E" />
+                            </span>
+                        </button>
+
+                        {(index === 0 && isOpen) || (index !== 0 && isOpenTwo) ? (
                             <div className="flex flex-col gap-4 bg-[#FCFCFC] p-4 rounded-[12px]">
                                 <CustomInput
                                     label="Street Name"
                                     placeholder="e.g Adegoke Street"
-                                    value={formData.estateName}
-                                    onValueChange={(value) => handleInputChange('estateName', value)}
+                                    value={street.label}
+                                    onValueChange={(value) => handleUpdateStreetLabel(street.id, value)}
                                     className='h-[45px] pl-4'
                                 />
                                 <div className='flex items-center gap-4'>
                                     <div className='flex flex-col gap-1 w-full text-sm'>
                                         <div className='mb-1'>Select Zone (optional)</div>
                                         <Dropdown
-                                            options={areaOptions}
-                                            onSelect={(option) => handleInputChange('area', option.label)}
-                                            selectOption="Select zone"
+                                            options={formData?.zones}
+                                            onSelect={(option) => handleUpdateStreetZone(street.id, option.label)}
+                                            selectOption={street?.zone ? street?.zone : `Select Zone`}
                                             showSearch={false}
                                             borderColor='border-[#A9A9A9]'
                                             arrowColor='#A9A9A9'
                                         />
                                     </div>
                                 </div>
+                                {index !== 0 && (
+                                    <span
+                                        className='text-sm font-normal text-error flex items-center gap-1 cursor-pointer'
+                                        onClick={() => handleRemoveStreet(street.id)}
+                                    >
+                                        <RemoveIcon /> Remove
+                                    </span>
+                                )}
                             </div>
-                        )
-                    }
-                </div>
-                <div className='flex flex-col gap-4 '>
-                    <button onClick={toggleDropdownTwo} className="bg-GrayHomz6 p-4 rounded-[12px] flex items-center justify-between w-full">
-                        <p className='text-sm font-medium text-BlackHomz'>
-                            [Street Name]
-                        </p>
-                        <span className={`w-5 h-5 transition-transform duration-200 ${isOpenTwo ? "transform rotate-180" : ""}`}>
-                            <ArrowDown size={20} className="#4E4E4E" />
-                        </span>
-                    </button>
-                    {
-                        isOpenTwo && (
-                            <div className="flex flex-col gap-4 bg-[#FCFCFC] p-4 rounded-[12px]">
-                                <CustomInput
-                                    label="Street Name"
-                                    placeholder="e.g Adegoke Street"
-                                    value={formData.estateName}
-                                    onValueChange={(value) => handleInputChange('estateName', value)}
-                                    className='h-[45px] pl-4'
-                                />
-                                <div className='flex items-center gap-4'>
-                                    <div className='flex flex-col gap-1 w-full text-sm'>
-                                        <div className='mb-1'>Select Zone (optional)</div>
-                                        <Dropdown
-                                            options={areaOptions}
-                                            onSelect={(option) => handleInputChange('area', option.label)}
-                                            selectOption="Select zone"
-                                            showSearch={false}
-                                            borderColor='border-[#A9A9A9]'
-                                            arrowColor='#A9A9A9'
-                                        />
-                                    </div>
-                                </div>
-                                <span className='text-sm font-normal text-error flex items-center gap-1'><RemoveIcon /> Remove</span>
-                            </div>
-                        )
-                    }
-                </div>
+                        ) : null}
+                    </div>
+                ))}
+                <button
+                    className='text-sm font-normal text-BlueHomz flex items-center gap-2'
+                    onClick={handleAddStreet}
+                >
+                    <AddIcon /> Add New Street
+                </button>
             </div>
 
-            {/** mobile **/}
+            {/** Desktop View **/}
             <div className="hidden md:flex flex-col gap-6 bg-[#FCFCFC] p-4 rounded-[12px]">
-                <div className='flex items-center gap-4'>
-                    <CustomInput
-                        label="Street Name"
-                        placeholder="e.g Adegoke Street"
-                        value={formData.estateName}
-                        onValueChange={(value) => handleInputChange('estateName', value)}
-                        className='h-[45px] pl-4'
-                    />
-                    <div className='flex flex-col gap-1 w-full text-sm'>
-                        <div className='mb-1'>Select Zone (optional)</div>
-                        <Dropdown
-                            options={areaOptions}
-                            onSelect={(option) => handleInputChange('area', option.label)}
-                            selectOption="Select zone"
-                            showSearch={false}
-                            borderColor='border-[#A9A9A9]'
-                            arrowColor='#A9A9A9'
-                        />
-                    </div>
-                </div>
-                <div className='flex items-center gap-4'>
-                    <div className='flex items-center gap-4 w-[95%]'>
-                        <CustomInput
-                            label="Street Name"
-                            placeholder="White House"
-                            value={formData.estateName}
-                            onValueChange={(value) => handleInputChange('estateName', value)}
-                            className='h-[45px] pl-4'
-                        />
-                        <div className='flex flex-col gap-1 w-full text-sm'>
-                            <div className='mb-1'>Select Zone (optional)</div>
-                            <Dropdown
-                                options={areaOptions}
-                                onSelect={(option) => handleInputChange('area', option.label)}
-                                selectOption="Select zone"
-                                showSearch={false}
-                                borderColor='border-[#A9A9A9]'
-                                arrowColor='#A9A9A9'
+                {localStreets && localStreets?.map((street) => (
+                    <div key={street.id} className='flex items-center gap-4'>
+                        <div className='flex items-center gap-4 w-[95%]'>
+                            <CustomInput
+                                label="Street Name"
+                                placeholder="e.g Adegoke Street"
+                                value={street.label}
+                                onValueChange={(value) => handleUpdateStreetLabel(street.id, value)}
+                                className='h-[45px] pl-4'
                             />
+                            <div className='flex flex-col gap-1 w-full text-sm'>
+                                <div className='mb-1'>Select Zone (optional)</div>
+                                <Dropdown
+                                    options={formData?.zones}
+                                    onSelect={(option) => handleUpdateStreetZone(street.id, option.label)}
+                                    selectOption={street?.zone ? street?.zone : `Select Zone`}
+                                    showSearch={false}
+                                    borderColor='border-[#A9A9A9]'
+                                    arrowColor='#A9A9A9'
+                                />
+                            </div>
                         </div>
+                        {localStreets.length > 1 && (
+                            <button
+                                className='cursor-pointer mt-6'
+                                onClick={() => handleRemoveStreet(street.id)}
+                            >
+                                <MiniClose />
+                            </button>
+                        )}
                     </div>
-                    <button className='cursor-pointer mt-6'>
-                        <MiniClose />
-                    </button>
-                </div>
-                <div className='flex items-center gap-4'>
-                    <div className='flex items-center gap-4 w-[95%]'>
-                        <CustomInput
-                            label="Street Name"
-                            placeholder="e.g White House"
-                            value={formData.estateName}
-                            onValueChange={(value) => handleInputChange('estateName', value)}
-                            className='h-[45px] pl-4'
-                        />
-                        <div className='flex flex-col gap-1 w-full text-sm'>
-                            <div className='mb-1'>Select Zone (optional)</div>
-                            <Dropdown
-                                options={areaOptions}
-                                onSelect={(option) => handleInputChange('area', option.label)}
-                                selectOption="Select zone"
-                                showSearch={false}
-                                borderColor='border-[#A9A9A9]'
-                                arrowColor='#A9A9A9'
-                            />
-                        </div>
-                    </div>
-                    <button className='cursor-pointer mt-6'>
-                        <MiniClose />
-                    </button>
-                </div>
-                <button className='text-sm md:text-[16px] font-normal text-BlueHomz flex items-center gap-2'> <AddIcon /> Add New Street</button>
+                ))}
+                <button
+                    className='text-sm md:text-[16px] font-normal text-BlueHomz flex items-center gap-2'
+                    onClick={handleAddStreet}
+                >
+                    <AddIcon /> Add New Street
+                </button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default AddStreet
+export default AddStreet;

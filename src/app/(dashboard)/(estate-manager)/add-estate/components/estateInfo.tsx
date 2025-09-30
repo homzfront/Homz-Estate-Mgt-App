@@ -1,30 +1,77 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CustomInput from '@/components/general/customInput'
-import Dropdown from '@/components/general/dropDown'
 import AddBlue from '@/components/icons/addBlue'
+import useAreaStore from '@/store/useStateAndAreaStore/useAreaStore';
+import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
 import React from 'react'
+import Dropdown from './dropDown';
+import Image from 'next/image';
+import toast from 'react-hot-toast';
+import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
 
 interface EstateInfoProps {
-    handleInputChange: (field: string, value: string) => void;
+    handleInputChange: (field: keyof EstateFormData, value: string) => void;
     formData: {
         estateName: string;
         area: string;
         state: string;
+        managerPhone: string;
+        utilityPhone: string;
+        accountNumber: string;
+        bankName: string;
+        accountName: string;
+        emergencyPhone: string;
+        securityPhone: string;
+        coverPhoto: any;
     };
 }
 
 const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
-    const areaOptions = [
-        { id: 1, label: "Lekki Phase 1" },
-        { id: 2, label: "Victoria Island" },
-        { id: 3, label: "Ikoyi" }
-    ];
+    const { stateList, loading } = useStateStore()
+    const {
+        setCoverPhoto,
+        // clearForm
+    } = useEstateFormStore();
+    const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
 
-    const stateOptions = [
-        { id: 1, label: "Lagos" },
-        { id: 2, label: "Abuja" },
-        { id: 3, label: "Rivers" }
-    ];
+    React.useEffect(() => {
+        if (formData?.state) {
+            chooseArea(formData?.state)
+        }
+    }, [formData?.state])
 
+    const handleImageUpload = () => {
+        // Create a file input element
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg, image/png';
+
+        input.onchange = (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            if (target.files && target.files[0]) {
+                const file = target.files[0];
+
+                // Check file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    toast.error('File size should be less than 5MB');
+                    return;
+                }
+
+                // Create a preview URL
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    setCoverPhoto(event.target?.result as string);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        input.click();
+    };
+
+    const handleImageRemove = () => {
+        setCoverPhoto(null);
+    };
 
     return (
         <div className="mt-8 space-y-6">
@@ -41,20 +88,20 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Estate Location<span className='text-error'>*</span></label>
-                        <div className='flex flex-col md:flex-row gap-4 '>
+                        <div className='flex flex-col-reverse md:flex-row-reverse gap-4 '>
                             <Dropdown
-                                options={areaOptions}
-                                onSelect={(option) => handleInputChange('area', option.label)}
-                                selectOption="Select Area"
-                                showSearch={false}
+                                options={areaData as any}
+                                isLoading={loadingArea}
+                                onSelect={(option) => handleInputChange('area', option)}
+                                selectOption={formData?.area ? formData?.area : "Select Area"}
                                 borderColor='border-[#A9A9A9]'
                                 arrowColor='#A9A9A9'
                             />
                             <Dropdown
-                                options={stateOptions}
-                                onSelect={(option) => handleInputChange('state', option.label)}
-                                selectOption="Select State"
-                                showSearch={false}
+                                options={stateList as any}
+                                isLoading={loading}
+                                onSelect={(option) => handleInputChange('state', option)}
+                                selectOption={formData?.state ? formData?.state : "Select State"}
                                 borderColor='border-[#A9A9A9]'
                                 arrowColor='#A9A9A9'
                             />
@@ -66,9 +113,44 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                         <h3 className='text-[16px] font-medium text-BlackHomz'>Add Cover Photo <span className='text-GrayHomz'>(optional)</span></h3>
                         <h6 className='text-sm font-normal text-GrayHomz'>Supported formats are .jpg and .png up to 5 mb</h6>
                     </div>
-                    <button className='h-[99px] rounded-[7px] w-[99px] bg-[#EEF5FF] flex justify-center items-center cursor-pointer'>
-                        <AddBlue />
-                    </button>
+
+                    <div className='flex items-start gap-2'>
+                        {/* Image upload button or displayed image */}
+                        {!formData?.coverPhoto ? (
+                            <button
+                                className='h-[99px] rounded-[7px] w-[99px] bg-[#EEF5FF] flex justify-center items-center cursor-pointer'
+                                onClick={handleImageUpload}
+                            >
+                                <AddBlue />
+                            </button>
+                        ) : (
+                            <div className='relative'>
+                                <Image
+                                    src={formData?.coverPhoto}
+                                    height={99}
+                                    width={99}
+                                    className="h-[99px] w-[99px] rounded-[7px] object-cover"
+                                    alt="Cover photo"
+                                />
+                            </div>
+                        )}
+
+                        {/* Delete button - only shown when image exists */}
+                        {formData?.coverPhoto && (
+                            <button
+                                onClick={handleImageRemove}
+                                className='mt-2'
+                            >
+                                <Image
+                                    src="/trush-square.png"
+                                    height={24}
+                                    width={24}
+                                    className="cursor-pointer"
+                                    alt="Delete image"
+                                />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
             <div className="bg-[#FCFCFC] p-4">
@@ -79,31 +161,35 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                     <CustomInput
                         label="Manager’s Phone Number"
                         placeholder="e.g 0701 234 5678"
-                        value={formData.estateName}
-                        onValueChange={(value) => handleInputChange('estateName', value)}
+                        value={formData.managerPhone}
+                        onValueChange={(value) => handleInputChange('managerPhone', value)}
                         required
                         className='h-[45px] pl-4'
+                        type='number'
                     />
                     <CustomInput
                         label="Emergency Phone Number (optional)"
                         placeholder="e.g 0701 234 5678"
-                        value={formData.estateName}
-                        onValueChange={(value) => handleInputChange('estateName', value)}
+                        type='number'
+                        value={formData.emergencyPhone}
+                        onValueChange={(value) => handleInputChange('emergencyPhone', value)}
                         className='h-[45px] pl-4'
                     />
                     <CustomInput
                         label="Utility Services Phone Number (Dry cleaning, Waste disposal, etc)"
                         placeholder="e.g 0701 234 5678"
-                        value={formData.estateName}
-                        onValueChange={(value) => handleInputChange('estateName', value)}
+                        value={formData.utilityPhone}
+                        onValueChange={(value) => handleInputChange('utilityPhone', value)}
                         className='h-[45px] pl-4'
+                        type='number'
                     />
                     <CustomInput
                         label="Security  Phone Number (optional)"
                         placeholder="e.g 0701 234 5678"
-                        value={formData.estateName}
-                        onValueChange={(value) => handleInputChange('estateName', value)}
+                        value={formData.securityPhone}
+                        onValueChange={(value) => handleInputChange('securityPhone', value)}
                         className='h-[45px] pl-4'
+                        type='number'
                     />
                 </div>
             </div>
@@ -116,28 +202,28 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                         <CustomInput
                             label="Account Number"
                             placeholder="e.g 1524368709"
-                            value={formData.estateName}
-                            onValueChange={(value) => handleInputChange('estateName', value)}
+                            value={formData.accountNumber}
+                            onValueChange={(value) => handleInputChange('accountNumber', value)}
+                            required
+                            type='number'
+                            className='h-[45px] pl-4'
+                        />
+                        <CustomInput
+                            label="Bank Name"
+                            placeholder="e.g Access Bank"
+                            value={formData.bankName}
+                            onValueChange={(value) => handleInputChange('bankName', value)}
                             required
                             className='h-[45px] pl-4'
                         />
-                        <div className='flex flex-col gap-1 w-full text-sm'>
-                            <div className='mb-1'>Bank Name <span className='text-error'>*</span></div>
-                            <Dropdown
-                                options={areaOptions}
-                                onSelect={(option) => handleInputChange('area', option.label)}
-                                selectOption="Access Bank"
-                                showSearch={false}
-                                borderColor='border-[#A9A9A9]'
-                                arrowColor='#A9A9A9'
-                            />
-                        </div>
-                        <div className='flex flex-col gap-1 w-full text-sm'>
-                            <h3 className='mb-1'>Account Name</h3>
-                            <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                Auto-filled
-                            </span>
-                        </div>
+                        <CustomInput
+                            label="Account Name"
+                            placeholder="e.g Titi Idowu"
+                            value={formData.accountName}
+                            onValueChange={(value) => handleInputChange('accountName', value)}
+                            required
+                            className='h-[45px] pl-4'
+                        />
                     </div>
                 </div>
             </div>

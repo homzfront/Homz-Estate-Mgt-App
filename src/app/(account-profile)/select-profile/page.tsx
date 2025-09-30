@@ -1,13 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import CustomModal from '@/components/general/customModal';
 import ArrowRightSolid from '@/components/icons/arrowRightSolid';
 import EstateManagement from '@/components/icons/estateManagement';
+import LockIcon from '@/components/icons/lockIcon';
 import Resident from '@/components/icons/resident';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 
 const SelectProfile = () => {
+    const router = useRouter();
     const [hoveredCard, setHoveredCard] = React.useState<number | null>(null);
+    const [openModal, setOpenModal] = React.useState<boolean>(false);
 
     const data = [
         {
@@ -26,7 +30,6 @@ const SelectProfile = () => {
             header: "Resident",
             image: <Resident />,
             imageII: ({ hover }: any) => <Resident className={hover ? "#df2b1eff" : "#D92D20"} classNameII={hover ? "#FFF5F5" : "white"} />,
-            link: "/resident",
             hoverBorderColor: "#D92D20", // Red for Resident
             hoverBgColor: "bg-red-50" // Light red background on hover
         }
@@ -34,6 +37,15 @@ const SelectProfile = () => {
 
     return (
         <div className="min-h-screen">
+            <CustomModal isOpen={openModal} onRequestClose={() => setOpenModal(false)}>
+                <div className={`p-5 rounded-[12px] bg-white flex flex-col justify-center items-center gap-3`}>
+                    <LockIcon />
+                    <h1 className='text-BlackHomz text-[20px] font-semibold text-center'>An invitation is required to continue</h1>
+                    <p className='text-GrayHomz text-[16px] font-normal text-center'>
+                        Please notify your estate manager to send you an invite link. Once you receive the invite, click the link to resume your onboarding
+                    </p>
+                </div>
+            </CustomModal>
             {/* Header */}
             <div className='w-full bg-gradient-to-r from-BlueHomz2 to-BlueHomzDark py-[60px] px-[24px]'>
                 <div className='w-full flex justify-center items-center'>
@@ -73,9 +85,17 @@ const SelectProfile = () => {
                                         <h1 className='mt-4 text-BlackHomz font-semibold text-[20px]'>{data.header}</h1>
                                         <p className='mt-1 text-[#4E4E4E] font-normal text-[16px]'>{data.text}</p>
                                     </div>
-                                    <Link href={`${data.link}`} className='cursor-pointer'>
+                                    <button
+                                        onClick={() => {
+                                            if (data.link) { router.push(`${data.link}`) }
+                                            else {
+                                                setOpenModal(true);
+                                            }
+                                        }}
+                                        className='cursor-pointer'
+                                    >
                                         <ArrowRightSolid />
-                                    </Link>
+                                    </button>
                                 </div>
                             ))}
                         </div>
