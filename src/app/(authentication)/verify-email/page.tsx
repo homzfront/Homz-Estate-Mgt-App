@@ -25,7 +25,7 @@ const VerifyEmail = () => {
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
-  const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
+  const { isResident, token, estateId, organizationId } = useResidentStore()
 
   const startTimer = () => {
     setSeconds(60);
