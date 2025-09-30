@@ -137,7 +137,7 @@ const VerifyEmail = () => {
         estateId: estateId as any
       }).toString()
 
-      router.push(`/resident?${params}`)
+      router.push(`/invitation?${params}`)
     } else {
       router.push("/select-profile");
     }
