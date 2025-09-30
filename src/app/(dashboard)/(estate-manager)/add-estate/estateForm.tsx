@@ -241,9 +241,15 @@ const EstateForm = () => {
                             clearForm();
                             router.push("/dashboard");
                         }}
-                        handleBack={() => setIsOpen(false)}
+                        handleBack={() => {
+                            clearForm();
+                            setIsOpen(false);
+                        }}
                         isOpen={isOpen}
-                        closeSuccessModal={() => setIsOpen(false)}
+                        closeSuccessModal={() => {
+                            clearForm();
+                            setIsOpen(false);
+                        }}
                     />
                 }
                 {/* Back button */}

@@ -352,7 +352,7 @@ const Table = ({
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             {data?.codeType}
                                         </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize pointer-events-auto">
+                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize pointer-events-none">
                                             {['pending','signed in','signed out'].includes((data.accessStatus || '').toLowerCase()) ? (
                                                 <div className="flex items-center gap-2">
                                                     <StatusDropDown
