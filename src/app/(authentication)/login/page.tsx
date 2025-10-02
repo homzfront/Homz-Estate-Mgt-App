@@ -95,7 +95,7 @@ const Login = () => {
             estateId: estateId as any
           }).toString()
 
-          router.push(`/invitation?${params}`)
+          router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
           // Redirect to profile
