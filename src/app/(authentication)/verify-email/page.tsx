@@ -10,10 +10,11 @@ import api from "@/utils/api";
 import { useAuthSlice } from "@/store/authStore";
 import toast from "react-hot-toast";
 import DotLoader from "@/components/general/dotLoader";
+import { useResidentStore } from "@/store/useResidentStore";
 
 const VerifyEmail = () => {
   const router = useRouter();
-  const { userData } = useAuthSlice();
+  const { userData, setUserData } = useAuthSlice();
   const email = userData?.email;
   const [error, setError] = useState(false);
   const [error2, setError2] = useState("");
@@ -24,6 +25,7 @@ const VerifyEmail = () => {
   const [timer, setTimer] = useState(false);
   const [resend, setResend] = useState(false);
   const [seconds, setSeconds] = useState(60);
+  const { isResident, token, estateId, organizationId } = useResidentStore()
 
   const startTimer = () => {
     setSeconds(60);
@@ -75,6 +77,11 @@ const VerifyEmail = () => {
           },
         }
       );
+      // Fetch user profile
+      const profile = await api.get("/auth/current-user");
+
+      // Store user data
+      setUserData(profile.data.data);
       setVerificationSuccess(true);
       setError(false);
       setError2("");
@@ -120,7 +127,7 @@ const VerifyEmail = () => {
     }
   };
 
-  
+
   useEffect(() => {
     startTimer()
   }, [])
@@ -128,7 +135,17 @@ const VerifyEmail = () => {
 
   const handleEmailVerification = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/select-profile");
+    if (isResident && organizationId && estateId && token) {
+      const params = new URLSearchParams({
+        invitation: token as any,
+        organizationId: organizationId as any,
+        estateId: estateId as any
+      }).toString()
+
+      router.push(`/resident/invitations/create?${params}`)
+    } else {
+      router.push("/select-profile");
+    }
   };
 
   const handleInputChange = (index: number, value: string) => {

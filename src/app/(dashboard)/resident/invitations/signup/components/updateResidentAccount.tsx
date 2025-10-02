@@ -13,18 +13,18 @@ const UpdateResidentAccount = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [formData, setFormData] = useState({
-        firstName: '[Autofilled - First Name]',
-        lastName: '[Autofilled - Last Name]',
-        estateName: 'Auto filled', // Non-editable as per image
-        zone: 'None', // Non-editable dropdown as per image
-        streetName: '[Select Name]', // Non-editable dropdown as per image
-        building: '[Building Name]', // Non-editable as per image
-        apartment: '[Apartment Name]', // Non-editable as per image
-        ownershipType: 'I am renting this apartment', // Non-editable as per image
-        rentDuration: 'e.g 12', // Non-editable as per image
-        rentStartDate: '[Rent Start Date]', // Non-editable as per image
-        rentDueDate: '[Rent Due Date]', // Non-editable as per image
-        durationType: 'Months/Years' // Non-editable as per image
+        firstName: '',
+        lastName: '',
+        estateName: '', // Non-editable as per image
+        zone: '', // Non-editable dropdown as per image
+        streetName: '', // Non-editable dropdown as per image
+        building: '', // Non-editable as per image
+        apartment: '', // Non-editable as per image
+        ownershipType: '', // Non-editable as per image
+        rentDuration: '', // Non-editable as per image
+        rentStartDate: '', // Non-editable as per image
+        rentDueDate: '', // Non-editable as per image
+        durationType: '' // Non-editable as per image
     });
 
     const handleInputChange = (field: any, value: any) => {
@@ -133,6 +133,7 @@ const UpdateResidentAccount = () => {
                 <div className="border-t border-gray-200 my-2"></div>
 
                 {/* Estate Name Field */}
+                {formData.estateName && (
                 <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-gray-700">
                         Estate Name <span className="text-red-500">*</span>
@@ -141,9 +142,11 @@ const UpdateResidentAccount = () => {
                         {formData.estateName}
                     </div>
                 </div>
+                )}
 
                 {/* Zone and Street Name Fields */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
+                    {formData.zone && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Select Zone (optional)
@@ -152,6 +155,8 @@ const UpdateResidentAccount = () => {
                             {formData.zone}
                         </div>
                     </div>
+                    )}
+                    {formData.streetName && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Street Name <span className="text-red-500">*</span>
@@ -160,10 +165,12 @@ const UpdateResidentAccount = () => {
                             {formData.streetName}
                         </div>
                     </div>
+                    )}
                 </div>
 
                 {/* Building and Apartment Fields */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
+                    {formData.building && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Building <span className="text-red-500">*</span>
@@ -172,6 +179,8 @@ const UpdateResidentAccount = () => {
                             {formData.building}
                         </div>
                     </div>
+                    )}
+                    {formData.apartment && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Apartment <span className="text-red-500">*</span>
@@ -180,9 +189,11 @@ const UpdateResidentAccount = () => {
                             {formData.apartment}
                         </div>
                     </div>
+                    )}
                 </div>
 
                 {/* Ownership Type */}
+                {formData.ownershipType && (
                 <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-gray-700">
                         Select Ownership Type <span className="text-red-500">*</span>
@@ -191,8 +202,10 @@ const UpdateResidentAccount = () => {
                         {formData.ownershipType}
                     </div>
                 </div>
+                )}
 
                 {/* Rent Duration */}
+                {formData.rentDuration && (
                 <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-gray-700">
                         Rent Duration <span className="text-red-500">*</span>
@@ -201,9 +214,11 @@ const UpdateResidentAccount = () => {
                         {formData.rentDuration}  <span>{formData.durationType}</span>
                     </div>
                 </div>
+                )}
 
                 {/* Rent Start Date and Rent Due Date */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
+                    {formData.rentStartDate && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Rent Start Date <span className="text-red-500">*</span>
@@ -212,6 +227,8 @@ const UpdateResidentAccount = () => {
                             {formData.rentStartDate}
                         </div>
                     </div>
+                    )}
+                    {formData.rentDueDate && (
                     <div className="flex-1 flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-700">
                             Rent Due Date <span className="text-red-500">*</span>
@@ -220,6 +237,7 @@ const UpdateResidentAccount = () => {
                             {formData.rentDueDate}
                         </div>
                     </div>
+                    )}
                 </div>
 
                 {/* Submit Button */}
