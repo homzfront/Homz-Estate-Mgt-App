@@ -14,7 +14,7 @@ import { useResidentStore } from "@/store/useResidentStore";
 
 const VerifyEmail = () => {
   const router = useRouter();
-  const { userData } = useAuthSlice();
+  const { userData, setUserData } = useAuthSlice();
   const email = userData?.email;
   const [error, setError] = useState(false);
   const [error2, setError2] = useState("");
@@ -77,6 +77,11 @@ const VerifyEmail = () => {
           },
         }
       );
+      // Fetch user profile
+      const profile = await api.get("/auth/current-user");
+
+      // Store user data
+      setUserData(profile.data.data);
       setVerificationSuccess(true);
       setError(false);
       setError2("");
@@ -137,7 +142,7 @@ const VerifyEmail = () => {
         estateId: estateId as any
       }).toString()
 
-      router.push(`/invitation?${params}`)
+      router.push(`/resident/invitations/create?${params}`)
     } else {
       router.push("/select-profile");
     }
