@@ -28,9 +28,13 @@ import React from 'react'
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useAuthSlice } from '@/store/authStore'
+import { useRouter } from 'next/navigation'
 
 const EstateHomePage = () => {
+    const router = useRouter();
     const [activeBilling, setActiveBilling] = React.useState<any>(null);
+    const { userData, residentProfile } = useAuthSlice();
     const settings = {
         dots: true,
         infinite: true,
@@ -85,6 +89,10 @@ const EstateHomePage = () => {
             description: "View each tenant's full record of past payments and outstanding balances."
         }
     ];
+
+    const handleRoute = () => {
+        router.push(residentProfile?._id ? "/resident/dashboard" : (userData) ? "/dashboard" : "/login");
+    }
 
     return (
         <div className='w-full'>
@@ -185,7 +193,7 @@ const EstateHomePage = () => {
                                     Remove or update tenant status
                                 </p>
                             </div>
-                            <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                            <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                                 Create Your First Estate <ArrowRight className='#FFFFFF' />
                             </button>
                         </div>
@@ -261,7 +269,7 @@ const EstateHomePage = () => {
                         </Slider>
                     </div>
                     <div className='w-full flex justify-center items-center mt-10'>
-                        <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-[180px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                        <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-[180px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                             Get Started Now <ArrowRight className='#FFFFFF' />
                         </button>
                     </div>
@@ -305,7 +313,7 @@ const EstateHomePage = () => {
                                     Enable secure estate entry
                                 </p>
                             </div>
-                            <button className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full md:w-[260px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                            <button onClick={handleRoute} className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full md:w-[260px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                                 Manage Visitor Access Now <ArrowRight className='#006AFF' />
                             </button>
                         </div>
@@ -358,7 +366,7 @@ const EstateHomePage = () => {
                                     Maintain logs for accountability
                                 </p>
                             </div>
-                            <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                            <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                                 Add Your Security Team <ArrowRight className='#FFFFFF' />
                             </button>
                         </div>

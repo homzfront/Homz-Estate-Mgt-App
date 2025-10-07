@@ -13,11 +13,11 @@ import WhatsappWhite from "../icons/whatsappWhite";
 
 const Footer = () => {
   const propertyLinks = [
-    { title: "Houses for rent in Lagos", path: "/properties/listing/rent/lagos" },
-    { title: "Houses for sale in Lagos", path: "/properties/listing/sales/lagos" },
-    { title: "Land for sale in Lagos", path: "/properties/listing/land/lagos" },
-    { title: "Mini flats for rent in Lagos", path: "/properties/listing/rent/lagos/mini-flat" },
-    { title: "Self contain for rent in Lagos", path: "/properties/listing/rent/lagos/self-contain" },
+   { title: "Houses for rent in Lagos", path: `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}rent/lagos` },
+    { title: "Houses for sale in Lagos", path: `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}sales/lagos` },
+    { title: "Land for sale in Lagos", path: `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}land/lagos` },
+    { title: "Mini flats for rent in Lagos", path: `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}rent/lagos/mini-flat` },
+    { title: "Self contain for rent in Lagos", path: `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}rent/lagos/self-contain` },
   ];
 
   return (
@@ -68,19 +68,19 @@ const Footer = () => {
           <div className="flex flex-wrap md:flex-nowrap w-full mt-4 lg:mt-0 gap-4 justify-between">
             <div className="leading-loose mt-0 md:mt-2 xl:mt-0 ">
               <h2 className="font-[700] text-[16px] lg:mb-3 truncate">Useful Links</h2>
-              <Link href={"/about-us"}>
+              <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}about-us`}>
                 <p>About Us</p>
               </Link>
-              <Link href={"/properties/PropertyListing?page=1"}>
+              <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}all`}>
                 <p>Properties</p>
               </Link>
-              <Link href={"/privacy-policy"}>
+              <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}privacy-policy`}>
                 <p>Privacy Policy</p>
               </Link>
-              <Link href={"/terms-and-conditions"}>
+              <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}terms-and-conditions`}>
                 <p>Terms of Use</p>
               </Link>
-              <Link href={"/contact-page"}>
+              <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}contact-page`}>
                 <p>Contact</p>
               </Link>
               <Link href={"http://blog.homz.ng/"}>
