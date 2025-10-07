@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 export default function Home() {
   return (
-    <div className="">
+    <div>
       <Header />
       <div className="m-auto max-w-[1440px]">
         <EstateHomePage />
