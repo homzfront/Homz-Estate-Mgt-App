@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import InitialsAvatar from '@/components/general/InitialsAvatar'
 import ArrowRight from '@/components/icons/arrowRight'
 import BlueSearch from '@/components/icons/blueSearch'
 import EstateInfoIcon from '@/components/icons/estateInfoIcon'
@@ -10,7 +11,7 @@ import { useAuthSlice } from '@/store/authStore'
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore'
 import { useResidentCommunity } from '@/store/useResidentCommunity'
 import { useSelectedEsate } from '@/store/useSelectedEstate'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -39,12 +40,8 @@ const PickEstate = ({ closeRef, setOpenPendingModal }: PickEstateProps) => {
                     <div className='bg-inputBg rounded-[12px] p-3'>
                         <div className='flex gap-2 items-start w-full'>
                             <div className="min-w-[40px] w-10 h-10 rounded-full overflow-hidden">
-                                <Image
-                                    src={"/houses.jpg"}
-                                    alt={"estate-img"}
-                                    width={40}
-                                    height={40}
-                                    className="object-cover w-full h-full"
+                                <InitialsAvatar
+                                    name={(selectedEstate?.estateName) || 'Estate'}
                                 />
                             </div>
                             <div className='flex flex-col gap-1 w-full'>

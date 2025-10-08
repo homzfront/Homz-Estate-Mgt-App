@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import InitialsAvatar from '@/components/general/InitialsAvatar'
 import AddIcon from '@/components/icons/addIcon'
 import ArrowRight from '@/components/icons/arrowRight'
 import BlueSearch from '@/components/icons/blueSearch'
@@ -39,20 +40,16 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                     <div className='bg-inputBg rounded-[12px] p-3'>
                         <div className='flex gap-2 items-start w-full'>
                             <div className="min-w-[40px] w-10 h-10 rounded-full overflow-hidden">
-                                {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                {selectedCommunity?.coverPhoto ?
                                     <Image
-                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : ""}
                                         alt={"estate-img"}
                                         width={40}
                                         height={40}
                                         className="object-cover w-full h-full"
                                     /> :
-                                    <Image
-                                        src={"/houses.jpg"}
-                                        alt={"estate-img"}
-                                        width={40}
-                                        height={40}
-                                        className="object-cover w-full h-full"
+                                    <InitialsAvatar
+                                        name={(selectedCommunity?.basicDetails?.name as string) || 'Estate'}
                                     />
                                 }
                             </div>
