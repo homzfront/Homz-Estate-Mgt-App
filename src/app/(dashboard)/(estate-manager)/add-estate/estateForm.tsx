@@ -132,7 +132,8 @@ const EstateForm = () => {
                     const formData = new FormData();
                     formData.append('coverImage', blob, 'cover-photo.jpg');
 
-                    await api.patch(`/estates/upload/single/cover-photo/${estateManId}/${estateId}`, formData);
+                    await api.patch(`/estates/community-manager/upload/single/cover-photo/organizations/${estateManId}/estates/${estateId}`, formData);
+
                 }
 
             }

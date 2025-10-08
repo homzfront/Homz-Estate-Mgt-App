@@ -1,7 +1,7 @@
-import MessageIcon from '@/components/icons/estateManager&Resident/desktop/messageIcon'
-import NotiIcon from '@/components/icons/estateManager&Resident/desktop/notiIcon'
+// import MessageIcon from '@/components/icons/estateManager&Resident/desktop/messageIcon'
+// import NotiIcon from '@/components/icons/estateManager&Resident/desktop/notiIcon'
 import SearchIcon from '@/components/icons/estateManager&Resident/desktop/searchIcon'
-import Image from 'next/image'
+// import Image from 'next/image'
 import React from 'react'
 
 const Header = () => {
@@ -18,7 +18,7 @@ const Header = () => {
                         <SearchIcon />
                     </div>
                 </div>
-                <div className='flex gap-3 items-center'>
+                {/* <div className='flex gap-3 items-center'>
                     <button>
                         <NotiIcon />
                     </button>
@@ -35,7 +35,7 @@ const Header = () => {
                             className='w-[40px] h-[40px] rounded-full object-cover'
                         />
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>
     )

@@ -16,6 +16,7 @@ import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon
 // import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
 // import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
+import InitialsAvatar from '@/components/general/InitialsAvatar';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
@@ -219,6 +220,7 @@ const Sidebar = () => {
         }
         return false;
     };
+    
     return (
         <div className="sidebar relative">
             <div className="shadow-lg">
@@ -235,25 +237,23 @@ const Sidebar = () => {
                     {estatesData && estatesData?.length > 0 && selectedCommunity &&
                         <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                             <div className='flex gap-2 items-center'>
-                                <div className="w-6 h-6 rounded-full overflow-hidden">
-                                    {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-white">
+                                    {selectedCommunity?.coverPhoto ? (
                                         <Image
-                                            src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
-                                            alt={"estate-img"}
-                                            width={40}
-                                            height={40}
-                                            className="object-cover w-full h-full"
-                                        /> :
-                                        <Image
-                                            src={"/houses.jpg"}
+                                            src={selectedCommunity?.coverPhoto ? (selectedCommunity?.coverPhoto?.url as string) : ""}
                                             alt={"estate-img"}
                                             width={40}
                                             height={40}
                                             className="object-cover w-full h-full"
                                         />
-                                    }
+                                    ) : (
+                                        <InitialsAvatar
+                                            name={(selectedCommunity?.basicDetails?.name as string) || 'Estate'}
+                                            size={24}
+                                        />
+                                    )}
                                 </div>
-                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
+                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}
                             </div>
                             <div className='mt-1.5'>
                                 <ArrowDown size={20} className='#4E4E4E' />
