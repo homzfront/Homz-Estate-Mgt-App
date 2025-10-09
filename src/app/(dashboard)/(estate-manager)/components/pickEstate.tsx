@@ -54,14 +54,14 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                 }
                             </div>
                             <div className='flex flex-col gap-1 w-full'>
-                                <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name}</span>
+                                <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}</span>
                                 <span className='text-[11px] font-normal text-GrayHomz truncate'>{totalCount || 0} Resident(s)</span>
                                 {/* <span className='text-[11px] font-normal text-GrayHomz2 truncate'>Owner</span> */}
                                 <div className='mt-2 flex items-center justify-between w-full'>
                                     <button
                                         onClick={() => {
                                             clearForm()
-                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?._id : estatesData?.[0]?._id}`)
+                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?._id :''}`)
                                         }}
                                         className='text-[13px] font-normal text-BlueHomz flex items-center gap-2'><EstateInfoIcon /> Estate Information </button>
                                 </div>
@@ -108,15 +108,15 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                         </div>
                     </div>
                     <div className='max-h-[50vh] scrollbar-container overflow-y-auto pr-1'>
-                        {estatesData && estatesData?.filter((item) => item.basicDetails?.name?.toLowerCase().includes(searchEstate.toLowerCase()))?.map((item) => (
+                        {estatesData && estatesData?.filter((item) => item.estate?.basicDetails?.name?.toLowerCase().includes(searchEstate.toLowerCase()))?.map((item) => (
                             <div key={item._id} className='flex items-center justify-between gap-2 py-3'>
                                 <div className='flex flex-col'>
-                                    <span className='text-sm font-medium text-BlackHpmz'>{item.basicDetails?.name}</span>
-                                    <span className='text-[11px] font-normal text-GrayHomz'>{item?.buildings?.[0]?.name}, {item?.apartments?.[0]?.name}</span>
+                                    <span className='text-sm font-medium text-BlackHpmz'>{item.estate?.basicDetails?.name}</span>
+                                    <span className='text-[11px] font-normal text-GrayHomz'>{item.estate?.buildings?.[0]?.name}, {item.estate?.apartments?.[0]?.name}</span>
                                 </div>
                                 <div
                                     onClick={() => {
-                                        setSelectedCommunity(item);
+                                        setSelectedCommunity(item?.estate);
                                         setOpenEstateList(false);
                                     }}
                                     className={`px-2 py-1 text-xs flex gap-2 items-center rounded-[4px] cursor-pointer

@@ -58,7 +58,7 @@ export interface AccountDetailsType {
     };
 }
 
-export interface Community {
+export interface estateData {
     _id: string;
     associatedIds: {
         userId: string;
@@ -109,6 +109,19 @@ export interface Community {
     __v: number;
 }
 
+export interface Community {
+    _id: string;
+    associatedIds: {
+        userId: string;
+        communityManagerId: string;
+        organizationId: string;
+    }
+    estateId: string;
+    role: string;
+    status: string;
+    estate: estateData;
+}
+
 export interface AuthState {
     isLoggingIN: boolean;
     isSigningUP: boolean;
@@ -154,10 +167,10 @@ export const useAuthSlice = create<AuthState>()(
                     }
 
                     const response = await api.get(
-                        `/estates/community-manager/${communityProfile._id}/all-estates/organizations/${communityProfile.organization._id}`
+                        `/estates/community-manager/organizations/${communityProfile.organization._id}?limit=100&page=1`
                     );
-
-                    set({ estatesData: response?.data?.data?.estates });
+                 
+                    set({ estatesData: response?.data?.data?.estates?.results || [] });
                 } catch (error) {
                     console.error("Failed to fetch estates:", error);
                 } finally {

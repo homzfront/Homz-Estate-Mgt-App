@@ -14,7 +14,7 @@ import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
 import toast from 'react-hot-toast';
 import api from '@/utils/api';
 import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
-import { useAuthSlice } from '@/store/authStore';
+import { estateData, useAuthSlice } from '@/store/authStore';
 
 const EditEstateForm = () => {
     const router = useRouter();
@@ -94,9 +94,11 @@ const EditEstateForm = () => {
 
     // update selected community data when estatesData changes
     React.useEffect(() => {
-        if (estatesData && doneUpdate) {
-            const newData = estatesData.find((data) => data._id === selectedCommunity?._id) || selectedCommunity;
-            setSelectedCommunity(newData);
+        if (estatesData && estatesData.length > 0 && doneUpdate) {
+            const foundData = estatesData.find((data) => data._id === selectedCommunity?._id);
+            if (foundData && foundData.estate) {
+                setSelectedCommunity(foundData.estate as estateData);
+            }
         }
     }, [estatesData, doneUpdate, selectedCommunity, setSelectedCommunity]);
 
