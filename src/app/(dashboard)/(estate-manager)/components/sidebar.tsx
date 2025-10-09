@@ -184,7 +184,7 @@ const Sidebar = () => {
 
     React.useEffect(() => {
         if (!selectedCommunity && estatesData && estatesData.length > 0) {
-            setSelectedCommunity(estatesData[0]); // default first estate
+            setSelectedCommunity(estatesData[0]?.estate); // default first estate
         }
     }, [selectedCommunity, estatesData, setSelectedCommunity]);
 

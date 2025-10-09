@@ -97,9 +97,9 @@ const Dashboard = () => {
                     <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
                         <div className='flex gap-2 items-center'>
                             <div className="w-6 h-6 rounded-full overflow-hidden">
-                                {selectedCommunity?.coverPhoto || estatesData?.[0]?.coverPhoto ?
+                                {selectedCommunity?.coverPhoto ?
                                     <Image
-                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : estatesData?.[0]?.coverPhoto?.url as string}
+                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : ''}
                                         alt={"estate-img"}
                                         width={40}
                                         height={40}
@@ -114,7 +114,7 @@ const Dashboard = () => {
                                     />
                                 }
                             </div>
-                            {selectedCommunity ? selectedCommunity?.basicDetails?.name : estatesData?.[0]?.basicDetails?.name as any}
+                            {selectedCommunity ? selectedCommunity?.basicDetails?.name :''}
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />
