@@ -33,7 +33,6 @@ const EstateManagerRegistration = () => {
     const onSubmit = async (data: FormValues) => {
         setLoading(true);
         try {
-
             // Prepare the payload in the required format
             const payload: any = {
                 personal: {
