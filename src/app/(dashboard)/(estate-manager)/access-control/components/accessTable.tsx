@@ -265,7 +265,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                         <td className="text-BlueHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
                                             <span onClick={(e) => {
                                                 e.stopPropagation();
-                                                if(row?.resident?.firstName) {
+                                                if (row?.resident?.firstName) {
                                                     setSelectedIndex(idx);
                                                     setOpenDetails(true);
                                                 }
@@ -328,6 +328,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                             </button>
                                             {openPopIndex === idx && (
                                                 <PopUp
+                                                    disabledRevoke={!!row?.resident?.firstName}
                                                     setOpenDetails={(val) => { setOpenDetails(val); setOpenPopIndex(null); }}
                                                     fromDefault={false}
                                                     setOpenRevoke={(val) => { setOpenRevoke(val); setOpenPopIndex(null); }}

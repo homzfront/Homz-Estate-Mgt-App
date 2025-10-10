@@ -35,7 +35,7 @@ export interface AccessCodeType {
     };
     accessCode: string;
     codeType: string; // e.g. "One-Time Code"
-    accessStatus: string; // e.g. "expired"
+    accessStatus: string; // e.g. "expired", "signed out"
     creatorRole: string;
     isActive: boolean;
     isDeleted: boolean;
@@ -43,6 +43,9 @@ export interface AccessCodeType {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    // Optional fields for signed in/out visitors
+    timeIn?: string; // ISO date string when visitor signed in
+    timeOut?: string; // ISO date string when visitor signed out
     resident: {
         _id: string;
         associatedIds: {
@@ -127,7 +130,7 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                 try {
                     // Use selectedEstate
                     const selectedEstate = useSelectedEsate.getState().selectedEstate as ResidentCommunityType | null;
-                    console.log("Selected Estate in AccessCodeSlice:", selectedEstate);
+            
                     if (!selectedEstate) throw new Error("No selected estate found");
 
                     const { organizationId, residentOrganizationId } = selectedEstate.associatedIds;
@@ -147,7 +150,6 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                     }
 
                     const res = await api.get(url);
-                    console.log('Resident Community Response:', res.data);
                     set((prev) => {
                         const results: AccessCodeType[] = res?.data?.data?.results || [];
                         const nextItems = pageNo > 1 && prev.accessCode
