@@ -104,13 +104,14 @@ interface AccessCodeSlice {
 
 export const useAccessCodeSlice = create<AccessCodeSlice>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             accessCode: null,
             totalPages: 1,
             totalResults: 0,
             isLoading: false,
             currentPage: 1,
             limit: 10,
+            // initialLoading will be set to false after first successful fetch
             initialLoading: true,
             pageLoading: false,
             isAppending: false,
@@ -118,15 +119,17 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
             lastDate: '',
             hasAnyData: false,
             getAccessCode: async (pageNo = 1, pageSize = 10, search = '', date?: string | Date) => {
-                // Decide loaders and clear items on page reset
-                set((state) => ({
+                const state = get();
+                
+                // Decide loaders - DON'T clear data to prevent empty state flash
+                set({
                     isLoading: state.accessCode === null,
                     initialLoading: state.accessCode === null && pageNo === 1,
                     pageLoading: state.accessCode !== null && pageNo === 1,
                     isAppending: state.accessCode !== null && pageNo > 1,
                     limit: pageSize,
-                    accessCode: pageNo === 1 ? null : state.accessCode,
-                }));
+                    // Keep existing data visible during refresh
+                });
                 try {
                     // Use selectedEstate
                     const selectedEstate = useSelectedEsate.getState().selectedEstate as ResidentCommunityType | null;

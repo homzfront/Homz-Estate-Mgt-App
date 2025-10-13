@@ -41,7 +41,8 @@ const Dashboard = () => {
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
   const { accessCode, getAccessCode, initialLoading, isLoading, pageLoading } = useAccessCodeSlice();
   const closeRef = React.useRef<HTMLDivElement>(null);
-
+  const prevEstateIdRef = React.useRef<string | null>(null);
+  
   useClickOutside(closeRef as any, () => {
     setOpenEstateList(false);
   });
@@ -59,17 +60,38 @@ const Dashboard = () => {
   ];
 
   const fetchAccessCode = async () => {
-    if (selectedEstate) {
+    if (selectedEstate && selectedEstate.status === 'accepted') {
       await getAccessCode(1, 8, '', '');
     }
   };
 
   React.useEffect(() => {
-    if (residentCommunity && residentCommunity?.length > 0) {
-      setSelectedEstate(residentCommunity?.[0]);
+    if (residentCommunity && residentCommunity?.length > 0 && !selectedEstate) {
+      setSelectedEstate(residentCommunity[0]);
+    } else {
+      const foundEstate =
+        residentCommunity?.find(
+          (estate) => estate._id === selectedEstate?._id
+        ) || null; // fallback to null if undefined
+
+      setSelectedEstate(foundEstate);
+    }
+  }, [residentCommunity, selectedEstate, setSelectedEstate]);
+
+  // Only fetch when selectedEstate changes
+  React.useEffect(() => {
+    if (!selectedEstate || selectedEstate.status !== 'accepted') return;
+
+    const estateChanged = prevEstateIdRef.current !== selectedEstate.estateId;
+    const isFirstLoad = !accessCode && initialLoading;
+    
+    // Fetch only if: estate changed or first load with no cached data
+    if (estateChanged || isFirstLoad) {
+      prevEstateIdRef.current = selectedEstate.estateId;
       fetchAccessCode();
     }
-  }, [setSelectedEstate, residentCommunity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEstate?.estateId]);
 
   React.useEffect(() => {
     if (selectedEstate?.status === "accepted") {

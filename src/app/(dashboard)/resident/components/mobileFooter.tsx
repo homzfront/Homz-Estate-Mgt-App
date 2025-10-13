@@ -172,7 +172,7 @@ const MobileFooter = () => {
                             onClick={async  () => {
                                 if (data?.extra) {
                                     setSubOpen(data as DataType)
-                                } else {
+                                } else if (data?.name === "Logout") {
                                     await logOutUser()
                                 }
                             }}

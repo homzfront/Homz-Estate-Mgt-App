@@ -20,7 +20,6 @@ const AccessControl = () => {
     const { error, accessData, setAccessData, fetchManagerAccess, initialLoading, setAccessStatusFilter, accessStatusFilter } = useAccessStore();
     const [openAddManual, setOpenAddManual] = React.useState<boolean>(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const [initialLoader, setInitialLoader] = React.useState<boolean>(true);
     const pages = [
         "All Records", "Manually Added Records"
     ];
@@ -40,9 +39,6 @@ const AccessControl = () => {
         // On first mount or when community changes, fetch based on current tab
         if (selectedCommunity) {
             fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
-            setInitialLoader(false);
-        } else {
-            setInitialLoader(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCommunity?._id])
@@ -90,10 +86,13 @@ const AccessControl = () => {
                         fetchManagerAccess({ page: 1, limit: 8, manualOnly: true });
                         setAccessData(true)
                     }}
-                    closeSuccessModal={() => setOpenSuccessModal(false)}
+                    closeSuccessModal={() => {
+                        setOpenSuccessModal(false)
+                        fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
+                    }}
                 />
             }
-            {initialLoading && initialLoader ? (
+            {initialLoading ? (
                 <div className='p-8'>
                     <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px]'>Visitor Access Control</h1>
                     <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>

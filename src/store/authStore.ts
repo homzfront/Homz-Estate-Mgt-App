@@ -229,13 +229,16 @@ export const useAuthSlice = create<AuthState>()(
 
             getCommunityManaProfile: async () => {
                 try {
-                    set({ isCommunityManager: true });
+                    set({ isCommunityManager: true, estateLoading: true });
                     const response = await api.get("/community-manager/current-profile");
                     const data = response.data.data;
                     set({ communityProfile: data });
+                    
+                    // Automatically fetch estates after profile loads
+                    await get().getEstates();
                 } catch (error: any) {
                     console.error("failed to fetch community manager profile:", error);
-                    set({ error: error.message || "failed" });
+                    set({ error: error.message || "failed", estateLoading: false });
                     throw error;
                 }
                 finally {
