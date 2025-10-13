@@ -26,18 +26,11 @@ import { useResidentsListStore } from '@/store/useResidentsListStore';
 const Dashboard = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
-    const { fetchManagerAccess, initialLoading: loaderTwo } = useAccessStore();
+    const { fetchManagerAccess } = useAccessStore();
     const { isCommunityManager, estateLoading, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
     const { initialLoading, fetchResidents, items, totalCount } = useResidentsListStore();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const [initialLoader, setInitialLoader] = React.useState(true);
-
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setInitialLoader(false);
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, []);
+    const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
 
     // Load state 
     React.useEffect(() => {
@@ -59,7 +52,15 @@ const Dashboard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCommunity]);
 
-    if (isCommunityManager && (initialLoading || loaderTwo || initialLoader || estateLoading)) {
+    // Mark as loaded once we have estates data
+    React.useEffect(() => {
+        if (estatesData !== null && !isCommunityManager && !estateLoading) {
+            setHasLoadedOnce(true);
+        }
+    }, [estatesData, isCommunityManager, estateLoading]);
+
+    // Show loading only on initial load or when switching estates (not on navigation back)
+    if (!hasLoadedOnce && (isCommunityManager || estateLoading || estatesData === null)) {
         return <div className='h-screen w-full flex justify-center items-center'><LoaderIcon /></div>;
     };
     // If no estates, prompt to add one

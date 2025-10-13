@@ -73,6 +73,7 @@ interface UseAccessStoreType {
     isAppending: boolean; // infinite scroll append loader
     error: string | null;
     lastFetch: { page: number; limit: number; accessStatus: string | null; manualOnly: boolean };
+    lastEstateId: string | null; // Track which estate the data belongs to
     setAccessStatusFilter: (value: string | null) => void;
     fetchManagerAccess: (params?: { page?: number; limit?: number; accessStatus?: string | null; silent?: boolean; manualOnly?: boolean; append?: boolean }) => Promise<void>;
     updateManagerAccessStatus: (accessId: string, nextStatus: 'pending' | 'signed in' | 'signed out') => Promise<void>;
@@ -100,6 +101,7 @@ export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
     error: null,
     hasAnyData: false,
     lastFetch: { page: 1, limit: 8, accessStatus: null, manualOnly: false },
+    lastEstateId: null,
     setAccessStatusFilter: (value) => set({ accessStatusFilter: value }),
     fetchManagerAccess: async (params = {}) => {
         const state = get();
@@ -116,6 +118,33 @@ export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
 
         if (!organizationId || !estateId) {
             set({ error: 'Missing organization or estate id', initialLoading: false, pageLoading: false });
+            return;
+        }
+
+        // Check if we're switching estates - if so, reset data
+        if (state.lastEstateId && state.lastEstateId !== estateId) {
+            set({ 
+                items: [], 
+                totalCount: 0, 
+                initialLoading: true,
+                lastEstateId: estateId 
+            });
+        } else if (!state.lastEstateId) {
+            set({ lastEstateId: estateId });
+        }
+
+        // If we have data for this estate and same filters, skip refetch (unless forced)
+        if (
+            state.lastEstateId === estateId &&
+            state.items.length > 0 &&
+            !append &&
+            state.lastFetch.page === page &&
+            state.lastFetch.limit === limit &&
+            state.lastFetch.accessStatus === accessStatus &&
+            state.lastFetch.manualOnly === manualOnly &&
+            !silent // if silent=false, it means a fresh fetch is explicitly requested
+        ) {
+            // Data already loaded for this estate with same params - skip fetch
             return;
         }
 

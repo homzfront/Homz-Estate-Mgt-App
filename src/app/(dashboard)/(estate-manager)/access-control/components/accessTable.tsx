@@ -315,7 +315,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                         </td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeIn ? new Date(row.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeOut ? new Date(row.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
-                                        <td ref={openPopIndex === idx ? popupRef : undefined} className={`sticky right-0 bg-white py-[15px] pr-4 z-10`}>
+                                        <td ref={openPopIndex === idx ? popupRef : undefined} className={`sticky right-0  py-[15px] pr-4 z-10`}>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();

@@ -21,7 +21,7 @@ import api from '@/utils/api';
 import { getToken } from '@/utils/cookies';
 import Image from 'next/image';
 import React, { useCallback, useRef } from 'react';
-import toast from 'react-hot-toast';
+import toast, { LoaderIcon } from 'react-hot-toast';
 
 const Request = () => {
     const { requestResponse, isLoading, getRequest } = useRequestSlice();
@@ -105,8 +105,6 @@ const Request = () => {
             prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id]
         );
     };
-
-    console.log(requestResponse);
 
     // Pop-up menu logic
     const handleToggleMenu = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
@@ -331,7 +329,7 @@ const Request = () => {
             {
                 isLoading && (
                     <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                        <p className='text-GrayHomz font-normal text-sm md:text-[16px]'>Loading...</p>
+                        <LoaderIcon />
                     </div>
                 )
             }

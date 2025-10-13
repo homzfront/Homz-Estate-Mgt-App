@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import Sidebar from '../components/sidebar';
 import Header from '../../components/header';
 import MobileFooter from '../components/mobileFooter';
+import { LoaderIcon } from 'react-hot-toast';
 
 const Layout = ({
     children,
@@ -13,7 +14,7 @@ const Layout = ({
             <Sidebar />
             <div className='main w-full' >
                 <Header />
-                <Suspense fallback={<div className='h-screen flex justify-center items-center w-full'>Loading...</div>}>
+                <Suspense fallback={<div className='h-screen flex justify-center items-center w-full'><LoaderIcon /></div>}>
                     {children}
                 </Suspense>
                 <MobileFooter />

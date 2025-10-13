@@ -46,6 +46,7 @@ interface ResidentsListState {
   error: string | null
   hasAnyData: boolean // true if there is any data at all (unfiltered)
   lastFetch: { page: number; limit: number; search: string }
+  lastEstateId: string | null // Track which estate the data belongs to
   setSearch: (value: string) => void
   reset: () => void
   fetchResidents: (params?: {
@@ -70,6 +71,7 @@ export const useResidentsListStore = create<ResidentsListState>((set, get) => ({
   error: null,
   hasAnyData: false,
   lastFetch: { page: 1, limit: 8, search: '' },
+  lastEstateId: null,
   setSearch: (value) => set({ search: value }),
   reset: () => set({ items: [], totalCount: 0, totalPages: 1, currentPage: 1 }),
   fetchResidents: async (params = {}) => {
@@ -86,6 +88,32 @@ export const useResidentsListStore = create<ResidentsListState>((set, get) => ({
 
     if (!organizationId || !estateId) {
       set({ error: 'Missing organization or estate id', initialLoading: false, pageLoading: false })
+      return
+    }
+
+    // Check if we're switching estates - if so, reset data
+    if (state.lastEstateId && state.lastEstateId !== estateId) {
+      set({ 
+        items: [], 
+        totalCount: 0, 
+        initialLoading: true,
+        lastEstateId: estateId 
+      })
+    } else if (!state.lastEstateId) {
+      set({ lastEstateId: estateId })
+    }
+
+    // If we have data for this estate and same filters, skip refetch (unless forced)
+    if (
+      state.lastEstateId === estateId &&
+      state.items.length > 0 &&
+      !append &&
+      state.lastFetch.page === page &&
+      state.lastFetch.limit === limit &&
+      state.lastFetch.search === search &&
+      !silent // if silent=false, it means a fresh fetch is explicitly requested
+    ) {
+      // Data already loaded for this estate with same params - skip fetch
       return
     }
 
