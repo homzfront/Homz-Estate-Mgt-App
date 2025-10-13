@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { estateData } from './authStore';
+import { estateData } from './authStore';
 
 interface CommunityStore {
   selectedCommunity: estateData | null;
