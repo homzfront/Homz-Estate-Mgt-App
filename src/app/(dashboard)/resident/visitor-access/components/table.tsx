@@ -13,7 +13,7 @@ import DotLoader from '@/components/general/dotLoader';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
 import { formatDateDisplay, formatExpectedRange } from '@/app/utils/formatDateTime';
-import StatusDropDown from '@/app/(dashboard)/components/statusDropDown';
+import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter';
 
 interface TableProps {
     fromDefault?: boolean;
@@ -34,13 +34,8 @@ const Table = ({
     const [selectedData, setSelectedData] = React.useState<AccessCodeType | null>(null);
     const [popUp, setpopUp] = React.useState(false);
     // const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
-    const [openDropdownIndex, setOpenDropdownIndex] = React.useState<string | null>(null);
     const { accessCode, currentPage, initialLoading, pageLoading, isAppending, getAccessCode } = useAccessCodeSlice();
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
-
-    const toggleDropdown = (index: string) => {
-        setOpenDropdownIndex((prev) => (prev === index ? null : index));
-    };
 
     const handleToggleMenu = (id: string | number) => {
         setpopUp(!popUp);
@@ -162,7 +157,7 @@ const Table = ({
                                     Resident’s Name
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.resident?.firstName}
+                                    {selectedData?.resident?.firstName} {selectedData?.resident?.lastName}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Role
@@ -212,7 +207,7 @@ const Table = ({
                                     of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {formatExpectedRange(selectedData?.expectedArrivalTime?.from)}
+                                    {formatExpectedRange(selectedData?.expectedArrivalTime?.from, selectedData?.expectedArrivalTime?.to)}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Code
@@ -229,36 +224,20 @@ const Table = ({
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Status
                                 </p>
-                                {/* <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    <button
-                                        className={`rounded-md py-2 px-4 flex items-center justify-center ${buttonStyle}`}
-                                    >
-                                        <div className="flex gap-2 items-center">
-                                            <p>{selectedData?.accessStatus}</p>
-                                            <div className={`mb-[3px]`}>
-                                                <ArrowDown size={12} className={selectedData?.accessStatus === "Pending"
-                                                    ? "#dc6803"
-                                                    : selectedData?.accessStatus === "Signed In"
-                                                        ? "#039855"
-                                                        : "#ffffff"} />
-                                            </div>
-                                        </div>
-                                    </button>
-                                </p> */}
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    [Pending]
+                                    {capitalizeFirstLetter(selectedData?.accessStatus)}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Time In
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {/* {selectedData?.expectedArrivalTime?.from} */}
+                                    {selectedData?.timeIn ? new Date(selectedData.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Time Out
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {/* {selectedData?.expectedArrivalTime?.to} */}
+                                    {selectedData?.timeOut ? new Date(selectedData.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
                                 </p>
                             </div>
                         </div>
@@ -318,110 +297,96 @@ const Table = ({
                                 ))
                             )}
                             {!initialLoading && !(pageLoading && !isAppending) && currentData && currentData.map((data) => (
-                                    <tr
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            // setOpenDetails(true)
-                                            setSelectedData(data)
-                                        }}
-                                        key={data?._id}
-                                        className="w-2 border-t-[1px] items-center"
-                                    >
-                                        <td className="text-GrayHomz py-[25px] font-[500] text-[11px] md:flex items-center justify-center hidden pl-4 md:pl-0">
-                                            <span className='w-[8px] h-[8px] rounded-full bg-error' />
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] pl-4 md:pl-0">
-                                            {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
-                                            {data?.visitor}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {data?.phoneNumber}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                <tr
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        // setOpenDetails(true)
+                                        setSelectedData(data)
+                                    }}
+                                    key={data?._id}
+                                    className="w-2 border-t-[1px] items-center"
+                                >
+                                    <td className="text-GrayHomz py-[25px] font-[500] text-[11px] md:flex items-center justify-center hidden pl-4 md:pl-0">
+                                        <span className='w-[8px] h-[8px] rounded-full bg-error' />
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] pl-4 md:pl-0">
+                                        {/* <span style={{ fontFamily: "Arial", }}>₦</span> */}
+                                        {data?.visitor}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data?.phoneNumber}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
 
-                                            {data.purpose}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {data.numberOfVisitors}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatDateDisplay(data?.arrivalDate)}</td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatExpectedRange(data?.expectedArrivalTime?.from, data?.expectedArrivalTime?.to)}</td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {data.accessCode}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {data?.codeType}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize pointer-events-none">
-                                            {['pending','signed in','signed out'].includes((data.accessStatus || '').toLowerCase()) ? (
-                                                <div className="flex items-center gap-2">
-                                                    <StatusDropDown
-                                                        value={(data.accessStatus === 'pending' ? 'Pending' : data.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
-                                                        loading={false}
-                                                        isOpen={openDropdownIndex === data?._id}
-                                                        toggleDropdown={() => toggleDropdown(data?._id)}
-                                                        selectedStatus={null}
-                                                        setSelectedStatus={() => {}}
-                                                        handleStatusChange={() => {
-                                                            // TODO: Wire resident-side status update if needed
-                                                            toggleDropdown(data?._id);
-                                                        }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <span
-                                                    className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px]
-                                                    ${data.accessStatus?.toLowerCase() === 'approved' ? 'bg-successBg text-Success' : ''}
-                                                    ${data.accessStatus?.toLowerCase() === 'rejected' ? 'bg-error text-white' : ''}
-                                                    ${data.accessStatus?.toLowerCase() === 'expired' ? 'bg-warningBg text-warning2' : ''}
-                                                    ${data.accessStatus?.toLowerCase() === 'revoke' ? 'bg-error text-white' : ''}
-                                                    ${data.accessStatus?.toLowerCase() === 'used' ? 'bg-whiteblue text-GrayHomz' : ''}
-                                                `}
-                                                >
-                                                    {data.accessStatus}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {/* {data?.expectedArrivalTime?.from} */}-
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            {/* {data?.expectedArrivalTime?.to} */}-
-                                        </td>
-                                        <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
-                                            <span className='flex items-center gap-2'>
-                                                {data?.resident?.firstName}
-                                            </span>
-                                            <span className='font-[400]'>
-                                                {data?.resident?.ownershipType}
-                                            </span>
-                                        </td>
-                                        <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleToggleMenu(data?._id);
-                                                    setSelectedData(data);
-                                                }}
-                                            >
-                                                <Image
-                                                    src="/dots-vertical.png"
-                                                    alt="Options"
-                                                    height={21}
-                                                    width={20}
-                                                    style={{ height: "auto", width: "auto" }}
-                                                />
-                                            </button>
-                                            {popUp && selectedDataId === data?._id && (
-                                                <PopUp
-                                                    setOpenDetails={setOpenDetails}
-                                                    fromDefault={fromDefault}
-                                                    setOpenRevoke={setOpenRevoke}
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                        {data.purpose}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data.numberOfVisitors}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatDateDisplay(data?.arrivalDate)}</td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{formatExpectedRange(data?.expectedArrivalTime?.from, data?.expectedArrivalTime?.to)}</td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data.accessCode}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data?.codeType}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] capitalize">
+                                        <span
+                                            className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px]
+                                                ${data.accessStatus?.toLowerCase() === 'pending' ? 'bg-warningBg text-warning2' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'signed in' ? 'bg-successBg text-Success' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'signed out' ? 'bg-error text-white' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'approved' ? 'bg-successBg text-Success' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'rejected' ? 'bg-error text-white' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'expired' ? 'bg-warningBg text-warning2' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'revoke' ? 'bg-error text-white' : ''}
+                                                ${data.accessStatus?.toLowerCase() === 'used' ? 'bg-whiteblue text-GrayHomz' : ''}
+                                            `}
+                                        >
+                                            {capitalizeFirstLetter(data.accessStatus)}
+                                        </span>
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data?.timeIn ? new Date(data.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        {data?.timeOut ? new Date(data.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
+                                    </td>
+                                    <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">
+                                        <span className='flex items-center gap-2'>
+                                            {data?.resident?.firstName} {data?.resident?.lastName}
+                                        </span>
+                                        {/* <span className='font-[400]'>
+                                            {data?.resident?.ownershipType}
+                                        </span> */}
+                                    </td>
+                                    <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleMenu(data?._id);
+                                                setSelectedData(data);
+                                            }}
+                                        >
+                                            <Image
+                                                src="/dots-vertical.png"
+                                                alt="Options"
+                                                height={21}
+                                                width={20}
+                                                style={{ height: "auto", width: "auto" }}
+                                            />
+                                        </button>
+                                        {popUp && selectedDataId === data?._id && (
+                                            <PopUp
+                                                setOpenDetails={setOpenDetails}
+                                                fromDefault={fromDefault}
+                                                setOpenRevoke={setOpenRevoke}
+                                            />
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
                             {!initialLoading && (!currentData || currentData.length === 0) && (
                                 <tr>
                                     <td colSpan={14} className="text-center text-sm text-GrayHomz py-8">No records found</td>

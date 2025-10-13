@@ -35,7 +35,7 @@ export interface AccessCodeType {
     };
     accessCode: string;
     codeType: string; // e.g. "One-Time Code"
-    accessStatus: string; // e.g. "expired"
+    accessStatus: string; // e.g. "expired", "signed out"
     creatorRole: string;
     isActive: boolean;
     isDeleted: boolean;
@@ -43,6 +43,9 @@ export interface AccessCodeType {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    // Optional fields for signed in/out visitors
+    timeIn?: string; // ISO date string when visitor signed in
+    timeOut?: string; // ISO date string when visitor signed out
     resident: {
         _id: string;
         associatedIds: {
@@ -101,13 +104,14 @@ interface AccessCodeSlice {
 
 export const useAccessCodeSlice = create<AccessCodeSlice>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             accessCode: null,
             totalPages: 1,
             totalResults: 0,
             isLoading: false,
             currentPage: 1,
             limit: 10,
+            // initialLoading will be set to false after first successful fetch
             initialLoading: true,
             pageLoading: false,
             isAppending: false,
@@ -115,19 +119,21 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
             lastDate: '',
             hasAnyData: false,
             getAccessCode: async (pageNo = 1, pageSize = 10, search = '', date?: string | Date) => {
-                // Decide loaders and clear items on page reset
-                set((state) => ({
+                const state = get();
+                
+                // Decide loaders - DON'T clear data to prevent empty state flash
+                set({
                     isLoading: state.accessCode === null,
                     initialLoading: state.accessCode === null && pageNo === 1,
                     pageLoading: state.accessCode !== null && pageNo === 1,
                     isAppending: state.accessCode !== null && pageNo > 1,
                     limit: pageSize,
-                    accessCode: pageNo === 1 ? null : state.accessCode,
-                }));
+                    // Keep existing data visible during refresh
+                });
                 try {
                     // Use selectedEstate
                     const selectedEstate = useSelectedEsate.getState().selectedEstate as ResidentCommunityType | null;
-                    console.log("Selected Estate in AccessCodeSlice:", selectedEstate);
+            
                     if (!selectedEstate) throw new Error("No selected estate found");
 
                     const { organizationId, residentOrganizationId } = selectedEstate.associatedIds;
@@ -147,7 +153,6 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                     }
 
                     const res = await api.get(url);
-                    console.log('Resident Community Response:', res.data);
                     set((prev) => {
                         const results: AccessCodeType[] = res?.data?.data?.results || [];
                         const nextItems = pageNo > 1 && prev.accessCode

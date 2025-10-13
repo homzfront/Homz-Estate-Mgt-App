@@ -178,7 +178,7 @@ const Sidebar = () => {
     const { setOpenEstateList } = useOpenCommunityListStore();
     const [selectedName, setSelecetedName] = React.useState(null);
     const { clearForm } = useEstateFormStore()
-    const { logOutUser, getEstates, estatesData, communityProfile } = useAuthSlice();
+    const { logOutUser, estatesData, communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
@@ -188,9 +188,7 @@ const Sidebar = () => {
         }
     }, [selectedCommunity, estatesData, setSelectedCommunity]);
 
-    React.useEffect(() => {
-        if (communityProfile) getEstates()
-    }, [communityProfile]);
+    // Note: getEstates() is now called automatically in getCommunityManaProfile()
 
     const [selectedMoreName, setSelecetedMoreName] = React.useState(null);
     const toggleSub = (name: any) => {

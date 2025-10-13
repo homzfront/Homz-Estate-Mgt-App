@@ -20,14 +20,10 @@ const ManageResidents = () => {
     const [openManualForm, setOpenManualForm] = React.useState<boolean>(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const { initialLoading, hasAnyData, fetchResidents, search } = useResidentsListStore();
-    const [initialLoader, setInitialLoader] = React.useState<boolean>(true);
 
     React.useEffect(() => {
         if (selectedCommunity) {
             fetchResidents({ page: 1, limit: 8 });
-            setInitialLoader(false);
-        } else {
-            setInitialLoader(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCommunity]);
@@ -82,7 +78,7 @@ const ManageResidents = () => {
                 />
 
             }
-            {initialLoading && initialLoader ? (
+            {initialLoading ? (
                 <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
             ) : (residentData || !!search) ? (
                 <div>

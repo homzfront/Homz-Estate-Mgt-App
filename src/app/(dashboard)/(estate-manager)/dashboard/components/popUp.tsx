@@ -4,12 +4,13 @@ import ArrowRight from '@/components/icons/arrowRight';
 import RevokeIcon from '@/components/icons/revokeIcon';
 
 interface PopUpProps {
+    disabledRevoke?: boolean;
     setOpenDetails: (data: boolean) => void;
     fromDefault?: boolean;
     setOpenRevoke: (val: boolean) => void;
 }
 
-function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke }: PopUpProps) {
+function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevoke = false }: PopUpProps) {
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
 
@@ -42,7 +43,7 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke }: PopUpProps
                 <div
                     onMouseEnter={() => setActiveTwo(true)}
                     onMouseLeave={() => setActiveTwo(false)}
-                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className={`md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ${disabledRevoke ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="w-full ">
                         <div
                             onClick={(e) => {
