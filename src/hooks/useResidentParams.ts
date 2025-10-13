@@ -13,37 +13,31 @@ export const useResidentParams = () => {
         const invitation = urlParams.get('invitation')
         const organizationId = urlParams.get('organizationId')
         const estateId = urlParams.get('estateId')
-        const remainingData = urlParams.get('email')
+        const email = urlParams.get('email')
+        const firstName = urlParams.get('firstName')
+        const lastName = urlParams.get('lastName')
 
-        let email = ''
-        let estateName = ''
-        let firstName = ''
-        let lastName = ''
-        // console.log({ remainingData })
-        if (remainingData) {
-            const decoded = decodeURIComponent(remainingData)
-            const parts = decoded.split(' ')
-            console.log({ parts })
-
-            if (parts.length >= 1) {
-                // estateId = parts[0] || ''
-                email = parts[1] || ''
-                estateName = parts[2] || ''
-                firstName = parts[3] || ''
-                lastName = parts[4] || ''
-            }
-        }
-
-        if (invitation && organizationId && estateId) {
+        if (invitation && organizationId && estateId && email && firstName && lastName) {
             setResidentData({
                 token: invitation,
                 organizationId,
                 estateId,
                 email,
-                estateName,
                 firstName,
                 lastName,
             })
+        } else if (invitation || organizationId || estateId || email || firstName || lastName) {
+            // Set only available values
+            /* eslint-disable @typescript-eslint/no-explicit-any */
+            const availableData: any = {}
+            if (invitation) availableData.token = invitation
+            if (organizationId) availableData.organizationId = organizationId
+            if (estateId) availableData.estateId = estateId
+            if (email) availableData.email = email
+            if (firstName) availableData.firstName = firstName
+            if (lastName) availableData.lastName = lastName
+            
+            setResidentData(availableData)
         } else {
             // clearResidentData()
             // router.push('/login')

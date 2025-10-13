@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Community } from './authStore';
+import { estateData } from './authStore';
 
 interface CommunityStore {
-  selectedCommunity: Community | null;
-  setSelectedCommunity: (data: Community | null) => void;
-  publicCommunity: Community | null;
-  setPublicCommunity: (data: Community | null) => void;
+  selectedCommunity: estateData | null;
+  setSelectedCommunity: (data: estateData | null) => void;
+  publicCommunity: estateData | null;
+  setPublicCommunity: (data: estateData | null) => void;
 }
 
 export const useSelectedCommunity = create<CommunityStore>()(
