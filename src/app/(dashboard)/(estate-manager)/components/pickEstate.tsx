@@ -32,6 +32,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
     // const [hoverContactSupport, setHoverContactSupport] = React.useState<boolean>(false);
     // const [hoverSecurity, setHoverSecurity] = React.useState<boolean>(false);
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
+    const setIsSwitchingEstate = useSelectedCommunity((state) => state.setIsSwitchingEstate);
     const { totalCount } = useResidentsListStore();
     return (
         <div ref={closeRef} className={`p-4 rounded-[12px] bg-white ${openEstateList ? "md:w-[320px]" : "md:w-[270px]"}  min-w-[260px] mt-[120px] mb-[50px] md:mt-0 md:mb-0`}>
@@ -116,13 +117,20 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                 </div>
                                 <div
                                     onClick={() => {
-                                        setSelectedCommunity(item?.estate);
+                                        if (selectedCommunity?._id !== item.estate?._id) {
+                                            setIsSwitchingEstate(true);
+                                            setSelectedCommunity(item?.estate);
+                                            // Give brief moment for state to propagate, then hide loader
+                                            setTimeout(() => {
+                                                setIsSwitchingEstate(false);
+                                            }, 800);
+                                        }
                                         setOpenEstateList(false);
                                     }}
                                     className={`px-2 py-1 text-xs flex gap-2 items-center rounded-[4px] cursor-pointer
-                                                ${selectedCommunity?._id === item._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}
+                                                ${selectedCommunity?._id === item.estate?._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}
                                 >
-                                    {selectedCommunity?._id === item._id ? "Selected" : "Switch"}
+                                    {selectedCommunity?._id === item.estate?._id ? "Selected" : "Switch"}
                                 </div>
                             </div>
                         ))}

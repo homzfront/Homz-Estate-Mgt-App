@@ -336,7 +336,8 @@ const AccessCodeForm = ({
                                 setOpenSuccessModal(true);
                                 setCodeGenerated(false);
                                 setOpenAccessCodeForm(false);
-                                await fetchAccessCode?.();
+                                // Fetch new data in background - overlay will show during refresh
+                                fetchAccessCode?.();
                             }}
                             className='w-full mt-4 rounded-[4px] bg-BlueHomz text-white text-sm font-normal h-[45px] flex items-center justify-center'
                         >
