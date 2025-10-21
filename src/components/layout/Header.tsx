@@ -69,7 +69,7 @@ const Header = () => {
   const setSpecificState = <K extends keyof HeaderState>(key: K, value: HeaderState[K]) => {
     setState(prev => ({ ...prev, [key]: value }));
   };
-  
+
   const productRef = React.useRef<HTMLDivElement | null>(null);
   useClickOutside(productRef as React.RefObject<HTMLDivElement>, () => {
     if (state.subMenuOpen) setSubMenuOpen(false);
@@ -132,8 +132,8 @@ const Header = () => {
       {/* Navigation Menu */}
       <nav
         className={`${state.open
-            ? "fixed top-0 left-0 w-[280px] h-full bg-white z-50 shadow-xl transform translate-x-0 transition-transform duration-300 flex flex-col"
-            : "hidden md:flex md:gap-14 md:items-center"
+          ? "fixed top-0 left-0 w-[280px] h-full bg-white z-50 shadow-xl transform translate-x-0 transition-transform duration-300 flex flex-col"
+          : "hidden md:flex md:gap-14 md:items-center"
           }`}
       >
         {/* Mobile Menu Header */}
@@ -155,13 +155,13 @@ const Header = () => {
         )}
 
         <div className={`${state.open
-            ? "flex flex-col gap-6 p-6 flex-1"
-            : "mt-5 text-[12px] lg:text-[16px] md:mt-0 flex gap-4 md:gap-5 lg:gap-10 flex-col md:flex-row"
+          ? "flex flex-col gap-6 p-6 flex-1"
+          : "mt-5 text-[12px] lg:text-[16px] md:mt-0 flex gap-4 md:gap-5 lg:gap-10 flex-col md:flex-row"
           }`}>
           <Link
             href={"/"}
             className={`${state.open ? "py-3 px-4 rounded-lg text-[16px] font-medium transition-colors" : ""} hover:text-blue-400 ${state.open && pathname === "/" ? "text-BlueHomz"
-                : ""
+              : ""
               }`}
             onClick={() => state.open && toggleState('open')}
           >
@@ -182,8 +182,8 @@ const Header = () => {
                   toggleSubMenu();
                 }}
                 className={`${pathname === "/document-generation" || pathname === "/enterprise" || pathname === "/estate-management"
-                    ? "text-BlueHomz"
-                    : ""
+                  ? "text-BlueHomz"
+                  : ""
                   } hover:text-blue-400`}
               >
                 Products
@@ -199,8 +199,8 @@ const Header = () => {
               <div
                 ref={productRef}
                 className={`${state.open
-                    ? "mt-2 flex flex-col gap-1 w-full"
-                    : "px-0 py-3 flex flex-col md:flex-row gap-2 items-start justify-center rounded-[10px] text-[12px] md:text-[14px] text-BlackHomz bg-white md:absolute md:top-7 md:left-1/2 md:-translate-x-1/2 md:transform md:px-3 md:border md:z-[99999] md:shadow-lg"
+                  ? "mt-2 flex flex-col gap-1 w-full"
+                  : "px-0 py-3 flex flex-col md:flex-row gap-2 items-start justify-center rounded-[10px] text-[12px] md:text-[14px] text-BlackHomz bg-white md:absolute md:top-7 md:left-1/2 md:-translate-x-1/2 md:transform md:px-3 md:border md:z-[99999] md:shadow-lg"
                   }`}
               >
                 {/* Mobile: simplified list (icons + titles only) */}
@@ -323,7 +323,7 @@ const Header = () => {
             {userData && token ? (
               <div className="flex flex-col gap-4">
                 <Link
-                  href={residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
+                  href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
                   className="text-[16px] font-medium"
                   onClick={() => toggleState('open')}
                 >
@@ -363,7 +363,7 @@ const Header = () => {
             className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
               }`}
           >
-            <Link href={residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
+            <Link href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
               <p className={`w-full ${open ? "text-[12px] " : ""}`}>
                 Hi, {extractUsername(userData?.email)}!
               </p>

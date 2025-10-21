@@ -8,49 +8,56 @@ import SuccessModal from '../../components/successModal';
 import Table from './components/table';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
-
-const currentData = [
-  { firstName: "Bigabanibo", lastName: "Iwowari", email: "Ibigabanibo@gmail.com", role: "Security" },
-  { firstName: "Margaret", lastName: "Nasiru", email: "Ibigabanibo@gmail.com", role: "Account Officer" },
-  { firstName: "Paul", lastName: "Lawan", email: "Ibigabanibo@gmail.com", role: "Landlord" },
-  { firstName: "Martha", lastName: "Omísore", email: "Ibigabanibo@gmail.com", role: "Security" },
-  { firstName: "Michael", lastName: "Ekisagha", email: "Ibigabanibo@gmail.com", role: "Landlord" },
-  { firstName: "Joseph", lastName: "Nasiru", email: "Ibigabanibo@gmail.com", role: "Admin" },
-];
-type User = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-};
+import { useMembersStore, MemberItem } from '@/store/useMembersStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import toast from 'react-hot-toast';
+import DotLoader from '@/components/general/dotLoader';
+import LoadingSpinner from '@/components/general/loadingSpinner';
 
 const Settings = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [active, setActive] = React.useState(false);
-  const [data, setData] = React.useState(false);
   const [openSuccess, setOpenSuccess] = React.useState(false);
-  const [selectedData, setSelectedData] = React.useState<User | null>(null);
+  const [selectedData, setSelectedData] = React.useState<MemberItem | null>(null);
   const [openDetails, setOpenDetails] = React.useState(false);
   const [activePage, setActivePage] = React.useState(0);
+  const [sendingInvite, setSendingInvite] = React.useState(false);
+  
+  const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+  const { 
+    members, 
+    initialLoading, 
+    pageLoading, 
+    fetchMembers, 
+    sendInvitation,
+    setRoleFilter,
+    hasAnyData
+  } = useMembersStore();
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+  
   const [formData, setFormData] = React.useState({
     email: '',
     role: '',
   });
+  
   const options = [
-    { id: 1, label: 'Admin' },
-    { id: 2, label: 'Account Officer' },
-    { id: 3, label: 'Landlord' },
-    { id: 4, label: 'Security' },
+    { id: 1, label: 'Admin', value: 'admin' },
+    { id: 2, label: 'Account Manager', value: 'account_manager' },
+    { id: 3, label: 'Landlord', value: 'landLord' },
+    { id: 4, label: 'Security', value: 'security' },
+    { id: 5, label: 'Viewer', value: 'viewer' },
   ];
+  
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+  
   React.useEffect(() => {
     if (formData.email && formData.role) {
       setActive(true);
@@ -58,23 +65,82 @@ const Settings = () => {
       setActive(false);
     }
   }, [formData]);
+
+  // Fetch members on mount or when community changes
+  React.useEffect(() => {
+    if (selectedCommunity?._id) {
+      fetchMembers({ page: 1, limit: 50 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCommunity?._id]);
+
+  const handleSendInvite = async () => {
+    if (!active) return;
+    
+    setSendingInvite(true);
+    try {
+      await sendInvitation(formData.email, formData.role);
+      setOpenSuccess(true);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send invitation", {
+        position: "top-center",
+        duration: 3000,
+        style: {
+          background: "#FFEBEE",
+          color: "#C62828",
+          fontWeight: 500,
+          padding: "12px 20px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        },
+      });
+    } finally {
+      setSendingInvite(false);
+    }
+  };
+  
   const handleSubmit = () => {
     setOpenSuccess(false);
     setIsOpen(false);
     setActive(false);
     setFormData({ email: '', role: '' });
-    setData(true);
   };
+  
   const pages = [
-    "All", "Landlord", "Account Officer", "Security"
+    { label: "All", value: null },
+    { label: "Admin", value: "admin" },
+    { label: "Landlord", value: "landLord" },
+    { label: "Account Manager", value: "account_manager" },
+    { label: "Security", value: "security" },
+    { label: "Viewer", value: "viewer" },
   ];
+
+  const handlePageChange = (index: number) => {
+    setActivePage(index);
+    const role = pages[index].value;
+    setRoleFilter(role);
+    fetchMembers({ page: 1, role });
+  };
+
+  // Filter members based on active page (client-side for backup)
+  const filteredMembers = React.useMemo(() => {
+    if (activePage === 0 || !pages[activePage].value) return members; // All
+    const selectedRole = pages[activePage].value;
+    return members.filter(member => member.role === selectedRole);
+  }, [members, activePage, pages]);
+
+  // Helper function to get display label for role
+  const getRoleLabel = (roleValue: string) => {
+    const roleOption = options.find(opt => opt.value === roleValue);
+    return roleOption ? roleOption.label : roleValue;
+  };
 
   return (
     <div className='py-8'>
       {openSuccess &&
         <SuccessModal
           title='Invitation Sent Successfully'
-          successText='Your invite link has successfully been sent to Address@gmail.com'
+          successText={`Your invite link has successfully been sent to ${formData.email}`}
           submitText='Close'
           handleSubmit={handleSubmit}
           isOpen={openSuccess}
@@ -94,11 +160,11 @@ const Settings = () => {
             <div className='mt-4 rounded-[12px] bg-inputBg p-4 flex flex-col gap-4 text-xs'>
               <div className='flex flex-row gap-8 items-center'>
                 <h3 className='w-[80px]'>First Name</h3>
-                <h3 className='w-[150px] flex items-start'>{selectedData?.firstName}</h3>
+                <h3 className='w-[150px] flex items-start'>{selectedData?.firstName || 'N/A'}</h3>
               </div>
               <div className='flex flex-row gap-8 items-center'>
                 <h3 className='w-[80px]'>Last Name</h3>
-                <h3 className='w-[150px] flex items-start'>{selectedData?.lastName}</h3>
+                <h3 className='w-[150px] flex items-start'>{selectedData?.lastName || 'N/A'}</h3>
               </div>
               <div className="flex flex-row gap-8 items-start flex-wrap">
                 <h3 className="w-[80px]">Email</h3>
@@ -111,7 +177,7 @@ const Settings = () => {
                   <Dropdown
                     options={options}
                     onSelect={() => { }}
-                    selectOption={selectedData?.role || 'Select role'}
+                    selectOption={getRoleLabel(selectedData?.role || '')}
                     showSearch={false}
                     borderColor="border-[#A9A9A9]"
                     arrowColor="#A9A9A9"
@@ -153,7 +219,10 @@ const Settings = () => {
                 <div className='hidden md:inline' />
                 <Dropdown
                   options={options}
-                  onSelect={(option) => handleInputChange('role', option.label)}
+                  onSelect={(option) => {
+                    const selectedOption = options.find(opt => opt.label === option.label);
+                    handleInputChange('role', selectedOption?.value || option.label);
+                  }}
                   selectOption="Select role"
                   showSearch={false}
                   borderColor='border-[#A9A9A9]'
@@ -165,29 +234,52 @@ const Settings = () => {
           )}
           {isOpen &&
             <button
-              onClick={() => {
-                if (active) setOpenSuccess(true)
-              }}
-              className={`mt-4 w-full md:w-auto h-[45px] flex justify-center items-center ${active ? "bg-BlueHomz text-white" : "bg-GrayHomz6 text-GrayHomz5"}  text-sm md:text-[16px] font-normal rounded-[4px] px-6 py-2`}
+              onClick={handleSendInvite}
+              disabled={!active || sendingInvite}
+              className={`mt-4 w-full md:w-auto h-[45px] flex justify-center items-center ${active ? "bg-BlueHomz text-white" : "bg-GrayHomz6 text-GrayHomz5"}  text-sm md:text-[16px] font-normal rounded-[4px] px-6 py-2 ${sendingInvite ? "pointer-events-none" : ""}`}
             >
-              Send Invite
+              {sendingInvite ? <DotLoader /> : "Send Invite"}
             </button>
           }
         </div>
-        {data && (
+        
+        {/* Members List */}
+        {initialLoading ? (
+          <div className='mt-8 h-[400px] w-full flex items-center justify-center'>
+            <LoadingSpinner />
+          </div>
+        ) : hasAnyData || members.length > 0 ? (
           <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
             <div className='flex flex-wrap items-center gap-4 mt-8'>
               {pages.map((page, index) => (
-                <span key={index} onClick={() => setActivePage(index)} className={`${index === activePage ? "px-3 py-2 rounded-[4px] bg-BlueHomz text-white" : "px-3 py-2 md:px-0 md:py-0 rounded-[4px] md:rounded-none bg-whiteblue md:bg-transparent text-BlueHomz md:text-GrayHomz"} cursor-pointer`}>{page}</span>
+                <span 
+                  key={index} 
+                  onClick={() => handlePageChange(index)} 
+                  className={`${index === activePage ? "px-3 py-2 rounded-[4px] bg-BlueHomz text-white" : "px-3 py-2 md:px-0 md:py-0 rounded-[4px] md:rounded-none bg-whiteblue md:bg-transparent text-BlueHomz md:text-GrayHomz"} cursor-pointer`}
+                >
+                  {page.label}
+                </span>
               ))}
             </div>
 
-            <Table
-              currentData={currentData}
-              setOpenDetails={setOpenDetails}
-              setSelectedData={setSelectedData}
-            />
+            {pageLoading ? (
+              <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
+                <LoadingSpinner />
+              </div>
+            ) : filteredMembers.length > 0 ? (
+              <Table
+                currentData={filteredMembers}
+                setOpenDetails={setOpenDetails}
+                setSelectedData={setSelectedData}
+              />
+            ) : (
+              <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
+                <p className='text-GrayHomz text-sm'>No members found for this role</p>
+              </div>
+            )}
           </div>
+        ) : (
+         null
         )}
       </div>
     </div>

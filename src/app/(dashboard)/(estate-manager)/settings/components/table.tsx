@@ -5,18 +5,15 @@ import Dropdown from '@/components/general/dropDown';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import PopUp from './popUp';
 import useClickOutside from '@/app/utils/useClickOutside';
-
-type User = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-};
+import { MemberItem, useMembersStore } from '@/store/useMembersStore';
+import toast from 'react-hot-toast';
+import HourGlassLoader from '@/components/general/hourGlassLoader';
+import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter';
 
 type TableProps = {
-    currentData: User[];
+    currentData: MemberItem[];
     setOpenDetails: (val: boolean) => void;
-    setSelectedData: (data: User) => void;
+    setSelectedData: (data: MemberItem | null) => void;
 };
 
 const Table: React.FC<TableProps> = ({
@@ -26,21 +23,99 @@ const Table: React.FC<TableProps> = ({
 }) => {
     const [popUpIndex, setPopUpIndex] = React.useState<number | null>(null);
     const [openPopUp, setOpenPopUp] = React.useState(false);
+    const [updatingRoleId, setUpdatingRoleId] = React.useState<string | null>(null);
+    const { updateMemberRole, deleteMember } = useMembersStore();
+    
     const options = [
-        { id: 1, label: 'Admin' },
-        { id: 2, label: 'Account Officer' },
-        { id: 3, label: 'Landlord' },
-        { id: 4, label: 'Security' },
+        { id: 1, label: 'Admin', value: 'admin' },
+        { id: 2, label: 'Account Manager', value: 'account_manager' },
+        { id: 3, label: 'Landlord', value: 'landLord' },
+        { id: 4, label: 'Security', value: 'security' },
+        { id: 5, label: 'Viewer', value: 'viewer' },
     ];
     const dropdownRef = React.useRef<HTMLDivElement>(null);
 
     useClickOutside(dropdownRef as any, () => {
         setOpenPopUp(false);
     });
+    
     const handleTogglePopUp = () => {
         setOpenPopUp(!openPopUp);
     };
-    console.log("popUpIndex:", popUpIndex)
+
+    // Helper function to get display label for role
+    const getRoleLabel = (roleValue: string) => {
+        const roleOption = options.find(opt => opt.value === roleValue);
+        return roleOption ? roleOption.label : capitalizeFirstLetter(roleValue);
+    };
+
+    const handleRoleChange = async (member: MemberItem, selectedOption: { id: number | string; label: string }) => {
+        const roleOption = options.find(opt => opt.label === selectedOption.label);
+        const roleValue = roleOption?.value || selectedOption.label;
+        
+        setUpdatingRoleId(member._id);
+        try {
+            await updateMemberRole(member._id, roleValue, member.email);
+            toast.success("Role updated successfully!", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#E8F5E9",
+                    color: "#2E7D32",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update role", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#C62828",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } finally {
+            setUpdatingRoleId(null);
+        }
+    };
+
+    const handleDelete = async (member: MemberItem) => {
+        try {
+            await deleteMember(member._id);
+            toast.success("Member removed successfully!", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#E8F5E9",
+                    color: "#2E7D32",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to remove member", {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#C62828",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+        }
+    };
 
     return (
         <div className="mt-8 w-full overflow-x-auto">
@@ -76,15 +151,17 @@ const Table: React.FC<TableProps> = ({
                         >
                             {/* Full Name (mobile only) */}
                             <td className="px-4 py-4 text-GrayHomz font-[500] text-[11px] md:hidden">
-                                {data.firstName} {data.lastName}
+                                {data.firstName && data.lastName 
+                                    ? `${data.firstName} ${data.lastName}` 
+                                    : data.email}
                             </td>
 
                             {/* Web cells */}
                             <td className="px-4 py-4 text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
-                                {data.firstName}
+                                {data.firstName || <span className="text-GrayHomz5 italic">Pending</span>}
                             </td>
                             <td className="px-4 py-4 text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
-                                {data.lastName}
+                                {data.lastName || <span className="text-GrayHomz5 italic">Pending</span>}
                             </td>
                             <td className="px-4 py-4 text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
                                 {data.email}
@@ -92,26 +169,36 @@ const Table: React.FC<TableProps> = ({
 
                             {/* Role dropdown */}
                             <td className="px-4 py-4">
-                                <div className='w-[130px] md:w-full'>
-                                <Dropdown
-                                    options={options}
-                                    onSelect={(option) =>
-                                        setSelectedData({ ...data, role: option.label })
-                                    }
-                                    selectOption={data.role || 'Select role'}
-                                    showSearch={false}
-                                    borderColor="border-[#A9A9A9]"
-                                    arrowColor="#A9A9A9"
-                                    bgColor="bg-transparent"
-                                />
-                                </div>
+                                {updatingRoleId === data._id ? (
+                                    <div className="w-[130px] md:w-full flex justify-center items-center">
+                                        <HourGlassLoader />
+                                    </div>
+                                ) : (
+                                    <div className='w-[130px] md:w-full'>
+                                        <Dropdown
+                                            options={options}
+                                            onSelect={(option) => handleRoleChange(data, option)}
+                                            selectOption={getRoleLabel(data.role)}
+                                            showSearch={false}
+                                            borderColor="border-[#A9A9A9]"
+                                            arrowColor="#A9A9A9"
+                                            bgColor="bg-transparent"
+                                        />
+                                    </div>
+                                )}
                             </td>
 
                             {/* Remove (web only) */}
                             <td className="px-4 py-4 hidden md:table-cell">
-                                <div className="flex items-center gap-2 text-error font-[500] text-[11px]">
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(data);
+                                    }}
+                                    className="flex items-center gap-2 text-error font-[500] text-[11px] hover:opacity-70 transition-opacity"
+                                >
                                     <DeleteIcon /> Remove
-                                </div>
+                                </button>
                             </td>
 
                             {/* Dots icon (mobile only) */}

@@ -14,7 +14,7 @@ import ManageResidentIcon from '@/components/icons/estateManager&Resident/deskto
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
 // import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 // import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
-// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
 import InitialsAvatar from '@/components/general/InitialsAvatar';
 import Link from 'next/link';
@@ -153,12 +153,12 @@ const More = [
             //     image: <ProfileIcon />,
             //     image2: <ProfileIcon className='#006AFF' />,
             // },
-            // {
-            //     title: "Settings",
-            //     link: "/settings",
-            //     image: <SettingsIcon />,
-            //     image2: <SettingsIcon className='#006AFF' />,
-            // },
+            {
+                title: "Settings",
+                link: "/settings",
+                image: <SettingsIcon />,
+                image2: <SettingsIcon className='#006AFF' />,
+            },
             {
                 title: "Logout",
                 link: "#",
