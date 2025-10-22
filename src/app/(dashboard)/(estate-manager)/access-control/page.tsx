@@ -13,8 +13,20 @@ import AccessTable from './components/accessTable'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import toast, { LoaderIcon } from 'react-hot-toast'
 import LoadingSpinner from '@/components/general/loadingSpinner'
+import { useAbility } from '@/contexts/AbilityContext'
+import { useRouter } from 'next/navigation'
 
 const AccessControl = () => {
+    const router = useRouter();
+    const ability = useAbility();
+
+    // Redirect if user doesn't have access to access control
+    React.useEffect(() => {
+        if (!ability.can('read', 'access-control')) {
+            router.push('/dashboard');
+        }
+    }, [ability, router]);
+
     const [steps, setSteps] = React.useState<number>(0);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
     const { error, accessData, setAccessData, fetchManagerAccess, initialLoading, setAccessStatusFilter, accessStatusFilter } = useAccessStore();
@@ -101,13 +113,15 @@ const AccessControl = () => {
                 <div className='p-8'>
                     <div className='flex justify-between items-center border-b border-[#E6E6E6] pb-8'>
                         <div>
-                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span></h1>
-                            <h3 className='text-GrayHomz font-normal hidden md:block text-[16px]'>Click on access status to change visitor’s access status</h3>
-                            <h3 className='text-GrayHomz2 font-normal text-sm md:hidden mt-2'>Tap on access status to change visitor’s access status</h3>
+                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control {ability.can('update', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}</h1>
+                            <h3 className='text-GrayHomz font-normal hidden md:block text-[16px]'>{ability.can('update', 'access-control') ? 'Click on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
+                            <h3 className='text-GrayHomz2 font-normal text-sm md:hidden mt-2'>{ability.can('update', 'access-control') ? 'Tap on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
                         </div>
-                        <button onClick={() => setOpenAddManual(true)} className='hidden bg-BlueHomz px-3 h-[37px] rounded-[4px] cursor-pointer text-sm font-normal text-white md:flex items-center gap-1'>
-                            <AddWhiteBox /> Register Visitor
-                        </button>
+                        {ability.can('update', 'access-control') && (
+                            <button onClick={() => setOpenAddManual(true)} className='hidden bg-BlueHomz px-3 h-[37px] rounded-[4px] cursor-pointer text-sm font-normal text-white md:flex items-center gap-1'>
+                                <AddWhiteBox /> Register Visitor
+                            </button>
+                        )}
                     </div>
                     <div className='mt-8'>
                         <div className='flex flex-col-reverse md:flex-row gap-4 md:gap-0 justify-between md:items-center'>
@@ -169,14 +183,16 @@ const AccessControl = () => {
                                 <EmptyAccess />
                             </div>
                             <p className='mt-2 text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
-                            <button
-                                onClick={() => {
-                                    setOpenAddManual(true)
-                                }}
-                                className='bg-BlueHomz px-4 py-2 rounded-[4px] cursor-ponter text-sm font-normal text-white flex items-center gap-1'
-                            >
-                                <AddWhiteBox /> Register Visitor
-                            </button>
+                            {ability.can('update', 'access-control') && (
+                                <button
+                                    onClick={() => {
+                                        setOpenAddManual(true)
+                                    }}
+                                    className='bg-BlueHomz px-4 py-2 rounded-[4px] cursor-ponter text-sm font-normal text-white flex items-center gap-1'
+                                >
+                                    <AddWhiteBox /> Register Visitor
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

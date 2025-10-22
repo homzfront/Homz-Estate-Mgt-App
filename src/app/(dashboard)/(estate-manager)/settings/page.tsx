@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from 'react'
 import ArrowDown from '@/components/icons/arrowDown';
@@ -13,8 +14,21 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import toast from 'react-hot-toast';
 import DotLoader from '@/components/general/dotLoader';
 import LoadingSpinner from '@/components/general/loadingSpinner';
+import { useAbility } from '@/contexts/AbilityContext';
+import { useRouter } from 'next/navigation';
+import HourGlassLoader from '@/components/general/hourGlassLoader';
 
 const Settings = () => {
+  const router = useRouter();
+  const ability = useAbility();
+
+  // Redirect if user doesn't have access to settings
+  React.useEffect(() => {
+    if (!ability.can('read', 'settings')) {
+      router.push('/dashboard');
+    }
+  }, [ability, router]);
+
   const [isOpen, setIsOpen] = React.useState(false);
   const [active, setActive] = React.useState(false);
   const [openSuccess, setOpenSuccess] = React.useState(false);
@@ -22,6 +36,7 @@ const Settings = () => {
   const [openDetails, setOpenDetails] = React.useState(false);
   const [activePage, setActivePage] = React.useState(0);
   const [sendingInvite, setSendingInvite] = React.useState(false);
+  const [updatingRoleId, setUpdatingRoleId] = React.useState<string | null>(null);
   
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
   const { 
@@ -31,7 +46,8 @@ const Settings = () => {
     fetchMembers, 
     sendInvitation,
     setRoleFilter,
-    hasAnyData
+    hasAnyData,
+    updateMemberRole
   } = useMembersStore();
 
   const toggleDropdown = () => {
@@ -46,7 +62,6 @@ const Settings = () => {
   const options = [
     { id: 1, label: 'Admin', value: 'admin' },
     { id: 2, label: 'Account Manager', value: 'account_manager' },
-    { id: 3, label: 'Landlord', value: 'landLord' },
     { id: 4, label: 'Security', value: 'security' },
     { id: 5, label: 'Viewer', value: 'viewer' },
   ];
@@ -106,10 +121,46 @@ const Settings = () => {
     setFormData({ email: '', role: '' });
   };
   
+  const handleRoleChange = async (member: MemberItem, selectedOption: { id: number | string; label: string }) => {
+    const roleOption = options.find(opt => opt.label === selectedOption.label);
+    const roleValue = roleOption?.value || selectedOption.label;
+    
+    setUpdatingRoleId(member._id);
+    try {
+      await updateMemberRole(member._id, roleValue, member.email);
+      toast.success("Role updated successfully!", {
+        position: "top-center",
+        duration: 2000,
+        style: {
+          background: "#E8F5E9",
+          color: "#2E7D32",
+          fontWeight: 500,
+          padding: "12px 20px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        },
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update role", {
+        position: "top-center",
+        duration: 2000,
+        style: {
+          background: "#FFEBEE",
+          color: "#C62828",
+          fontWeight: 500,
+          padding: "12px 20px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+        },
+      });
+    } finally {
+      setUpdatingRoleId(null);
+    }
+  };
+  
   const pages = [
     { label: "All", value: null },
     { label: "Admin", value: "admin" },
-    { label: "Landlord", value: "landLord" },
     { label: "Account Manager", value: "account_manager" },
     { label: "Security", value: "security" },
     { label: "Viewer", value: "viewer" },
@@ -174,15 +225,21 @@ const Settings = () => {
               <div className='flex flex-row gap-8 items-center'>
                 <h3 className='w-[80px]'>Role</h3>
                 <div className='w-[150px]'>
-                  <Dropdown
-                    options={options}
-                    onSelect={() => { }}
-                    selectOption={getRoleLabel(selectedData?.role || '')}
-                    showSearch={false}
-                    borderColor="border-[#A9A9A9]"
-                    arrowColor="#A9A9A9"
-                    bgColor="bg-transparent"
-                  />
+                  {updatingRoleId === selectedData?._id ? (
+                    <div className="flex justify-center items-center">
+                      <HourGlassLoader />
+                    </div>
+                  ) : (
+                    <Dropdown
+                      options={options}
+                      onSelect={(option) => selectedData && handleRoleChange(selectedData, option)}
+                      selectOption={getRoleLabel(selectedData?.role || '')}
+                      showSearch={false}
+                      borderColor="border-[#A9A9A9]"
+                      arrowColor="#A9A9A9"
+                      bgColor="bg-transparent"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -271,6 +328,8 @@ const Settings = () => {
                 currentData={filteredMembers}
                 setOpenDetails={setOpenDetails}
                 setSelectedData={setSelectedData}
+                onRoleChange={handleRoleChange}
+                updatingRoleId={updatingRoleId}
               />
             ) : (
               <div className='mt-8 h-[300px] w-full flex items-center justify-center'>

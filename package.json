@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.3",
+    "@casl/react": "^5.0.0",
     "@tanstack/react-virtual": "^3.13.12",
     "axios": "^1.12.0",
     "clsx": "^2.1.1",
@@ -18,6 +20,7 @@
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-loader-spinner": "^7.0.3",
     "react-modal": "^3.16.1",
     "react-slick": "^0.30.3",
     "react-swiper": "^0.1.5",

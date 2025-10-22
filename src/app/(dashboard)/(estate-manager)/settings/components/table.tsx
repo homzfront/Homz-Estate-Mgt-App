@@ -14,18 +14,22 @@ type TableProps = {
     currentData: MemberItem[];
     setOpenDetails: (val: boolean) => void;
     setSelectedData: (data: MemberItem | null) => void;
+    onRoleChange?: (member: MemberItem, selectedOption: { id: number | string; label: string }) => void;
+    updatingRoleId?: string | null;
 };
 
 const Table: React.FC<TableProps> = ({
     currentData,
     setOpenDetails,
     setSelectedData,
+    onRoleChange,
+    updatingRoleId,
 }) => {
     const [popUpIndex, setPopUpIndex] = React.useState<number | null>(null);
     const [openPopUp, setOpenPopUp] = React.useState(false);
-    const [updatingRoleId, setUpdatingRoleId] = React.useState<string | null>(null);
-    const { updateMemberRole, deleteMember } = useMembersStore();
-    
+    const [deletingId, setDeletingId] = React.useState<string | null>(null);
+    const { deleteMember } = useMembersStore();
+
     const options = [
         { id: 1, label: 'Admin', value: 'admin' },
         { id: 2, label: 'Account Manager', value: 'account_manager' },
@@ -38,7 +42,7 @@ const Table: React.FC<TableProps> = ({
     useClickOutside(dropdownRef as any, () => {
         setOpenPopUp(false);
     });
-    
+
     const handleTogglePopUp = () => {
         setOpenPopUp(!openPopUp);
     };
@@ -49,44 +53,8 @@ const Table: React.FC<TableProps> = ({
         return roleOption ? roleOption.label : capitalizeFirstLetter(roleValue);
     };
 
-    const handleRoleChange = async (member: MemberItem, selectedOption: { id: number | string; label: string }) => {
-        const roleOption = options.find(opt => opt.label === selectedOption.label);
-        const roleValue = roleOption?.value || selectedOption.label;
-        
-        setUpdatingRoleId(member._id);
-        try {
-            await updateMemberRole(member._id, roleValue, member.email);
-            toast.success("Role updated successfully!", {
-                position: "top-center",
-                duration: 2000,
-                style: {
-                    background: "#E8F5E9",
-                    color: "#2E7D32",
-                    fontWeight: 500,
-                    padding: "12px 20px",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                },
-            });
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update role", {
-                position: "top-center",
-                duration: 2000,
-                style: {
-                    background: "#FFEBEE",
-                    color: "#C62828",
-                    fontWeight: 500,
-                    padding: "12px 20px",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                },
-            });
-        } finally {
-            setUpdatingRoleId(null);
-        }
-    };
-
     const handleDelete = async (member: MemberItem) => {
+        setDeletingId(member._id);
         try {
             await deleteMember(member._id);
             toast.success("Member removed successfully!", {
@@ -114,6 +82,8 @@ const Table: React.FC<TableProps> = ({
                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                 },
             });
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -151,8 +121,8 @@ const Table: React.FC<TableProps> = ({
                         >
                             {/* Full Name (mobile only) */}
                             <td className="px-4 py-4 text-GrayHomz font-[500] text-[11px] md:hidden">
-                                {data.firstName && data.lastName 
-                                    ? `${data.firstName} ${data.lastName}` 
+                                {data.firstName && data.lastName
+                                    ? `${data.firstName} ${data.lastName}`
                                     : data.email}
                             </td>
 
@@ -177,7 +147,7 @@ const Table: React.FC<TableProps> = ({
                                     <div className='w-[130px] md:w-full'>
                                         <Dropdown
                                             options={options}
-                                            onSelect={(option) => handleRoleChange(data, option)}
+                                            onSelect={(option) => onRoleChange && onRoleChange(data, option)}
                                             selectOption={getRoleLabel(data.role)}
                                             showSearch={false}
                                             borderColor="border-[#A9A9A9]"
@@ -190,15 +160,21 @@ const Table: React.FC<TableProps> = ({
 
                             {/* Remove (web only) */}
                             <td className="px-4 py-4 hidden md:table-cell">
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDelete(data);
-                                    }}
-                                    className="flex items-center gap-2 text-error font-[500] text-[11px] hover:opacity-70 transition-opacity"
-                                >
-                                    <DeleteIcon /> Remove
-                                </button>
+                                {deletingId === data._id ? (
+                                    <div className="flex items-center justify-center w-full">
+                                        <HourGlassLoader />
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(data);
+                                        }}
+                                        className="flex items-center gap-2 text-error font-[500] text-[11px] hover:opacity-70 transition-opacity"
+                                    >
+                                        <DeleteIcon /> Remove
+                                    </button>
+                                )}
                             </td>
 
                             {/* Dots icon (mobile only) */}
@@ -221,7 +197,14 @@ const Table: React.FC<TableProps> = ({
                                     />
                                 </button>
                                 {openPopUp && popUpIndex === index && (
-                                    <PopUp dropdownRef={dropdownRef as any} setOpenPopUp={setOpenPopUp} setOpenDetails={setOpenDetails} />
+                                    <PopUp
+                                        dropdownRef={dropdownRef as any}
+                                        setOpenPopUp={setOpenPopUp}
+                                        setOpenDetails={setOpenDetails}
+                                        memberData={data}
+                                        onDelete={handleDelete}
+                                        deletingId={deletingId}
+                                    />
                                 )}
                             </td>
                         </tr>

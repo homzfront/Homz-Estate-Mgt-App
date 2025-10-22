@@ -8,8 +8,6 @@ import toast from "react-hot-toast";
 import { useAuthSlice } from "@/store/authStore";
 import api from "@/utils/api";
 import { storeToken } from "@/utils/cookies";
-import { useSelectedEsate } from "@/store/useSelectedEstate";
-import { useResidentCommunity } from "@/store/useResidentCommunity";
 import { SignupForm } from "@/hooks/useRoleSignupForm";
 import { useRouter } from "next/navigation";
 
@@ -24,9 +22,7 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const router = useRouter();
-    const { getResidentProfile, setUserData } = useAuthSlice();
-    const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
-    const { setResidentCommunity } = useResidentCommunity();
+    const { setUserData } = useAuthSlice();
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -76,7 +72,7 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
                 token: responseData?.data?.accessToken,
                 refresh_token: responseData?.data?.refreshToken,
             });
-            
+
             const communityManagerId = responseData.data?.userId;
             if (communityManagerId) {
                 const payload = {
@@ -85,7 +81,7 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
                         "organizationId": params.organizationId
                     }
                 }
-                const res = await api.post(`/estates-roles-permission-invitation/accept/community-manager/${communityManagerId}/tokens/${params.invitation}`, payload);
+                await api.post(`/estates-roles-permission-invitation/accept/community-manager/${communityManagerId}/tokens/${params.invitation}`, payload);
                 toast.success('Account created and invite accepted!');
             } else {
                 toast.error('Account creation failed.');
@@ -96,15 +92,6 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
 
             // Store user data
             setUserData(profile.data.data);
-
-            const responseTwo: any = await api.get(`estates/resident/all-estates/users/${profile.data.data?._id}`);
-            // console.log("Resident Estate Response:", response);
-            setResidentCommunity(responseTwo?.data?.data?.estates?.results)
-
-            await getResidentProfile(responseTwo?.data?.data?.estates?.results?.[0]?.associatedIds?.residentId);
-
-            setSelectedEstate(responseTwo?.data?.data?.estates?.results?.[0] || null);
-
             router.push('/dashboard');
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message

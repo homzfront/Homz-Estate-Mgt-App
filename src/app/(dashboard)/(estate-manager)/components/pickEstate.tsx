@@ -15,6 +15,7 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+import { useAbility } from '@/contexts/AbilityContext'
 
 interface PickEstateProps {
     closeRef?: any;
@@ -24,6 +25,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
     const router = useRouter();
     const { clearForm } = useEstateFormStore()
     const { estatesData, logOutUser } = useAuthSlice();
+    const ability = useAbility();
     const [hoverEstate, setHoverEstate] = React.useState<boolean>(false);
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [searchEstate, setSearchEstate] = React.useState<string>('');
@@ -56,14 +58,13 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                             </div>
                             <div className='flex flex-col gap-1 w-full'>
                                 <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : ""}</span>
-                                <span className='text-sm font-medium text-GrayHomz truncate'>{ selectedCommunity ?  selectedCommunity?.role : ""}</span>
                                 <span className='text-[11px] font-normal text-GrayHomz truncate'>{totalCount || 0} Resident(s)</span>
+                                <span className='text-[11px] font-normal text-GrayHomz2 truncate'>{ selectedCommunity ?  selectedCommunity?.role : ""}</span>
                                 {/* <span className='text-[11px] font-normal text-GrayHomz2 truncate'>Owner</span> */}
                                 <div className='mt-2 flex items-center justify-between w-full'>
                                     <button
                                         onClick={() => {
                                             clearForm()
-                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?.estate?._id :''}`)
                                             router.push(`/estate-info/${selectedCommunity ? selectedCommunity?.estate?._id :''}`)
                                         }}
                                         className='text-[13px] font-normal text-BlueHomz flex items-center gap-2'><EstateInfoIcon /> Estate Information </button>
@@ -89,14 +90,16 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                 </div>
                 :
                 <div>
-                    <button className='w-full text-BlueHomz text-sm font-normal pb-4 flex items-center gap-2'
-                        onClick={() => {
-                            clearForm()
-                            router.push("/add-estate")
-                            setOpenEstateList(false);
-                        }}>
-                        <AddIcon /> Add New Estate
-                    </button>
+                    {ability.can('create', 'estate') && (
+                        <button className='w-full text-BlueHomz text-sm font-normal pb-4 flex items-center gap-2'
+                            onClick={() => {
+                                clearForm()
+                                router.push("/add-estate")
+                                setOpenEstateList(false);
+                            }}>
+                            <AddIcon /> Add New Estate
+                        </button>
+                    )}
                     <div className="relative">
                         <input
                             type="text"
@@ -116,8 +119,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                 <div className='flex flex-col'>
                                     <span className='text-sm font-medium text-BlackHpmz'>{item.estate?.basicDetails?.name}</span>
                                     <span className='text-[11px] font-normal text-GrayHomz'>{item.estate?.buildings?.[0]?.name}, {item.estate?.apartments?.[0]?.name}</span>
-                                    <span className='text-sm font-medium text-BlackHpmz'>{item.estate?.basicDetails?.name}</span>
-                                    <span className='text-[11px] font-normal text-GrayHomz'>{item.estate?.buildings?.[0]?.name}, {item.estate?.apartments?.[0]?.name}</span>
+                                    <span className='text-[11px] font-normal text-GrayHomz2 capitalize'>{item.role}</span>
                                 </div>
                                 <div
                                     onClick={() => {

@@ -1,12 +1,10 @@
 "use client"
 import AuthSlider from '@/components/auth/authSlider'
-import React from 'react'
+import React, { Suspense } from 'react'
 import ChangePassword from './components/changePassword'
 import UpdateResidentAccount from './components/roleData'
 import { useRoleSignupForm } from '@/hooks/useRoleSignupForm'
 import { useRoleSignupParams } from '@/hooks/useRoleSignupParams'
-
-const pages = ['Personal information', 'Create Password']
 
 const ResidentSignup = () => {
   const [active, setActive] = React.useState<number>(0);
@@ -95,4 +93,10 @@ const ResidentSignup = () => {
   )
 }
 
-export default ResidentSignup
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResidentSignup />
+    </Suspense>
+  )
+}

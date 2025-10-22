@@ -19,6 +19,7 @@ import toast from 'react-hot-toast';
 import api from '@/utils/api';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import DotLoader from '@/components/general/dotLoader';
+import { useAbility } from '@/contexts/AbilityContext';
 
 interface AccessTableProps {
     steps: number;
@@ -37,6 +38,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
         fetchManagerAccess,
         updateManagerAccessStatus,
     } = useAccessStore();
+    const ability = useAbility();
     const [isRevoking, setIsRevoking] = React.useState<boolean>(false);
     const [openDetails, setOpenDetails] = React.useState(false);
     const [openRevoke, setOpenRevoke] = React.useState(false);
@@ -288,14 +290,16 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                                         value={(row.accessStatus === 'pending' ? 'Pending' : row.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
                                                         loading={false}
                                                         isOpen={openStatusIndex === idx}
-                                                        toggleDropdown={() => setOpenStatusIndex((prev) => (prev === idx ? null : idx))}
+                                                        toggleDropdown={() => ability.can('update', 'access-control') && setOpenStatusIndex((prev) => (prev === idx ? null : idx))}
                                                         selectedStatus={null}
                                                         setSelectedStatus={() => { }}
                                                         dropdownRef={openStatusIndex === idx ? (statusDropdownRef as any) : undefined}
                                                         handleStatusChange={(status) => {
-                                                            const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
-                                                            updateManagerAccessStatus(row._id, next as any);
-                                                            setOpenStatusIndex(null);
+                                                            if (ability.can('update', 'access-control')) {
+                                                                const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
+                                                                updateManagerAccessStatus(row._id, next as any);
+                                                                setOpenStatusIndex(null);
+                                                            }
                                                         }}
                                                     />
                                                 </div>
@@ -316,16 +320,18 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeIn ? new Date(row.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
                                         <td className="text-GrayHomz py-[15px] font-[500] text-[11px] hidden md:table-cell">{row.timeOut ? new Date(row.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}</td>
                                         <td ref={openPopIndex === idx ? popupRef : undefined} className={`sticky right-0  py-[15px] pr-4 z-10`}>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedIndex(idx);
-                                                    setRevokeId(row._id);
-                                                    setOpenPopIndex((prev) => (prev === idx ? null : idx));
-                                                }}
-                                            >
-                                                <Image src="/dots-vertical.png" alt="Options" height={21} width={20} style={{ height: 'auto', width: 'auto' }} />
-                                            </button>
+                                            {ability.can('update', 'access-control') && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedIndex(idx);
+                                                        setRevokeId(row._id);
+                                                        setOpenPopIndex((prev) => (prev === idx ? null : idx));
+                                                    }}
+                                                >
+                                                    <Image src="/dots-vertical.png" alt="Options" height={21} width={20} style={{ height: 'auto', width: 'auto' }} />
+                                                </button>
+                                            )}
                                             {openPopIndex === idx && (
                                                 <PopUp
                                                     disabledRevoke={!!row?.resident?.firstName}

@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRoleSignupParams } from '@/hooks/useRoleSignupParams';
 import { SignupForm } from '@/hooks/useRoleSignupForm';
 import React from 'react';
 
 
 const RoleData = ({ setActive, form, handleInputChange }: { setActive: (n: number) => void; form: SignupForm; handleInputChange: (field: keyof SignupForm, value: string) => void }) => {
-    const params = useRoleSignupParams();
-
     const [errors, setErrors] = React.useState({
         firstName: false,
         lastName: false,

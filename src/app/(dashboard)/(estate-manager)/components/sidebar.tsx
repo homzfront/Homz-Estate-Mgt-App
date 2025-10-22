@@ -25,6 +25,8 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useEstateFormStore } from '@/store/useEstateFormStore';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import UserTick from '@/components/icons/userTick';
+import { useAbility } from '@/contexts/AbilityContext';
+import { Subjects } from '@/utils/ability';
 
 const Data = [
     {
@@ -180,13 +182,7 @@ const Sidebar = () => {
     const { clearForm } = useEstateFormStore()
     const { logOutUser, estatesData, communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
-
-    React.useEffect(() => {
-        if (!selectedCommunity && estatesData && estatesData.length > 0) {
-            setSelectedCommunity(estatesData[0]); // default first estate
-        }
-    }, [selectedCommunity, estatesData, setSelectedCommunity]);
+    const ability = useAbility();
 
     // Note: getEstates() is now called automatically in getCommunityManaProfile()
 
@@ -218,6 +214,24 @@ const Sidebar = () => {
         }
         return false;
     };
+
+    // Filter menu items based on permissions
+    const filteredData = Data.filter(item => {
+        const subject = item.name.toLowerCase().replace(' ', '-') as Subjects;
+        return ability.can('read', subject);
+    });
+
+    const filteredMore = More.map(section => ({
+        ...section,
+        subMenuItems: section.subMenuItems?.filter(subItem => {
+            if (subItem.title.toLowerCase() === 'settings') {
+                return ability.can('read', 'settings');
+            }
+            return true; // Always show logout
+        })
+    })).filter(section =>
+        section.subMenuItems && section.subMenuItems.length > 0
+    );
     
     return (
         <div className="sidebar relative">
@@ -258,7 +272,7 @@ const Sidebar = () => {
                             </div>
                         </button>
                     }
-                    {(communityProfile && estatesData?.length === 0) &&
+                    {(communityProfile && estatesData?.length === 0) && ability.can('create', 'estate') &&
                         <button onClick={() => {
                             clearForm()
                             router.push("/add-estate")
@@ -267,7 +281,7 @@ const Sidebar = () => {
                         </button>
                     }
                     <div className="flex flex-col gap-3 mb-[50px] mt-10">
-                        {Data.map((data) =>
+                        {filteredData.map((data) =>
                             data.submenu ? (
                                 <div key={data.id}>
                                     <button
@@ -378,7 +392,7 @@ const Sidebar = () => {
                         )}
                     </div>
                     <div className='flex flex-col gap-3 mb-[50px] mt-10 max-w-[230px]'>
-                        {More.map((data) =>
+                        {filteredMore.map((data) =>
                         (
                             <div key={data.id}>
                                 <button onClick={() => toggleSubMore(data.name)} className="w-full text-left">
