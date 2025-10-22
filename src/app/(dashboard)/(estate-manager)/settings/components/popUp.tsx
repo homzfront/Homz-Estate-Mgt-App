@@ -2,15 +2,20 @@
 import React from 'react';
 import MoreDetails from '@/components/icons/moreDetails';
 import DeleteIcon from '@/components/icons/deleteIcon';
+import HourGlassLoader from '@/components/general/hourGlassLoader';
+import { MemberItem } from '@/store/useMembersStore';
 
 interface PopUpProps {
     setOpenDetails: (data: boolean) => void;
     fromDefault?: boolean;
     setOpenPopUp: (val: boolean) => void;
     dropdownRef?: React.RefObject<HTMLDivElement>;
+    memberData?: MemberItem;
+    onDelete?: (member: MemberItem) => void;
+    deletingId?: string | null;
 }
 
-function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef }: PopUpProps) {
+function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef, memberData, onDelete, deletingId }: PopUpProps) {
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
     return (
@@ -46,19 +51,27 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef }
                     onMouseLeave={() => setActiveTwo(false)}
                     className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                // setOpenDetails(true)
-                                setOpenPopUp(false);
-                            }}
-                            className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
-                        >
-                            <DeleteIcon className={activeTwo ? '#D92D20' : "#4E4E4E"} />
-                            <p className={`${activeTwo ? 'text-[#D92D20]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
-                                Remove
-                            </p>
-                        </div>
+                        {deletingId === memberData?._id ? (
+                            <div className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md">
+                                <HourGlassLoader />
+                            </div>
+                        ) : (
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (memberData && onDelete) {
+                                        onDelete(memberData);
+                                    }
+                                    setOpenPopUp(false);
+                                }}
+                                className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
+                            >
+                                <DeleteIcon className={activeTwo ? '#D92D20' : "#4E4E4E"} />
+                                <p className={`${activeTwo ? 'text-[#D92D20]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
+                                    Remove
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { estateData } from './authStore';
+import { Community, estateData } from './authStore';
 
 interface CommunityStore {
-  selectedCommunity: estateData | null;
-  setSelectedCommunity: (data: estateData | null) => void;
+  selectedCommunity: Community | null;
+  setSelectedCommunity: (data: Community | null) => void;
   isSwitchingEstate: boolean;
   setIsSwitchingEstate: (value: boolean) => void;
   publicCommunity: estateData | null;

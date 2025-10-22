@@ -62,7 +62,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
 
             // Make API request
             await api.post(
-                `/access-control/community-manager/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`,
+                `/access-control/community-manager/organizations/${selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${selectedCommunity?.estate?._id}`,
                 removeEmptyFields(payload)
             );
             setOpenSuccessModal(true);
@@ -111,7 +111,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
 
         Your ${timeCode.toLowerCase()} access code is: 
 
-        Location: ${selectedCommunity?.basicDetails?.name}
+        Location: ${selectedCommunity?.estate?.basicDetails?.name}
         From: ${formData.arrivalDate}, ${formData.startTime}
         To: ${formData.arrivalDate}, ${formData.endTime}
 
@@ -274,7 +274,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                                 <p>Your {timeCode.toLowerCase()} access code is: <strong></strong></p>
 
                                 <p>
-                                    Location: {selectedCommunity?.basicDetails?.name} <br />
+                                    Location: {selectedCommunity?.estate?.basicDetails?.name} <br />
                                     From: {formData.arrivalDate}, {formData.startTime} <br />
                                     To: {formData.arrivalDate}, {formData.endTime}
                                 </p>

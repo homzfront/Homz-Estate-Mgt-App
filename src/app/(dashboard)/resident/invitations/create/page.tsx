@@ -107,7 +107,7 @@ const Resident = () => {
                 const t = await getToken();
                 console.log(t)
                 if (!t || !userData) {
-                    router.push("/login")
+                    router.push("/register")
                 } else {
                     getPublicEstate();
                 }

@@ -1,6 +1,7 @@
 import './globals.css'
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { AbilityProvider } from '@/contexts/AbilityContext';
 
 const plus_Jakarta_Sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -35,7 +36,9 @@ export default function RootLayout({
             duration: 4000,
           }}
         />
-        {children}
+        <AbilityProvider>
+          {children}
+        </AbilityProvider>
       </body>
     </html>
   );

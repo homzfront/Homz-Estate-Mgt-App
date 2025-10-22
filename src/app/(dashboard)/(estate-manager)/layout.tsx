@@ -6,6 +6,7 @@ import useClickOutside from '@/app/utils/useClickOutside';
 import PickEstate from './components/pickEstate';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import LoadingSpinner from '@/components/general/loadingSpinner';
+import { useAuthSlice } from '@/store/authStore';
 
 const Layout = ({
     children,
@@ -13,11 +14,38 @@ const Layout = ({
     children: React.ReactNode;
 }>) => {
     const { openEstateList, setOpenEstateList } = useOpenCommunityListStore();
+
     const isSwitchingEstate = useSelectedCommunity((state) => state.isSwitchingEstate);
+    const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    const { estatesData, estateLoading, getCommunityManaProfile } = useAuthSlice();
+    const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
+
+    // Load state 
+    React.useEffect(() => {
+        getCommunityManaProfile()
+    }, []);
+
+    React.useEffect(() => {
+        if (!selectedCommunity && estatesData && estatesData.length > 0) {
+            setSelectedCommunity(estatesData[0]); // default first estate
+        }
+    }, [selectedCommunity, estatesData, setSelectedCommunity]);
+
     const closeRef = React.useRef<HTMLDivElement>(null);
     useClickOutside(closeRef as any, () => {
         setOpenEstateList(false);
     });
+
+    // Show loading until we have estate data and role
+    if (estateLoading || !selectedCommunity?.role) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="p-6 flex flex-col items-center gap-3">
+                    <LoadingSpinner />
+                </div>
+            </div>
+        );
+    }
 
     return (
 

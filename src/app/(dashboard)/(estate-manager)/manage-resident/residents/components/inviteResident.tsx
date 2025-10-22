@@ -37,20 +37,20 @@ const InviteResident = ({ }: InviteResidentProps) => {
     // }
 
     useEffect(() => {
-        if (!selectedCommunity?._id) return;
+        if (!selectedCommunity?.estate?._id) return;
 
         const fetchInviteLink = async () => {
             setLoading(true);
             try {
                 const res = await api.post("/resident-invitation/generate-link", {
                     validationIds: {
-                        estateId: selectedCommunity._id,
+                        estateId: selectedCommunity?.estate?._id,
                         organizationId: communityProfile?.organization?._id
                     }
                 });
 
                 const newLink = res.data?.data?.link?.link || "";
-                setInviteLink(selectedCommunity._id, newLink);
+                setInviteLink(selectedCommunity?.estate?._id, newLink);
                 setInviteLinkState(newLink);
             } catch (error: any) {
                 const majorBackendError = error?.response?.data?.errors?.[0]?.message;
@@ -73,7 +73,7 @@ const InviteResident = ({ }: InviteResidentProps) => {
             }
         };
 
-        const cached = getInviteLink(selectedCommunity._id);
+        const cached = getInviteLink(selectedCommunity?.estate?._id);
         const isExpired = !cached || Date.now() - cached.fetchedAt > 10 * 60 * 1000;
 
         if (!cached || isExpired) {
