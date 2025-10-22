@@ -41,7 +41,7 @@ const AccessControl = () => {
             fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedCommunity?._id])
+    }, [selectedCommunity?.estate?._id])
 
     const mountedRef = React.useRef(false);
     React.useEffect(() => {

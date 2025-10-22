@@ -66,7 +66,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
         if (!selectedCommunity) return;
         setIsRevoking(true);
         try {
-            const response = await api.patch(`/access-control/community-manager/revoke-access/${revokeId}/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`)
+            const response = await api.patch(`/access-control/community-manager/revoke-access/${revokeId}/organizations/${selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${selectedCommunity?.estate?._id}`)
             if (response.status === 200) {
                 setIsRevoking(false);
                 setOpenRevoke(false);

@@ -68,11 +68,11 @@ const Settings = () => {
 
   // Fetch members on mount or when community changes
   React.useEffect(() => {
-    if (selectedCommunity?._id) {
+    if (selectedCommunity?.estate?._id) {
       fetchMembers({ page: 1, limit: 50 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCommunity?._id]);
+  }, [selectedCommunity?.estate?._id]);
 
   const handleSendInvite = async () => {
     if (!active) return;

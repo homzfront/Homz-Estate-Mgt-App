@@ -41,30 +41,30 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                     <div className='bg-inputBg rounded-[12px] p-3'>
                         <div className='flex gap-2 items-start w-full'>
                             <div className="min-w-[40px] w-10 h-10 rounded-full overflow-hidden">
-                                {selectedCommunity?.coverPhoto ?
+                                {selectedCommunity?.estate?.coverPhoto ?
                                     <Image
-                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : ""}
+                                        src={selectedCommunity?.estate?.coverPhoto ? selectedCommunity?.estate?.coverPhoto?.url as string : ""}
                                         alt={"estate-img"}
                                         width={40}
                                         height={40}
                                         className="object-cover w-full h-full"
                                     /> :
                                     <InitialsAvatar
-                                        name={(selectedCommunity?.basicDetails?.name as string) || 'Estate'}
+                                        name={(selectedCommunity?.estate?.basicDetails?.name as string) || 'Estate'}
                                     />
                                 }
                             </div>
                             <div className='flex flex-col gap-1 w-full'>
-                                <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}</span>
-                                <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}</span>
+                                <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : ""}</span>
+                                <span className='text-sm font-medium text-GrayHomz truncate'>{ selectedCommunity ?  selectedCommunity?.role : ""}</span>
                                 <span className='text-[11px] font-normal text-GrayHomz truncate'>{totalCount || 0} Resident(s)</span>
                                 {/* <span className='text-[11px] font-normal text-GrayHomz2 truncate'>Owner</span> */}
                                 <div className='mt-2 flex items-center justify-between w-full'>
                                     <button
                                         onClick={() => {
                                             clearForm()
-                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?._id :''}`)
-                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?._id :''}`)
+                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?.estate?._id :''}`)
+                                            router.push(`/estate-info/${selectedCommunity ? selectedCommunity?.estate?._id :''}`)
                                         }}
                                         className='text-[13px] font-normal text-BlueHomz flex items-center gap-2'><EstateInfoIcon /> Estate Information </button>
                                 </div>
@@ -121,9 +121,9 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                 </div>
                                 <div
                                     onClick={() => {
-                                        if (selectedCommunity?._id !== item.estate?._id) {
+                                        if (selectedCommunity?.estate?._id !== item.estate?._id) {
                                             setIsSwitchingEstate(true);
-                                            setSelectedCommunity(item?.estate);
+                                            setSelectedCommunity(item);
                                             // Give brief moment for state to propagate, then hide loader
                                             setTimeout(() => {
                                                 setIsSwitchingEstate(false);
@@ -132,9 +132,9 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                         setOpenEstateList(false);
                                     }}
                                     className={`px-2 py-1 text-xs flex gap-2 items-center rounded-[4px] cursor-pointer
-                                                ${selectedCommunity?._id === item.estate?._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}
+                                                ${selectedCommunity?.estate?._id === item.estate?._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}
                                 >
-                                    {selectedCommunity?._id === item.estate?._id ? "Selected" : "Switch"}
+                                    {selectedCommunity?.estate?._id === item.estate?._id ? "Selected" : "Switch"}
                                 </div>
                             </div>
                         ))}

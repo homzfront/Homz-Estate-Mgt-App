@@ -82,7 +82,7 @@ const Request = () => {
 
     // fetch requests when page changes
     React.useEffect(() => {
-        if (selectedCommunity?._id) {
+        if (selectedCommunity?.estate?._id) {
             getRequest(pageNo, pageSize)
         };
     }, [pageNo, selectedCommunity]);

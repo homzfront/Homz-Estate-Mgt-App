@@ -43,7 +43,7 @@ const Dashboard = () => {
             fetchManagerAccess({ page: 1, limit: 8, manualOnly: false });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedCommunity?._id])
+    }, [selectedCommunity?.estate?._id])
 
     React.useEffect(() => {
         if (selectedCommunity) {
@@ -98,9 +98,9 @@ const Dashboard = () => {
                     <button onClick={() => setOpenEstateList(true)} className='md:hidden border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between w-full h-[48px] rounded-[4px] px-4 mb-4 onClick={()=> setOpenEsateList(true)}'>
                         <div className='flex gap-2 items-center'>
                             <div className="w-6 h-6 rounded-full overflow-hidden">
-                                {selectedCommunity?.coverPhoto ?
+                                {selectedCommunity?.estate?.coverPhoto ?
                                     <Image
-                                        src={selectedCommunity?.coverPhoto ? selectedCommunity?.coverPhoto?.url as string : ''}
+                                        src={selectedCommunity?.estate?.coverPhoto ? selectedCommunity?.estate?.coverPhoto?.url as string : ''}
                                         alt={"estate-img"}
                                         width={40}
                                         height={40}
@@ -115,7 +115,7 @@ const Dashboard = () => {
                                     />
                                 }
                             </div>
-                            {selectedCommunity ? selectedCommunity?.basicDetails?.name :''}
+                            {selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name :''}
                         </div>
                         <div className='mt-1.5'>
                             <ArrowDown size={20} className='#4E4E4E' />

@@ -184,7 +184,7 @@ const Sidebar = () => {
 
     React.useEffect(() => {
         if (!selectedCommunity && estatesData && estatesData.length > 0) {
-            setSelectedCommunity(estatesData[0]?.estate); // default first estate
+            setSelectedCommunity(estatesData[0]); // default first estate
         }
     }, [selectedCommunity, estatesData, setSelectedCommunity]);
 
@@ -236,9 +236,9 @@ const Sidebar = () => {
                         <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                             <div className='flex gap-2 items-center'>
                                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-white">
-                                    {selectedCommunity?.coverPhoto ? (
+                                    {selectedCommunity?.estate?.coverPhoto ? (
                                         <Image
-                                            src={selectedCommunity?.coverPhoto ? (selectedCommunity?.coverPhoto?.url as string) : ""}
+                                            src={selectedCommunity?.estate?.coverPhoto ? (selectedCommunity?.estate?.coverPhoto?.url as string) : ""}
                                             alt={"estate-img"}
                                             width={40}
                                             height={40}
@@ -246,12 +246,12 @@ const Sidebar = () => {
                                         />
                                     ) : (
                                         <InitialsAvatar
-                                            name={(selectedCommunity?.basicDetails?.name as string) || 'Estate'}
+                                            name={(selectedCommunity?.estate?.basicDetails?.name as string) || 'Estate'}
                                             size={24}
                                         />
                                     )}
                                 </div>
-                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}
+                                {selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : ""}
                             </div>
                             <div className='mt-1.5'>
                                 <ArrowDown size={20} className='#4E4E4E' />

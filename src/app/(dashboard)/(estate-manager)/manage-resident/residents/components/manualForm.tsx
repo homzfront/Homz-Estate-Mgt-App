@@ -40,28 +40,27 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
     });
     const { fetchResidents } = useResidentsListStore();
 
-    const community = selectedCommunity;
 
     // Zones
-    const zoneOptions = community?.zones.map((z) => ({
+    const zoneOptions = selectedCommunity?.estate?.zones.map((z) => ({
         id: z.name,
         label: z.name,
     }));
 
     // Streets
-    const streetOptions = community?.streets.map((s) => ({
+    const streetOptions = selectedCommunity?.estate?.streets.map((s) => ({
         id: s.name,
         label: s.name,
     }));
 
     // Buildings
-    const buildingOptions = community?.buildings.map((b) => ({
+    const buildingOptions = selectedCommunity?.estate?.buildings.map((b) => ({
         id: b.name,
         label: b.name,
     }));
 
     // Apartments
-    const apartmentOptions = community?.apartments.map((a) => ({
+    const apartmentOptions = selectedCommunity?.estate?.apartments.map((a) => ({
         id: a.name,
         label: a.name,
     }));
@@ -154,7 +153,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
         setLoading(true);
         try {
             // Validate required fields
-            if (!formData?.email || !selectedCommunity?.basicDetails?.name || !formData.firstName || !formData.lastName || !formData?.streetName || !formData?.building || !formData?.apartment || !formData?.selectOwnershipType) {
+            if (!formData?.email || !selectedCommunity?.estate?.basicDetails?.name || !formData.firstName || !formData.lastName || !formData?.streetName || !formData?.building || !formData?.apartment || !formData?.selectOwnershipType) {
                 toast.error("Please fill in all required fields", {
                     position: "top-center",
                     duration: 3000,
@@ -175,7 +174,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                 email: formData?.email || "",
                 firstName: formData?.firstName,
                 lastName: formData?.lastName,
-                estateName: selectedCommunity?.basicDetails?.name,
+                estateName: selectedCommunity?.estate?.basicDetails?.name,
                 zone: formData?.selectZone || undefined, // Optional
                 streetName: formData?.streetName,
                 building: formData?.building,
@@ -229,7 +228,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             }
 
             // Make API call
-            await api.post(`/community-manager/resident/create-profile/organizations/${selectedCommunity?.associatedIds?.organizationId}/estates/${selectedCommunity?._id}`, payload);
+            await api.post(`/community-manager/resident/create-profile/organizations/${selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${selectedCommunity?.estate?._id}`, payload);
 
             // Open Success Modal && CloseModal
             setOpenSuccessModal(true)
@@ -334,7 +333,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                     <div className='flex flex-col gap-1 w-full text-sm'>
                         <h3 className='text-sm font-medium text-BlackHomz'>Estate Name <span className='text-error'>*</span></h3>
                         <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                            {selectedCommunity?.basicDetails?.name || "Auto-filled"}
+                            {selectedCommunity?.estate?.basicDetails?.name || "Auto-filled"}
                         </span>
                     </div>
                     <div className='flex flex-col md:flex-row items-center gap-4'>

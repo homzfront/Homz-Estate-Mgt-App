@@ -98,8 +98,8 @@ export const useMembersStore = create<MembersState>((set, get) => ({
         const silent = params.silent ?? false;
 
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             set({ error: 'Missing organization or estate id', initialLoading: false, pageLoading: false });
@@ -176,8 +176,8 @@ export const useMembersStore = create<MembersState>((set, get) => ({
 
     updateMemberRole: async (memberId: string, role: string, email: string) => {
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             throw new Error('Missing organization or estate id');
@@ -205,8 +205,8 @@ export const useMembersStore = create<MembersState>((set, get) => ({
 
     deleteMember: async (memberId: string) => {
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             throw new Error('Missing organization or estate id');
@@ -231,8 +231,8 @@ export const useMembersStore = create<MembersState>((set, get) => ({
 
     sendInvitation: async (email: string, role: string) => {
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             throw new Error('Missing organization or estate id');

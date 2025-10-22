@@ -14,7 +14,7 @@ import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
 import toast from 'react-hot-toast';
 import api from '@/utils/api';
 import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
-import { estateData, useAuthSlice } from '@/store/authStore';
+import { Community, useAuthSlice } from '@/store/authStore';
 
 const EditEstateForm = () => {
     const router = useRouter();
@@ -37,29 +37,29 @@ const EditEstateForm = () => {
         if (selectedCommunity) {
             // Map basic details
             setFormData({
-                estateName: selectedCommunity.basicDetails.name,
-                estateLocation: selectedCommunity.basicDetails.location.area,
-                area: selectedCommunity.basicDetails.location.area,
-                state: selectedCommunity.basicDetails.location.state,
-                managerPhone: selectedCommunity.contactInformation.managerPhone,
-                utilityPhone: selectedCommunity.contactInformation.utilityServicesPhone,
-                accountNumber: selectedCommunity.bankDetails.accountNumber,
-                bankName: selectedCommunity.bankDetails.bankName,
-                accountName: selectedCommunity.bankDetails.accountName,
-                emergencyPhone: selectedCommunity.contactInformation.emergencyPhone,
-                securityPhone: selectedCommunity.contactInformation.securityPhone,
-                coverPhoto: selectedCommunity.coverPhoto?.url || null
+                estateName: selectedCommunity?.estate?.basicDetails.name,
+                estateLocation: selectedCommunity?.estate?.basicDetails.location.area,
+                area: selectedCommunity?.estate?.basicDetails.location.area,
+                state: selectedCommunity?.estate?.basicDetails.location.state,
+                managerPhone: selectedCommunity?.estate?.contactInformation.managerPhone,
+                utilityPhone: selectedCommunity?.estate?.contactInformation.utilityServicesPhone,
+                accountNumber: selectedCommunity?.estate?.bankDetails.accountNumber,
+                bankName: selectedCommunity?.estate?.bankDetails.bankName,
+                accountName: selectedCommunity?.estate?.bankDetails.accountName,
+                emergencyPhone: selectedCommunity?.estate?.contactInformation.emergencyPhone,
+                securityPhone: selectedCommunity?.estate?.contactInformation.securityPhone,
+                coverPhoto: selectedCommunity?.estate?.coverPhoto?.url || null
             });
 
             // Map zones
-            const mappedZones = selectedCommunity.zones.map((zone, index) => ({
+            const mappedZones = selectedCommunity?.estate?.zones.map((zone, index) => ({
                 id: index,
                 label: zone.name
             }));
             setZones(mappedZones);
 
             // Map streets
-            const mappedStreets = selectedCommunity.streets.map((street, index) => ({
+            const mappedStreets = selectedCommunity?.estate?.streets.map((street, index) => ({
                 id: index,
                 label: street.name,
                 zone: street.zone
@@ -67,7 +67,7 @@ const EditEstateForm = () => {
             setStreets(mappedStreets);
 
             // Map buildings
-            const mappedBuildings = selectedCommunity.buildings.map((building, index) => ({
+            const mappedBuildings = selectedCommunity?.estate?.buildings.map((building, index) => ({
                 id: index,
                 label: building.name,
                 street: building.street,
@@ -76,7 +76,7 @@ const EditEstateForm = () => {
             setBuildings(mappedBuildings);
 
             // Map apartments
-            const mappedApartments = selectedCommunity.apartments.map((apartment, index) => ({
+            const mappedApartments = selectedCommunity?.estate?.apartments.map((apartment, index) => ({
                 id: index,
                 label: apartment.name,
                 building: apartment.building,
@@ -95,9 +95,9 @@ const EditEstateForm = () => {
     // update selected community data when estatesData changes
     React.useEffect(() => {
         if (estatesData && estatesData.length > 0 && doneUpdate) {
-            const foundData = estatesData.find((data) => data._id === selectedCommunity?._id);
+            const foundData = estatesData.find((data) => data._id === selectedCommunity?.estate?._id);
             if (foundData && foundData.estate) {
-                setSelectedCommunity(foundData.estate as estateData);
+                setSelectedCommunity(foundData as Community);
             }
         }
     }, [estatesData, doneUpdate, selectedCommunity, setSelectedCommunity]);
@@ -188,14 +188,14 @@ const EditEstateForm = () => {
         try {
             setLoading(true);
             // First, update the estate
-            const estateId = selectedCommunity?._id; // Adjust based on your API response
-            const organizationId = selectedCommunity?.associatedIds?.organizationId
+            const estateId = selectedCommunity?.estate?._id; // Adjust based on your API response
+            const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId
             const createEstateResponse = await api.patch(`/estates/community-manager/update-estate/organizations/${organizationId}/estates/${estateId}`, payload);
 
             if (createEstateResponse?.data) {
 
                 // Then upload the cover photo if it exists
-                if (coverPhoto !== selectedCommunity?.coverPhoto?.url && coverPhoto) {
+                if (coverPhoto !== selectedCommunity?.estate?.coverPhoto?.url && coverPhoto) {
                     // Convert data URL to blob
                     const blob = await fetch(coverPhoto).then(res => res.blob());
 
@@ -291,7 +291,7 @@ const EditEstateForm = () => {
                         <ArrowLeftMob />
                     </button>
                     <button className='ml-2 text-sm md:text-[16px] font-normal text-GrayHomz flex items-center' onClick={() => router.push("/dashboard")}>
-                        {selectedCommunity ? selectedCommunity?.basicDetails?.name : "[Estate Name]"} /
+                        {selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : "[Estate Name]"} /
                     </button>
                     <button className='text-[16px] md:text-[20px] font-normal text-GrayHomz flex items-center' onClick={() => router.push("/dashboard")}>
                         Estate Information
@@ -304,10 +304,10 @@ const EditEstateForm = () => {
                         const isActive = index === active;
                         // Get the count for each section
                         let count = 0;
-                        if (index === 1) count = selectedCommunity?.zones.length ?? 0;        // Zones count
-                        else if (index === 2) count = selectedCommunity?.streets.length ?? 0; // Streets count
-                        else if (index === 3) count = selectedCommunity?.buildings.length ?? 0; // Buildings count
-                        else if (index === 4) count = selectedCommunity?.apartments.length ?? 0; // Apartments count
+                        if (index === 1) count = selectedCommunity?.estate?.zones.length ?? 0;        // Zones count
+                        else if (index === 2) count = selectedCommunity?.estate?.streets.length ?? 0; // Streets count
+                        else if (index === 3) count = selectedCommunity?.estate?.buildings.length ?? 0; // Buildings count
+                        else if (index === 4) count = selectedCommunity?.estate?.apartments.length ?? 0; // Apartments count
 
                         return (
                             <div
