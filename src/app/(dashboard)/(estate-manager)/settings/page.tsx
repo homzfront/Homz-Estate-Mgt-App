@@ -124,7 +124,7 @@ const Settings = () => {
   const handleRoleChange = async (member: MemberItem, selectedOption: { id: number | string; label: string }) => {
     const roleOption = options.find(opt => opt.label === selectedOption.label);
     const roleValue = roleOption?.value || selectedOption.label;
-    
+
     setUpdatingRoleId(member._id);
     try {
       await updateMemberRole(member._id, roleValue, member.email);
@@ -140,6 +140,9 @@ const Settings = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
+      // Fetch members for the current role filter after update
+      const currentRole = pages[activePage].value;
+      fetchMembers({ page: 1, role: currentRole });
     } catch (error: any) {
       toast.error(error.message || "Failed to update role", {
         position: "top-center",

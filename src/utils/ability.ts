@@ -14,7 +14,8 @@ export function defineAbilityFor(role: string): AppAbility {
             cannot('read', 'settings'); // Admin cannot access settings
             break;
         case 'owner':
-            can('manage', 'all'); // Owner has full access including settings
+                can('manage', 'all'); // Owner has full access including settings
+                can('update', 'estate-info'); // Explicitly allow update for estate-info
             break;
         case 'viewer':
             can('read', 'all');
@@ -31,11 +32,13 @@ export function defineAbilityFor(role: string): AppAbility {
             can('read', 'profile');
             can('read', 'support');
             cannot('read', 'settings'); // Admin cannot access settings
+            cannot('create', 'access-control'); // Security cannot create access codes
             break;
         case 'account_manager':
             can('read', 'dashboard');
             can('read', 'residents');
-            can('update', 'residents');
+            cannot('update', 'residents');
+            cannot('create', 'residents');
             can('read', 'estate-info');
             can('read', 'profile');
             can('read', 'support');

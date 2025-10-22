@@ -297,8 +297,17 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                                         handleStatusChange={(status) => {
                                                             if (ability.can('update', 'access-control')) {
                                                                 const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
-                                                                updateManagerAccessStatus(row._id, next as any);
-                                                                setOpenStatusIndex(null);
+                                                                (async () => {
+                                                                    try {
+                                                                        await updateManagerAccessStatus(row._id, next as any);
+                                                                        fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
+                                                                    } catch (error) {
+                                                                        // Optionally show error toast here
+                                                                        console.error('Error updating status:', error);
+                                                                    } finally {
+                                                                        setOpenStatusIndex(null);
+                                                                    }
+                                                                })();
                                                             }
                                                         }}
                                                     />

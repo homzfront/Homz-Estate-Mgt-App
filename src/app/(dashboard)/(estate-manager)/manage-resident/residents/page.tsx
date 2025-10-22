@@ -114,7 +114,7 @@ const ManageResidents = () => {
                             <p className='mt-2 text-BlueHomz font-medium text-[16px] md:text-[20px]'>Get Started</p>
                             <p className='mt-1 text-GrayHomz font-normal text-sm md:text-[16px] text-center'>Share your unique link to invite residents to your estate. </p>
                             <div className='flex flex-col md:flex-row items-center gap-2 mt-2 w-full md:w-auto'>
-                                {ability.can('update', 'residents') && (
+                                {ability.can('create', 'residents') && (
                                     <button
                                         onClick={() => {
                                             setOpenInvite(true)
@@ -124,7 +124,7 @@ const ManageResidents = () => {
                                         <AddWhiteBox /> Invite Resident
                                     </button>
                                 )}
-                                {ability.can('update', 'residents') && (
+                                {ability.can('create', 'residents') && (
                                     <button
                                         onClick={() => {
                                             setOpenManualForm(true);

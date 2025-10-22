@@ -49,7 +49,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                     <h2 className='font-medium text-[16px] text-BlackHomz'>Residents </h2>
                     <p className='text-sm text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>{totalCount}</p>
                 </div>
-                {ability.can('update', 'residents') && (
+                {ability.can('create', 'residents') && (
                     <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
                         <AddIcon className="#ffffff" />
                     </button>
@@ -61,7 +61,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                         <h2 className='font-medium text-[20px] text-BlackHomz'>Residents </h2>
                         <p className='text-[18px] text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>{totalCount}</p>
                     </div>
-                    {ability.can('update', 'residents') && (
+                    {ability.can('create', 'residents') && (
                         <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
                             <AddIcon className="#ffffff" />
                         </button>
@@ -111,7 +111,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                                     </div>
                                 ) : (
                                     <div className='text-sm text-GrayHomz font-medium flex flex-col gap-0'>
-                                        {ability.can('update', 'residents') && (
+                                        {ability.can('create', 'residents') && (
                                             <>
                                                 <div onClick={() => setOpenInvite(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
                                                     <span className="w-4"><AddNormal /></span>

@@ -78,7 +78,7 @@ const AccessControl = () => {
     return (
         <div className='mb-[150px]'>
             {
-                openAddManual &&
+                openAddManual && ability.can('create', 'access-control') &&
                 <CustomModal isOpen={openAddManual} onRequestClose={() => setOpenAddManual(false)}>
                     <AddManualForm
                         setOpenAddManual={setOpenAddManual}
@@ -113,11 +113,11 @@ const AccessControl = () => {
                 <div className='p-8'>
                     <div className='flex justify-between items-center border-b border-[#E6E6E6] pb-8'>
                         <div>
-                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control {ability.can('update', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}</h1>
+                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control {ability.can('create', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}</h1>
                             <h3 className='text-GrayHomz font-normal hidden md:block text-[16px]'>{ability.can('update', 'access-control') ? 'Click on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
                             <h3 className='text-GrayHomz2 font-normal text-sm md:hidden mt-2'>{ability.can('update', 'access-control') ? 'Tap on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
                         </div>
-                        {ability.can('update', 'access-control') && (
+                        {ability.can('create', 'access-control') && (
                             <button onClick={() => setOpenAddManual(true)} className='hidden bg-BlueHomz px-3 h-[37px] rounded-[4px] cursor-pointer text-sm font-normal text-white md:flex items-center gap-1'>
                                 <AddWhiteBox /> Register Visitor
                             </button>
@@ -183,7 +183,7 @@ const AccessControl = () => {
                                 <EmptyAccess />
                             </div>
                             <p className='mt-2 text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
-                            {ability.can('update', 'access-control') && (
+                            {ability.can('create', 'access-control') && (
                                 <button
                                     onClick={() => {
                                         setOpenAddManual(true)
