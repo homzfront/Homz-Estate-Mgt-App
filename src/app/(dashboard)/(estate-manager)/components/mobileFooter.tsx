@@ -4,13 +4,9 @@ import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
 import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
 // import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
-import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
-import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
 import ResidentIcon from '@/components/icons/estateManager&Resident/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
-import UsersIcon from '@/components/icons/estateManager&Resident/mobile/usersIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';

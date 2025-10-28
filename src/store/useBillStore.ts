@@ -56,7 +56,6 @@ export const useBillStore = create<BillListState>((set, get) => ({
         const page = params.page ?? state.currentPage ?? 1
         const limit = params.limit ?? state.limit ?? 8
         const search = params.search ?? state.search ?? ''
-        const silent = params.silent ?? false
         const append = params.append ?? false
 
         // Simulate API delay

@@ -4,7 +4,6 @@ import Ticked from '@/components/icons/ticked'
 import UnTicked from '@/components/icons/unTicked'
 import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
-import { LoaderIcon } from 'react-hot-toast'
 import useClickOutside from '@/app/utils/useClickOutside'
 import ArrowDown from '@/components/icons/arrowDown'
 import Eye from '@/components/icons/Eye';
@@ -94,12 +93,6 @@ const Table = () => {
     const deleteBill = (id: string) => {
         setBills(prev => prev.filter(bill => bill._id !== id))
         setDisplayedBills(prev => prev.filter(bill => bill._id !== id))
-    }
-
-    // Status change
-    const handleStatusChange = (idx: number, newStatus: string) => {
-        // For now, just close dropdown. In real app, update via API
-        setStatusDropdown(null)
     }
 
     return (

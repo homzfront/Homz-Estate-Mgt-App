@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from 'react';
+import React from 'react';
 import Table from './components/table';
 import BillingEmpty from '@/components/icons/BillingEmpty';
 import AddWhiteBox from '@/components/icons/addWhiteBox';

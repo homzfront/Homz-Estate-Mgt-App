@@ -8,7 +8,6 @@ import Reset from "@/components/icons/reset";
 import FilterIconBlue from "@/components/icons/filterIconBlue";
 import DeleteIcon from "@/components/icons/deleteIcon";
 import Dropdown from "@/components/general/dropDown";
-import CoinsIcon from "@/components/icons/coinsIcon";
 import AddWhiteBox from "@/components/icons/addWhiteBox";
 
 
