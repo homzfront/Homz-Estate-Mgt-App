@@ -4,7 +4,7 @@ import AddIcon from '@/components/icons/addIcon';
 import ArrowDown from '@/components/icons/arrowDown';
 import EstateAddIcon from '@/components/icons/estateAddIcon';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/desktop/accessControlIcon';
-// import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
+import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
 // import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
 // import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
@@ -27,6 +27,9 @@ import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import UserTick from '@/components/icons/userTick';
 import { useAbility } from '@/contexts/AbilityContext';
 import { Subjects } from '@/utils/ability';
+import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 
 const Data = [
     {
@@ -88,32 +91,32 @@ const Data = [
         name: "Access Control",
         active: false,
     },
-    // {
-    //     id: 5,
-    //     image: <FinanceIcon />,
-    //     image2: (
-    //         <FinanceIcon className='#FFFFFF' />
-    //     ),
-    //     link: "#",
-    //     name: "Finance",
-    //     coming_Soon: true,
-    //     active: false,
-    //     submenu: true,
-    //     subMenuItems: [
-    //         {
-    //             title: "Payments",
-    //             link: "/finance/payment",
-    //             image: <PaymentIcon />,
-    //             image2: <PaymentIcon className='#006AFF' />,
-    //         },
-    //         {
-    //             title: "Expenses",
-    //             link: "/finance/expense",
-    //             image: <ExpensesIcon />,
-    //             image2: <ExpensesIcon className='#006AFF' />,
-    //         },
-    //     ],
-    // },
+    {
+        id: 5,
+        image: <FinanceIcon />,
+        image2: (
+            <FinanceIcon className='#FFFFFF' />
+        ),
+        link: "#",
+        name: "Finance",
+        coming_Soon: false,
+        active: false,
+        submenu: true,
+        subMenuItems: [
+            {
+                title: "Estate Billing",
+                link: "/finance/bill-utility",
+                image: <BillAndUtiIcon className='#4E4E4E' />,
+                image2: <BillAndUtiIcon />,
+            },
+            {
+                title: "Payments",
+                link: "/finance/payment",
+                image: <PaymentIcon />,
+                image2: <PaymentIcon className='#006AFF' />,
+            },
+        ],
+    },
     // {
     //     id: 6,
     //     image: <ManageUserIcon />,
@@ -232,7 +235,7 @@ const Sidebar = () => {
     })).filter(section =>
         section.subMenuItems && section.subMenuItems.length > 0
     );
-    
+
     return (
         <div className="sidebar relative">
             <div className="shadow-lg">
@@ -322,7 +325,7 @@ const Sidebar = () => {
                                             <hr
                                                 style={{
                                                     width: "1.5px",
-                                                    height: "106px",
+                                                    height: "70px",
                                                     borderWidth: "0",
                                                     background: "#4E4E4E",
                                                 }}
