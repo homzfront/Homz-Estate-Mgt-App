@@ -10,8 +10,11 @@ import DeleteIcon from "@/components/icons/deleteIcon";
 import Dropdown from "@/components/general/dropDown";
 import AddWhiteBox from "@/components/icons/addWhiteBox";
 
+interface FiltersProps {
+    setOpenCurrencyModal: (open: boolean) => void;
+}
 
-const Filters = () => {
+const Filters = ({setOpenCurrencyModal}: FiltersProps) => {
     const [isOpenTwo, setIsOpenTwo] = useState(false);
     const [isOpenI, setIsOpenI] = useState(false);
     const closeAction = useRef<HTMLDivElement>(null);
@@ -45,7 +48,7 @@ const Filters = () => {
                         />
                     </div>
                     <div className='md:hidden block'>
-                        <button className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
+                        <button onClick={()=>setOpenCurrencyModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
                             <AddWhiteBox /> Create Bill
                         </button>
                     </div>
