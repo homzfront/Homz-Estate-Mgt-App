@@ -5,10 +5,12 @@ import UnTicked from '@/components/icons/unTicked'
 import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import useClickOutside from '@/app/utils/useClickOutside'
+import CustomModal from '@/components/general/customModal'
 import ArrowDown from '@/components/icons/arrowDown'
 import Eye from '@/components/icons/Eye';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
+import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 
 const Table = () => {
     const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
@@ -22,6 +24,8 @@ const Table = () => {
     const [activeView, setActiveView] = React.useState(false)
     const [activeEdit, setActiveEdit] = React.useState(false)
     const [activeDelete, setActiveDelete] = React.useState(false)
+    const [modalOpen, setModalOpen] = React.useState(false)
+    const [selectedBill, setSelectedBill] = React.useState<any | null>(null)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const statusDropDownRef = React.useRef<HTMLDivElement>(null)
@@ -95,6 +99,16 @@ const Table = () => {
         setDisplayedBills(prev => prev.filter(bill => bill._id !== id))
     }
 
+    const openModal = (bill: any) => {
+        setSelectedBill(bill)
+        setModalOpen(true)
+    }
+
+    const closeModal = () => {
+        setModalOpen(false)
+        setSelectedBill(null)
+    }
+
     return (
         <div className="mt-6 w-full mx-auto mb-[150px] md:mb-0">
             <div className="border overflow-x-auto scrollbar-container">
@@ -106,11 +120,11 @@ const Table = () => {
                                     {selectAll ? <Ticked /> : <UnTicked />}
                                 </th>
                                 <th className="text-left w-auto md:w-[140px]">Bill Name</th>
+                                <th className="hidden md:table-cell text-left w-[140px]">Residence Type</th>
                                 <th className="text-left w-auto md:w-[120px]">Amount</th>
                                 <th className="hidden md:table-cell text-left w-[120px]">Frequency</th>
                                 <th className="hidden md:table-cell text-left w-[120px]">Start Date</th>
                                 <th className="hidden md:table-cell text-left w-[120px]">Status</th>
-                                <th className="hidden md:table-cell text-left w-[140px]">Residence Type</th>
                                 <th className="text-left w-auto md:w-[80px]">Actions</th>
                             </tr>
                         </thead>
@@ -152,7 +166,38 @@ const Table = () => {
                                         {selectedRows.includes(row._id) ? <Ticked /> : <UnTicked />}
                                     </td>
                                     <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{row.billName}</td>
-                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[120px]">{row.amount}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[140px]">
+                                        {!row.isMultiple ? (
+                                            row.priceTiers && row.priceTiers.length > 0 ? row.priceTiers[0].residenceType : ''
+                                        ) : (
+                                            <div
+                                                className="flex items-center gap-2 text-BlueHomz cursor-pointer"
+                                                onClick={(e) => { e.stopPropagation(); openModal(row) }}
+                                            >
+                                                <span>Multiple Residence</span>
+                                                <span style={{ display: 'inline-flex' }}>
+                                                    <ArrowDown className={'#006AFF'} />
+                                                </span>
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[120px]">
+                                        {!row.isMultiple ? (
+                                            // show first tier amount when single
+                                            row.priceTiers && row.priceTiers.length > 0 ? row.priceTiers[0].amount : ''
+                                        ) : (
+                                            // show clickable text + arrow that opens modal
+                                            <div
+                                                className="flex items-center gap-2 text-BlueHomz cursor-pointer"
+                                                onClick={(e) => { e.stopPropagation(); openModal(row) }}
+                                            >
+                                                <span>View all</span>
+                                                <span style={{ display: 'inline-flex' }}>
+                                                    <ArrowDown className={'#006AFF'} />
+                                                </span>
+                                            </div>
+                                        )}
+                                    </td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.frequency}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.startDate}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
@@ -229,7 +274,6 @@ const Table = () => {
                                             )}
                                         </div>
                                     </td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[140px]">{row.residenceType}</td>
                                     <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
                                         <button
                                             className="ml-4"
@@ -321,6 +365,34 @@ const Table = () => {
                     </table>
                 </div>
             </div>
+
+            {modalOpen && selectedBill && (
+                <CustomModal isOpen={modalOpen} onRequestClose={closeModal}>
+                    <div className="min-w-[320px] md:min-w-[600px] bg-white rounded-[12px] px-4 py-7 relative w-full">
+                        <div className='flex justify-between items-start'>
+                            <h3 className="text-[18px] font-semibold mb-4">{selectedBill.billName}</h3>
+                            <button
+                                onClick={closeModal}
+                            >
+                                <CloseTransluscentIcon />
+                            </button>
+                        </div>
+                        <div className="w-full overflow-y-auto max-h-[600px] scrollbar-container">
+                            <div className="grid grid-cols-2 bg-[#EEF5FF] px-6 py-3 text-[11px] font-medium text-GrayHomz4">
+                                <div>Residence Type</div>
+                                <div>Price</div>
+                            </div>
+                                {selectedBill.priceTiers && selectedBill.priceTiers.map((tier: any, i: number) => (
+                                    <div key={i} className="grid grid-cols-2 px-6 py-4 border-t border-[#D5D5D5] text-[11px] font-medium text-GrayHomz">
+                                        <div className='col-span-1'>{tier.residenceType}</div>
+                                        <div className='col-span-1'>{tier.amount}</div>
+                                    </div>
+                                ))}
+                            </div>
+                    </div>
+                </CustomModal>
+            )}
+
         </div>
     )
 }

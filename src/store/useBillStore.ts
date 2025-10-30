@@ -63,10 +63,10 @@ export const useBillStore = create<BillListState>((set, get) => ({
 
         let filteredData = estateBillingData
         if (search) {
-            filteredData = estateBillingData.filter(item =>
-                item.billName.toLowerCase().includes(search.toLowerCase()) ||
-                item.residenceType.toLowerCase().includes(search.toLowerCase())
-            )
+            // filteredData = estateBillingData.filter(item =>
+            //     item.billName.toLowerCase().includes(search.toLowerCase()) ||
+            //     item.residenceType.toLowerCase().includes(search.toLowerCase())
+            // )
         }
 
         const totalCount = filteredData.length
@@ -75,21 +75,21 @@ export const useBillStore = create<BillListState>((set, get) => ({
         const endIndex = startIndex + limit
         const results = filteredData.slice(startIndex, endIndex)
 
-        set((prev) => ({
-            items: append
-                ? [...prev.items, ...results]
-                : results,
-            totalCount,
-            totalPages,
-            currentPage: page,
-            limit,
-            error: null,
-            search,
-            lastFetch: { page, limit, search },
-            hasAnyData: totalCount > 0,
-            initialLoading: false,
-            pageLoading: false,
-            isAppending: false,
-        }))
+        // set((prev) => ({
+        //     items: append
+        //         ? [...prev.items, ...results]
+        //         : results,
+        //     totalCount,
+        //     totalPages,
+        //     currentPage: page,
+        //     limit,
+        //     error: null,
+        //     search,
+        //     lastFetch: { page, limit, search },
+        //     hasAnyData: totalCount > 0,
+        //     initialLoading: false,
+        //     pageLoading: false,
+        //     isAppending: false,
+        // }))
     },
 }))
