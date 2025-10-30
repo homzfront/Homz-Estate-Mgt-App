@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import RentInfo from "./rentInfo";
 import Billing from "./billing";
-import PropertyDetails from './propertyDetails'
+import PropertyDetails, { PropertyDetailsType } from './propertyDetails'
 import AddPaymentRecordModal from "./addPaymentRecordModal";
 import AddIcon from "@/components/icons/addIcon";
 
@@ -23,9 +23,9 @@ const WidgetMobile = ({
     const [showData, setShowData] = React.useState(false)
     const [showWidget, setShowWidget] = React.useState(false);
     const [openPaymentModal, setOpenPaymentModal] = React.useState(false)
-    const [modalInitialData, setModalInitialData] = React.useState<any>(null)
+    const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
     const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
-    const [selectedProperty, setSelectedProperty] = React.useState<any | null>(null)
+    const [selectedProperty, setSelectedProperty] = React.useState<Record<string, unknown> | undefined>(undefined)
     const route = useRouter()
 
     const goBack = () => {
@@ -42,23 +42,23 @@ const WidgetMobile = ({
         setActive(false);
     };
 
-    const openPropertyDetails = (prop: any) => {
+    const openPropertyDetails = (prop: Record<string, unknown>) => {
         setSelectedProperty(prop)
         setShowPropertyDetails(true)
     }
 
     const closePropertyDetails = () => {
-        setSelectedProperty(null)
+        setSelectedProperty(undefined)
         setShowPropertyDetails(false)
     }
 
     const openAddModal = () => {
-        setModalInitialData(null)
+        setModalInitialData(undefined)
         setOpenPaymentModal(true)
     }
 
-    const openEditModal = (data: any) => {
-        setModalInitialData(data)
+    const openEditModal = (data: unknown) => {
+        setModalInitialData(data as Record<string, unknown>)
         setOpenPaymentModal(true)
     }
 
@@ -108,7 +108,7 @@ const WidgetMobile = ({
                     <div className="my-7 rounded-[12px] w-full">
                         <div className={`${active ? "inline" : "hidden"}`}>
                             {!showPropertyDetails && <RentInfo onOpenProperty={openPropertyDetails} />}
-                            {showPropertyDetails && selectedProperty && <PropertyDetails property={selectedProperty} onBack={closePropertyDetails} />}
+                            {showPropertyDetails && selectedProperty && <PropertyDetails property={selectedProperty as PropertyDetailsType} onBack={closePropertyDetails} />}
                         </div>
                         <div className={`${activeTwo ? "inline" : "hidden"}`}>
                             <Billing onOpenPaymentModal={openEditModal} showData={showData} />

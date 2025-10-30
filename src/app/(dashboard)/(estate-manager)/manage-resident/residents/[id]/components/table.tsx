@@ -4,7 +4,6 @@ import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import useClickOutside from '@/app/utils/useClickOutside'
 import ArrowDown from '@/components/icons/arrowDown'
-import Eye from '@/components/icons/Eye';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
 

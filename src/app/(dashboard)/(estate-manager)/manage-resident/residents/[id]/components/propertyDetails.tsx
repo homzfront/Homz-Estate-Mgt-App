@@ -1,10 +1,9 @@
 import React from 'react'
 import LongLeftArrow from '@/components/icons/longLeftArrow'
 import Tower from '@/components/icons/tower'
-import ProfileWhite from '@/components/icons/profileWhite'
 import ProfileUser from '@/components/icons/ProfileUser'
 
-type PropertyDetailsType = {
+export type PropertyDetailsType = {
     id: string | number
     title: string
     subtitle?: string

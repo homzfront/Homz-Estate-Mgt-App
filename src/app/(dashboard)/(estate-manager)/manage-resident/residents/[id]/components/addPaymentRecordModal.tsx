@@ -8,40 +8,52 @@ import CloseTransluscentIcon from "@/components/icons/closeTransluscentIcon"
 import SuccessModal from '@/app/(dashboard)/components/successModal'
 import { toast } from "react-hot-toast"
 
+interface FormData {
+    paymentDate: string
+    billType: string
+    frequency: string
+    amount: string
+    amountPaid: string
+    paymentType: string
+    residencyDuration: string
+    startDate: string
+    dueDate: string
+}
+
 interface Props {
     isOpen: boolean
     onRequestClose: () => void
-    initialData?: any
+    initialData?: Record<string, unknown>
     setShowData: (show: boolean) => void
-    onSave?: (data: any) => void
+    onSave?: (data: FormData) => void
 }
 
 const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initialData, onSave, setShowData }) => {
     const [loading, setLoading] = React.useState(false)
-    const [formData, setFormData] = React.useState(() => ({
-        paymentDate: initialData?.paymentDate || '',
-        billType: initialData?.billType || '',
-        frequency: initialData?.frequency || '[Auto filled]',
-        amount: initialData?.amount || '[Auto filled]',
-        amountPaid: initialData?.amountPaid || '0.00',
-        paymentType: initialData?.paymentType || '',
-        residencyDuration: initialData?.residencyDuration || '[Auto filled]',
-        startDate: initialData?.startDate || '',
-        dueDate: initialData?.dueDate || ''
+    const [formData, setFormData] = React.useState<FormData>(() => ({
+        paymentDate: (initialData?.paymentDate as string) || '',
+        billType: (initialData?.billType as string) || '',
+        frequency: (initialData?.frequency as string) || '[Auto filled]',
+        amount: (initialData?.amount as string) || '[Auto filled]',
+        amountPaid: (initialData?.amountPaid as string) || '0.00',
+        paymentType: (initialData?.paymentType as string) || '',
+        residencyDuration: (initialData?.residencyDuration as string) || '[Auto filled]',
+        startDate: (initialData?.startDate as string) || '',
+        dueDate: (initialData?.dueDate as string) || ''
     }))
 
     React.useEffect(() => {
         if (initialData) {
             setFormData({
-                paymentDate: initialData.paymentDate || '',
-                billType: initialData.billType || '',
-                frequency: initialData.frequency || '[Auto filled]',
-                amount: initialData.amount || '[Auto filled]',
-                amountPaid: initialData.amountPaid || '0.00',
-                paymentType: initialData.paymentType || '',
-                residencyDuration: initialData.residencyDuration || '[Auto filled]',
-                startDate: initialData.startDate || '',
-                dueDate: initialData.dueDate || ''
+                paymentDate: (initialData.paymentDate as string) || '',
+                billType: (initialData.billType as string) || '',
+                frequency: (initialData.frequency as string) || '[Auto filled]',
+                amount: (initialData.amount as string) || '[Auto filled]',
+                amountPaid: (initialData.amountPaid as string) || '0.00',
+                paymentType: (initialData.paymentType as string) || '',
+                residencyDuration: (initialData.residencyDuration as string) || '[Auto filled]',
+                startDate: (initialData.startDate as string) || '',
+                dueDate: (initialData.dueDate as string) || ''
             })
         }
     }, [initialData])
@@ -59,7 +71,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             // show success modal instead of immediately closing this modal
             setShowSuccess(true)
             onRequestClose()
-        } catch (err) {
+        } catch {
             toast.error('Unable to save record')
         } finally {
             setLoading(false)

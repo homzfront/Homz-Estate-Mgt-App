@@ -2,7 +2,7 @@
 // import { Visitor } from "@/app/(dashboard)/components/visitors";
 import React from "react";
 import RentInfo from "./rentInfo";
-import PropertyDetails from './propertyDetails'
+import PropertyDetails, { PropertyDetailsType } from './propertyDetails'
 import AddIcon from "@/components/icons/addIcon";
 import ExportIcon from "@/components/icons/estateManager&Resident/desktop/exportIcon";
 import Billing from "./billing";
@@ -15,28 +15,28 @@ import AddPaymentRecordModal from './addPaymentRecordModal'
 const Widget = () => {
     const [step, setStep] = React.useState(0);
     const [openPaymentModal, setOpenPaymentModal] = React.useState(false)
-    const [modalInitialData, setModalInitialData] = React.useState<any>(null)
+    const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
     const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
     const [showData, setShowData] = React.useState(false)
-    const [selectedProperty, setSelectedProperty] = React.useState<any | null>(null)
+    const [selectedProperty, setSelectedProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
 
     const openAddModal = () => {
-        setModalInitialData(null)
+        setModalInitialData(undefined)
         setOpenPaymentModal(true)
     }
 
-    const openEditModal = (data: any) => {
-        setModalInitialData(data)
+    const openEditModal = (data: unknown) => {
+        setModalInitialData(data as Record<string, unknown>)
         setOpenPaymentModal(true)
     }
 
-    const openPropertyDetails = (prop: any) => {
+    const openPropertyDetails = (prop: PropertyDetailsType) => {
         setSelectedProperty(prop)
         setShowPropertyDetails(true)
     }
 
     const closePropertyDetails = () => {
-        setSelectedProperty(null)
+        setSelectedProperty(undefined)
         setShowPropertyDetails(false)
     }
 

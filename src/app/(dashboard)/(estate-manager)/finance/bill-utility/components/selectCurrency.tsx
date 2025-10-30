@@ -79,8 +79,9 @@ const SelectCurrency: React.FC<SelectCurrencyProps> = ({ isOpen, onRequestClose,
                         className="px-4 py-2 text-white bg-BlueHomz hover:bg-BlueHomzDark rounded text-sm"
                         onClick={() => {
                             // placeholder save action — parent should handle actual save
-                            console.log('Selected currency', selected)
-                            setOpenEditBillingModal && setOpenEditBillingModal(true); handleClose();
+                            console.log('Selected currency', selected);
+                            if (setOpenEditBillingModal) setOpenEditBillingModal(true);
+                            handleClose();
                         }}
                     >
                         Save & Continue

@@ -8,10 +8,7 @@ import Reset from "@/components/icons/reset";
 import FilterIconBlue from "@/components/icons/filterIconBlue";
 import Dropdown from "@/components/general/dropDown";
 
-interface FilterHeaderProps {
-}
-
-const FilterHeader = ({ }: FilterHeaderProps) => {
+const FilterHeader = () => {
     const [isOpenI, setIsOpenI] = useState(false);
     const closeDeleteAction = useRef<HTMLDivElement>(null);
 

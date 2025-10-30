@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, RefObject } from 'react'
 import CustomInput from '@/components/general/customInput'
 import Dropdown from '@/components/general/dropDown'
 import CustomModal from '@/components/general/customModal'
@@ -89,7 +89,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
 
     const dropdownRef = React.useRef<HTMLDivElement | null>(null)
 
-    useClickOutside(dropdownRef as any, () => {
+    useClickOutside(dropdownRef as RefObject<HTMLElement>, () => {
         setIsOpenDropdowns(prev => prev.map(() => false))
     })
 

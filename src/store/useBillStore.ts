@@ -36,7 +36,7 @@ interface BillListState {
     }) => Promise<void>
 }
 
-export const useBillStore = create<BillListState>((set, get) => ({
+export const useBillStore = create<BillListState>((set) => ({
     items: [],
     totalCount: estateBillingData.length,
     totalPages: Math.ceil(estateBillingData.length / 8),
@@ -51,29 +51,24 @@ export const useBillStore = create<BillListState>((set, get) => ({
     lastFetch: { page: 1, limit: 8, search: '' },
     setSearch: (value) => set({ search: value }),
     reset: () => set({ items: [], totalCount: estateBillingData.length, totalPages: Math.ceil(estateBillingData.length / 8), currentPage: 1 }),
-    fetchBills: async (params = {}) => {
-        const state = get()
-        const page = params.page ?? state.currentPage ?? 1
-        const limit = params.limit ?? state.limit ?? 8
-        const search = params.search ?? state.search ?? ''
-        const append = params.append ?? false
+    fetchBills: async (
+        // params = {}
+    ) => {
+        // const state = get()
+        // const page = params.page ?? state.currentPage ?? 1
+        // const limit = params.limit ?? state.limit ?? 8
+        // const search = params.search ?? state.search ?? ''
 
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 500))
 
-        let filteredData = estateBillingData
-        if (search) {
-            // filteredData = estateBillingData.filter(item =>
-            //     item.billName.toLowerCase().includes(search.toLowerCase()) ||
-            //     item.residenceType.toLowerCase().includes(search.toLowerCase())
-            // )
-        }
-
-        const totalCount = filteredData.length
-        const totalPages = Math.ceil(totalCount / limit)
-        const startIndex = (page - 1) * limit
-        const endIndex = startIndex + limit
-        const results = filteredData.slice(startIndex, endIndex)
+        // const _filteredData = estateBillingData
+        // if (search) {
+        //     // filteredData = estateBillingData.filter(item =>
+        //     //     item.billName.toLowerCase().includes(search.toLowerCase()) ||
+        //     //     item.residenceType.toLowerCase().includes(search.toLowerCase())
+        //     // )
+        // }
 
         // set((prev) => ({
         //     items: append

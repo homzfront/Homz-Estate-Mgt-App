@@ -5,7 +5,7 @@ import ReceiptBillEmpty from '@/components/icons/receiptBillEmpty'
 import AddIcon from '@/components/icons/addIcon'
 
 interface Props {
-    onOpenPaymentModal?: (data?: any) => void
+    onOpenPaymentModal?: (data?: unknown) => void
     showData: boolean
 }
 
