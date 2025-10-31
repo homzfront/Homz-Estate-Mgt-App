@@ -4,6 +4,7 @@ export const estateBillingData = [
     billName: 'Annual Estate Dues',
     billType: 'Dues',
     paymentStatus: 'Pending',
+    residentStatus: 'Pending',
     frequency: 'Quarterly',
     startDate: '22 Aug, 2025',
     dueDate: '23 Aug, 2025',
@@ -24,6 +25,7 @@ export const estateBillingData = [
     billName: 'Monthly Security Fee',
     billType: 'Security',
     paymentStatus: 'Paid',
+    residentStatus: 'Paid',
     frequency: 'Monthly',
     startDate: '18 Aug, 2025',
     dueDate: '25 Aug, 2025',
@@ -44,6 +46,7 @@ export const estateBillingData = [
     billName: 'General Service Charge',
     billType: 'Service',
     paymentStatus: 'Over Due',
+    residentStatus: 'Overdue',
     frequency: 'Monthly',
     startDate: '18 Aug, 2025',
     dueDate: '24 Aug, 2025',
@@ -63,6 +66,7 @@ export const estateBillingData = [
     billName: 'Weekly Cleaning',
     billType: 'Cleaning',
     paymentStatus: 'Paid',
+    residentStatus: 'Partially Paid',
     frequency: 'Weekly',
     startDate: '21 Aug, 2025',
     dueDate: '28 Aug, 2025',
@@ -83,6 +87,7 @@ export const estateBillingData = [
     billName: 'Biweekly Estate Dues',
     billType: 'Dues',
     paymentStatus: 'Pending',
+    residentStatus: 'Pending',
     frequency: 'Biweekly',
     startDate: '21 Aug, 2025',
     dueDate: '04 Sep, 2025',
@@ -103,6 +108,7 @@ export const estateBillingData = [
     billName: 'Monthly Security Fee',
     billType: 'Security',
     paymentStatus: 'Paid',
+    residentStatus: 'Paid',
     frequency: 'Monthly',
     startDate: '21 Aug, 2025',
     dueDate: '25 Aug, 2025',
@@ -122,6 +128,7 @@ export const estateBillingData = [
     billName: 'Monthly Service Charge',
     billType: 'Service',
     paymentStatus: 'Pending',
+    residentStatus: 'Pending',
     frequency: 'Monthly',
     startDate: '21 Aug, 2025',
     dueDate: '25 Aug, 2025',
@@ -141,6 +148,7 @@ export const estateBillingData = [
     billName: 'Monthly Security Fee',
     billType: 'Security',
     paymentStatus: 'Pending',
+    residentStatus: 'Partially Paid',
     frequency: 'Monthly',
     startDate: '21 Aug, 2025',
     dueDate: '25 Aug, 2025',
@@ -162,6 +170,7 @@ export const estateBillingData = [
     billName: 'Biweekly Estate Dues',
     billType: 'Dues',
     paymentStatus: 'Pending',
+    residentStatus: 'Pending',
     frequency: 'Biweekly',
     startDate: '21 Aug, 2025',
     dueDate: '04 Sep, 2025',
@@ -181,6 +190,7 @@ export const estateBillingData = [
     billName: 'Weekly Cleaning',
     billType: 'Cleaning',
     paymentStatus: 'Pending',
+    residentStatus: 'Partially Paid',
     frequency: 'Weekly',
     startDate: '21 Aug, 2025',
     dueDate: '28 Aug, 2025',
@@ -220,6 +230,15 @@ export const estateBillingData = [
 
     const computedAmountPaid = i % 3 === 0 ? `₦${(baseAmountOptions[(i) % baseAmountOptions.length] * 2)}` : '₦0.00'
     const computedStatus = i % 4 === 0 ? 'Inactive' : 'Active'
+    // residentStatus logic
+    let residentStatus = 'Pending';
+    if (computedAmountPaid !== '₦0.00') {
+      residentStatus = 'Paid';
+    } else if (computedStatus === 'Inactive') {
+      residentStatus = 'Overdue';
+    } else if (i % 5 === 0) {
+      residentStatus = 'Partially Paid';
+    }
     return {
       _id: id,
       billName: billNames[i % billNames.length],
@@ -232,7 +251,8 @@ export const estateBillingData = [
       paymentDate: i % 3 === 0 ? `${2 + (i % 12)} Aug, 2025` : 'N/A',
       amountPaid: computedAmountPaid,
       status: computedStatus,
-  paymentStatus: computedAmountPaid !== '₦0.00' ? 'Paid' : (computedStatus === 'Inactive' ? 'Over Due' : 'Pending'),
+      paymentStatus: computedAmountPaid !== '₦0.00' ? 'Paid' : (computedStatus === 'Inactive' ? 'Over Due' : 'Pending'),
+      residentStatus,
       isMultiple: priceTiers.length > 1,
       priceTiers,
       amount: priceTiers[0].amount,

@@ -1,7 +1,7 @@
 "use client"
 import CustomModal from '@/components/general/customModal';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-// import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
+import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
 import VisitorAccess from '@/components/icons/estateManager&Resident/mobile/visitorAccess';
-// import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
 import { useAuthSlice } from '@/store/authStore';
 
@@ -45,19 +45,19 @@ const Data = [
         extra: false,
         comingSoon: false,
     },
-    // {
-    //     id: 3,
-    //         image: <DuesAndPaymentIcon className="#202020" />,
-    //         image2: (
-    //             <DuesAndPaymentIcon className='#006AFF' />
-    //         ),
-    //         link: null,
-    //         name: "Dues & Payments",
-    //         extra: false,
-    //         comingSoon: true,
-    // },
     {
         id: 3,
+        image: <DuesAndPaymentIcon className="#202020" />,
+        image2: (
+            <DuesAndPaymentIcon className='#006AFF' />
+        ),
+        link: "/resident/bills-payments",
+        name: "Bills & Payments",
+        extra: false,
+        comingSoon: false,
+    },
+    {
+        id: 4,
         image: <LogoutIcon />,
         image2: <LogoutIcon />,
         link: "",
@@ -132,7 +132,8 @@ const MobileFooter = () => {
                                         } 
                                     `}>
                                         <span className={`flex flex-col gap-1 items-center truncate ${data?.name === "Logout" ? "text-error" : ""}`}>
-                                            {pathname === data.link ? (
+                                      
+                                              {pathname === data.link ? (
                                                 <div>
                                                     {data.image2}
                                                 </div>
@@ -169,7 +170,7 @@ const MobileFooter = () => {
                         <Link
                             key={data.id}
                             href={data?.link ? data.link : ""}
-                            onClick={async  () => {
+                            onClick={async () => {
                                 if (data?.extra) {
                                     setSubOpen(data as DataType)
                                 } else if (data?.name === "Logout") {
@@ -181,6 +182,7 @@ const MobileFooter = () => {
                                 : "text-GrayHomz"
                                 } `}
                         >
+                               <span className='h-5'>
                             {pathname === data.link ? (
                                 <div>
                                     {data.image2}
@@ -190,6 +192,7 @@ const MobileFooter = () => {
                                     {data.image}
                                 </div>
                             )}
+                            </span>
                             <div className={`flex items-center w-full truncate`}>
                                 <span>{data.name}</span>
                             </div>
