@@ -166,7 +166,7 @@ const Table = () => {
                                     <th className="text-left w-auto hidden md:table-cell">Amount</th>
                                     <th className="text-left w-auto hidden md:table-cell">Start Date</th>
                                     <th className="text-left w-auto hidden md:table-cell">Due Date</th>
-                                    <th className="text-center w-[150px]">Status</th>
+                                    <th className="text-start w-[150px]">Status</th>
                                     <th className="text-left md:w-[180px]">Actions</th>
                                 </tr>
                             </thead>
@@ -196,8 +196,8 @@ const Table = () => {
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.amount}</td>
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.startDate}</td>
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.dueDate}</td>
-                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] min-w-[150px]">
-                                                <div className="flex justify-center">
+                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] min-w-[180px]">
+                                                <div className="flex justify-start">
                                                     <span
                                                         className={'py-2 px-3 rounded-[4px] inline-block text-center'}
                                                         style={{
@@ -222,7 +222,7 @@ const Table = () => {
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="py-[15px] sm:w-[180px]" onClick={(e) => e.stopPropagation()}>
+                                            <td className="py-[15px] md:w-[180px]" onClick={(e) => e.stopPropagation()}>
                                                 {/* Desktop view - full button */}
                                                 <button
                                                     onClick={() => !isInactive && router.push(`/resident/bills-payments/${idx}/payment-record/${idx}`)}

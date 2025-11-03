@@ -281,9 +281,8 @@ const Table = () => {
                                 {displayedRecords.map((row, idx) => {
                                     const statusStyle = getStatusStyle(row.status)
                                     return (
-                                        <>
+                                        <React.Fragment key={row._id}>
                                             <tr
-                                                key={row._id}
                                                 className="border-t min-h-[60px] bg-white hover:bg-gray-50 transition-colors"
                                             >
                                                 <td className="pl-4 py-[15px] text-GrayHomz font-[500] text-[11px]">
@@ -416,7 +415,7 @@ const Table = () => {
                                                     </td>
                                                 </tr>
                                             )}
-                                        </>
+                                        </React.Fragment>
                                     )
                                 })}
                                 {currentPage < totalPages && (
