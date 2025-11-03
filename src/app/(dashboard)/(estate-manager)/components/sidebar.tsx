@@ -27,6 +27,9 @@ import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import UserTick from '@/components/icons/userTick';
 import { useAbility } from '@/contexts/AbilityContext';
 import { Subjects } from '@/utils/ability';
+// import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 
 const Data = [
     {
@@ -96,21 +99,21 @@ const Data = [
     //     ),
     //     link: "#",
     //     name: "Finance",
-    //     coming_Soon: true,
+    //     coming_Soon: false,
     //     active: false,
     //     submenu: true,
     //     subMenuItems: [
+    //         {
+    //             title: "Estate Billing",
+    //             link: "/finance/bill-utility",
+    //             image: <BillAndUtiIcon className='#4E4E4E' />,
+    //             image2: <BillAndUtiIcon />,
+    //         },
     //         {
     //             title: "Payments",
     //             link: "/finance/payment",
     //             image: <PaymentIcon />,
     //             image2: <PaymentIcon className='#006AFF' />,
-    //         },
-    //         {
-    //             title: "Expenses",
-    //             link: "/finance/expense",
-    //             image: <ExpensesIcon />,
-    //             image2: <ExpensesIcon className='#006AFF' />,
     //         },
     //     ],
     // },
@@ -232,7 +235,7 @@ const Sidebar = () => {
     })).filter(section =>
         section.subMenuItems && section.subMenuItems.length > 0
     );
-    
+
     return (
         <div className="sidebar relative">
             <div className="shadow-lg">
@@ -322,7 +325,7 @@ const Sidebar = () => {
                                             <hr
                                                 style={{
                                                     width: "1.5px",
-                                                    height: "106px",
+                                                    height: "70px",
                                                     borderWidth: "0",
                                                     background: "#4E4E4E",
                                                 }}

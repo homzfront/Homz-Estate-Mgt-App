@@ -78,7 +78,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Trigger */}
             <div
-                className={`${textColor} px-4 border ${bgColor}  ${height} text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
+                className={`${textColor} px-4 border ${bgColor} ${height} text-sm rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
                     } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 onClick={handleDropdownToggle}
             >
@@ -100,7 +100,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                                 <input
                                     type="text"
                                     placeholder="Search..."
-                                    className="w-full h-[45px] pl-4 pr-10 border rounded-md text-sm"
+                                    className="w-full h-[45px] pl-4 pr-10 border rounded-md text-sm outline-none"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     autoFocus
