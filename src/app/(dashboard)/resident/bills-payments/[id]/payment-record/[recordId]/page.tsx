@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Table from './components/table'
 import Filters from './components/filters'
 import ArrowLeft from '@/components/icons/arrowLeft'
