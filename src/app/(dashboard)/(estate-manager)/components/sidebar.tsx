@@ -91,32 +91,32 @@ const Data = [
         name: "Access Control",
         active: false,
     },
-    {
-        id: 5,
-        image: <FinanceIcon />,
-        image2: (
-            <FinanceIcon className='#FFFFFF' />
-        ),
-        link: "#",
-        name: "Finance",
-        coming_Soon: false,
-        active: false,
-        submenu: true,
-        subMenuItems: [
-            {
-                title: "Estate Billing",
-                link: "/finance/bill-utility",
-                image: <BillAndUtiIcon className='#4E4E4E' />,
-                image2: <BillAndUtiIcon />,
-            },
-            {
-                title: "Payments",
-                link: "/finance/payment",
-                image: <PaymentIcon />,
-                image2: <PaymentIcon className='#006AFF' />,
-            },
-        ],
-    },
+    // {
+    //     id: 5,
+    //     image: <FinanceIcon />,
+    //     image2: (
+    //         <FinanceIcon className='#FFFFFF' />
+    //     ),
+    //     link: "#",
+    //     name: "Finance",
+    //     coming_Soon: false,
+    //     active: false,
+    //     submenu: true,
+    //     subMenuItems: [
+    //         {
+    //             title: "Estate Billing",
+    //             link: "/finance/bill-utility",
+    //             image: <BillAndUtiIcon className='#4E4E4E' />,
+    //             image2: <BillAndUtiIcon />,
+    //         },
+    //         {
+    //             title: "Payments",
+    //             link: "/finance/payment",
+    //             image: <PaymentIcon />,
+    //             image2: <PaymentIcon className='#006AFF' />,
+    //         },
+    //     ],
+    // },
     // {
     //     id: 6,
     //     image: <ManageUserIcon />,
