@@ -36,13 +36,13 @@ const Filters = () => {
                         {isOpenI && (
                             <div className='absolute z-50 top-11 right-0 bg-white min-w-[220px] p-2 border border-[#A9A9A9] rounded-[12px] max-h-[450px] overflow-y-auto scrollbar-container flex flex-col gap-2'>
                                 <p className="text-[13px] text-GrayHomz">Filter by:</p>
-                                {/* Bill Name */}
+                                {/* Period */}
                                 <button className='mt-1 text-sm font-normal text-GrayHomz flex justify-between px-3 py-2 w-full bg-[#F6F6F6] rounded-[4px]'>
-                                    Bill Name <ArrowDown className="#4E4E4E" />
+                                    Period <ArrowDown className="#4E4E4E" />
                                 </button>
-                                {/* Frequency */}
+                                {/* Status */}
                                 <button className='mt-1 text-sm font-normal text-GrayHomz flex justify-between px-3 py-2 w-full bg-[#F6F6F6] rounded-[4px]'>
-                                    Frequency <ArrowDown className="#4E4E4E" />
+                                    Status <ArrowDown className="#4E4E4E" />
                                 </button>
                                 {/* Reset Button */}
                                 <button

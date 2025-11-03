@@ -39,9 +39,9 @@ const DetailedPage = () => {
 
     return (
         <div className='w-full p-8'>
-                    <button onClick={() => router.back()} className='mb-4 flex justify-center items-center gap-2 text-[11px] text-GrayHomz2 font-medium'>
-                        <ArrowLeft /> Back
-                    </button>
+            <button onClick={() => router.back()} className='mb-4 flex justify-center items-center gap-2 text-[11px] text-GrayHomz2 font-medium'>
+                <ArrowLeft /> Back
+            </button>
             <div className='flex justify-between items-start w-full'>
                 <div className='flex flex-col gap-1 w-full'>
                     <h2 className='text-base md:text-[20px] text-BlackHomz font-semibold'>[Bill Name]</h2>
@@ -49,10 +49,10 @@ const DetailedPage = () => {
                         Here’s a breakdown of your [bill name] for each billing period. Select a period to view payment details.
                     </p>
                 </div>
-              <span className='block'><Filters /></span>
+                <span className='block -mt-3 sm:mt-0'><Filters /></span>
             </div>
             <div className='my-4'>
-                <div className='w-full flex flex-col gap-4 md:flex-row justify-between mb-6'>
+                <div className='w-full hidden md:flex flex-col gap-4 md:flex-row justify-between mb-6'>
                     {boxData.map((box) => (
                         <div
                             key={box.id}

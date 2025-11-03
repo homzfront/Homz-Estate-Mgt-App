@@ -5,6 +5,7 @@ import LoadingSpinner from '@/components/general/loadingSpinner'
 import ArrowRight from '@/components/icons/arrowRight';
 import BillNote from '@/components/icons/billNote';
 import { useRouter } from 'next/navigation';
+import ReceiptBill from '@/components/icons/receiptBill';
 
 const Table = () => {
     const router = useRouter();
@@ -44,62 +45,48 @@ const Table = () => {
 
     return (
         <div className="mt-6 w-full mx-auto mb-[150px] md:mb-0">
-            <div className="border overflow-x-auto scrollbar-container">
-                <div className="w-full md:w-[100%]">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
-                                <th className="pl-4 text-left w-[40%]">Bill Name</th>
-                                <th className="text-left w-[40%]">Frequency</th>
-                                <th className="text-left w-[20%]">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {displayedBills.length === 0 && (
-                                Array.from({ length: 6 }).map((_, sk) => (
-                                    <tr key={`sk-${sk}`} className="border-t-[1px]">
-                                        <td className="py-[15px] pl-4">
-                                            <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
-                                        </td>
-                                        <td className="py-[15px]">
-                                            <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
-                                        </td>
-                                        <td className="py-[15px] pr-4"></td>
-                                    </tr>
-                                ))
-                            )}
-                            {displayedBills.map((row, idx) => (
-                                <tr key={row._id} className="border-t min-h-[60px] bg-white">
-                                    <td className="pl-4 py-[15px] text-GrayHomz font-[500] text-[11px]">{row.billName}</td>
-                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px]">{row.frequency}</td>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {displayedBills.map((bill: any, index: number) => (
+                    <div
+                        key={index}
+                        className='rounded-[12px] bg-[#F6F6F6] p-4 md:p-6 flex justify-between items-center'
+                    >
+                        <div className='flex justify-center items-center gap-4'>
+                            <div className='bg-BlueHomz w-[46px] h-[46px] rounded-full flex justify-center items-center'>
+                                <ReceiptBill />
+                            </div>
+                            <div>
+                                <p className='text-sm md:text-base font-medium text-GrayHomz'>{bill.billName}</p>
+                                <p className='text-[11px] md:text-[13px] text-GrayHomz mt-1'>{bill.frequency}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => router.push(`/resident/bills-payments/${index + 1}`)}
+                            className="hidden md:flex items-center gap-2 text-BlueHomz font-semibold text-sm"
 
-                                    <td className="py-[15px] w-auto">
-                                        <button
-                                            onClick={() => router.push(`/resident/bills-payments/${idx}`)}
-                                            className="flex items-center gap-2 text-BlueHomz font-semibold text-sm"
-
-                                        >
-                                            <BillNote />  <span className='flex items-center gap-1'>Bill details <ArrowRight className='#006aff' /></span>
-                                        </button>
-
-                                    </td>
-                                </tr>
-                            ))}
-                            {currentPage < totalPages && (
-                                <tr>
-                                    <td colSpan={8} className="py-2">
-                                        <div ref={loaderRef} className="h-1" />
-                                        {isLoading && (
-                                            <div className="w-full max-w-[1000px] flex items-center justify-center py-3">
-                                                <LoadingSpinner size={24} />
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                        >
+                            <BillNote />  <span className='flex items-center gap-1'>Bill details <ArrowRight className='#006aff' /></span>
+                        </button>
+                        <button
+                            onClick={() => router.push(`/resident/bills-payments/${index + 1}`)}
+                            className="md:hidden flex items-center gap-2 text-BlueHomz font-semibold text-sm"
+                        >
+                            <span><ArrowRight className='#006aff' /></span>
+                        </button>
+                    </div>
+                ))}
+            </div>
+            <div className="w-full">
+                {currentPage < totalPages && (
+                    <div className="py-2">
+                        <div ref={loaderRef} className="h-1" />
+                        {isLoading && (
+                            <div className="w-full flex items-center justify-center py-3">
+                                <LoadingSpinner size={24} />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     )

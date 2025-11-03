@@ -1,7 +1,6 @@
 "use client"
 import CustomModal from '@/components/general/customModal';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
 import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';

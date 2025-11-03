@@ -7,10 +7,7 @@ import useClickOutside from '@/app/utils/useClickOutside';
 import Reset from "@/components/icons/reset";
 import FilterIconBlue from "@/components/icons/filterIconBlue";
 
-interface FiltersProps {
-}
-
-const Filters = ({ }: FiltersProps) => {
+const Filters = () => {
     const [isOpenI, setIsOpenI] = useState(false);
     const closeAction = useRef<HTMLDivElement>(null);
 

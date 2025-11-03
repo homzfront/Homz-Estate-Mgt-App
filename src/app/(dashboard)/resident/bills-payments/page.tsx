@@ -23,7 +23,7 @@ const BillAndPayment = () => {
             </>
           }
         </div>
-          {hasAnyData &&    <span className='block'><Filters /></span>}
+        {hasAnyData && <span className='block -mt-3 md:mt-0'><Filters /></span>}
       </div>
       {!hasAnyData ? (
         <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
