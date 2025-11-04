@@ -31,7 +31,7 @@ const BillAndPayment = () => {
             <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
               <BillAndPayEmpty />
             </div>
-            <div onClick={() => setHasAnyData(true)} className='text-base font-normal text-GrayHomz'>You currently don’t have any active bills. Once your estate manager assigns new bills, they’ll appear here.</div>
+            <div onClick={() => setHasAnyData(true)} className='text-base font-normal text-GrayHomz'>You currently don&apos;t have any active bills. Once your community manager assigns new bills, they&apos;ll appear here.</div>
           </div>
         </div>
       ) : (

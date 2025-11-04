@@ -100,10 +100,10 @@ const VisitorAccess = () => {
                   Access Restricted
                 </p>
                 <p className="text-[13px] md:text-[14px] font-normal text-GrayHomz text-center">
-                  You can&apos;t request visitor access yet because your join request to <span className="font-medium">{selectedEstate?.estateName}</span> is still pending approval from the estate manager.
+                  You can&apos;t request visitor access yet because your join request to <span className="font-medium">{selectedEstate?.estateName}</span> is still pending approval from the community manager.
                 </p>
                 <p className="text-[13px] md:text-[14px] font-normal text-GrayHomz text-center">
-                  Once your request is approved, you&apos;ll be able to request visitor access and enjoy all estate features.
+                  Once your request is approved, you&apos;ll be able to request visitor access and enjoy all community features.
                 </p>
               </div>
             </div>

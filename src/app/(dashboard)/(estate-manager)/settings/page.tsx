@@ -255,7 +255,7 @@ const Settings = () => {
           Manage Users
         </button>
       </div>
-      <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage estates, Residents, bills, and visitor access</p>
+      <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage communities, Residents, bills, and visitor access</p>
       <div className='px-8 py-4'>
         <div className='bg-inputBg p-4 rounded-[12px]'>
           <button onClick={toggleDropdown} className="flex justify-between w-full">

@@ -101,21 +101,21 @@ const EstateHomePage = () => {
                     {/* Content at the top */}
                     <div className='px-8 md:px-[100px] text-center md:text-start flex flex-col gap-5 pt-10 md:pt-[100px]'>
                         <p className='hidden md:block text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
-                            Effortless Estate Management for Smarter Living
+                            Effortless Community Management for Smarter Living
                         </p>
                         <p className='md:hidden text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
-                            Effortless Estate Management
+                            Effortless Community Management
                         </p>
                         <p className='hidden md:block text-[18px] lg:text-[20px] font-[400] text-white text-center max-w-[700px] m-auto'>
-                            Manage estate bills, tenants, and visitors all from one powerful dashboard built for modern property operations.
+                            Manage community bills, residents, and visitors all from one powerful dashboard built for modern property operations.
                         </p>
                         <p className='md:hidden text-[18px] font-[400] text-white text-center max-w-[700px] m-auto'>
-                            Manage estate bills, tenants, and visitors all from one powerful dashboard.
+                            Manage community bills, residents, and visitors all from one powerful dashboard.
                         </p>
                         <div className='w-full flex justify-center'>
                             <div className='mt-4 flex flex-col md:flex-row gap-4 items-center w-full justify-center'>
                                 <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-[400] rounded-[4px]'>
-                                    <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as an Estate Manager</span><ArrowRightSize16 />
+                                    <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as a Community Manager</span><ArrowRightSize16 />
                                 </button>
                                 <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-[4px]'>
                                     See How It Works
@@ -158,13 +158,13 @@ const EstateHomePage = () => {
                 <div className='mt-[100px] bg-whiteblue px-8 md:px-[80px] py-[60px]'>
                     <div className='w-full flex flex-col gap-4'>
                         <p className='max-w-[900px] m-auto text-[23px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
-                            Create Estates. Invite Tenants. <span className='text-BlackHomz'>Stay in Control.</span>
+                            Create Communities. Invite Residents. <span className='text-BlackHomz'>Stay in Control.</span>
                         </p>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[650px] m-auto'>
-                            Set up estates in minutes and invite tenants via secure links or emails. Monitor who’s joined, and manage access.
+                            Set up communities in minutes and invite residents via secure links or emails. Monitor who&apos;s joined, and manage access.
                         </p>
                         <p className='md:hidden text-[14px] font-[400] text-BlackHomz text-center max-w-[650px] m-auto'>
-                            Set up estates in minutes and invite tenants via secure links or emails.
+                            Set up communities in minutes and invite residents via secure links or emails.
                         </p>
                     </div>
                     <div className='mt-[40px] flex flex-col-reverse gap-8 md:gap-0 md:flex-row w-full items-end'>
@@ -172,29 +172,29 @@ const EstateHomePage = () => {
                             <div className='flex gap-4 items-center'>
                                 <Property />
                                 <p className='text-[18px] font-medium text-GrayHomz'>
-                                    Create multiple estates
+                                    Create multiple communities
                                 </p>
                             </div>
                             <div className='flex gap-4 items-center'>
                                 <ManageTenant />
                                 <p className='text-[18px] font-medium text-GrayHomz'>
-                                    Invite and manage tenants
+                                    Invite and manage residents
                                 </p>
                             </div>
                             <div className='flex gap-4 items-center'>
                                 <TenantList />
                                 <p className='text-[18px] font-medium text-GrayHomz'>
-                                    View tenant list and activity
+                                    View resident list and activity
                                 </p>
                             </div>
                             <div className='flex gap-4 items-center'>
                                 <UpdateTenantStatus />
                                 <p className='text-[18px] font-medium text-GrayHomz'>
-                                    Remove or update tenant status
+                                    Remove or update resident status
                                 </p>
                             </div>
                             <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                                Create Your First Estate <ArrowRight className='#FFFFFF' />
+                                Create Your First Community <ArrowRight className='#FFFFFF' />
                             </button>
                         </div>
                         <Image
@@ -215,11 +215,11 @@ const EstateHomePage = () => {
                             Simplify Billing, Get Paid Faster.
                         </p>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[740px] m-auto'>
-                            Create and assign recurring or one-time bills like estate dues, water, and security fees. Tenants get automated reminders and can pay directly via their dashboard.
+                            Create and assign recurring or one-time bills like community dues, water, and security fees. Residents get automated reminders and can pay directly via their dashboard.
                         </p>
                         <p className='md:hidden text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[740px] m-auto'>
                             Create and assign recurring or
-                            one-time bills like estate dues, water, and security fees.
+                            one-time bills like community dues, water, and security fees.
                         </p>
                     </div>
                     <div className='hidden md:grid grid-cols-3 gap-4 mt-10'>
@@ -278,13 +278,13 @@ const EstateHomePage = () => {
                 <div className='mt-10 md:mt-[100px] bg-BlueHomz px-8 md:px-[80px] py-[60px] md:rounded-[12px]'>
                     <div className='w-full flex flex-col gap-4'>
                         <p className='max-w-[950px] m-auto text-[25px] lg:text-[36px] font-[700] text-white text-center leading-tight'>
-                            Control Estate Access, Keep Your Environment Safe.
+                            Control Community Access, Keep Your Environment Safe.
                         </p>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-white text-center max-w-[700px] m-auto'>
-                            Review visitor access requests made by tenants. Approve, decline, or log new entries manually. Everything you need for secure, controlled access, centralized.
+                            Review visitor access requests made by residents. Approve, decline, or log new entries manually. Everything you need for secure, controlled access, centralized.
                         </p>
                         <p className='md:hidden text-[16px] font-[400] text-white text-center max-w-[700px] m-auto'>
-                            Review visitor access requests made by tenants. Approve, decline, or log new entries manually.
+                            Review visitor access requests made by residents. Approve, decline, or log new entries manually.
                         </p>
                     </div>
                     <div className='mt-[40px] flex flex-col-reverse md:flex-row-reverse gap-8 w-full items-end'>
@@ -310,7 +310,7 @@ const EstateHomePage = () => {
                             <div className='flex gap-4 items-center'>
                                 <EnableSecureIcon />
                                 <p className='text-[18px] font-medium text-white'>
-                                    Enable secure estate entry
+                                    Enable secure community entry
                                 </p>
                             </div>
                             <button onClick={handleRoute} className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full md:w-[260px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
@@ -345,7 +345,7 @@ const EstateHomePage = () => {
                             <div className='flex gap-4 items-center'>
                                 <AssignGuardIcon />
                                 <p className='text-[18px] font-medium text-GrayHomz'>
-                                    Assign guards to estates
+                                    Assign guards to communities
                                 </p>
                             </div>
                             <div className='flex gap-4 items-center'>
@@ -388,7 +388,7 @@ const EstateHomePage = () => {
                             Gain Insights with Reports and Logs
                         </p>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[700px] m-auto'>
-                            Access billing reports, visitor logs, and personnel activity, exportable anytime. Make informed decisions with accurate estate data at your fingertips.
+                            Access billing reports, visitor logs, and personnel activity, exportable anytime. Make informed decisions with accurate community data at your fingertips.
                         </p>
                         <p className='md:hidden text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[700px] m-auto'>
                             Access billing reports, visitor logs, and personnel activity, exportable anytime.
