@@ -5,6 +5,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import RentInfo from "./rentInfo";
+import Billing from "./billing";
+import PropertyDetails, { PropertyDetailsType } from './propertyDetails'
+import AddPaymentRecordModal from "./addPaymentRecordModal";
+import AddIcon from "@/components/icons/addIcon";
 
 
 interface widgetMobileProps {
@@ -16,7 +20,12 @@ const WidgetMobile = ({
 }: widgetMobileProps) => {
     const [active, setActive] = React.useState(true);
     const [activeTwo, setActiveTwo] = React.useState(false);
+    const [showData, setShowData] = React.useState(false)
     const [showWidget, setShowWidget] = React.useState(false);
+    const [openPaymentModal, setOpenPaymentModal] = React.useState(false)
+    const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
+    const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
+    const [selectedProperty, setSelectedProperty] = React.useState<Record<string, unknown> | undefined>(undefined)
     const route = useRouter()
 
     const goBack = () => {
@@ -33,49 +42,76 @@ const WidgetMobile = ({
         setActive(false);
     };
 
+    const openPropertyDetails = (prop: Record<string, unknown>) => {
+        setSelectedProperty(prop)
+        setShowPropertyDetails(true)
+    }
+
+    const closePropertyDetails = () => {
+        setSelectedProperty(undefined)
+        setShowPropertyDetails(false)
+    }
+
+    const openAddModal = () => {
+        setModalInitialData(undefined)
+        setOpenPaymentModal(true)
+    }
+
+    const openEditModal = (data: unknown) => {
+        setModalInitialData(data as Record<string, unknown>)
+        setOpenPaymentModal(true)
+    }
+
     return (
-        <div className='p-8 flex flex-col gap-2'>
-            <div className='flex gap-4 items-center'>
-                <div onClick={goBack} className='cursor-pointer'>
-                    <div className='w-[28px] h-[28px] bg-walletBg rounded-[8px] flex justify-center items-center'>
-                        <MobileBackButton />
+        <div className={`${!showPropertyDetails ? 'p-8' : ''} flex flex-col gap-2`}>
+            {!showPropertyDetails &&
+                <div className='flex gap-4 items-center'>
+                    <div onClick={goBack} className='cursor-pointer'>
+                        <div className='w-[28px] h-[28px] bg-walletBg rounded-[8px] flex justify-center items-center'>
+                            <MobileBackButton />
+                        </div>
                     </div>
+                    <p className='text-[16px] font-[400] text-BlackHomz'>
+                        Tenant Profile
+                    </p>
                 </div>
-                <p className='text-[16px] font-[400] text-BlackHomz'>
-                    Tenant Profile
-                </p>
-            </div>
+            }
             {showWidget
                 ?
                 <div>
-                    <div className="flex flex-col gap-2 mt-8 w-full">
-                        <div className="flex flex-wrap gap-[15px] w-full">
-                            <button
-                                onClick={handleRent}
-                                className={`py-[8px] px-[12px] rounded-[4px] text-[11px] ${active
-                                    ? "inline-block shadow-md bg-[#006AFF] text-white "
-                                    : "bg-[#EEF5FF] text-[#006AFF]"
-                                    }`}
-                            >
-                                Rent Information
-                            </button>
-                            <button
-                                onClick={handleBillPaymentHistory}
-                                className={`py-[8px] px-[12px] rounded-[4px] text-[11px] ${activeTwo
-                                    ? "inline-block shadow-md bg-[#006AFF] text-white "
-                                    : "bg-[#EEF5FF] text-[#006AFF]"
-                                    }`}
-                            >
-                                Bill Payment History
-                            </button>
+                    {!showPropertyDetails &&
+                        <div className="flex flex-row justify-between mt-8 w-full">
+                            <div className="flex flex-wrap gap-[15px] w-full">
+                                <button
+                                    onClick={handleRent}
+                                    className={`py-[8px] px-[12px] rounded-[4px] text-[11px] ${active
+                                        ? "inline-block shadow-md bg-[#006AFF] text-white "
+                                        : "bg-[#EEF5FF] text-[#006AFF]"
+                                        }`}
+                                >
+                                    Rent Information
+                                </button>
+                                <button
+                                    onClick={handleBillPaymentHistory}
+                                    className={`py-[8px] px-[12px] rounded-[4px] text-[11px] ${activeTwo
+                                        ? "inline-block shadow-md bg-[#006AFF] text-white "
+                                        : "bg-[#EEF5FF] text-[#006AFF]"
+                                        }`}
+                                >
+                                    Bill Payment History
+                                </button>
+                            </div>
+                                <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /></button>
                         </div>
-                    </div>
+                    }
+
                     <div className="my-7 rounded-[12px] w-full">
                         <div className={`${active ? "inline" : "hidden"}`}>
-                             <RentInfo />
+                            {!showPropertyDetails && <RentInfo onOpenProperty={openPropertyDetails} />}
+                            {showPropertyDetails && selectedProperty && <PropertyDetails property={selectedProperty as PropertyDetailsType} onBack={closePropertyDetails} />}
                         </div>
                         <div className={`${activeTwo ? "inline" : "hidden"}`}>
-        
+                            <Billing onOpenPaymentModal={openEditModal} showData={showData} />
                         </div>
                     </div>
                 </div>
@@ -132,7 +168,7 @@ const WidgetMobile = ({
                                 <ArrowRight className="#4E4E4E" height={20} width={20} />
                             </div>
                         </div>
-                        <div className='px-4 h-[60px] flex items-center border-GrayHomz2 border-b-[1px] justify-between w-full'>
+                        <div className='px-4 h-[60px] flex items-center border-GrayHomz2 justify-between w-full'>
                             Payment History
                             <div
                                 onClick={() => {
@@ -147,6 +183,17 @@ const WidgetMobile = ({
                     </div>
                 </div>
             }
+
+            <AddPaymentRecordModal
+                isOpen={openPaymentModal}
+                onRequestClose={() => setOpenPaymentModal(false)}
+                initialData={modalInitialData}
+                setShowData={setShowData}
+                onSave={(d) => {
+                    // placeholder: could dispatch update to table or API
+                    console.log('saved payment record', d)
+                }}
+            />
         </div>
     )
 }

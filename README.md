@@ -1,12 +1,12 @@
-# Homz Estate Management Application
+# Homz Community Management Application
 
-**Homz** is an integrated estate management platform designed for property managers, estate managers, landlords, and tenants (residents). The application streamlines estate operations including tenant management, billing & payments, visitor access control, and community administration.
+**Homz** is an integrated community management platform designed for property managers, community managers, landlords, and residents. The application streamlines community operations including resident management, billing & payments, visitor access control, and community administration.
 
 ## 🌟 Overview
 
-Homz provides a comprehensive solution for managing residential estates with two primary user roles:
-- **Estate Managers/Community Managers**: Full administrative access to manage properties, tenants, billing, and access control
-- **Residents/Tenants**: Access to view estate information, manage visitor access, and track bills
+Homz provides a comprehensive solution for managing residential communities with two primary user roles:
+- **Community Managers**: Full administrative access to manage properties, residents, billing, and access control
+- **Residents**: Access to view community information, manage visitor access, and track bills
 
 ## 🚀 Tech Stack
 
@@ -102,18 +102,18 @@ homz-estate-mgt-app/
 - Password reset functionality
 - Token refresh mechanism with automatic retry
 - Protected routes using Next.js middleware
-- Role-based access (Estate Manager vs Resident)
+- Role-based access (Community Manager vs Resident)
 
-### Estate Manager Features
+### Community Manager Features
 1. **Dashboard**
-   - Estate overview and statistics
+   - Community overview and statistics
    - Quick access to key functions
    - Resident and access control summaries
 
-2. **Estate Management**
-   - Create and manage multiple estates
-   - Configure estate zones and properties
-   - Upload estate photos (Cloudinary integration)
+2. **Community Management**
+   - Create and manage multiple communities
+   - Configure community zones and properties
+   - Upload community photos (Cloudinary integration)
    - Set contact information and bank details
 
 3. **Resident Management**
@@ -121,10 +121,10 @@ homz-estate-mgt-app/
    - Bulk CSV import functionality
    - Update resident status (active/inactive)
    - View resident profiles and history
-   - Manage tenant lists by estate
+   - Manage resident lists by community
 
 4. **Billing & Utilities**
-   - Create custom bill types (estate fees, water, security, etc.)
+   - Create custom bill types (community fees, water, security, etc.)
    - One-time and recurring billing
    - Due date management
    - Real-time payment tracking

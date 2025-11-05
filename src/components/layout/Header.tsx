@@ -218,7 +218,7 @@ const Header = () => {
                   <Link href="/" className="block w-full">
                     <div className={`flex items-center gap-3 py-3 pl-4 pr-2 hover:bg-whiteblue rounded-[6px]`}>
                       <PropertyManagement width="14" height="14" className="text-[#039855] fill-[#039855]" />
-                      <span className="flex-1 text-[12px] min-w-[180px]">Estate Management</span>
+                      <span className="flex-1 text-[12px] min-w-[180px]">Community Management</span>
                     </div>
                   </Link>
                   <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}document-generation`} className="block w-full">
@@ -263,10 +263,10 @@ const Header = () => {
                       <div className="flex flex-col justify-between h-full">
                         <div>
                           <p className="text-[14px] md:text-[16px] lg:text-[18px] font-bold text-GrayHomz">
-                            Community & Estate Management
+                            Community Management
                           </p>
                           <h3 className="hidden md:block text-GrayHomz text-xs md:text-sm lg:text-base font-normal mt-1">
-                            Create and manage estates, bill tenants, and control visitor access with ease.
+                            Create and manage communities, bill residents, and control visitor access with ease.
                           </h3>
                         </div>
                         <button className="hidden md:flex mt-2 text-Success text-xs md:text-sm lg:text-base font-normal items-center gap-1 self-start">
