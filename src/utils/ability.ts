@@ -11,6 +11,7 @@ export function defineAbilityFor(role: string): AppAbility {
     switch (role?.toLowerCase()) {
         case 'admin':
             can('manage', 'all');
+            can('create', 'residents'); // Admin can create/invite residents
             cannot('read', 'settings'); // Admin cannot access settings
             break;
         case 'owner':

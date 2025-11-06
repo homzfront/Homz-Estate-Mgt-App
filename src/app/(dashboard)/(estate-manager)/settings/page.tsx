@@ -46,7 +46,8 @@ const Settings = () => {
     fetchMembers, 
     sendInvitation,
     setRoleFilter,
-    hasAnyData,
+    // hasAnyData,
+    hasEverHadData,
     updateMemberRole
   } = useMembersStore();
 
@@ -304,12 +305,9 @@ const Settings = () => {
         </div>
         
         {/* Members List */}
-        {initialLoading ? (
-          <div className='mt-8 h-[400px] w-full flex items-center justify-center'>
-            <LoadingSpinner />
-          </div>
-        ) : hasAnyData || members.length > 0 ? (
+        {hasEverHadData && (
           <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
+            {/* Filter Headers - Always Visible */}
             <div className='flex flex-wrap items-center gap-4 mt-8'>
               {pages.map((page, index) => (
                 <span 
@@ -322,7 +320,8 @@ const Settings = () => {
               ))}
             </div>
 
-            {pageLoading ? (
+            {/* Table Content Area */}
+            {(initialLoading || pageLoading) ? (
               <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
                 <LoadingSpinner />
               </div>
@@ -340,8 +339,6 @@ const Settings = () => {
               </div>
             )}
           </div>
-        ) : (
-         null
         )}
       </div>
     </div>

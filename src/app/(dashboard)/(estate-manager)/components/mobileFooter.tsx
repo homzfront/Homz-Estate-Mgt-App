@@ -2,9 +2,9 @@
 import CustomModal from '@/components/general/customModal';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/accessControlIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
 // import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
-import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
 import ResidentIcon from '@/components/icons/estateManager&Resident/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
@@ -66,26 +66,26 @@ const Data = [
 ];
 
 const PopUpData = [
-    {
-        id: 1,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: false,
-    },
-    {
-        id: 2,
-        image: <ExpensesIcon />,
-        image2: (
-            <ExpensesIcon className='#006AFF' />
-        ),
-        link: "/finance/bill-utility",
-        name: "Billing",
-        coming_Soon: false,
-    },
+    // {
+    //     id: 1,
+    //     image: <PaymentIcon />,
+    //     image2: (
+    //         <PaymentIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/payment",
+    //     name: "Payments",
+    //     coming_Soon: false,
+    // },
+    // {
+    //     id: 2,
+    //     image: <ExpensesIcon />,
+    //     image2: (
+    //         <ExpensesIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/bill-utility",
+    //     name: "Billing",
+    //     coming_Soon: false,
+    // },
     // {
     //     id: 3,
     //     image: <UsersIcon />,
@@ -124,7 +124,8 @@ const PopUpData = [
         image: <SettingsIcon />,
         image2: <SettingsIcon className='#006AFF' />,
         link: "/settings",
-        name: "Settings"
+        name: "Settings",
+        coming_Soon: false,
     },
     {
         id: 8,

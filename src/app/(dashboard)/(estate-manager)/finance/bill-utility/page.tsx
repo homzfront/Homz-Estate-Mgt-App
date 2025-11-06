@@ -8,12 +8,25 @@ import CoinsIcon from '@/components/icons/coinsIcon';
 import SelectCurrency from './components/selectCurrency';
 import EditBilling from './components/editBilling';
 import SuccessModal from '@/app/(dashboard)/components/successModal';
+import { useBillStore } from '@/store/useBillStore';
+import LoadingSpinner from '@/components/general/loadingSpinner';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 
 const BillAndUti = () => {
-  const [hasAnyData, setHasAnyData] = React.useState(false);
+  const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+  const { hasEverHadData, initialLoading, fetchBills } = useBillStore();
+  
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openCurrencyModal, setOpenCurrencyModal] = React.useState(false);
   const [openEditBillingModal, setOpenEditBillingModal] = React.useState(false);
+
+  // Fetch bills on mount or when community changes
+  React.useEffect(() => {
+    if (selectedCommunity?.estate?._id) {
+      fetchBills({ page: 1, limit: 10 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCommunity?.estate?._id]);
 
   return (
     <div className='w-full min-w-[375px] md:min-w-[1070px] p-8'>
@@ -38,7 +51,7 @@ const BillAndUti = () => {
           isOpen={openEditBillingModal}
           onRequestClose={() => setOpenEditBillingModal(false)}
           setOpenSuccessModal={setOpenSuccessModal}
-          setHasAnyData={setHasAnyData}
+          isEditing={false}
         />
       )}
       <div className='flex flex-col md:flex-row gap-2 md:gap-0 justify-start md:justify-between'>
@@ -51,7 +64,7 @@ const BillAndUti = () => {
             Manage all your estate bills in one place.
           </p>
         </div>
-        {hasAnyData &&
+        {hasEverHadData &&
           <div className='hidden md:flex justify-center items-center gap-2'>
             <button className='h-[37px] w-12 rounded-[4px] hidden md:flex justify-center items-center bg-whiteblue border border-BlueHomz'>
               <CoinsIcon />
@@ -62,7 +75,12 @@ const BillAndUti = () => {
           </div>
         }
       </div>
-      {!hasAnyData ? (
+      
+      {initialLoading ? (
+        <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+          <LoadingSpinner />
+        </div>
+      ) : !hasEverHadData ? (
         <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
           <div className='flex flex-col items-center gap-6'>
             <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>

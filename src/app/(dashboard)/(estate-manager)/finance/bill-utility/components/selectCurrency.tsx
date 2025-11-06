@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import CoinGreen from '@/components/icons/coinGreen'
 import Dropdown from '@/components/general/dropDown'
 import CustomModal from '@/components/general/customModal'
+import { useBillStore } from '@/store/useBillStore'
 
 type CurrencyOption = {
     label: string
@@ -20,10 +21,14 @@ interface SelectCurrencyProps {
     isOpen?: boolean
     onRequestClose?: () => void
     setOpenEditBillingModal?: (open: boolean) => void
+    isChanging?: boolean
 }
 
-const SelectCurrency: React.FC<SelectCurrencyProps> = ({ isOpen, onRequestClose, setOpenEditBillingModal }) => {
-    const [selected, setSelected] = useState<CurrencyOption>(OPTIONS[0])
+const SelectCurrency: React.FC<SelectCurrencyProps> = ({ isOpen, onRequestClose, setOpenEditBillingModal, isChanging = false }) => {
+    const { selectedCurrency, setSelectedCurrency } = useBillStore()
+    const [selected, setSelected] = useState<CurrencyOption>(() => {
+        return OPTIONS.find(opt => opt.symbol === selectedCurrency) || OPTIONS[0]
+    })
     const modalOpen = typeof isOpen === 'undefined' ? false : isOpen
 
     const handleClose = () => {
@@ -40,10 +45,14 @@ const SelectCurrency: React.FC<SelectCurrencyProps> = ({ isOpen, onRequestClose,
                     </div>
                 </div>
 
-                <h3 className="text-center text-base font-bold text-BlackHomz">Currency Setup</h3>
+                <h3 className="text-center text-base font-bold text-BlackHomz">
+                    {isChanging ? 'Change Currency' : 'Currency Setup'}
+                </h3>
                 <p className="text-center text-sm text-GrayHomz mt-2 mb-6 px-8">
-                    Before creating your first bill, please set the default currency in which all
-                    bills will be charged and paid. You can change this later.
+                    {isChanging 
+                        ? 'Select the currency in which this bill will be charged and paid.'
+                        : 'Before creating your first bill, please set the default currency in which all bills will be charged and paid. You can change this later.'
+                    }
                 </p>
 
                 <div className="bg-[#F6F6F6] rounded-lg p-3 shadow-sm">
@@ -73,18 +82,26 @@ const SelectCurrency: React.FC<SelectCurrencyProps> = ({ isOpen, onRequestClose,
                     </div>
 
                 </div>
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-end gap-3">
+                    {isChanging && (
+                        <button
+                            type="button"
+                            className="px-4 py-2 text-GrayHomz hover:bg-gray-100 rounded text-sm"
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="px-4 py-2 text-white bg-BlueHomz hover:bg-BlueHomzDark rounded text-sm"
                         onClick={() => {
-                            // placeholder save action — parent should handle actual save
-                            console.log('Selected currency', selected);
-                            if (setOpenEditBillingModal) setOpenEditBillingModal(true);
+                            setSelectedCurrency(selected.symbol);
+                            if (setOpenEditBillingModal && !isChanging) setOpenEditBillingModal(true);
                             handleClose();
                         }}
                     >
-                        Save & Continue
+                        {isChanging ? 'Update Currency' : 'Save & Continue'}
                     </button>
                 </div>
             </div>

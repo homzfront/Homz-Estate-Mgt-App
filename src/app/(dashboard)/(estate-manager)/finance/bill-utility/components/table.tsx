@@ -2,7 +2,6 @@
 import React from 'react'
 import Ticked from '@/components/icons/ticked'
 import UnTicked from '@/components/icons/unTicked'
-import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import useClickOutside from '@/app/utils/useClickOutside'
 import CustomModal from '@/components/general/customModal'
@@ -11,64 +10,54 @@ import Eye from '@/components/icons/Eye';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
+import { useBillStore, BillItem } from '@/store/useBillStore'
+import toast from 'react-hot-toast'
+import EditBilling from './editBilling'
+import { formatDateDisplay } from '@/app/utils/formatDateTime'
 
 const Table = () => {
-    const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
+    const { items, pageLoading, isAppending, deleteBill, fetchBills, currentPage, totalPages } = useBillStore()
+    
+    // const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
     const [actionDropdown, setActionDropdown] = React.useState<number | null>(null)
     const [selectedRows, setSelectedRows] = React.useState<string[]>([])
     const [selectAll, setSelectAll] = React.useState(false)
-    const [bills, setBills] = React.useState(estateBillingData)
-    const [displayedBills, setDisplayedBills] = React.useState(estateBillingData.slice(0, 8))
-    const [currentPage, setCurrentPage] = React.useState(1)
-    const [isLoading, setIsLoading] = React.useState(false)
     const [activeView, setActiveView] = React.useState(false)
     const [activeEdit, setActiveEdit] = React.useState(false)
     const [activeDelete, setActiveDelete] = React.useState(false)
     const [modalOpen, setModalOpen] = React.useState(false)
-    const [selectedBill, setSelectedBill] = React.useState<any | null>(null)
+    const [editModalOpen, setEditModalOpen] = React.useState(false)
+    const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
+    // const [deletingId, setDeletingId] = React.useState<string | null>(null)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const statusDropDownRef = React.useRef<HTMLDivElement>(null)
+    
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
     })
     useClickOutside(statusDropDownRef as any, () => {
-        setStatusDropdown(null)
+        // setStatusDropdown(null)
     })
 
-    const itemsPerPage = 8
-    const totalPages = Math.ceil(bills.length / itemsPerPage)
-
+    // Infinite scroll for loading more
     React.useEffect(() => {
         if (!loaderRef.current) return
         const el = loaderRef.current
         const observer = new IntersectionObserver((entries) => {
             const first = entries[0]
-            if (first.isIntersecting && !isLoading && currentPage < totalPages) {
-                loadMore()
+            if (first.isIntersecting && !isAppending && !pageLoading && currentPage < totalPages) {
+                fetchBills({ page: currentPage + 1, append: true })
             }
         }, { rootMargin: '200px' })
         observer.observe(el)
         return () => observer.unobserve(el)
-    }, [loaderRef.current, isLoading, currentPage, totalPages])
-
-    const loadMore = () => {
-        setIsLoading(true)
-        setTimeout(() => {
-            const nextPage = currentPage + 1
-            const startIndex = nextPage * itemsPerPage
-            const endIndex = startIndex + itemsPerPage
-            const newBills = bills.slice(startIndex, endIndex)
-            setDisplayedBills(prev => [...prev, ...newBills])
-            setCurrentPage(nextPage)
-            setIsLoading(false)
-        }, 500) // Simulate loading delay
-    }
+    }, [loaderRef.current, isAppending, pageLoading, currentPage, totalPages, fetchBills])
 
     React.useEffect(() => {
-        setSelectedRows(prev => prev.filter(id => displayedBills.some(item => item._id === id)))
-        setSelectAll(selectedRows.length === displayedBills.length && displayedBills.length > 0)
-    }, [displayedBills])
+        setSelectedRows(prev => prev.filter(id => items.some(item => item._id === id)))
+        setSelectAll(selectedRows.length === items.length && items.length > 0)
+    }, [items])
 
     // Select all rows
     const handleSelectAll = () => {
@@ -76,7 +65,7 @@ const Table = () => {
             setSelectedRows([])
             setSelectAll(false)
         } else {
-            setSelectedRows(displayedBills.map(row => row._id))
+            setSelectedRows(items.map(row => row._id))
             setSelectAll(true)
         }
     }
@@ -89,14 +78,23 @@ const Table = () => {
         } else {
             const newSelected = [...selectedRows, rowId]
             setSelectedRows(newSelected)
-            if (newSelected.length === displayedBills.length) setSelectAll(true)
+            if (newSelected.length === items.length) setSelectAll(true)
         }
     }
 
-    // Delete bill
-    const deleteBill = (id: string) => {
-        setBills(prev => prev.filter(bill => bill._id !== id))
-        setDisplayedBills(prev => prev.filter(bill => bill._id !== id))
+    // Delete bill handler
+    const handleDeleteBill = async (id: string) => {
+        // setDeletingId(id)
+        try {
+            await deleteBill(id)
+            toast.success('Bill deleted successfully', { position: 'top-center' })
+            setActiveDelete(false)
+            setModalOpen(false)
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to delete bill', { position: 'top-center' })
+        } finally {
+            // setDeletingId(null)
+        }
     }
 
     const openModal = (bill: any) => {
@@ -129,7 +127,7 @@ const Table = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayedBills.length === 0 && (
+                            {pageLoading && items.length === 0 && (
                                 Array.from({ length: 6 }).map((_, sk) => (
                                     <tr key={`sk-${sk}`} className="border-t-[1px]">
                                         <td className="py-[15px] pl-4">
@@ -157,7 +155,7 @@ const Table = () => {
                                     </tr>
                                 ))
                             )}
-                            {displayedBills.map((row, idx) => (
+                            {items.map((row: BillItem, idx: number) => (
                                 <tr key={row._id} className="border-t min-h-[60px] bg-white">
                                     <td
                                         onClick={() => handleRowSelect(row._id)}
@@ -167,111 +165,56 @@ const Table = () => {
                                     </td>
                                     <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{row.billName}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[140px]">
-                                        {!row.isMultiple ? (
-                                            row.priceTiers && row.priceTiers.length > 0 ? row.priceTiers[0].residenceType : ''
+                                        {row.applyToAllResidencyTypes ? (
+                                            'All Residency Types'
+                                        ) : row.residencyAmounts && row.residencyAmounts.length > 0 ? (
+                                            row.residencyAmounts.length === 1 ? (
+                                                row.residencyAmounts[0].residencyType
+                                            ) : (
+                                                <div
+                                                    className="flex items-center gap-2 text-BlueHomz cursor-pointer"
+                                                    onClick={(e) => { e.stopPropagation(); openModal(row) }}
+                                                >
+                                                    <span>Multiple Residence</span>
+                                                    <span style={{ display: 'inline-flex' }}>
+                                                        <ArrowDown className={'#006AFF'} />
+                                                    </span>
+                                                </div>
+                                            )
                                         ) : (
-                                            <div
-                                                className="flex items-center gap-2 text-BlueHomz cursor-pointer"
-                                                onClick={(e) => { e.stopPropagation(); openModal(row) }}
-                                            >
-                                                <span>Multiple Residence</span>
-                                                <span style={{ display: 'inline-flex' }}>
-                                                    <ArrowDown className={'#006AFF'} />
-                                                </span>
-                                            </div>
+                                            'All Residency Types'
                                         )}
                                     </td>
                                     <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[120px]">
-                                        {!row.isMultiple ? (
-                                            // show first tier amount when single
-                                            row.priceTiers && row.priceTiers.length > 0 ? row.priceTiers[0].amount : ''
+                                        {row.applyToAllResidencyTypes && row.amount ? (
+                                            `${row.currency}${row.amount.toLocaleString()}`
+                                        ) : row.residencyAmounts && row.residencyAmounts.length > 0 ? (
+                                            row.residencyAmounts.length === 1 ? (
+                                                `${row.residencyAmounts[0].currency}${row.residencyAmounts[0].amount.toLocaleString()}`
+                                            ) : (
+                                                <div
+                                                    className="flex items-center gap-2 text-BlueHomz cursor-pointer"
+                                                    onClick={(e) => { e.stopPropagation(); openModal(row) }}
+                                                >
+                                                    <span>View all</span>
+                                                    <span style={{ display: 'inline-flex' }}>
+                                                        <ArrowDown className={'#006AFF'} />
+                                                    </span>
+                                                </div>
+                                            )
                                         ) : (
-                                            // show clickable text + arrow that opens modal
-                                            <div
-                                                className="flex items-center gap-2 text-BlueHomz cursor-pointer"
-                                                onClick={(e) => { e.stopPropagation(); openModal(row) }}
-                                            >
-                                                <span>View all</span>
-                                                <span style={{ display: 'inline-flex' }}>
-                                                    <ArrowDown className={'#006AFF'} />
-                                                </span>
-                                            </div>
+                                            '-'
                                         )}
                                     </td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.frequency}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.startDate}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px] capitalize">{row.frequency}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{formatDateDisplay(row.billingStartDate)}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
-                                        <div style={{ position: 'relative', width: 100 }}>
-                                            <button
-                                                style={{
-                                                    width: 100,
-                                                    height: 33,
-                                                    borderRadius: 4,
-                                                    opacity: 1,
-                                                    gap: 4,
-                                                    padding: '8px 12px',
-                                                    background: row.status === 'Active' ? '#CDEADD' : '#FDF2F2',
-                                                    color: row.status === 'Active' ? '#039855' : '#D92D20',
-                                                    border: 'none',
-                                                    fontFamily: 'Plus Jakarta Sans',
-                                                    fontWeight: 400,
-                                                    fontSize: 10,
-                                                    lineHeight: '150%',
-                                                    letterSpacing: 0,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => setStatusDropdown(idx)}
-                                            >
-                                                <span>{row.status}</span>
-                                                <span style={{ marginLeft: 8, display: 'inline-flex', transform: statusDropdown === idx ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-                                                    <ArrowDown className={row.status === 'Active' ? '#039855' : '#D92D20'} />
-                                                </span>
-                                            </button>
-                                            {statusDropdown === idx && (
-                                                <div
-                                                    ref={statusDropDownRef}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: 40,
-                                                        left: 0,
-                                                        width: 100,
-                                                        borderRadius: 4,
-                                                        border: '1px solid #E6E6E6',
-                                                        background: '#fff',
-                                                        zIndex: 100,
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                                        padding: '8px 8px',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        gap: 4,
-                                                    }}
-                                                >
-                                                    <button
-                                                        className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none mb-1 cursor-pointer text-left"
-                                                        onClick={() => {
-                                                            // update status in bills
-                                                            setBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, status: 'Active' } : bill))
-                                                            setDisplayedBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, status: 'Active' } : bill))
-                                                            setStatusDropdown(null)
-                                                        }}
-                                                    >
-                                                        Active
-                                                    </button>
-                                                    <button
-                                                        className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none cursor-pointer text-left"
-                                                        onClick={() => {
-                                                            setBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, status: 'Inactive' } : bill))
-                                                            setDisplayedBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, status: 'Inactive' } : bill))
-                                                            setStatusDropdown(null)
-                                                        }}
-                                                    >
-                                                        Inactive
-                                                    </button>
-                                                </div>
-                                            )}
+                                        <div className={`text-[10px] px-3 py-2 rounded font-normal capitalize inline-block ${
+                                            row.status === 'active' 
+                                                ? 'bg-[#CDEADD] text-[#039855]' 
+                                                : 'bg-[#FDF2F2] text-[#D92D20]'
+                                        }`}>
+                                            {row.status}
                                         </div>
                                     </td>
                                     <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
@@ -312,6 +255,8 @@ const Table = () => {
                                                         <div
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
+                                                                setSelectedBill(row)
+                                                                setEditModalOpen(true)
                                                                 setActionDropdown(null)
                                                             }}
                                                             className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
@@ -332,7 +277,7 @@ const Table = () => {
                                                         <div
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
-                                                                deleteBill(row._id)
+                                                                handleDeleteBill(row._id)
                                                                 setActionDropdown(null)
                                                             }}
                                                             className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
@@ -353,9 +298,9 @@ const Table = () => {
                                 <tr>
                                     <td colSpan={8} className="py-2">
                                         <div ref={loaderRef} className="h-1" />
-                                        {isLoading && (
+                                        {isAppending && (
                                             <div className="w-full max-w-[1000px] flex items-center justify-center py-3">
-                                                <LoadingSpinner size={24} />
+                                                <LoadingSpinner />
                                             </div>
                                         )}
                                     </td>
@@ -382,15 +327,27 @@ const Table = () => {
                                 <div>Residence Type</div>
                                 <div>Price</div>
                             </div>
-                                {selectedBill.priceTiers && selectedBill.priceTiers.map((tier: any, i: number) => (
+                                {selectedBill.residencyAmounts && selectedBill.residencyAmounts.map((ra, i: number) => (
                                     <div key={i} className="grid grid-cols-2 px-6 py-4 border-t border-[#D5D5D5] text-[11px] font-medium text-GrayHomz">
-                                        <div className='col-span-1'>{tier.residenceType}</div>
-                                        <div className='col-span-1'>{tier.amount}</div>
+                                        <div className='col-span-1'>{ra.residencyType}</div>
+                                        <div className='col-span-1'>{ra.currency}{ra.amount.toLocaleString()}</div>
                                     </div>
                                 ))}
                             </div>
                     </div>
                 </CustomModal>
+            )}
+
+            {editModalOpen && selectedBill && (
+                <EditBilling
+                    isOpen={editModalOpen}
+                    onRequestClose={() => {
+                        setEditModalOpen(false)
+                        setSelectedBill(null)
+                    }}
+                    billData={selectedBill}
+                    isEditing={true}
+                />
             )}
 
         </div>
