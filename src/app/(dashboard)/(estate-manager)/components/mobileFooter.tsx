@@ -2,21 +2,18 @@
 import CustomModal from '@/components/general/customModal';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/accessControlIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
 // import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
-import NotiIcon from '@/components/icons/estateManager&Resident/mobile/notiIcon';
-import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
-import ProfileIcon from '@/components/icons/estateManager&Resident/mobile/profileIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
 import ResidentIcon from '@/components/icons/estateManager&Resident/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
-import SupportIcon from '@/components/icons/estateManager&Resident/mobile/supportIcon';
-import UsersIcon from '@/components/icons/estateManager&Resident/mobile/usersIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout';
 import { useAuthSlice } from '@/store/authStore';
+import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 
 interface DataType {
     id: number;
@@ -59,74 +56,76 @@ const Data = [
         extra: false,
     },
     {
-        id: 8,
-        image: <LogoutIcon />,
-        image2: <LogoutIcon />,
-        link: "",
-        name: "Logout"
+        id: 4,
+        image: <MoreIcon />,
+        image2: <MoreIcon className='#006AFF' />,
+        link: null,
+        name: "More",
+        extra: true,
     }
 ];
 
 const PopUpData = [
-    {
-        id: 1,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: true,
-    },
-    {
-        id: 2,
-        image: <ExpensesIcon />,
-        image2: (
-            <ExpensesIcon className='#006AFF' />
-        ),
-        link: "/finance/expense",
-        name: "Expenses",
-        coming_Soon: true,
-    },
-    {
-        id: 3,
-        image: <UsersIcon />,
-        image2: (
-            <UsersIcon className='#006AFF' />
-        ),
-        link: "/manage-users",
-        name: "Users",
-        coming_Soon: true,
-    },
-    {
-        id: 4,
-        image: <SupportIcon />,
-        image2: <SupportIcon className='#006AFF' />,
-        link: "/support",
-        name: "Support",
-        coming_Soon: true,
-    },
-    {
-        id: 5,
-        image: <NotiIcon />,
-        image2: <NotiIcon className='#006AFF' />,
-        link: "/notification-page",
-        name: "Notifi...",
-        coming_Soon: true,
-    },
-    {
-        id: 6,
-        image: <ProfileIcon />,
-        image2: <ProfileIcon className='#006AFF' />,
-        link: "/profile",
-        name: "Profile"
-    },
+    // {
+    //     id: 1,
+    //     image: <PaymentIcon />,
+    //     image2: (
+    //         <PaymentIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/payment",
+    //     name: "Payments",
+    //     coming_Soon: false,
+    // },
+    // {
+    //     id: 2,
+    //     image: <ExpensesIcon />,
+    //     image2: (
+    //         <ExpensesIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/bill-utility",
+    //     name: "Billing",
+    //     coming_Soon: false,
+    // },
+    // {
+    //     id: 3,
+    //     image: <UsersIcon />,
+    //     image2: (
+    //         <UsersIcon className='#006AFF' />
+    //     ),
+    //     link: "/manage-users",
+    //     name: "Users",
+    //     coming_Soon: true,
+    // },
+    // {
+    //     id: 4,
+    //     image: <SupportIcon />,
+    //     image2: <SupportIcon className='#006AFF' />,
+    //     link: "/support",
+    //     name: "Support",
+    //     coming_Soon: true,
+    // },
+    // {
+    //     id: 5,
+    //     image: <NotiIcon />,
+    //     image2: <NotiIcon className='#006AFF' />,
+    //     link: "/notification-page",
+    //     name: "Notifi...",
+    //     coming_Soon: true,
+    // },
+    // {
+    //     id: 6,
+    //     image: <ProfileIcon />,
+    //     image2: <ProfileIcon className='#006AFF' />,
+    //     link: "/profile",
+    //     name: "Profile"
+    // },
     {
         id: 7,
         image: <SettingsIcon />,
         image2: <SettingsIcon className='#006AFF' />,
         link: "/settings",
-        name: "Settings"
+        name: "Settings",
+        coming_Soon: false,
     },
     {
         id: 8,
@@ -206,7 +205,7 @@ const MobileFooter = () => {
                                 logOutUser()
                             }
                         }}
-                        className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link ? "text-BlueHomz" :data?.name === "Logout" ? "text-error" : "text-GrayHomz"} 
+                        className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${pathname === data.link ? "text-BlueHomz" : data?.name === "Logout" ? "text-error" : "text-GrayHomz"} 
                         `}
                     >
                         {pathname === data.link ? (

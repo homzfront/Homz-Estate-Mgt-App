@@ -113,8 +113,8 @@ export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
         const append = params.append ?? false;
 
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             set({ error: 'Missing organization or estate id', initialLoading: false, pageLoading: false });
@@ -209,8 +209,8 @@ export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
     },
     updateManagerAccessStatus: async (accessId, nextStatus) => {
         const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-        const organizationId = selectedCommunity?.associatedIds?.organizationId;
-        const estateId = selectedCommunity?._id;
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+        const estateId = selectedCommunity?.estate?._id;
 
         if (!organizationId || !estateId) {
             set({ error: 'Missing organization or estate id' });

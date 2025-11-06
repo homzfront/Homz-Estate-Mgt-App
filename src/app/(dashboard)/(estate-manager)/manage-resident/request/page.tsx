@@ -22,8 +22,20 @@ import { getToken } from '@/utils/cookies';
 import Image from 'next/image';
 import React, { useCallback, useRef } from 'react';
 import toast, { LoaderIcon } from 'react-hot-toast';
+import { useAbility } from '@/contexts/AbilityContext';
+import { useRouter } from 'next/navigation';
 
 const Request = () => {
+    const router = useRouter();
+    const ability = useAbility();
+
+    // Redirect if user doesn't have access to residents
+    React.useEffect(() => {
+        if (!ability.can('read', 'residents')) {
+            router.push('/dashboard');
+        }
+    }, [ability, router]);
+
     const { requestResponse, isLoading, getRequest } = useRequestSlice();
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
     const [selectAll, setSelectAll] = React.useState(false);
@@ -82,7 +94,7 @@ const Request = () => {
 
     // fetch requests when page changes
     React.useEffect(() => {
-        if (selectedCommunity?._id) {
+        if (selectedCommunity?.estate?._id) {
             getRequest(pageNo, pageSize)
         };
     }, [pageNo, selectedCommunity]);
@@ -259,8 +271,6 @@ const Request = () => {
     //     </tr>
     // );
 
-    console.log("selectedData:", selectedData)
-
     return (
         <div className='p-8'>
             <CustomModal isOpen={modelOpen !== ''} onRequestClose={() => setModelOpen('')}>
@@ -363,31 +373,37 @@ const Request = () => {
                                     </div>
                                 </div>
                                 {/* Actions Button */}
-                                <button
-                                    onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
-                                    className="flex items-center gap-1 border border-BlueHomz text-BlueHomz px-3 py-2 rounded font-medium text-sm">
-                                    Actions
-                                    <ArrowDown />
-                                </button>
+                                {ability.can('update', 'residents') && (
+                                    <button
+                                        onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
+                                        className="flex items-center gap-1 border border-BlueHomz text-BlueHomz px-3 py-2 rounded font-medium text-sm">
+                                        Actions
+                                        <ArrowDown />
+                                    </button>
+                                )}
                                 {actionsMenuOpen && (
                                     <div
                                         ref={actionsMenuRef}
                                         className="absolute top-12 right-0 z-50 w-[240px] bg-white border rounded shadow-lg flex flex-col p-2"
                                     >
-                                        <button
-                                            className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
-                                            onClick={() => handleBulkAction('approve')}
-                                            disabled={isRequesting}
-                                        >
-                                            <AddRound /> Approve selected requests
-                                        </button>
-                                        <button
-                                            className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
-                                            onClick={() => handleBulkAction('decline')}
-                                            disabled={isRequesting}
-                                        >
-                                            <MinusRound /> Decline selected requests
-                                        </button>
+                                        {ability.can('update', 'residents') && (
+                                            <>
+                                                <button
+                                                    className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
+                                                    onClick={() => handleBulkAction('approve')}
+                                                    disabled={isRequesting}
+                                                >
+                                                    <AddRound /> Approve selected requests
+                                                </button>
+                                                <button
+                                                    className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
+                                                    onClick={() => handleBulkAction('decline')}
+                                                    disabled={isRequesting}
+                                                >
+                                                    <MinusRound /> Decline selected requests
+                                                </button>
+                                            </>
+                                        )}
                                         <button
                                             className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
                                             onClick={() => toast('Export coming soon')}
@@ -406,12 +422,14 @@ const Request = () => {
                                 <thead>
                                     <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
                                         {/* Select All */}
-                                        <th
-                                            className="cursor-pointer text-left pl-4 w-[40px]"
-                                            onClick={handleSelectAll}
-                                        >
-                                            {selectAll ? <Ticked /> : <UnTicked />}
-                                        </th>
+                                        {ability.can('update', 'residents') && (
+                                            <th
+                                                className="cursor-pointer text-left pl-4 w-[40px]"
+                                                onClick={handleSelectAll}
+                                            >
+                                                {selectAll ? <Ticked /> : <UnTicked />}
+                                            </th>
+                                        )}
 
                                         {/* Resident Name */}
                                         <th className="text-left w-auto md:w-[150px]">Resident Name</th>
@@ -425,7 +443,9 @@ const Request = () => {
 
                                         {/* Always visible */}
                                         <th className="text-left w-auto md:w-[110px]">Status</th>
-                                        <th className="text-left w-auto md:w-[80px]">Action</th>
+                                        {ability.can('update', 'residents') && (
+                                            <th className="text-left w-auto md:w-[80px]">Action</th>
+                                        )}
                                     </tr>
                                 </thead>
 
@@ -433,12 +453,14 @@ const Request = () => {
                                     {requestResponse?.results.map((data) => (
                                         <tr key={data._id} className="border-t min-h-[60px] bg-white">
                                             {/* Checkbox */}
-                                            <td
-                                                onClick={() => handleRowSelect(data._id)}
-                                                className="cursor-pointer pr-2 py-[15px] pl-4 font-[500] text-[11px] w-[40px]"
-                                            >
-                                                {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
-                                            </td>
+                                            {ability.can('update', 'residents') && (
+                                                <td
+                                                    onClick={() => handleRowSelect(data._id)}
+                                                    className="cursor-pointer pr-2 py-[15px] pl-4 font-[500] text-[11px] w-[40px]"
+                                                >
+                                                    {selectedRows.includes(data._id) ? <Ticked /> : <UnTicked />}
+                                                </td>
+                                            )}
 
                                             {/* Resident Name */}
                                             <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[150px]">
@@ -470,53 +492,59 @@ const Request = () => {
                                             </td>
 
                                             {/* Action */}
-                                            <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
-                                                <button
-                                                    className="ml-4"
-                                                    onClick={(e) => handleToggleMenu(data._id, e)}
-                                                >
-                                                    ⋮
-                                                </button>
-
-                                                {/* Pop-up menu */}
-                                                {popUpMenu && selectedId === data._id && (
-                                                    <div
-                                                        ref={menuRef as any}
-                                                        className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around"
+                                            {ability.can('update', 'residents') && (
+                                                <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
+                                                    <button
+                                                        className="ml-4"
+                                                        onClick={(e) => handleToggleMenu(data._id, e)}
                                                     >
-                                                        <button
-                                                            className="flex md:hidden gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
-                                                            onClick={() => {
-                                                                setSelectedData(data);
-                                                                setDetailsOpen(true);
-                                                                setPopUpMenu(false);
-                                                            }}
+                                                        ⋮
+                                                    </button>
+
+                                                    {/* Pop-up menu */}
+                                                    {popUpMenu && selectedId === data._id && (
+                                                        <div
+                                                            ref={menuRef as any}
+                                                            className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around"
                                                         >
-                                                            <Eye className="h-4 w-4" /> View
-                                                        </button>
-                                                        <button
-                                                            className="flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue"
-                                                            onClick={() => {
-                                                                setSelectedData(data);
-                                                                setModelOpen("approve");
-                                                                setPopUpMenu(false);
-                                                            }}
-                                                        >
-                                                            <ApproveIcon /> Approve
-                                                        </button>
-                                                        <button
-                                                            className="flex gap-2 items-center w-full text-left px-4 py-2 text-error hover:bg-whiteblue"
-                                                            onClick={() => {
-                                                                setSelectedData(data);
-                                                                setModelOpen("decline");
-                                                                setPopUpMenu(false);
-                                                            }}
-                                                        >
-                                                            <DeclineIcon /> Decline
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
+                                                            <button
+                                                                className="flex md:hidden gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
+                                                                onClick={() => {
+                                                                    setSelectedData(data);
+                                                                    setDetailsOpen(true);
+                                                                    setPopUpMenu(false);
+                                                                }}
+                                                            >
+                                                                <Eye className="h-4 w-4" /> View
+                                                            </button>
+                                                            {ability.can('update', 'residents') && (
+                                                                <>
+                                                                    <button
+                                                                        className="flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue"
+                                                                        onClick={() => {
+                                                                            setSelectedData(data);
+                                                                            setModelOpen("approve");
+                                                                            setPopUpMenu(false);
+                                                                        }}
+                                                                    >
+                                                                        <ApproveIcon /> Approve
+                                                                    </button>
+                                                                    <button
+                                                                        className="flex gap-2 items-center w-full text-left px-4 py-2 text-error hover:bg-whiteblue"
+                                                                        onClick={() => {
+                                                                            setSelectedData(data);
+                                                                            setModelOpen("decline");
+                                                                            setPopUpMenu(false);
+                                                                        }}
+                                                                    >
+                                                                        <DeclineIcon /> Decline
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            )}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -554,24 +582,28 @@ const Request = () => {
                                             <span className='text-BlackHomz'>{selectedData.status}</span>
                                         </div>
                                         <div className="flex gap-2 mt-4">
-                                            <button
-                                                className="flex-1 bg-Success text-white text-base rounded h-[40px] font-medium flex items-center gap-1 justify-center"
-                                                onClick={() => {
-                                                    setDetailsOpen(false);
-                                                    setModelOpen('approve');
-                                                }}
-                                            >
-                                                <AddRound color='#FFFFFF' />   Approve
-                                            </button>
-                                            <button
-                                                className="flex-1 bg-white border border-error text-error text-base rounded h-[40px] font-medium flex items-center gap-1 justify-center"
-                                                onClick={() => {
-                                                    setDetailsOpen(false);
-                                                    setModelOpen('decline');
-                                                }}
-                                            >
-                                                <MinusRound color='#D92D20' colorTwo='#D92D20' />   Decline
-                                            </button>
+                                            {ability.can('update', 'residents') && (
+                                                <>
+                                                    <button
+                                                        className="flex-1 bg-Success text-white text-base rounded h-[40px] font-medium flex items-center gap-1 justify-center"
+                                                        onClick={() => {
+                                                            setDetailsOpen(false);
+                                                            setModelOpen('approve');
+                                                        }}
+                                                    >
+                                                        <AddRound color='#FFFFFF' />   Approve
+                                                    </button>
+                                                    <button
+                                                        className="flex-1 bg-white border border-error text-error text-base rounded h-[40px] font-medium flex items-center gap-1 justify-center"
+                                                        onClick={() => {
+                                                            setDetailsOpen(false);
+                                                            setModelOpen('decline');
+                                                        }}
+                                                    >
+                                                        <MinusRound color='#D92D20' colorTwo='#D92D20' />   Decline
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

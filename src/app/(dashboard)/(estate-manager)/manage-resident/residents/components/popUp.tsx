@@ -5,6 +5,7 @@ import ArrowRight from '@/components/icons/arrowRight';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
 import VisitorAccessMiniIcon from '@/components/icons/estateManager&Resident/desktop/visitorAccessMiniIcon';
+import { useRouter } from 'next/navigation';
 
 interface PopUpProps {
     setOpenDetails: (data: boolean) => void;
@@ -12,6 +13,7 @@ interface PopUpProps {
 }
 
 function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
+    const router = useRouter();
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
     const [activeThree, setActiveThree] = React.useState(false);
@@ -19,7 +21,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
     return (
         <div ref={closeRef}>
             <div
-                className={`drop-down absolute top-11 right-8 md:right-[67px] z-100 w-[220px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col gap-2 items-center justify-around `}
+                className={`pointer-events-none drop-down absolute top-11 right-8 md:right-[67px] z-100 w-[220px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col gap-2 items-center justify-around `}
             >
                 {/* More information */}
                 <div
@@ -46,11 +48,12 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveTwo(true)}
                     onMouseLeave={() => setActiveTwo(false)}
-                    className="pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {
                                 e.stopPropagation()
+                                router.push(`/manage-resident/residents/123`)
                             }}
                             className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                         >
@@ -66,7 +69,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveThree(true)}
                     onMouseLeave={() => setActiveThree(false)}
-                    className="pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {
@@ -86,7 +89,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                 <div
                     onMouseEnter={() => setActiveFour(true)}
                     onMouseLeave={() => setActiveFour(false)}
-                    className=" pointer-events-none opacity-50 md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                    className=" md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                     <div className="w-full ">
                         <div
                             onClick={(e) => {

@@ -149,7 +149,7 @@ const Dashboard = () => {
             </h2>
             <p className="text-sm text-GrayHomz font-normal mb-3">
               Your request to join <span className="font-medium">{selectedEstate?.estateName}</span> is currently
-              pending approval from the estate manager. Once your request is
+              pending approval from the community manager. Once your request is
               accepted, you&apos;ll be able to:
             </p>
             <ul className="list-disc list-inside text-sm text-GrayHomz font-normal space-y-1 mb-3">
@@ -176,7 +176,7 @@ const Dashboard = () => {
               </h2>
               <p className="text-sm text-GrayHomz font-normal mb-3">
                 Your request to join <span className="font-medium">{selectedEstate?.estateName}</span> was reviewed and unfortunately not
-                approved by the estate manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
+                approved by the community manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
               </p>
               <button className="text-sm text-BlueHomz font-normal flex items-center gap-2">
                 Contact Support <ExportIcon className='#006AFF' />

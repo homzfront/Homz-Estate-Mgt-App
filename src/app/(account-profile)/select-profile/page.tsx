@@ -16,17 +16,17 @@ const SelectProfile = () => {
     const data = [
         {
             id: 1,
-            text: "Monitor estate-wide activities, handle visitor access for tenants, & more.",
-            header: "Estate Manager",
+            text: "Monitor community-wide activities, handle visitor access for residents, & more.",
+            header: "Community Manager",
             image: <EstateManagement />,
             imageII: ({ hover }: any) => <EstateManagement className={hover ? "#FF8C00" : "#DC6803"} classNameII={hover ? "#FFFAF0" : "white"} />,
             link: "/estate-form",
-            hoverBorderColor: "#DC6803", // Orange for Estate Manager
+            hoverBorderColor: "#DC6803", // Orange for Community Manager
             hoverBgColor: "bg-orange-50"
         },
         {
             id: 2,  // Changed id to be unique
-            text: "As a tenant, pay estate dues, and request visitor access in one place.",
+            text: "As a resident, pay community dues, and request visitor access in one place.",
             header: "Resident",
             image: <Resident />,
             imageII: ({ hover }: any) => <Resident className={hover ? "#df2b1eff" : "#D92D20"} classNameII={hover ? "#FFF5F5" : "white"} />,
@@ -42,7 +42,7 @@ const SelectProfile = () => {
                     <LockIcon />
                     <h1 className='text-BlackHomz text-[20px] font-semibold text-center'>An invitation is required to continue</h1>
                     <p className='text-GrayHomz text-[16px] font-normal text-center'>
-                        Please notify your estate manager to send you an invite link. Once you receive the invite, click the link to resume your onboarding
+                        Please notify your community manager to send you an invite link. Once you receive the invite, click the link to resume your onboarding
                     </p>
                 </div>
             </CustomModal>

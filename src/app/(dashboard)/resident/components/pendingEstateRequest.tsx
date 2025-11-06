@@ -23,7 +23,7 @@ const PendingEstateRequest = ({ setOpenPendingModal }: PendingProps) => {
                 <p className="text-sm text-GrayHomz font-normal mb-3">
                     Your request to join <span className="font-medium">[Building name]</span>,{" "}
                     <span className="font-medium">[Apartment name]</span> under <span className="font-medium">[Estate Name]</span> was reviewed and unfortunately not
-                    approved by the estate manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
+                    approved by the community manager. If this was unexpected or you believe it may have been a mistake, you can contact them for clarification or reach out to our support team.
                 </p>
                 <ul className="list-disc list-inside text-sm text-GrayHomz font-normal space-y-1 mb-3">
                     <li className="">

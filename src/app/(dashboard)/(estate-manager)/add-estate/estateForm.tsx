@@ -234,8 +234,8 @@ const EstateForm = () => {
             <div className='p-8 w-full max-w-[1440px]'>
                 {isOpen &&
                     <SuccessModal
-                        title='Estate Created Successfully'
-                        successText='You can now manage estate information, invite residents and add bills.'
+                        title='Community Created Successfully'
+                        successText='You can now manage community information, invite residents and add bills.'
                         submitText='Invite Residents'
                         handleSubmit={() => {
                             // setUserData(true);

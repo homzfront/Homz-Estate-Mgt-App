@@ -13,6 +13,7 @@ import ExportIcon from "@/components/icons/estateManager&Resident/desktop/export
 import AddIcon from "@/components/icons/addIcon";
 import { useResidentsListStore } from "@/store/useResidentsListStore";
 import useDebounce from "@/app/utils/useDebounce";
+import { useAbility } from '@/contexts/AbilityContext';
 
 interface HeaderFilterProps {
     setOpenInvite: (data: boolean) => void;
@@ -25,6 +26,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
     const [search, setSearch] = useState("");
     const closeAction = useRef<HTMLDivElement>(null);
     const { totalCount, setSearch: setStoreSearch, fetchResidents } = useResidentsListStore();
+    const ability = useAbility();
     const debounced = useDebounce(search, 2000);
 
     useClickOutside(closeAction as any, () => {
@@ -47,9 +49,11 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                     <h2 className='font-medium text-[16px] text-BlackHomz'>Residents </h2>
                     <p className='text-sm text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>{totalCount}</p>
                 </div>
-                <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
-                    <AddIcon className="#ffffff" />
-                </button>
+                {ability.can('create', 'residents') && (
+                    <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
+                        <AddIcon className="#ffffff" />
+                    </button>
+                )}
             </div>
             <div className='flex w-full gap-4 justify-between'>
                 <div className="hidden md:flex items-center gap-4">
@@ -57,9 +61,11 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                         <h2 className='font-medium text-[20px] text-BlackHomz'>Residents </h2>
                         <p className='text-[18px] text-BlueHomz font-normal py-1 rounded-[8px] bg-[#EEF5FF] px-2'>{totalCount}</p>
                     </div>
-                    <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
-                        <AddIcon className="#ffffff" />
-                    </button>
+                    {ability.can('create', 'residents') && (
+                        <button onClick={() => setOpenInvite(true)} className="py-2 rounded-[8px] bg-BlueHomz px-3 flex justify-center items-center">
+                            <AddIcon className="#ffffff" />
+                        </button>
+                    )}
                 </div>
 
                 <div className='relative flex flex-1 md:flex-none items-center gap-2'>
@@ -105,14 +111,18 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                                     </div>
                                 ) : (
                                     <div className='text-sm text-GrayHomz font-medium flex flex-col gap-0'>
-                                        <div onClick={() => setOpenInvite(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
-                                            <span className="w-4"><AddNormal /></span>
-                                            <span className="min-w-[80%]">Invite Resident(s)</span>
-                                        </div>
-                                        <div onClick={() => setOpenManualForm(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
-                                            <span className="w-4"><ManualAddIcon className="#4E4E4E" /></span>
-                                            <span className="min-w-[80%]">Manually add Resident</span>
-                                        </div>
+                                        {ability.can('create', 'residents') && (
+                                            <>
+                                                <div onClick={() => setOpenInvite(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
+                                                    <span className="w-4"><AddNormal /></span>
+                                                    <span className="min-w-[80%]">Invite Resident(s)</span>
+                                                </div>
+                                                <div onClick={() => setOpenManualForm(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
+                                                    <span className="w-4"><ManualAddIcon className="#4E4E4E" /></span>
+                                                    <span className="min-w-[80%]">Manually add Resident</span>
+                                                </div>
+                                            </>
+                                        )}
                                         <div className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
                                             <span className="w-4"><BillMiniIcon /></span>
                                             <span className="min-w-[80%]">Add Bills</span>

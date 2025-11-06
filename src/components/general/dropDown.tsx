@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import ReactDOM from 'react-dom'
 import useClickOutside from "@/app/utils/useClickOutside";
 import BlueSearch from "../icons/blueSearch";
 import ArrowDown from "../icons/arrowDown";
@@ -27,6 +28,13 @@ interface DropdownProps {
     bgColor?: string;
     openBorder?: string;
     selectedId?: string | number | null;
+    /**
+     * displayMode controls how the dropdown content is rendered:
+     * - 'inline' (default): absolute positioned dropdown within the component (current behavior)
+     * - 'portal': renders the dropdown into document.body using a portal and positions it over the page
+     * - 'push': renders the dropdown in-flow (not absolute) so it takes up layout space and pushes content
+     */
+    displayMode?: 'inline' | 'portal' | 'push';
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -44,6 +52,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     textColor = "text-BlackHomz",
     openBorder = "border-GrayHomz",
     selectedId,
+    displayMode = 'inline',
 }) => {
     const isControlled = typeof selectedId !== 'undefined';
     const controlledSelected = isControlled ? options.find(o => o.id === selectedId) ?? null : null;
@@ -51,6 +60,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     const [selectedOption, setSelectedOption] = useState<Option | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const dropdownRef = React.useRef<HTMLDivElement>(null);
+    const [portalStyle, setPortalStyle] = useState<React.CSSProperties | null>(null)
 
     useClickOutside(dropdownRef as any, () => {
         setIsOpen(false);
@@ -67,6 +77,28 @@ const Dropdown: React.FC<DropdownProps> = ({
         }
     };
 
+    // compute portal position when opening if using portal mode
+    useEffect(() => {
+        if (!isOpen) {
+            setPortalStyle(null)
+            return
+        }
+
+        if (displayMode !== 'portal') return
+
+        const el = dropdownRef.current
+        if (!el) return
+        const rect = el.getBoundingClientRect()
+        const style: React.CSSProperties = {
+            position: 'absolute',
+            top: rect.bottom + window.scrollY,
+            left: rect.left + window.scrollX,
+            width: rect.width,
+            zIndex: 9999,
+        }
+        setPortalStyle(style)
+    }, [isOpen, displayMode])
+
     const handleOptionClick = (option: Option) => {
         setSelectedOption(option);
         onSelect(option);
@@ -78,7 +110,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <div className={`relative w-full ${className}`} ref={dropdownRef}>
             {/* Trigger */}
             <div
-                className={`${textColor} px-4 border ${bgColor}  ${height} text-sm p-3 rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
+                className={`${textColor} px-4 border ${bgColor} ${height} text-sm rounded-[4px] cursor-pointer flex items-center justify-between shadow-sm ${isOpen ? "border-BlueHomz border-2" : `${borderColor}`
                     } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
                 onClick={handleDropdownToggle}
             >
@@ -91,8 +123,8 @@ const Dropdown: React.FC<DropdownProps> = ({
             </div>
 
             {/* Dropdown Content */}
-            {isOpen && (
-                <div className={`absolute z-50 mt-1 w-full bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
+            {isOpen && displayMode !== 'portal' && (
+                <div className={`${displayMode === 'inline' ? 'absolute z-50 mt-1 w-full' : 'w-full'} bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
                     {/* Search input - now properly positioned */}
                     {showSearch &&
                         <div className="p-2 sticky top-0 bg-white">
@@ -100,7 +132,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                                 <input
                                     type="text"
                                     placeholder="Search..."
-                                    className="w-full h-[45px] pl-4 pr-10 border rounded-md text-sm"
+                                    className="w-full h-[45px] pl-4 pr-10 border rounded-md text-sm outline-none"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     autoFocus
@@ -134,6 +166,51 @@ const Dropdown: React.FC<DropdownProps> = ({
                         )}
                     </div>
                 </div>
+            )}
+
+            {/* Portal mode: render dropdown content into document.body positioned using portalStyle */}
+            {isOpen && displayMode === 'portal' && portalStyle && ReactDOM.createPortal(
+                <div style={portalStyle} className={`bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
+                    {showSearch &&
+                        <div className="p-2 sticky top-0 bg-white">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    className="w-full h-[45px] pl-4 pr-10 border rounded-md text-sm outline-none"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    autoFocus
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <BlueSearch />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div className="overflow-y-auto flex-1 scrollbar-container">
+                        {isLoading ? (
+                            <div className="p-4 text-center text-GrayHomz">Loading...</div>
+                        ) : filteredOptions.length === 0 ? (
+                            <div className="p-4 text-center text-GrayHomz">No options found</div>
+                        ) : (
+                            filteredOptions.map((option) => (
+                                <div
+                                    key={option.id}
+                                    className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm ${(isControlled ? selectedId === option.id : selectedOption?.id === option.id) ? "text-BlueHomz" : " hover:text-BlackHomz"
+                                        }`}
+                                    onClick={() => handleOptionClick(option)}
+                                >
+                                    <div className="font-medium flex items-center justify-between">{option.label}  {(isControlled ? selectedId === option.id : selectedOption?.id === option.id) && <BlueTick />}</div>
+                                    {option.zoneName && (
+                                        <div className="text-sm text-GrayHomz font-normal mt-1">{option.zoneName}</div>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

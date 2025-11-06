@@ -71,7 +71,7 @@ export const useRequestSlice = create<RequestState>()(
             ) => {
                 set({ isLoading: true });
                 try {
-                    const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?._id}`;
+                    const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?.estate?._id}`;
                     let query = `${baseUrl}?limit=${limit}&page=${page}`;
 
                     if (status) {
