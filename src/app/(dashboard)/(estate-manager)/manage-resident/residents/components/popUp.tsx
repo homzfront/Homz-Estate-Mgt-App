@@ -21,7 +21,7 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
     return (
         <div ref={closeRef}>
             <div
-                className={`drop-down absolute top-11 right-8 md:right-[67px] z-100 w-[220px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col gap-2 items-center justify-around `}
+                className={`pointer-events-none drop-down absolute top-11 right-8 md:right-[67px] z-100 w-[220px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col gap-2 items-center justify-around `}
             >
                 {/* More information */}
                 <div

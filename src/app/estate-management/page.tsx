@@ -28,13 +28,13 @@ import React from 'react'
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useAuthSlice } from '@/store/authStore'
-import { useRouter } from 'next/navigation'
+// import { useAuthSlice } from '@/store/authStore'
+// import { useRouter } from 'next/navigation'
 
 const EstateHomePage = () => {
-    const router = useRouter();
+    // const router = useRouter();
     const [activeBilling, setActiveBilling] = React.useState<any>(null);
-    const { userData, residentProfile } = useAuthSlice();
+    // const { userData, residentProfile } = useAuthSlice();
     const settings = {
         dots: true,
         infinite: true,
@@ -90,9 +90,9 @@ const EstateHomePage = () => {
         }
     ];
 
-    const handleRoute = () => {
-        router.push(residentProfile?._id ? "/resident/dashboard" : (userData) ? "/dashboard" : "/login");
-    }
+    // const handleRoute = () => {
+    //     router.push(residentProfile?._id ? "/resident/dashboard" : (userData) ? "/dashboard" : "/login");
+    // }
 
     return (
         <div className='w-full'>

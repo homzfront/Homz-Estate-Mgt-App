@@ -18,7 +18,7 @@ import { formatDateDisplay } from '@/app/utils/formatDateTime'
 const Table = () => {
     const { items, pageLoading, isAppending, deleteBill, fetchBills, currentPage, totalPages } = useBillStore()
     
-    const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
+    // const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
     const [actionDropdown, setActionDropdown] = React.useState<number | null>(null)
     const [selectedRows, setSelectedRows] = React.useState<string[]>([])
     const [selectAll, setSelectAll] = React.useState(false)
@@ -28,7 +28,7 @@ const Table = () => {
     const [modalOpen, setModalOpen] = React.useState(false)
     const [editModalOpen, setEditModalOpen] = React.useState(false)
     const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
-    const [deletingId, setDeletingId] = React.useState<string | null>(null)
+    // const [deletingId, setDeletingId] = React.useState<string | null>(null)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const statusDropDownRef = React.useRef<HTMLDivElement>(null)
@@ -37,7 +37,7 @@ const Table = () => {
         setActionDropdown(null)
     })
     useClickOutside(statusDropDownRef as any, () => {
-        setStatusDropdown(null)
+        // setStatusDropdown(null)
     })
 
     // Infinite scroll for loading more
@@ -84,7 +84,7 @@ const Table = () => {
 
     // Delete bill handler
     const handleDeleteBill = async (id: string) => {
-        setDeletingId(id)
+        // setDeletingId(id)
         try {
             await deleteBill(id)
             toast.success('Bill deleted successfully', { position: 'top-center' })
@@ -93,7 +93,7 @@ const Table = () => {
         } catch (error: any) {
             toast.error(error.message || 'Failed to delete bill', { position: 'top-center' })
         } finally {
-            setDeletingId(null)
+            // setDeletingId(null)
         }
     }
 

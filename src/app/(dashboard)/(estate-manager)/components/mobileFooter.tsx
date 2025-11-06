@@ -2,9 +2,9 @@
 import CustomModal from '@/components/general/customModal';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/accessControlIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
-import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
 // import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
-import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
 import ResidentIcon from '@/components/icons/estateManager&Resident/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';

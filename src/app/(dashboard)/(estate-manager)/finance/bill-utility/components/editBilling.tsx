@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, RefObject } from 'react'
 import CustomInput from '@/components/general/customInput'
 import Dropdown from '@/components/general/dropDown'
@@ -352,7 +353,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                 )).toISOString()
 
                                 // Build payload based on applyToAllResidencyTypes
-                                let payload: any = {
+                                const payload: any = {
                                     currency: selectedCurrency,
                                     billName: billName.trim(),
                                     applyToAllResidencyTypes: applyAll,
