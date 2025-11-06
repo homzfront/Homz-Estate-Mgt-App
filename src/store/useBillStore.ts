@@ -67,23 +67,33 @@ interface BillListState {
     currentPage: number
     limit: number
     search: string
+    frequency: string
+    status: string
+    residencyType: string
     initialLoading: boolean
     pageLoading: boolean
     isAppending: boolean
     error: string | null
     hasAnyData: boolean
     hasEverHadData: boolean
-    lastFetch: { page: number; limit: number; search: string }
+    lastFetch: { page: number; limit: number; search: string; frequency: string; status: string; residencyType: string }
     lastEstateId: string | null
     selectedCurrency: string
     
     setSearch: (value: string) => void
     setSelectedCurrency: (currency: string) => void
+    setFrequency: (value: string) => void
+    setStatus: (value: string) => void
+    setResidencyType: (value: string) => void
+    clearFilters: () => void
     reset: () => void
     fetchBills: (params?: {
         page?: number
         limit?: number
         search?: string
+        frequency?: string
+        status?: string
+        residencyType?: string
         silent?: boolean
         append?: boolean
     }) => Promise<void>
@@ -99,18 +109,31 @@ export const useBillStore = create<BillListState>((set, get) => ({
     currentPage: 1,
     limit: 10,
     search: '',
+    frequency: '',
+    status: '',
+    residencyType: '',
     initialLoading: true,
     pageLoading: false,
     isAppending: false,
     error: null,
     hasAnyData: false,
     hasEverHadData: false,
-    lastFetch: { page: 1, limit: 10, search: '' },
+    lastFetch: { page: 1, limit: 10, search: '', frequency: '', status: '', residencyType: '' },
     lastEstateId: null,
     selectedCurrency: '₦',
     
     setSearch: (value) => set({ search: value }),
     setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
+    setFrequency: (value) => set({ frequency: value, currentPage: 1 }),
+    setStatus: (value) => set({ status: value, currentPage: 1 }),
+    setResidencyType: (value) => set({ residencyType: value, currentPage: 1 }),
+    clearFilters: () => set({ 
+        search: '', 
+        frequency: '', 
+        status: '', 
+        residencyType: '', 
+        currentPage: 1 
+    }),
     
     reset: () => set({
         items: [],
@@ -128,6 +151,9 @@ export const useBillStore = create<BillListState>((set, get) => ({
         const page = params.page ?? state.currentPage ?? 1
         const limit = params.limit ?? state.limit ?? 10
         const search = params.search ?? state.search ?? ''
+        const frequency = params.frequency ?? state.frequency ?? ''
+        const status = params.status ?? state.status ?? ''
+        const residencyType = params.residencyType ?? state.residencyType ?? ''
         const silent = params.silent ?? false
         const append = params.append ?? false
 
@@ -146,6 +172,9 @@ export const useBillStore = create<BillListState>((set, get) => ({
             state.lastFetch.page === page &&
             state.lastFetch.limit === limit &&
             state.lastFetch.search === search &&
+            state.lastFetch.frequency === frequency &&
+            state.lastFetch.status === status &&
+            state.lastFetch.residencyType === residencyType &&
             state.items.length > 0 &&
             !silent
         ) {
@@ -169,6 +198,15 @@ export const useBillStore = create<BillListState>((set, get) => ({
             if (search) {
                 url += `&search=${encodeURIComponent(search)}`
             }
+            if (frequency) {
+                url += `&frequency=${encodeURIComponent(frequency)}`
+            }
+            if (status) {
+                url += `&status=${encodeURIComponent(status)}`
+            }
+            if (residencyType && residencyType !== 'All Residency Type') {
+                url += `&residencyType=${encodeURIComponent(residencyType)}`
+            }
 
             const res = await api.get<BillsApiResponse>(url)
             const responseData = res.data?.data
@@ -185,7 +223,10 @@ export const useBillStore = create<BillListState>((set, get) => ({
                 limit: responseData?.limit || limit,
                 error: null,
                 search,
-                lastFetch: { page, limit, search },
+                frequency,
+                status,
+                residencyType,
+                lastFetch: { page, limit, search, frequency, status, residencyType },
                 hasAnyData: currentHasData,
                 hasEverHadData: previousHasEverHadData || currentHasData,
                 initialLoading: false,
