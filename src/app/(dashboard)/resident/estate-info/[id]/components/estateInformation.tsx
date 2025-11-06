@@ -51,7 +51,7 @@ const EstateInformation = () => {
                 </div>
             </div >
             <div className='bg-[#FCFCFC] rounded-[12px] p-4 mt-5'>
-                <p className='text-sm md:text-[16px] font-normal text-GrayHomz mb-2'>Estate Manager Information</p>
+                <p className='text-sm md:text-[16px] font-normal text-GrayHomz mb-2'>Community Manager Information</p>
                 <div className='mt-4 p-6 bg-inputBg rounded-[8px]'>
                     <div className="grid gap-2 md:gap-4 grid-cols-1 md:grid-cols-[1fr_2fr]">
                         <p className='text-sm text-BlackHomz font-medium md:font-normal '>

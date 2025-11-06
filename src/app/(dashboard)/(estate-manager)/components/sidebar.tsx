@@ -14,7 +14,7 @@ import ManageResidentIcon from '@/components/icons/estateManager&Resident/deskto
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
 // import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 // import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
-// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
 import InitialsAvatar from '@/components/general/InitialsAvatar';
 import Link from 'next/link';
@@ -25,6 +25,11 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useEstateFormStore } from '@/store/useEstateFormStore';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import UserTick from '@/components/icons/userTick';
+import { useAbility } from '@/contexts/AbilityContext';
+import { Subjects } from '@/utils/ability';
+// import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+// import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
+// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 
 const Data = [
     {
@@ -94,21 +99,21 @@ const Data = [
     //     ),
     //     link: "#",
     //     name: "Finance",
-    //     coming_Soon: true,
+    //     coming_Soon: false,
     //     active: false,
     //     submenu: true,
     //     subMenuItems: [
+    //         {
+    //             title: "Estate Billing",
+    //             link: "/finance/bill-utility",
+    //             image: <BillAndUtiIcon className='#4E4E4E' />,
+    //             image2: <BillAndUtiIcon />,
+    //         },
     //         {
     //             title: "Payments",
     //             link: "/finance/payment",
     //             image: <PaymentIcon />,
     //             image2: <PaymentIcon className='#006AFF' />,
-    //         },
-    //         {
-    //             title: "Expenses",
-    //             link: "/finance/expense",
-    //             image: <ExpensesIcon />,
-    //             image2: <ExpensesIcon className='#006AFF' />,
     //         },
     //     ],
     // },
@@ -153,12 +158,12 @@ const More = [
             //     image: <ProfileIcon />,
             //     image2: <ProfileIcon className='#006AFF' />,
             // },
-            // {
-            //     title: "Settings",
-            //     link: "/settings",
-            //     image: <SettingsIcon />,
-            //     image2: <SettingsIcon className='#006AFF' />,
-            // },
+            {
+                title: "Settings",
+                link: "/settings",
+                image: <SettingsIcon />,
+                image2: <SettingsIcon className='#006AFF' />,
+            },
             {
                 title: "Logout",
                 link: "#",
@@ -180,13 +185,7 @@ const Sidebar = () => {
     const { clearForm } = useEstateFormStore()
     const { logOutUser, estatesData, communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
-
-    React.useEffect(() => {
-        if (!selectedCommunity && estatesData && estatesData.length > 0) {
-            setSelectedCommunity(estatesData[0]?.estate); // default first estate
-        }
-    }, [selectedCommunity, estatesData, setSelectedCommunity]);
+    const ability = useAbility();
 
     // Note: getEstates() is now called automatically in getCommunityManaProfile()
 
@@ -218,7 +217,25 @@ const Sidebar = () => {
         }
         return false;
     };
-    
+
+    // Filter menu items based on permissions
+    const filteredData = Data.filter(item => {
+        const subject = item.name.toLowerCase().replace(' ', '-') as Subjects;
+        return ability.can('read', subject);
+    });
+
+    const filteredMore = More.map(section => ({
+        ...section,
+        subMenuItems: section.subMenuItems?.filter(subItem => {
+            if (subItem.title.toLowerCase() === 'settings') {
+                return ability.can('read', 'settings');
+            }
+            return true; // Always show logout
+        })
+    })).filter(section =>
+        section.subMenuItems && section.subMenuItems.length > 0
+    );
+
     return (
         <div className="sidebar relative">
             <div className="shadow-lg">
@@ -236,9 +253,9 @@ const Sidebar = () => {
                         <button onClick={() => setOpenEstateList(true)} className='border border-[#E6E6E6] hover:bg-white hover:shadow-md bg-[#F6F6F6] text-GrayHomz text-sm font-normal py-2 flex items-center justify-between px-4 mt-10 h-[48px] rounded-[4px]'>
                             <div className='flex gap-2 items-center'>
                                 <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center bg-white">
-                                    {selectedCommunity?.coverPhoto ? (
+                                    {selectedCommunity?.estate?.coverPhoto ? (
                                         <Image
-                                            src={selectedCommunity?.coverPhoto ? (selectedCommunity?.coverPhoto?.url as string) : ""}
+                                            src={selectedCommunity?.estate?.coverPhoto ? (selectedCommunity?.estate?.coverPhoto?.url as string) : ""}
                                             alt={"estate-img"}
                                             width={40}
                                             height={40}
@@ -246,19 +263,19 @@ const Sidebar = () => {
                                         />
                                     ) : (
                                         <InitialsAvatar
-                                            name={(selectedCommunity?.basicDetails?.name as string) || 'Estate'}
+                                            name={(selectedCommunity?.estate?.basicDetails?.name as string) || 'Estate'}
                                             size={24}
                                         />
                                     )}
                                 </div>
-                                {selectedCommunity ? selectedCommunity?.basicDetails?.name : ""}
+                                {selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : ""}
                             </div>
                             <div className='mt-1.5'>
                                 <ArrowDown size={20} className='#4E4E4E' />
                             </div>
                         </button>
                     }
-                    {(communityProfile && estatesData?.length === 0) &&
+                    {(communityProfile && estatesData?.length === 0) && ability.can('create', 'estate') &&
                         <button onClick={() => {
                             clearForm()
                             router.push("/add-estate")
@@ -267,7 +284,7 @@ const Sidebar = () => {
                         </button>
                     }
                     <div className="flex flex-col gap-3 mb-[50px] mt-10">
-                        {Data.map((data) =>
+                        {filteredData.map((data) =>
                             data.submenu ? (
                                 <div key={data.id}>
                                     <button
@@ -308,7 +325,7 @@ const Sidebar = () => {
                                             <hr
                                                 style={{
                                                     width: "1.5px",
-                                                    height: "106px",
+                                                    height: "70px",
                                                     borderWidth: "0",
                                                     background: "#4E4E4E",
                                                 }}
@@ -378,7 +395,7 @@ const Sidebar = () => {
                         )}
                     </div>
                     <div className='flex flex-col gap-3 mb-[50px] mt-10 max-w-[230px]'>
-                        {More.map((data) =>
+                        {filteredMore.map((data) =>
                         (
                             <div key={data.id}>
                                 <button onClick={() => toggleSubMore(data.name)} className="w-full text-left">

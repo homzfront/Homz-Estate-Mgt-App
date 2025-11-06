@@ -117,10 +117,10 @@ const EstateManagerRegistration = () => {
             {/* Main Content */}
             <div className="max-w-4xl mx-auto px-6 py-8">
                 <div className="mb-8 w-full md:w-[60%]">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Estate Manager Registration</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Community Manager Registration</h1>
                     <p className="text-gray-600">
-                        Monitor estate-wide activities, handle visitor access for Residents, manage bill payments,
-                        and generate reports covering all properties in the estate.
+                        Monitor community-wide activities, handle visitor access for Residents, manage bill payments,
+                        and generate reports covering all properties in the community.
                     </p>
                 </div>
 

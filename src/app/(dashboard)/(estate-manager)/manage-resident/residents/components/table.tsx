@@ -223,7 +223,7 @@ const Table = () => {
                                     <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{apartment}</td>
                                     <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{email}</td>
                                     <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{phone}</td>
-                                    <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 bg-white hover:bg-gray-50">
+                                    <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 hover:bg-gray-50">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation()
