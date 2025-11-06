@@ -10,6 +10,10 @@ import useClickOutside from '@/app/utils/useClickOutside'
 import CheckedIcon from '@/components/icons/CheckedIcon'
 import CheckIcon from '@/components/icons/CheckIcon'
 import RemoveIcon from '@/components/icons/removeIcon'
+import { useBillStore, BillItem } from '@/store/useBillStore'
+import toast from 'react-hot-toast'
+import DotLoader from '@/components/general/dotLoader'
+import SelectCurrency from './selectCurrency'
 
 const RESIDENCY_TYPES = [
     'All Residency Type',
@@ -40,25 +44,53 @@ interface EditBillingProps {
     isOpen?: boolean
     onRequestClose?: () => void
     setOpenSuccessModal?: (open: boolean) => void
-    setHasAnyData?: (hasData: boolean) => void
+    billData?: BillItem | null
+    isEditing?: boolean
 }
 
-const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOpenSuccessModal, setHasAnyData }) => {
+const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOpenSuccessModal, billData, isEditing = false }) => {
+    const { selectedCurrency, createBill, updateBill } = useBillStore()
+    const [loading, setLoading] = useState(false)
+    const [showCurrencyModal, setShowCurrencyModal] = useState(false)
+
     const modalOpen = typeof isOpen === 'undefined' ? false : isOpen
     const handleClose = () => {
         if (onRequestClose) onRequestClose()
     }
-    const [billName, setBillName] = useState('')
-    const [amount, setAmount] = useState('')
-    const [applyAll, setApplyAll] = useState(false)
-    const [frequency, setFrequency] = useState('monthly')
-    const [startDate, setStartDate] = useState('')
-    const [showSection, setShowSection] = useState(false)
-    const [showAssignPanel, setShowAssignPanel] = useState(false)
+
+    const [billName, setBillName] = useState(billData?.billName || '')
+    const [amount, setAmount] = useState(() => {
+        if (billData?.applyToAllResidencyTypes && billData.amount !== undefined) {
+            return billData.amount.toString()
+        }
+        return ''
+    })
+    const [applyAll, setApplyAll] = useState(billData?.applyToAllResidencyTypes ?? false)
+    const [frequency, setFrequency] = useState(billData?.frequency || 'monthly')
+    const [startDate, setStartDate] = useState(() => {
+        if (billData?.billingStartDate) {
+            const date = new Date(billData.billingStartDate)
+            return date.toISOString().split('T')[0]
+        }
+        return ''
+    })
+    const [showSection, setShowSection] = useState(!!(billData?.residencyAmounts && billData.residencyAmounts.length > 0))
+    const [showAssignPanel, setShowAssignPanel] = useState(!!(billData?.residencyAmounts && billData.residencyAmounts.length > 0))
     const [residencyAmounts, setResidencyAmounts] = useState<Array<{ type: string, amount: string }>>(() => {
+        if (billData?.residencyAmounts && billData.residencyAmounts.length > 0) {
+            return billData.residencyAmounts.map(ra => ({
+                type: ra.residencyType,
+                amount: ra.amount.toString()
+            }))
+        }
         return [{ type: '', amount: '' }]
     })
-    const [isOpenDropdowns, setIsOpenDropdowns] = useState<boolean[]>([false])
+    const [isOpenDropdowns, setIsOpenDropdowns] = useState<boolean[]>(() => {
+        if (billData?.residencyAmounts && billData.residencyAmounts.length > 0) {
+            return new Array(billData.residencyAmounts.length).fill(false)
+        }
+        return [false]
+    })
 
     const handleResidencyTypeChange = (index: number, value: string) => {
         setResidencyAmounts(prev => prev.map((item, i) => i === index ? { ...item, type: value } : item))
@@ -97,8 +129,8 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
         <CustomModal isOpen={modalOpen} onRequestClose={handleClose}>
             <div className="w-full max-w-[705px] mx-auto">
                 <div className="bg-white rounded-[12px] shadow-md px-4 py-6 w-full">
-                    <h2 className="text-[18px] font-semibold text-BlackHomz">Create New Bill</h2>
-                    <p className="text-base text-GrayHomz">Set up a new bill for your estate.</p>
+                    <h2 className="text-[18px] font-semibold text-BlackHomz">{isEditing ? 'Edit Bill' : 'Create New Bill'}</h2>
+                    <p className="text-base text-GrayHomz">{isEditing ? 'Update the bill information for your estate.' : 'Set up a new bill for your estate.'}</p>
 
                     <div className="bg-[#F6F6F6] rounded-lg p-3 shadow-sm mt-4">
                         <p className='text-base text-GrayHomz font-medium'>Bill Information</p>
@@ -115,18 +147,25 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                     />
                                 </div>
 
-                                <div>
+                                <div className=''>
                                     <CustomInput
-                                        label="Amount"
+                                        label={`Amount${applyAll ? ' (All Types)' : ''}`}
                                         value={amount}
                                         onValueChange={(v) => setAmount(v)}
                                         placeholder="0.00"
                                         className='h-[45px] pl-4'
                                         type='number'
-                                        rightIcon={<span className="text-sm pr-1">[₦]</span>}
+                                        rightIcon={<span className="text-sm pr-1">[{selectedCurrency}]</span>}
+                                        required={applyAll}
                                     />
-                                    <div className="text-right text-xs mt-1">
-                                        <a className="text-BlueHomz text-xs">Change currency</a>
+                                    <div className='w-full flex justify-end '>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowCurrencyModal(true)}
+                                            className="text-xs mt-1 text-BlueHomz hover:underline"
+                                        >
+                                            Change currency
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +174,20 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                 <button
                                     id="applyAll"
                                     type="button"
-                                    onClick={() => setApplyAll(prev => !prev)}
+                                    onClick={() => {
+                                        const newApplyAll = !applyAll
+                                        setApplyAll(newApplyAll)
+
+                                        // If unchecking "apply to all", show the section to add residency amounts
+                                        if (!newApplyAll) {
+                                            setShowSection(true)
+                                            setShowAssignPanel(true)
+                                        } else {
+                                            // If checking "apply to all", hide the section
+                                            setShowSection(false)
+                                            setShowAssignPanel(false)
+                                        }
+                                    }}
                                     className="h-4 w-4"
                                 >
                                     {applyAll ? <Ticked /> : <UnTicked />}
@@ -242,7 +294,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                                         placeholder="0.00"
                                                         className='h-[45px] pl-4'
                                                         type='number'
-                                                        rightIcon={<span className="text-sm pr-1">[₦]</span>}
+                                                        rightIcon={<span className="text-sm pr-1">[{selectedCurrency}]</span>}
                                                     />
                                                     <button onClick={() => removeResidencyAmount(index)} className="mt-2 flex items-center justify-start gap-1 text-sm text-error">
                                                         <RemoveIcon /> Remove
@@ -255,24 +307,116 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                             )}
                         </div>
                     )}
-                    <button
-                        onClick={() => {
-                            if (!showSection) {
-                                setShowSection(true);
-                                setShowAssignPanel(true);
-                            } else {
-                                addResidencyAmount();
-                            }
-                        }}
-                        className="mt-3 text-sm text-BlueHomz flex items-center">
-                        <AddIcon /> Set amount for other residency types
-                    </button>
+                    {!applyAll && (
+                        <button
+                            onClick={() => {
+                                if (!showSection) {
+                                    setShowSection(true);
+                                    setShowAssignPanel(true);
+                                } else {
+                                    addResidencyAmount();
+                                }
+                            }}
+                            className="mt-3 text-sm text-BlueHomz flex items-center">
+                            <AddIcon /> Set amount for other residency types
+                        </button>
+                    )}
                     <div className="mt-5 flex justify-end gap-3">
-                        <button onClick={() => { handleClose(); }} className="p-3 bg-transparent text-sm text-GrayHomz">Close</button>
-                        <button onClick={() => { handleClose(); if (setOpenSuccessModal) setOpenSuccessModal(true); if (setHasAnyData) setHasAnyData(true); }} className="p-3 bg-BlueHomz hover:bg-BlueHomzDark text-white rounded text-sm">Add Bill</button>
+                        <button onClick={() => { handleClose(); }} disabled={loading} className="p-3 bg-transparent text-sm text-GrayHomz">Close</button>
+                        <button
+                            onClick={async () => {
+                                // Validation
+                                if (!billName.trim()) {
+                                    toast.error('Bill name is required', { position: 'top-center' })
+                                    return
+                                }
+
+                                // Amount is only required when applying to all residency types
+                                if (applyAll && (!amount || parseFloat(amount) <= 0)) {
+                                    toast.error('Valid amount is required', { position: 'top-center' })
+                                    return
+                                }
+
+                                if (!startDate) {
+                                    toast.error('Billing start date is required', { position: 'top-center' })
+                                    return
+                                }
+
+                                // Convert date to ISO format with start of day UTC
+                                const dateObj = new Date(startDate)
+                                const isoDate = new Date(Date.UTC(
+                                    dateObj.getFullYear(),
+                                    dateObj.getMonth(),
+                                    dateObj.getDate(),
+                                    0, 0, 0, 0
+                                )).toISOString()
+
+                                // Build payload based on applyToAllResidencyTypes
+                                let payload: any = {
+                                    currency: selectedCurrency,
+                                    billName: billName.trim(),
+                                    applyToAllResidencyTypes: applyAll,
+                                    frequency,
+                                    billingStartDate: isoDate,
+                                }
+
+                                if (applyAll) {
+                                    // If applying to all, include general amount only
+                                    payload.amount = parseFloat(amount)
+                                } else {
+                                    // If NOT applying to all, include residencyAmounts only
+                                    const hasValidResidencyAmounts = showSection && showAssignPanel &&
+                                        residencyAmounts.length > 0 &&
+                                        residencyAmounts.some(ra => ra.type && ra.amount)
+
+                                    if (!hasValidResidencyAmounts) {
+                                        toast.error('Please add at least one residency type with amount', { position: 'top-center' })
+                                        return
+                                    }
+
+                                    payload.residencyAmounts = residencyAmounts
+                                        .filter(ra => ra.type && ra.amount)
+                                        .map(ra => ({
+                                            residencyType: ra.type,
+                                            amount: parseFloat(ra.amount),
+                                            currency: selectedCurrency
+                                        }))
+                                }
+
+                                setLoading(true)
+                                try {
+                                    if (isEditing && billData?._id) {
+                                        await updateBill(billData._id, payload)
+                                        toast.success('Bill updated successfully!', { position: 'top-center' })
+                                    } else {
+                                        await createBill(payload)
+                                        toast.success('Bill created successfully!', { position: 'top-center' })
+                                    }
+                                    handleClose()
+                                    if (setOpenSuccessModal) setOpenSuccessModal(true)
+                                } catch (error: any) {
+                                    toast.error(error.message || 'Failed to save bill', { position: 'top-center' })
+                                } finally {
+                                    setLoading(false)
+                                }
+                            }}
+                            disabled={loading}
+                            className="p-3 bg-BlueHomz hover:bg-BlueHomzDark text-white rounded text-sm min-w-[100px] flex justify-center items-center"
+                        >
+                            {loading ? <DotLoader /> : (isEditing ? 'Update Bill' : 'Add Bill')}
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Currency Selection Modal */}
+            {showCurrencyModal && (
+                <SelectCurrency
+                    isOpen={showCurrencyModal}
+                    onRequestClose={() => setShowCurrencyModal(false)}
+                    isChanging={true}
+                />
+            )}
         </CustomModal>
     )
 }

@@ -114,12 +114,16 @@ const EstateHomePage = () => {
                         </p>
                         <div className='w-full flex justify-center'>
                             <div className='mt-4 flex flex-col md:flex-row gap-4 items-center w-full justify-center'>
-                                <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-[400] rounded-[4px]'>
-                                    <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as a Community Manager</span><ArrowRightSize16 />
-                                </button>
-                                <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-[4px]'>
-                                    See How It Works
-                                </button>
+                                <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
+                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-[400] rounded-[4px]'>
+                                        <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as a Community Manager</span><ArrowRightSize16 />
+                                    </button>
+                                </a>
+                                <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
+                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-[4px]'>
+                                        See How It Works
+                                    </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -193,9 +197,11 @@ const EstateHomePage = () => {
                                     Remove or update resident status
                                 </p>
                             </div>
-                            <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                                Create Your First Community <ArrowRight className='#FFFFFF' />
-                            </button>
+                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[240px]'>
+                                <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                    Create Your First Community <ArrowRight className='#FFFFFF' />
+                                </button>
+                            </a>
                         </div>
                         <Image
                             src={"/estate.png"}
@@ -269,9 +275,11 @@ const EstateHomePage = () => {
                         </Slider>
                     </div>
                     <div className='w-full flex justify-center items-center mt-10'>
-                        <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-[180px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                            Get Started Now <ArrowRight className='#FFFFFF' />
-                        </button>
+                        <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer'>
+                            <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-[180px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                Get Started Now <ArrowRight className='#FFFFFF' />
+                            </button>
+                        </a>
                     </div>
                 </div>
 
@@ -313,9 +321,11 @@ const EstateHomePage = () => {
                                     Enable secure community entry
                                 </p>
                             </div>
-                            <button onClick={handleRoute} className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full md:w-[260px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                                Manage Visitor Access Now <ArrowRight className='#006AFF' />
-                            </button>
+                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[260px]'>
+                                <button className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                    Manage Visitor Access Now <ArrowRight className='#006AFF' />
+                                </button>
+                            </a>
                         </div>
                         <Image
                             src={"/visitor-control.png"}
@@ -366,9 +376,11 @@ const EstateHomePage = () => {
                                     Maintain logs for accountability
                                 </p>
                             </div>
-                            <button onClick={handleRoute} className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full md:w-[240px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
-                                Add Your Security Team <ArrowRight className='#FFFFFF' />
-                            </button>
+                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[240px]'>
+                                <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                    Add Your Security Team <ArrowRight className='#FFFFFF' />
+                                </button>
+                            </a>
                         </div>
                         <Image
                             src={"/manageUsers.png"}

@@ -52,9 +52,11 @@ interface MembersState {
     pageLoading: boolean;
     error: string | null;
     hasAnyData: boolean;
+    hasEverHadData: boolean;
     roleFilter: string | null;
     lastFetch: { page: number; limit: number; role: string | null };
     lastEstateId: string | null;
+    cachedData: Record<string, { members: MemberItem[]; totalCount: number; fetchedAt: number }>;
 
     setRoleFilter: (value: string | null) => void;
     fetchMembers: (params?: { page?: number; limit?: number; role?: string | null; silent?: boolean }) => Promise<void>;
@@ -74,9 +76,11 @@ export const useMembersStore = create<MembersState>((set, get) => ({
     pageLoading: false,
     error: null,
     hasAnyData: false,
+    hasEverHadData: false,
     roleFilter: null,
     lastFetch: { page: 1, limit: 10, role: null },
     lastEstateId: null,
+    cachedData: {},
 
     setRoleFilter: (value) => set({ roleFilter: value }),
 
@@ -87,7 +91,9 @@ export const useMembersStore = create<MembersState>((set, get) => ({
         currentPage: 1,
         initialLoading: true,
         hasAnyData: false,
+        hasEverHadData: false,
         lastEstateId: null,
+        cachedData: {},
     }),
 
     fetchMembers: async (params = {}) => {
@@ -106,21 +112,27 @@ export const useMembersStore = create<MembersState>((set, get) => ({
             return;
         }
 
-        // Check if we already have data for this estate with same params
-        if (
-            state.lastEstateId === estateId &&
-            state.lastFetch.page === page &&
-            state.lastFetch.limit === limit &&
-            state.lastFetch.role === role &&
-            state.members.length > 0 &&
-            !silent
-        ) {
+        // Create a cache key for this filter
+        const cacheKey = `${estateId}_${role || 'all'}_${page}_${limit}`;
+        const cachedEntry = state.cachedData[cacheKey];
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+        // Check if we have valid cached data for this filter
+        if (cachedEntry && !silent && (Date.now() - cachedEntry.fetchedAt < CACHE_DURATION)) {
+            // Use cached data immediately (no loading state)
+            set({
+                members: cachedEntry.members,
+                totalCount: cachedEntry.totalCount,
+                hasAnyData: cachedEntry.members.length > 0,
+                lastFetch: { page, limit, role },
+                roleFilter: role,
+            });
             return;
         }
 
         // Decide which loader to show
         if (!silent) {
-            if ((state.members?.length ?? 0) === 0) {
+            if (!state.hasEverHadData) {
                 set({ initialLoading: true, pageLoading: false });
             } else {
                 set({ pageLoading: true });
@@ -145,6 +157,19 @@ export const useMembersStore = create<MembersState>((set, get) => ({
                 lastName: member.communityManager?.personal?.lastName || '',
             }));
 
+            const currentHasData = mappedResults.length > 0;
+            const previousHasEverHadData = get().hasEverHadData;
+            
+            // Update cache for this filter
+            const updatedCache = {
+                ...get().cachedData,
+                [cacheKey]: {
+                    members: mappedResults,
+                    totalCount: responseData?.totalCount || 0,
+                    fetchedAt: Date.now(),
+                },
+            };
+            
             set({
                 members: mappedResults,
                 totalCount: responseData?.totalCount || 0,
@@ -154,9 +179,11 @@ export const useMembersStore = create<MembersState>((set, get) => ({
                 initialLoading: false,
                 pageLoading: false,
                 error: null,
-                hasAnyData: mappedResults.length > 0,
+                hasAnyData: currentHasData,
+                hasEverHadData: previousHasEverHadData || currentHasData,
                 lastFetch: { page, limit, role },
                 lastEstateId: estateId,
+                cachedData: updatedCache,
             });
         } catch (err: any) {
             const backendMessage = err?.response?.data?.message;
