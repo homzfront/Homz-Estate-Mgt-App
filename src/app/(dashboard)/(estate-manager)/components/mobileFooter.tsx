@@ -66,26 +66,26 @@ const Data = [
 ];
 
 const PopUpData = [
-    {
-        id: 1,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: false,
-    },
-    {
-        id: 2,
-        image: <ExpensesIcon />,
-        image2: (
-            <ExpensesIcon className='#006AFF' />
-        ),
-        link: "/finance/bill-utility",
-        name: "Billing",
-        coming_Soon: false,
-    },
+    // {
+    //     id: 1,
+    //     image: <PaymentIcon />,
+    //     image2: (
+    //         <PaymentIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/payment",
+    //     name: "Payments",
+    //     coming_Soon: false,
+    // },
+    // {
+    //     id: 2,
+    //     image: <ExpensesIcon />,
+    //     image2: (
+    //         <ExpensesIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/bill-utility",
+    //     name: "Billing",
+    //     coming_Soon: false,
+    // },
     // {
     //     id: 3,
     //     image: <UsersIcon />,
@@ -124,7 +124,8 @@ const PopUpData = [
         image: <SettingsIcon />,
         image2: <SettingsIcon className='#006AFF' />,
         link: "/settings",
-        name: "Settings"
+        name: "Settings",
+        coming_Soon: false,
     },
     {
         id: 8,
