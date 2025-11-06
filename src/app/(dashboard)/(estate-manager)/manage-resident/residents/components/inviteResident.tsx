@@ -45,7 +45,7 @@ const InviteResident = ({ }: InviteResidentProps) => {
                 const res = await api.post("/resident-invitation/generate-link", {
                     validationIds: {
                         estateId: selectedCommunity?.estate?._id,
-                        organizationId: communityProfile?.organization?._id
+                        organizationId: selectedCommunity?.associatedIds?.organizationId
                     }
                 });
 
