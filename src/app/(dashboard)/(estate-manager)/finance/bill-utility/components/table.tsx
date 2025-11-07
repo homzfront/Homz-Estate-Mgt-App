@@ -285,7 +285,9 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
                                         <div style={{ position: 'relative', width: 100 }}>
                                             {updatingStatusId === row._id ? (
-                                                <HourGlassLoader />
+                                                <div className='flex justify-center items-center w-full'>
+                                                    <HourGlassLoader />
+                                                </div>  
                                             ) : (
                                                 <button
                                                     style={{
