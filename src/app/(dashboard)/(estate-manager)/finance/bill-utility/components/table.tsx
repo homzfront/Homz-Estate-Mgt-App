@@ -3,6 +3,7 @@ import React from 'react'
 import Ticked from '@/components/icons/ticked'
 import UnTicked from '@/components/icons/unTicked'
 import LoadingSpinner from '@/components/general/loadingSpinner'
+import HourGlassLoader from '@/components/general/hourGlassLoader'
 import useClickOutside from '@/app/utils/useClickOutside'
 import CustomModal from '@/components/general/customModal'
 import ArrowDown from '@/components/icons/arrowDown'
@@ -15,9 +16,15 @@ import toast from 'react-hot-toast'
 import EditBilling from './editBilling'
 import { formatDateDisplay } from '@/app/utils/formatDateTime'
 
-const Table = () => {
-    const { items, pageLoading, isAppending, deleteBill, fetchBills, currentPage, totalPages } = useBillStore()
-    
+interface TableProps {
+    onSelectedRowsChange?: (count: number) => void;
+    onDeleteMultipleChange?: (handler: () => void) => void;
+    onDeletingMultipleChange?: (isDeleting: boolean) => void;
+}
+
+const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipleChange }: TableProps = {}) => {
+    const { items, pageLoading, isAppending, deleteBill, updateBillStatus, fetchBills, currentPage, totalPages } = useBillStore()
+
     const [statusDropdown, setStatusDropdown] = React.useState<number | null>(null)
     const [actionDropdown, setActionDropdown] = React.useState<number | null>(null)
     const [selectedRows, setSelectedRows] = React.useState<string[]>([])
@@ -29,10 +36,12 @@ const Table = () => {
     const [editModalOpen, setEditModalOpen] = React.useState(false)
     const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
     const [deletingId, setDeletingId] = React.useState<string | null>(null)
+    const [updatingStatusId, setUpdatingStatusId] = React.useState<string | null>(null)
+    const [deletingMultiple, setDeletingMultiple] = React.useState(false)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const statusDropDownRef = React.useRef<HTMLDivElement>(null)
-    
+
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
     })
@@ -59,6 +68,16 @@ const Table = () => {
         setSelectAll(selectedRows.length === items.length && items.length > 0)
     }, [items])
 
+    // Notify parent about selected rows count
+    React.useEffect(() => {
+        onSelectedRowsChange?.(selectedRows.length)
+    }, [selectedRows.length, onSelectedRowsChange])
+
+    // Notify parent about deleting state
+    React.useEffect(() => {
+        onDeletingMultipleChange?.(deletingMultiple)
+    }, [deletingMultiple, onDeletingMultipleChange])
+
     // Select all rows
     const handleSelectAll = () => {
         if (selectAll) {
@@ -82,7 +101,7 @@ const Table = () => {
         }
     }
 
-    // Delete bill handler
+    // Delete bill handler (single delete from action dropdown)
     const handleDeleteBill = async (id: string) => {
         setDeletingId(id)
         try {
@@ -94,6 +113,61 @@ const Table = () => {
             toast.error(error.message || 'Failed to delete bill', { position: 'top-center' })
         } finally {
             setDeletingId(null)
+        }
+    }
+
+    // Delete multiple selected bills synchronously
+    const handleDeleteSelectedBills = React.useCallback(async () => {
+        if (selectedRows.length === 0) {
+            toast.error('No bills selected', { position: 'top-center' })
+            return
+        }
+
+        setDeletingMultiple(true)
+        let deletedCount = 0
+        const failedBills: string[] = []
+
+        try {
+            for (const billId of selectedRows) {
+                try {
+                    await deleteBill(billId)
+                    deletedCount++
+                } catch (error: any) {
+                    failedBills.push(billId)
+                }
+            }
+
+            // Clear selection after deletion
+            setSelectedRows([])
+            setSelectAll(false)
+
+            // Show result message
+            if (failedBills.length === 0) {
+                toast.success(`${deletedCount} bill(s) deleted successfully`, { position: 'top-center' })
+            } else {
+                toast.error(`${deletedCount} deleted, ${failedBills.length} failed`, { position: 'top-center' })
+            }
+        } finally {
+            setDeletingMultiple(false)
+        }
+    }, [selectedRows, deleteBill])
+
+    // Notify parent about delete handler (must be after handleDeleteSelectedBills declaration)
+    React.useEffect(() => {
+        onDeleteMultipleChange?.(handleDeleteSelectedBills)
+    }, [handleDeleteSelectedBills, onDeleteMultipleChange])
+
+    // Update bill status handler
+    const handleUpdateStatus = async (billId: string, newStatus: 'active' | 'inactive') => {
+        setUpdatingStatusId(billId)
+        try {
+            await updateBillStatus(billId, newStatus)
+            toast.success('Status updated successfully', { position: 'top-center' })
+            setStatusDropdown(null)
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to update status', { position: 'top-center' })
+        } finally {
+            setUpdatingStatusId(null)
         }
     }
 
@@ -209,12 +283,72 @@ const Table = () => {
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px] capitalize">{row.frequency}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{formatDateDisplay(row.billingStartDate)}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
-                                        <div className={`text-[10px] px-3 py-2 rounded font-normal capitalize inline-block ${
-                                            row.status === 'active' 
-                                                ? 'bg-[#CDEADD] text-[#039855]' 
-                                                : 'bg-[#FDF2F2] text-[#D92D20]'
-                                        }`}>
-                                            {row.status}
+                                        <div style={{ position: 'relative', width: 100 }}>
+                                            {updatingStatusId === row._id ? (
+                                                <HourGlassLoader />
+                                            ) : (
+                                                <button
+                                                    style={{
+                                                        width: 100,
+                                                        height: 33,
+                                                        borderRadius: 4,
+                                                        opacity: 1,
+                                                        gap: 4,
+                                                        padding: '8px 12px',
+                                                        background: row.status === 'active' ? '#CDEADD' : '#FDF2F2',
+                                                        color: row.status === 'active' ? '#039855' : '#D92D20',
+                                                        border: 'none',
+                                                        fontFamily: 'Plus Jakarta Sans',
+                                                        fontWeight: 400,
+                                                        fontSize: 10,
+                                                        lineHeight: '150%',
+                                                        letterSpacing: 0,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => setStatusDropdown(idx)}
+                                                >
+                                                    <span>{row.status}</span>
+                                                    <span style={{ marginLeft: 8, display: 'inline-flex', transform: statusDropdown === idx ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                                                        <ArrowDown className={row.status === 'active' ? '#039855' : '#D92D20'} />
+                                                    </span>
+                                                </button>
+                                            )}
+                                            {statusDropdown === idx && updatingStatusId !== row._id && (
+                                                <div
+                                                    ref={statusDropDownRef}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 40,
+                                                        left: 0,
+                                                        width: 100,
+                                                        borderRadius: 4,
+                                                        border: '1px solid #E6E6E6',
+                                                        background: '#fff',
+                                                        zIndex: 100,
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                                        padding: '8px 8px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 4,
+                                                    }}
+                                                >
+                                                    <button
+                                                        className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none mb-1 cursor-pointer text-left"
+                                                        onClick={() => handleUpdateStatus(row._id, 'active')}
+                                                    >
+                                                        Active
+                                                    </button>
+                                                    <button
+                                                        className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none cursor-pointer text-left"
+                                                        onClick={() => handleUpdateStatus(row._id, 'inactive')}
+                                                    >
+                                                        Inactive
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
@@ -227,7 +361,7 @@ const Table = () => {
                                         {actionDropdown === idx && (
                                             <div ref={dropDownRef} className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around">
                                                 {/* View */}
-                                                <div
+                                                {/* <div
                                                     onMouseEnter={() => setActiveView(true)}
                                                     onMouseLeave={() => setActiveView(false)}
                                                     className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full">
@@ -245,7 +379,7 @@ const Table = () => {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> */}
                                                 {/* Edit */}
                                                 <div
                                                     onMouseEnter={() => setActiveEdit(true)}
@@ -327,13 +461,13 @@ const Table = () => {
                                 <div>Residence Type</div>
                                 <div>Price</div>
                             </div>
-                                {selectedBill.residencyAmounts && selectedBill.residencyAmounts.map((ra, i: number) => (
-                                    <div key={i} className="grid grid-cols-2 px-6 py-4 border-t border-[#D5D5D5] text-[11px] font-medium text-GrayHomz">
-                                        <div className='col-span-1'>{ra.residencyType}</div>
-                                        <div className='col-span-1'>{ra.currency}{ra.amount.toLocaleString()}</div>
-                                    </div>
-                                ))}
-                            </div>
+                            {selectedBill.residencyAmounts && selectedBill.residencyAmounts.map((ra, i: number) => (
+                                <div key={i} className="grid grid-cols-2 px-6 py-4 border-t border-[#D5D5D5] text-[11px] font-medium text-GrayHomz">
+                                    <div className='col-span-1'>{ra.residencyType}</div>
+                                    <div className='col-span-1'>{ra.currency}{ra.amount.toLocaleString()}</div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </CustomModal>
             )}

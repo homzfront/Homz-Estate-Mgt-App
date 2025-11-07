@@ -19,6 +19,9 @@ const BillAndUti = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openCurrencyModal, setOpenCurrencyModal] = React.useState(false);
   const [openEditBillingModal, setOpenEditBillingModal] = React.useState(false);
+  const [selectedRowsCount, setSelectedRowsCount] = React.useState(0);
+  const [deleteHandler, setDeleteHandler] = React.useState<(() => void) | null>(null);
+  const [isDeletingMultiple, setIsDeletingMultiple] = React.useState(false);
 
   // Fetch bills on mount or when community changes
   React.useEffect(() => {
@@ -91,8 +94,17 @@ const BillAndUti = () => {
         </div>
       ) : (
         <div className='w-full'>
-          <Filters setOpenCurrencyModal={setOpenCurrencyModal} />
-          <Table />
+          <Filters 
+            setOpenCurrencyModal={setOpenCurrencyModal} 
+            selectedRowsCount={selectedRowsCount}
+            onDeleteSelected={() => deleteHandler?.()}
+            isDeletingMultiple={isDeletingMultiple}
+          />
+          <Table 
+            onSelectedRowsChange={setSelectedRowsCount}
+            onDeleteMultipleChange={(handler) => setDeleteHandler(() => handler)}
+            onDeletingMultipleChange={setIsDeletingMultiple}
+          />
         </div>
       )}
     </div>

@@ -215,9 +215,8 @@ const Table = () => {
                                     ]
 
                                 return (
-                                    <>
+                                    <React.Fragment key={residentItem._id}>
                                         <tr
-                                            key={residentItem._id}
                                             className="border-t-[1px] hover:bg-gray-50 cursor-pointer"
                                         >
                                             <td className="py-4 pl-4">
@@ -341,7 +340,7 @@ const Table = () => {
                                                 </td>
                                             </tr>
                                         )}
-                                    </>
+                                    </React.Fragment>
                                 )
                             })}
                             {currentPage < totalPages && (

@@ -99,6 +99,7 @@ interface BillListState {
     }) => Promise<void>
     createBill: (payload: CreateBillPayload) => Promise<void>
     updateBill: (billingId: string, payload: CreateBillPayload) => Promise<void>
+    updateBillStatus: (billingId: string, status: 'active' | 'inactive') => Promise<void>
     deleteBill: (billingId: string) => Promise<void>
 }
 
@@ -298,6 +299,35 @@ export const useBillStore = create<BillListState>((set, get) => ({
             const backendMessage = error?.response?.data?.message
             const backendMessageTwo = error?.response?.data?.message?.[0]
             const fallbackMessage = error?.message || 'Failed to update bill'
+            throw new Error(backendMessage || backendMessageTwo || fallbackMessage)
+        }
+    },
+
+    updateBillStatus: async (billingId: string, status: 'active' | 'inactive') => {
+        const selectedCommunity = useSelectedCommunity.getState().selectedCommunity
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId
+        const estateId = selectedCommunity?.estate?._id
+
+        if (!organizationId || !estateId) {
+            throw new Error('Missing organization or estate id')
+        }
+
+        try {
+            await api.patch(
+                `/community-manager/billings/${billingId}/status/organizations/${organizationId}/estates/${estateId}`,
+                { status }
+            )
+
+            // Update local state
+            set((state) => ({
+                items: state.items.map((bill) =>
+                    bill._id === billingId ? { ...bill, status } : bill
+                ),
+            }))
+        } catch (error: any) {
+            const backendMessage = error?.response?.data?.message
+            const backendMessageTwo = error?.response?.data?.message?.[0]
+            const fallbackMessage = error?.message || 'Failed to update bill status'
             throw new Error(backendMessage || backendMessageTwo || fallbackMessage)
         }
     },

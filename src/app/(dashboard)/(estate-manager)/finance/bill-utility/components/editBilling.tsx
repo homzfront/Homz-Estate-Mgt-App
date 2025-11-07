@@ -157,6 +157,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                         type='number'
                                         rightIcon={<span className="text-sm pr-1">[{selectedCurrency}]</span>}
                                         required={applyAll}
+                                        disabled={!applyAll}
                                     />
                                     <div className='w-full flex justify-end '>
                                         <button 
@@ -390,7 +391,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                         toast.success('Bill updated successfully!', { position: 'top-center' })
                                     } else {
                                         await createBill(payload)
-                                        toast.success('Bill created successfully!', { position: 'top-center' })
+                                        // toast.success('Bill created successfully!', { position: 'top-center' })
                                     }
                                     handleClose()
                                     if (setOpenSuccessModal) setOpenSuccessModal(true)
