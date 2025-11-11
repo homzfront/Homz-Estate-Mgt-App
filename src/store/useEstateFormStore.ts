@@ -22,9 +22,8 @@ export interface Building {
 export interface Apartment {
     id: number;
     label: string;
+    residencyType: string;
     building: string;
-    street: string
-    zone: string
 }
 
 export interface EstateFormData {

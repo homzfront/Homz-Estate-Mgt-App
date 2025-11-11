@@ -103,6 +103,7 @@ export interface estateData {
     apartments: { name: string; building: string; street: string; zone: string }[];
     isActive: boolean;
     isDeleted: boolean;
+    residentType: string;
     deleted: boolean;
     createdAt: string;
     updatedAt: string;

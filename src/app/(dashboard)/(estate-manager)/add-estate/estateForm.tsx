@@ -108,9 +108,10 @@ const EstateForm = () => {
             })),
             apartments: apartments.map(apartment => ({
                 name: apartment.label,
-                building: apartment.building,
-                street: apartment.street,
-                zone: apartment.zone
+                residencyType: apartment.residencyType,
+                building: apartment.building
+                // street: apartment.street,
+                // zone: apartment.zone
             }))
         };
 

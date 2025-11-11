@@ -14,23 +14,7 @@ import { useBillStore, BillItem } from '@/store/useBillStore'
 import toast from 'react-hot-toast'
 import DotLoader from '@/components/general/dotLoader'
 import SelectCurrency from './selectCurrency'
-
-const RESIDENCY_TYPES = [
-    'All Residency Type',
-    'Detached House / Bungalow',
-    'Semi-Detached House',
-    'Duplex/Two-Storey House',
-    'Flat / Apartment',
-    'Studio Apartment',
-    'Terraced / Row House',
-    'Serviced Apartment',
-    'Penthouse',
-    'Hostel / Lodging Unit',
-    'Shop / Store',
-    'Shopping Mall',
-    'Office Space',
-    'Kiosk / Mini-Store',
-]
+import { RESIDENCY_TYPES } from '@/constant/index'
 
 const frequencyOptions = [
     { id: 'weekly', label: 'Weekly' },
@@ -160,7 +144,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                         disabled={!applyAll}
                                     />
                                     <div className='w-full flex justify-end '>
-                                        <button 
+                                        <button
                                             type="button"
                                             onClick={() => setShowCurrencyModal(true)}
                                             className="text-xs mt-1 text-BlueHomz hover:underline"

@@ -90,12 +90,12 @@ const AddBuilding = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className='flex flex-col gap-1 w-full text-sm'>
+                                {/* <div className='flex flex-col gap-1 w-full text-sm'>
                                     <div className='mb-1'>Zone Name</div>
                                     <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
                                         {building.zone || 'N/A'}
                                     </span>
-                                </div>
+                                </div> */}
                                 {index !== 0 && (
                                     <span 
                                         className='text-sm font-normal text-error flex items-center gap-1 cursor-pointer'
@@ -122,14 +122,14 @@ const AddBuilding = () => {
                     <div key={building.id} className='flex items-center gap-4'>
                         <div className='flex items-center gap-4 w-[95%]'>
                             <CustomInput
-                                label="Building Name"
+                                label="Building Name *"
                                 placeholder="e.g White House"
                                 value={building.label}
                                 onValueChange={(value) => handleUpdateBuildingLabel(building.id, value)}
                                 className='h-[45px] pl-4'
                             />
                             <div className='flex flex-col gap-1 w-full text-sm'>
-                                <div className='mb-1'>Street Name</div>
+                                <div className=''>Street Name *</div>
                                 <Dropdown
                                     options={formData.streets}
                                     onSelect={(option) => handleUpdateBuildingStreet(building.id, option.label)}
@@ -139,12 +139,12 @@ const AddBuilding = () => {
                                     arrowColor='#A9A9A9'
                                 />
                             </div>
-                            <div className='flex flex-col gap-1 w-full text-sm'>
+                            {/* <div className='flex flex-col gap-1 w-full text-sm'>
                                 <div className='mb-1'>Zone Name</div>
                                 <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
                                     {building.zone || 'N/A'}
                                 </span>
-                            </div>
+                            </div> */}
                         </div>
                         {localBuildings.length > 1 && (
                             <button 

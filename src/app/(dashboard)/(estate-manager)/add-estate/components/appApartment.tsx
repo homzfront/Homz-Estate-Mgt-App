@@ -5,6 +5,7 @@ import ArrowDown from '@/components/icons/arrowDown';
 import MiniClose from '@/components/icons/miniClose';
 import RemoveIcon from '@/components/icons/removeIcon';
 import { useEstateFormStore } from '@/store/useEstateFormStore';
+import { RESIDENCY_TYPES } from '@/constant/index';
 import React from 'react';
 
 const AppApartment = () => {
@@ -15,13 +16,19 @@ const AppApartment = () => {
 
     const { formData, setApartments } = useEstateFormStore();
     const [localApartments, setLocalApartments] = React.useState(
-        formData.apartments?.length ? formData.apartments : [{ id: 1, label: '', building: '', street: '', zone: '' }]
+        formData.apartments?.length ? formData.apartments : [{ id: 1, label: '', residencyType: '', building: '' }]
     );
 
     // Get buildings from formData to use in dropdown
     const buildingOptions = formData.buildings.map(building => ({
         id: building.id,
         label: building.label
+    }));
+
+    // Prepare residency types for dropdown
+    const residencyTypeOptions = RESIDENCY_TYPES.map((type, index) => ({
+        id: index,
+        label: type
     }));
 
     // Sync with store when localApartments change
@@ -31,7 +38,7 @@ const AppApartment = () => {
 
     const handleAddApartment = () => {
         const newId = localApartments.length ? Math.max(...localApartments.map(a => a.id)) + 1 : 1;
-        setLocalApartments([...localApartments, { id: newId, label: '', building: '', street: '', zone: '' }]);
+        setLocalApartments([...localApartments, { id: newId, label: '', residencyType: '', building: '' }]);
     };
 
     const handleRemoveApartment = (id: number) => {
@@ -46,14 +53,15 @@ const AppApartment = () => {
         ));
     };
 
-    const handleUpdateApartmentBuilding = (id: number, buildingName: string) => {
-        // Find the selected building to get its street and zone
-        const selectedBuilding = formData.buildings.find(b => b.label === buildingName);
-        const street = selectedBuilding ? selectedBuilding.street : '';
-        const zone = selectedBuilding ? selectedBuilding.zone : '';
-
+    const handleUpdateResidencyType = (id: number, value: string) => {
         setLocalApartments(localApartments.map(apartment =>
-            apartment.id === id ? { ...apartment, building: buildingName, street, zone } : apartment
+            apartment.id === id ? { ...apartment, residencyType: value } : apartment
+        ));
+    };
+
+    const handleUpdateApartmentBuilding = (id: number, buildingName: string) => {
+        setLocalApartments(localApartments.map(apartment =>
+            apartment.id === id ? { ...apartment, building: buildingName } : apartment
         ));
     };
 
@@ -78,36 +86,33 @@ const AppApartment = () => {
                         {(index === 0 && isOpen) || (index !== 0 && isOpenTwo) ? (
                             <div className="flex flex-col gap-4 bg-[#FCFCFC] p-4 rounded-[12px]">
                                 <CustomInput
-                                    label="Apartment Name"
+                                    label="Apartment Name *"
                                     placeholder="e.g No. 14"
                                     value={apartment.label}
                                     onValueChange={(value) => handleUpdateApartmentLabel(apartment.id, value)}
                                     className='h-[45px] pl-4'
                                 />
-                                <div className='flex items-center gap-4'>
-                                    <div className='flex flex-col gap-1 w-full text-sm'>
-                                        <div className='mb-1'>Building Name</div>
-                                        <Dropdown
-                                            options={buildingOptions}
-                                            onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
-                                            selectOption={apartment.building || "Select Building"}
-                                            showSearch={false}
-                                            borderColor='border-[#A9A9A9]'
-                                            arrowColor='#A9A9A9'
-                                        />
-                                    </div>
+                                <div className='flex flex-col gap-1 w-full text-sm'>
+                                    <div className='mb-1'>Residency Type *</div>
+                                    <Dropdown
+                                        options={residencyTypeOptions}
+                                        onSelect={(option) => handleUpdateResidencyType(apartment.id, option.label)}
+                                        selectOption={apartment.residencyType || "Select Residency Type"}
+                                        showSearch={false}
+                                        borderColor='border-[#A9A9A9]'
+                                        arrowColor='#A9A9A9'
+                                    />
                                 </div>
                                 <div className='flex flex-col gap-1 w-full text-sm'>
-                                    <div className='mb-1'>Street Name</div>
-                                    <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                        {apartment.street || 'Auto-filled'}
-                                    </span>
-                                </div>
-                                <div className='flex flex-col gap-1 w-full text-sm'>
-                                    <div className='mb-1'>Zone Name</div>
-                                    <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                        {apartment.zone || 'N/A'}
-                                    </span>
+                                    <div className='mb-1'>Building Name *</div>
+                                    <Dropdown
+                                        options={buildingOptions}
+                                        onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
+                                        selectOption={apartment.building || "Select Building"}
+                                        showSearch={false}
+                                        borderColor='border-[#A9A9A9]'
+                                        arrowColor='#A9A9A9'
+                                    />
                                 </div>
                                 {index !== 0 && (
                                     <span
@@ -132,41 +137,40 @@ const AppApartment = () => {
             {/** Desktop View **/}
             <div className="hidden md:flex flex-col gap-6 bg-[#FCFCFC] p-4 rounded-[12px]">
                 {localApartments.map((apartment) => (
-                    <div key={apartment.id} className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <div key={apartment.id} className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                         <CustomInput
-                            label="Apartment Name"
+                            label="Apartment Name *"
                             placeholder="e.g No. 14"
                             value={apartment.label}
                             onValueChange={(value) => handleUpdateApartmentLabel(apartment.id, value)}
                             className='h-[45px] pl-4'
                         />
                         <div className='flex flex-col gap-1 w-full text-sm'>
-                            <div className='mb-1'>Building Name</div>
+                            <div className=''>Residency Type <span className='text-black'>*</span></div>
                             <Dropdown
-                                options={buildingOptions}
-                                onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
-                                selectOption={apartment.building || "Select Building"}
+                                options={residencyTypeOptions}
+                                onSelect={(option) => handleUpdateResidencyType(apartment.id, option.label)}
+                                selectOption={apartment.residencyType || "Select Residency Type"}
                                 showSearch={false}
                                 borderColor='border-[#A9A9A9]'
                                 arrowColor='#A9A9A9'
                             />
                         </div>
-                        <div className='flex flex-col gap-1 w-full text-sm'>
-                            <div className='mb-1'>Street Name</div>
-                            <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                {apartment.street || 'Auto-filled'}
-                            </span>
-                        </div>
                         <div className='flex items-center gap-4'>
                             <div className='flex flex-col gap-1 w-full text-sm'>
-                                <div className='mb-1'>Zone Name</div>
-                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                    {apartment.zone || 'N/A'}
-                                </span>
+                                <div className=''>Building Name *</div>
+                                <Dropdown
+                                    options={buildingOptions}
+                                    onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
+                                    selectOption={apartment.building || "Select Building"}
+                                    showSearch={false}
+                                    borderColor='border-[#A9A9A9]'
+                                    arrowColor='#A9A9A9'
+                                />
                             </div>
                             {localApartments.length > 1 && (
                                 <button
-                                    className='cursor-pointer mt-6 col-span-4 flex justify-end'
+                                    className='cursor-pointer mt-6 flex justify-end'
                                     onClick={() => handleRemoveApartment(apartment.id)}
                                 >
                                     <MiniClose />

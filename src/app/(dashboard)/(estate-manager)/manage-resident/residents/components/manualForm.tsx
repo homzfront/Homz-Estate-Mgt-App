@@ -11,6 +11,7 @@ import api from '@/utils/api';
 import React from 'react'
 import toast from 'react-hot-toast';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
+import { RESIDENCY_TYPES } from '@/constant';
 
 interface ManualFormProps {
     setOpenManualForm: (data: boolean) => void;
@@ -35,11 +36,17 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
         residencyStartDate: '',
         rentDuration: '',
         rentStartDate: '',
+        residentType: '',
         rentDueDate: '',
         rentDurationType: 'months',
     });
     const { fetchResidents } = useResidentsListStore();
 
+    // Prepare residency types for dropdown
+    const residencyTypeOptions = RESIDENCY_TYPES.map((type, index) => ({
+        id: index,
+        label: type
+    }));
 
     // Zones
     const zoneOptions = selectedCommunity?.estate?.zones.map((z) => ({
@@ -179,6 +186,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                 streetName: formData?.streetName,
                 building: formData?.building,
                 apartment: formData?.apartment,
+                residentType: formData?.residentType || undefined,
                 ownershipType: formData?.selectOwnershipType === "Renting this apartment/property" ? "rented" : "owned",
             };
 
@@ -257,7 +265,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             setLoading(false);
         }
     };
-    console.log(formData)
+    
 
     return (
         <div className='p-4 md:p-7 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
@@ -383,6 +391,17 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                 arrowColor='#A9A9A9'
                             />
                         </div>
+                    </div>
+                    <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
+                        <div className='mb-1'>Resident Type <span className='text-error'>*</span></div>
+                        <Dropdown
+                            options={residencyTypeOptions}
+                            onSelect={(option) => handleInputChange('residentType', option.label)}
+                            selectOption="Select option"
+                            showSearch={false}
+                            borderColor='border-[#A9A9A9]'
+                            arrowColor='#A9A9A9'
+                        />
                     </div>
                     <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
                         <div className='mb-1'>Select Ownership Type <span className='text-error'>*</span></div>

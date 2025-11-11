@@ -67,7 +67,7 @@ const AddStreet = () => {
                         {(index === 0 && isOpen) || (index !== 0 && isOpenTwo) ? (
                             <div className="flex flex-col gap-4 bg-[#FCFCFC] p-4 rounded-[12px]">
                                 <CustomInput
-                                    label="Street Name"
+                                    label="Street Name *"
                                     placeholder="e.g Adegoke Street"
                                     value={street.label}
                                     onValueChange={(value) => handleUpdateStreetLabel(street.id, value)}
@@ -112,14 +112,14 @@ const AddStreet = () => {
                     <div key={street.id} className='flex items-center gap-4'>
                         <div className='flex items-center gap-4 w-[95%]'>
                             <CustomInput
-                                label="Street Name"
+                                label="Street Name *"
                                 placeholder="e.g Adegoke Street"
                                 value={street.label}
                                 onValueChange={(value) => handleUpdateStreetLabel(street.id, value)}
                                 className='h-[45px] pl-4'
                             />
                             <div className='flex flex-col gap-1 w-full text-sm'>
-                                <div className='mb-1'>Select Zone (optional)</div>
+                                <div className=''>Select Zone (optional)</div>
                                 <Dropdown
                                     options={formData?.zones}
                                     onSelect={(option) => handleUpdateStreetZone(street.id, option.label)}

@@ -15,6 +15,7 @@ import DotLoader from '@/components/general/dotLoader'
 import api from '@/utils/api'
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
+import { RESIDENCY_TYPES } from '@/constant'
 
 
 const ownerTypeOption = [
@@ -45,12 +46,14 @@ const Resident = () => {
         rentDurationType: 'months',
         rentStartDate: '',
         rentDueDate: '',
+        residentType: '',
         residencyStartDate: '',
         estateName: ''
     });
     const [selectedBuilding, setSelectedBuilding] = useState('');
     const [selectedApartment, setSelectedApartment] = useState('');
     const [selectedOwner, setSelectedOwner] = useState('');
+    const [selectedResidentType, setSelectedResidentType] = useState('');
     // const [selectedOwner, setSelectedOwner] = useState(ownerTypeOption[0]);
     const [selectedStreetName, setSelectedStreetName] = useState('');
     const [selectedStreetZone, setSelectedStreetZone] = useState('');
@@ -59,6 +62,12 @@ const Resident = () => {
     const [loading, setLoading] = useState(false);
     const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
 
+
+    // Prepare residency types for dropdown
+    const residencyTypeOptions = RESIDENCY_TYPES.map((type, index) => ({
+        id: index,
+        label: type
+    }));
 
     // Zones
     const zoneOptions = publicCommunity?.zones.map((z) => ({
@@ -125,6 +134,10 @@ const Resident = () => {
 
     const handleOwnerSelect = (option: { id: string | number; label: string }) => {
         setSelectedOwner(option.label)
+    }
+
+    const handleResidentTypeSelect = (option: { id: string | number; label: string }) => {
+        setSelectedResidentType(option.label)
     }
 
     const handleStreetSelect = (option: { id: string | number; label: string }) => {
@@ -228,6 +241,7 @@ const Resident = () => {
                 streetName: selectedStreetName,
                 building: selectedBuilding,
                 apartment: selectedApartment,
+                residentType: selectedResidentType,
                 ownershipType: selectedOwner?.length > 0 && selectedOwner === "I am renting this apartment/property" ? "rented" : "owned",
             };
 
@@ -321,7 +335,7 @@ const Resident = () => {
     // console.log("formData:", formData)
     // console.log("userData:", userData)
 
-    console.log("publicCommunity:", publicCommunity)
+    // console.log("publicCommunity:", publicCommunity)
 
     return (
         <div>
@@ -380,8 +394,8 @@ const Resident = () => {
             </div>
 
 
-            <div className="max-w-[750px] mx-auto mt-4 md:p-2 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+            <div className="max-w-[750px] mx-auto mt-4 p-4 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium mb-1">
                             Email <span className="text-red-500">*</span>
@@ -405,7 +419,7 @@ const Resident = () => {
                 </div>
 
                 {/* Name */}
-                <div className="md:hidden grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                <div className="md:hidden grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div className='w-full md:w-[100%]'>
                         <label className="text-sm text-BlackHomz font-medium">
                             First Name <span className="text-red-500">*</span>
@@ -434,7 +448,7 @@ const Resident = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* Zone Section */}
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium">
@@ -460,7 +474,7 @@ const Resident = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {/* Building Section */}
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium">
@@ -479,15 +493,29 @@ const Resident = () => {
                             Apartment <span className="text-red-500">*</span>
                         </label>
                         <Dropdown
-                            options={apartmentOptions  || []}
+                            options={apartmentOptions || []}
                             onSelect={handleApartmentSelect}
                             selectOption="Select Apartment"
                         />
                     </div>
                 </div>
 
+                {/* Resident Type Section */}
+                <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium">
+                        Resident Type <span className="text-red-500">*</span>
+                    </label>
+                    <Dropdown
+                        options={residencyTypeOptions}
+                        onSelect={handleResidentTypeSelect}
+                        selectOption={"Select Resident Type"}
+                        showSearch={false}
+                    />
+                </div>
+
+
                 {/* Ownership Type Section */}
-                <div className="flex flex-col gap-1 px-4">
+                <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium">
                         Select Ownership Type <span className="text-red-500">*</span>
                     </label>
@@ -501,7 +529,7 @@ const Resident = () => {
 
                 {/* Conditional Fields based on Ownership Type */}
                 {selectedOwner === "I am renting this apartment/property" && (
-                    <div className="grid grid-cols-1 gap-4 md:gap-6 px-4">
+                    <div className="grid grid-cols-1 gap-4 md:gap-6">
                         <div className='relative'>
                             <CustomInput
                                 borderColor="#4E4E4E"
@@ -554,7 +582,7 @@ const Resident = () => {
                 )}
 
                 {selectedOwner === "I own this apartment/property" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className='w-full md:w-[100%]'>
                             <label className="text-sm text-BlackHomz font-medium">
                                 Residency Start Date <span className="text-red-500">*</span>
@@ -576,7 +604,7 @@ const Resident = () => {
                 )}
 
                 {/* Submit Button */}
-                <div className="mt-10 flex justify-end px-4 md:px-0">
+                <div className="mt-10 flex justify-end">
                     <button
                         onClick={handleSubmit}
                         className={`bg-BlueHomz hover:bg-BlueHomzDark h-[45px] flex justify-center items-center max-w-[210px] font-normal text-[16px] text-white px-6 py-2 rounded-md ${loading ? "pointer-events-none w-full flex justify-center" : ""
