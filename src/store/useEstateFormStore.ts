@@ -24,6 +24,8 @@ export interface Apartment {
     label: string;
     residencyType: string;
     building: string;
+    street: string;
+    zone: string;
 }
 
 export interface EstateFormData {

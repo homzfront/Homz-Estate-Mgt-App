@@ -17,6 +17,7 @@ import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
 import toast from 'react-hot-toast'
 import api from '@/utils/api'
 import DotLoader from '@/components/general/dotLoader'
+import { useAuthSlice } from '@/store/authStore'
 
 const EstateForm = () => {
     // react components
@@ -37,6 +38,8 @@ const EstateForm = () => {
         setFormData,
         clearForm
     } = useEstateFormStore();
+
+    const { getEstates } = useAuthSlice();
 
     // Load state 
     React.useEffect(() => {
@@ -109,9 +112,9 @@ const EstateForm = () => {
             apartments: apartments.map(apartment => ({
                 name: apartment.label,
                 residencyType: apartment.residencyType,
-                building: apartment.building
-                // street: apartment.street,
-                // zone: apartment.zone
+                building: apartment.building,
+                street: apartment.street,
+                zone: apartment.zone
             }))
         };
 
@@ -140,6 +143,7 @@ const EstateForm = () => {
             }
             // On success
             setIsOpen(true);
+            await getEstates(); // Refresh estates list
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;

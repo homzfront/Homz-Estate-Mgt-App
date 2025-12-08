@@ -100,7 +100,7 @@ export interface estateData {
     zones: { name: string }[];
     streets: { name: string; zone: string }[];
     buildings: { name: string; street: string; zone: string }[];
-    apartments: { name: string; building: string; street: string; zone: string }[];
+    apartments: { name: string; building: string; street: string; zone: string; residencyType: string }[];
     isActive: boolean;
     isDeleted: boolean;
     residentType: string;

@@ -16,7 +16,7 @@ const AppApartment = () => {
 
     const { formData, setApartments } = useEstateFormStore();
     const [localApartments, setLocalApartments] = React.useState(
-        formData.apartments?.length ? formData.apartments : [{ id: 1, label: '', residencyType: '', building: '' }]
+        formData.apartments?.length ? formData.apartments : [{ id: 1, label: '', residencyType: '', building: '', street: '', zone: '' }]
     );
 
     // Get buildings from formData to use in dropdown
@@ -38,7 +38,7 @@ const AppApartment = () => {
 
     const handleAddApartment = () => {
         const newId = localApartments.length ? Math.max(...localApartments.map(a => a.id)) + 1 : 1;
-        setLocalApartments([...localApartments, { id: newId, label: '', residencyType: '', building: '' }]);
+        setLocalApartments([...localApartments, { id: newId, label: '', residencyType: '', building: '', street: '', zone: '' }]);
     };
 
     const handleRemoveApartment = (id: number) => {
@@ -59,9 +59,15 @@ const AppApartment = () => {
         ));
     };
 
-    const handleUpdateApartmentBuilding = (id: number, buildingName: string) => {
+    const handleUpdateApartmentBuilding = (id: number, buildingId: number) => {
+        // Find the selected building by id to get its label, street and zone
+        const selectedBuilding = formData.buildings.find(b => b.id === buildingId);
+        const buildingName = selectedBuilding ? selectedBuilding.label : '';
+        const street = selectedBuilding ? selectedBuilding.street : '';
+        const zone = selectedBuilding ? selectedBuilding.zone : '';
+
         setLocalApartments(localApartments.map(apartment =>
-            apartment.id === id ? { ...apartment, building: buildingName } : apartment
+            apartment.id === id ? { ...apartment, building: buildingName, street, zone } : apartment
         ));
     };
 
@@ -105,14 +111,14 @@ const AppApartment = () => {
                                 </div>
                                 <div className='flex flex-col gap-1 w-full text-sm'>
                                     <div className='mb-1'>Building Name *</div>
-                                    <Dropdown
-                                        options={buildingOptions}
-                                        onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
-                                        selectOption={apartment.building || "Select Building"}
-                                        showSearch={false}
-                                        borderColor='border-[#A9A9A9]'
-                                        arrowColor='#A9A9A9'
-                                    />
+                                        <Dropdown
+                                            options={buildingOptions}
+                                            onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, Number(option.id))}
+                                            selectOption={apartment.building || "Select Building"}
+                                            showSearch={false}
+                                            borderColor='border-[#A9A9A9]'
+                                            arrowColor='#A9A9A9'
+                                        />
                                 </div>
                                 {index !== 0 && (
                                     <span
@@ -161,7 +167,7 @@ const AppApartment = () => {
                                 <div className=''>Building Name *</div>
                                 <Dropdown
                                     options={buildingOptions}
-                                    onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, option.label)}
+                                    onSelect={(option) => handleUpdateApartmentBuilding(apartment.id, Number(option.id))}
                                     selectOption={apartment.building || "Select Building"}
                                     showSearch={false}
                                     borderColor='border-[#A9A9A9]'
