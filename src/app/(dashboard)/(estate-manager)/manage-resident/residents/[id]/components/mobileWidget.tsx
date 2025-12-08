@@ -1,4 +1,4 @@
-import { Visitor } from "@/app/(dashboard)/components/visitors";
+import { ManagerResidentItem } from "@/store/useResidentsListStore";
 import ArrowRight from "@/components/icons/arrowRight";
 import MobileBackButton from "@/components/icons/estateManager&Resident/mobile/mobileBackButton";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import AddIcon from "@/components/icons/addIcon";
 
 
 interface widgetMobileProps {
-    residentData: Visitor | null;
+    residentData: ManagerResidentItem | null;
 };
 
 const WidgetMobile = ({
@@ -25,7 +25,7 @@ const WidgetMobile = ({
     const [openPaymentModal, setOpenPaymentModal] = React.useState(false)
     const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
     const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
-    const [selectedProperty, setSelectedProperty] = React.useState<Record<string, unknown> | undefined>(undefined)
+    const [selectedProperty, setSelectedProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
     const route = useRouter()
 
     const goBack = () => {
@@ -42,7 +42,7 @@ const WidgetMobile = ({
         setActive(false);
     };
 
-    const openPropertyDetails = (prop: Record<string, unknown>) => {
+    const openPropertyDetails = (prop: PropertyDetailsType) => {
         setSelectedProperty(prop)
         setShowPropertyDetails(true)
     }
@@ -107,7 +107,7 @@ const WidgetMobile = ({
 
                     <div className="my-7 rounded-[12px] w-full">
                         <div className={`${active ? "inline" : "hidden"}`}>
-                            {!showPropertyDetails && <RentInfo onOpenProperty={openPropertyDetails} />}
+                            {!showPropertyDetails && <RentInfo residentData={residentData} onOpenProperty={openPropertyDetails} />}
                             {showPropertyDetails && selectedProperty && <PropertyDetails property={selectedProperty as PropertyDetailsType} onBack={closePropertyDetails} />}
                         </div>
                         <div className={`${activeTwo ? "inline" : "hidden"}`}>
@@ -131,26 +131,26 @@ const WidgetMobile = ({
                                 </div>
                             </div>
                             <h1 className="font-[700] my-2 text-[20px] text-GrayHomz">
-                                {residentData?.visitor}
+                                       {residentData ? `${residentData.firstName} ${residentData.lastName}` : ''}
                             </h1>
                         </div>
                         <div className="mt-2 flex flex-col gap-2">
                             <div className="flex justify-between gap-3">
                                 <p className="text-[13px] font-[400] text-GrayHomz">Phone No</p>
                                 <p className="text-[13px] font-[500] text-end text-BlackHomz w-[62%]">
-                                    {residentData?.phoneNumber}
+                                    {residentData?.phoneNumber || '-'}
                                 </p>
                             </div>
                             <div className="flex justify-between gap-3">
                                 <p className="text-[13px] font-[400] text-GrayHomz">Email</p>
                                 <p className="text-[13px] font-[500] text-end break-words text-BlackHomz w-[62%]">
-                                    AdeyemoOla@gmail.com
+                                    {residentData?.email}
                                 </p>
                             </div>
                             <div className="flex justify-between gap-3">
                                 <p className="text-[13px] font-[400] text-GrayHomz">Home Address</p>
                                 <p className="text-[13px] font-[500] text-end text-BlackHomz break-words w-[62%]">
-                                    17, Alapere, Alagomeji Area, Yaba, Lagos
+                                     {residentData ? `${residentData.building}, ${residentData.apartment}, ${residentData.streetName}, ${residentData.zone}` : ''}
                                 </p>
                             </div>
                         </div>

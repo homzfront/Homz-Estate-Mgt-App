@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 
 const ResidentProfile = () => {
     const router = useRouter();
-    const { residentData } = useAccessStore();
+    const { resident } = useAccessStore();
     return (
         <div className="max-w-full">
             <div className="w-full">
@@ -34,18 +34,18 @@ const ResidentProfile = () => {
                     </div>
                     <div className="w-full flex gap-6 mt-[-20px] px-8">
                         <div className="w-[35%]">
-                            <ProfileCard residentData={residentData} />
+                            <ProfileCard residentData={resident} />
                         </div>
                         <div className="w-[65%]">
                             <Widget
-                                // residentData={residentData}
+                                residentData={resident}
                             />
                         </div>
                     </div>
                 </div>
                 <div className="md:hidden">
                     <MobileWidget
-                        residentData={residentData}
+                        residentData={resident}
                     />
                 </div>
             </div>

@@ -15,6 +15,8 @@ export type PropertyDetailsType = {
         building?: string
         street?: string
         zone?: string
+        ownershipType?: string
+        residencyType?: string
     }
 }
 
@@ -46,7 +48,7 @@ const PropertyDetails: React.FC<Props> = ({ property, onBack }) => {
 
                 <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-[1fr_2fr] text-sm">
                     <p className="text-BlackHomz font-medium">Ownership Type</p>
-                    <p className="text-GrayHomz">[Owner] / [Renter]</p>
+                    <p className="text-GrayHomz">{d.ownershipType || '[Owner] / [Renter]'}</p>
 
                     <p className="text-BlackHomz font-medium">Role</p>
                     <p className="text-GrayHomz">{d.role || 'Primary Resident'}</p>
@@ -65,7 +67,7 @@ const PropertyDetails: React.FC<Props> = ({ property, onBack }) => {
                     <p className="text-GrayHomz">{d.apartment || '[Apartment Name/No]'}</p>
 
                     <p className="text-BlackHomz font-medium">Residency Type</p>
-                    <p className="text-GrayHomz">[Residency Type]</p>
+                    <p className="text-GrayHomz">{d.residencyType || '[Residency Type]'}</p>
 
                     <p className="text-BlackHomz font-medium">Building</p>
                     <p className="text-GrayHomz">{d.building || '[Building Name]'}</p>

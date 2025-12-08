@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Resident } from '@/app/(dashboard)/(estate-manager)/manage-resident/residents/components/resident';
 import { Visitor } from '@/app/(dashboard)/components/visitors';
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import api from '@/utils/api';
 import { useSelectedCommunity } from './useSelectedCommunity';
+import { ManagerResidentItem } from './useResidentsListStore';
 
 export interface ManagerAccessItem {
     _id: string;
@@ -59,8 +60,8 @@ interface UseAccessStoreType {
     setAccessForm: (value: boolean) => void;
     residentData: Visitor | null;
     setResidentData: (data: Visitor | null) => void;
-    resident: Resident | null;
-    setResident: (data: Resident | null) => void;
+    resident: ManagerResidentItem | null;
+    setResident: (data: ManagerResidentItem | null) => void;
     // Manager access list state
     items: ManagerAccessItem[];
     totalCount: number;
@@ -79,7 +80,9 @@ interface UseAccessStoreType {
     updateManagerAccessStatus: (accessId: string, nextStatus: 'pending' | 'signed in' | 'signed out') => Promise<void>;
 }
 
-export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
+export const useAccessStore = create<UseAccessStoreType>()(
+    persist(
+        (set, get) => ({
     accessData: false,
     setAccessData: (value) => set({ accessData: value }),
     accessForm: false,
@@ -266,6 +269,8 @@ export const useAccessStore = create<UseAccessStoreType>((set, get) => ({
             // await get().fetchManagerAccess({ silent: true });
         }
     },
-}));
+}),
+{ name: 'access-store' }
+));
 
 

@@ -31,6 +31,7 @@ export interface ManagerResidentItem {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  phoneNumber?: string
 }
 
 interface ResidentsListState {

@@ -7,12 +7,13 @@ import AddIcon from "@/components/icons/addIcon";
 import ExportIcon from "@/components/icons/estateManager&Resident/desktop/exportIcon";
 import Billing from "./billing";
 import AddPaymentRecordModal from './addPaymentRecordModal'
+import { ManagerResidentItem } from "@/store/useResidentsListStore";
 
-// interface widgetProps {
-//     residentData: Visitor | null;
-// };
+interface widgetProps {
+    residentData: ManagerResidentItem | null;
+};
 
-const Widget = () => {
+const Widget: React.FC<widgetProps> = ({ residentData }) => {
     const [step, setStep] = React.useState(0);
     const [openPaymentModal, setOpenPaymentModal] = React.useState(false)
     const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
@@ -67,7 +68,7 @@ const Widget = () => {
                 }
                 <div className="mt-5 rounded-[12px] px-6 pb-6">
                     {step === 0 && !showPropertyDetails && (
-                        <RentInfo onOpenProperty={openPropertyDetails} />
+                        <RentInfo residentData={residentData} onOpenProperty={openPropertyDetails} />
                     )}
                     {step === 0 && showPropertyDetails && selectedProperty && (
                         <PropertyDetails property={selectedProperty} onBack={closePropertyDetails} />

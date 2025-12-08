@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import Image from 'next/image';
 import { Resident } from './resident';
@@ -13,6 +12,7 @@ import { useResidentsListStore } from '@/store/useResidentsListStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { LoaderIcon } from 'react-hot-toast';
 import ArrowDown from '@/components/icons/arrowDown';
+import { ManagerResidentItem } from '@/store/useResidentsListStore';
 
 
 const Table = () => {
@@ -20,7 +20,7 @@ const Table = () => {
     // const searchParams = useSearchParams();
     // const initialPage = parseInt(searchParams.get('page') || '1', 10);
     const [openDetails, setOpenDetails] = React.useState<boolean>(false)
-    const [selectedData, setSelectedData] = React.useState<Resident | null>(null);
+    const [selectedData, setSelectedData] = React.useState<ManagerResidentItem | null>(null);
     const [popUp, setpopUp] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
     const [openCoResidents, setOpenCoResidents] = React.useState<number | null>(null)
@@ -83,32 +83,32 @@ const Table = () => {
                         <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
                             <div className='grid grid-cols-2 gap-4'>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Name</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.name}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{`${selectedData.firstName || ''} ${selectedData.lastName || ''}`.trim() || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Zone</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.zone}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.zone || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Street</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.street}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.streetName || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Building</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.building}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.building || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Apartment</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.apartment}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.apartment || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Email</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.email}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.email || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Phone</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.phone}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>-</p>
                             </div>
                         </div>
 
                         <button
                             onClick={() => {
                                 setResident(selectedData)
-                                router.push(`/manage-resident/residents/${selectedData.name}`)
+                                router.push(`/manage-resident/residents/${selectedData._id}`)
                             }}
                             className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'
                         >
@@ -261,7 +261,7 @@ const Table = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleToggleMenu(index)
-                                                        setSelectedData(rowResident);
+                                                        setSelectedData(residentItem);
                                                     }}
                                                     className="p-1"
                                                 >
@@ -314,7 +314,7 @@ const Table = () => {
                                                                                     onClick={(e) => {
                                                                                         e.stopPropagation()
                                                                                         handleToggleMenu(index)
-                                                                                        setSelectedData(rowResident);
+                                                                                        setSelectedData(residentItem);
                                                                                     }}
                                                                                     className="p-1 flex-1"
                                                                                 >
