@@ -1,18 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import React from 'react';
 import ArrowRight from '@/components/icons/arrowRight';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
 import VisitorAccessMiniIcon from '@/components/icons/estateManager&Resident/desktop/visitorAccessMiniIcon';
 import { useRouter } from 'next/navigation';
+import { ManagerResidentItem } from '@/store/useResidentsListStore';
+import { useAccessStore } from '@/store/useAccessStore';
 
 interface PopUpProps {
     setOpenDetails: (data: boolean) => void;
-    closeRef: any
+    closeRef: any;
+    resident: ManagerResidentItem;
 }
 
-function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
+function PopUp({ setOpenDetails, closeRef, resident }: PopUpProps) {
     const router = useRouter();
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
@@ -53,7 +54,9 @@ function PopUp({ setOpenDetails, closeRef }: PopUpProps) {
                         <div
                             onClick={(e) => {
                                 e.stopPropagation()
-                                router.push(`/manage-resident/residents/123`)
+                                const { setResident } = useAccessStore.getState();
+                                setResident(resident);
+                                router.push(`/manage-resident/residents/${resident._id}`)
                             }}
                             className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                         >

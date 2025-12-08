@@ -51,9 +51,10 @@ const Table = () => {
 
     // initial fetch handled at page level
 
-    const handleToggleMenu = (id: string | number) => {
+    const handleToggleMenu = (residentItem: ManagerResidentItem) => {
         setpopUp(!popUp);
-        setSelectedDataId(id);
+        setSelectedDataId(residentItem._id);
+        setSelectedData(residentItem);
     };
 
     React.useEffect(() => {
@@ -260,8 +261,7 @@ const Table = () => {
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation()
-                                                        handleToggleMenu(index)
-                                                        setSelectedData(residentItem);
+                                                        handleToggleMenu(residentItem)
                                                     }}
                                                     className="p-1"
                                                 >
@@ -272,10 +272,11 @@ const Table = () => {
                                                         width={20}
                                                     />
                                                 </button>
-                                                {popUp && selectedDataId === index && (
+                                                {popUp && selectedDataId === residentItem._id && (
                                                     <PopUp
                                                         setOpenDetails={setOpenDetails}
                                                         closeRef={closeRef}
+                                                        resident={residentItem}
                                                     />
                                                 )}
                                             </td>
@@ -313,8 +314,7 @@ const Table = () => {
                                                                                 <button
                                                                                     onClick={(e) => {
                                                                                         e.stopPropagation()
-                                                                                        handleToggleMenu(index)
-                                                                                        setSelectedData(residentItem);
+                                                                                        handleToggleMenu(residentItem)
                                                                                     }}
                                                                                     className="p-1 flex-1"
                                                                                 >
@@ -325,10 +325,11 @@ const Table = () => {
                                                                                         width={20}
                                                                                     />
                                                                                 </button>
-                                                                                {popUp && selectedDataId === index && (
+                                                                                {popUp && selectedDataId === residentItem._id && (
                                                                                     <PopUp
                                                                                         setOpenDetails={setOpenDetails}
                                                                                         closeRef={closeRef}
+                                                                                        resident={residentItem}
                                                                                     />
                                                                                 )}
                                                                             </td>
