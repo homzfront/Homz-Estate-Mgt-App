@@ -131,7 +131,7 @@ const ManageResidents = () => {
                                         }}
                                         className='border border-BlueHomz px-4 py-2 rounded-[4px] cursor-ponter text-sm font-normal text-BlueHomz flex justify-center items-center gap-1 w-full md:w-auto'
                                     >
-                                        <ManualAddIcon /> Manually add Resident
+                                        <ManualAddIcon /> Add Resident by Mail
                                     </button>
                                 )}
                             </div>

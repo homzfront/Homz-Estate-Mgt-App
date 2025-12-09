@@ -122,6 +122,12 @@ export const useEstateFormStore = create<EstateFormStore>()(
         {
             name: 'estate-form-storage',
             storage: createJSONStorage(() => localStorage),
+            partialize: (state) => ({
+                formData: {
+                    ...state.formData,
+                    coverPhoto: null, // Do not persist the large base64 string
+                },
+            }),
         }
     )
 );
