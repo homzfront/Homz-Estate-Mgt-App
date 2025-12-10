@@ -78,29 +78,39 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             label: type
         }));
 
-    // Zones
-    const zoneOptions = selectedCommunity?.estate?.zones.map((z) => ({
-        id: z.name,
-        label: z.name,
-    }));
+    // Helper functions to get filtered options based on current selection
+    const getZoneOptions = () => {
+        const apartments = selectedCommunity?.estate?.apartments || [];
+        const zones = new Set(apartments.map(a => a.zone).filter(Boolean));
+        return Array.from(zones).map(z => ({ id: z, label: z }));
+    };
 
-    // Streets
-    const streetOptions = selectedCommunity?.estate?.streets.map((s) => ({
-        id: s.name,
-        label: s.name,
-    }));
+    const getStreetOptions = (selectedZone: string) => {
+        const apartments = selectedCommunity?.estate?.apartments || [];
+        const filtered = apartments.filter(a => !selectedZone || a.zone === selectedZone);
+        const streets = new Set(filtered.map(a => a.street).filter(Boolean));
+        return Array.from(streets).map(s => ({ id: s, label: s }));
+    };
 
-    // Buildings
-    const buildingOptions = selectedCommunity?.estate?.buildings.map((b) => ({
-        id: b.name,
-        label: b.name,
-    }));
+    const getBuildingOptions = (selectedZone: string, selectedStreet: string) => {
+        const apartments = selectedCommunity?.estate?.apartments || [];
+        const filtered = apartments.filter(a =>
+            (!selectedZone || a.zone === selectedZone) &&
+            (!selectedStreet || a.street === selectedStreet)
+        );
+        const buildings = new Set(filtered.map(a => a.building).filter(Boolean));
+        return Array.from(buildings).map(b => ({ id: b, label: b }));
+    };
 
-    // Apartments
-    const apartmentOptions = selectedCommunity?.estate?.apartments.map((a) => ({
-        id: a.name,
-        label: a.name,
-    }));
+    const getApartmentOptions = (selectedZone: string, selectedStreet: string, selectedBuilding: string) => {
+        const apartments = selectedCommunity?.estate?.apartments || [];
+        const filtered = apartments.filter(a =>
+            (!selectedZone || a.zone === selectedZone) &&
+            (!selectedStreet || a.street === selectedStreet) &&
+            (!selectedBuilding || a.building === selectedBuilding)
+        );
+        return filtered.map(a => ({ id: a.name, label: a.name, ...a }));
+    };
 
     // Ownership Type (required)
     const ownershipTypes = [
@@ -124,7 +134,39 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
     const handleResidenceChange = (id: string, field: keyof ResidenceForm, value: string) => {
         setResidences(prev => prev.map(res => {
             if (res.id === id) {
-                const updatedRes = { ...res, [field]: value };
+                let updatedRes = { ...res, [field]: value };
+
+                // Handle cascading clears and auto-fills
+                if (field === 'selectZone') {
+                    updatedRes.streetName = '';
+                    updatedRes.building = '';
+                    updatedRes.apartment = '';
+                    updatedRes.residentType = '';
+                } else if (field === 'streetName') {
+                    updatedRes.building = '';
+                    updatedRes.apartment = '';
+                    updatedRes.residentType = '';
+                } else if (field === 'building') {
+                    updatedRes.apartment = '';
+                    updatedRes.residentType = '';
+                } else if (field === 'apartment') {
+                    // Auto-fill residency type from selected apartment
+                    const apartments = selectedCommunity?.estate?.apartments || [];
+                    const selectedApt = apartments.find(a =>
+                        a.name === value &&
+                        (!updatedRes.selectZone || a.zone === updatedRes.selectZone) &&
+                        (!updatedRes.streetName || a.street === updatedRes.streetName) &&
+                        (!updatedRes.building || a.building === updatedRes.building)
+                    );
+
+                    if (selectedApt) {
+                        updatedRes.residentType = selectedApt.residencyType || '';
+                        // Also ensure parent fields are consistent if they were empty (though dropdowns enforce this mostly)
+                        if (!updatedRes.selectZone) updatedRes.selectZone = selectedApt.zone;
+                        if (!updatedRes.streetName) updatedRes.streetName = selectedApt.street;
+                        if (!updatedRes.building) updatedRes.building = selectedApt.building;
+                    }
+                }
 
                 // Recalculate due date if relevant fields change
                 if (field === 'rentStartDate' || field === 'rentDuration' || field === 'rentDurationType') {
@@ -322,11 +364,12 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             fetchResidents({ page: 1, silent: true })
 
         } catch (error: any) {
+            const initialMessage = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];
             const fallbackMessage = error?.message || "An error occurred while creating your profile";
 
-            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+            toast.error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage, {
                 position: "top-center",
                 duration: 4000,
                 style: {
@@ -418,9 +461,9 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                         <span className='text-sm font-medium text-BlackHomz'>
                                             {res.building && res.apartment ? `${res.building}, ${res.apartment}` : `Add Residence ${index > 0 ? index + 1 : ''}`}
                                         </span>
-                                        
+
                                         {residences.length > 1 && (
-                                            <span 
+                                            <span
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     removeResidence(res.id);
@@ -442,7 +485,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                             <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
                                                 <div className='mb-1'>Select Zone (optional)</div>
                                                 <Dropdown
-                                                    options={zoneOptions || []}
+                                                    options={getZoneOptions()}
                                                     onSelect={(option) => handleResidenceChange(res.id, 'selectZone', option.label)}
                                                     selectOption={res.selectZone || "Select Zone"}
                                                     borderColor='border-[#A9A9A9]'
@@ -453,7 +496,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                             <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
                                                 <div className='mb-1'>Street Name <span className='text-error'>*</span></div>
                                                 <Dropdown
-                                                    options={streetOptions || []}
+                                                    options={getStreetOptions(res.selectZone)}
                                                     onSelect={(option) => handleResidenceChange(res.id, 'streetName', option.label)}
                                                     selectOption={res.streetName || "Select Street"}
                                                     borderColor='border-[#A9A9A9]'
@@ -466,7 +509,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                             <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
                                                 <div className='mb-1'>Building <span className='text-error'>*</span></div>
                                                 <Dropdown
-                                                    options={buildingOptions || []}
+                                                    options={getBuildingOptions(res.selectZone, res.streetName)}
                                                     onSelect={(option) => handleResidenceChange(res.id, 'building', option.label)}
                                                     selectOption={res.building || "Select Building"}
                                                     borderColor='border-[#A9A9A9]'
@@ -477,7 +520,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                                             <div className='flex flex-col gap-1 w-full text-sm font-medium text-BlackHomz'>
                                                 <div className='mb-1'>Apartment <span className='text-error'>*</span></div>
                                                 <Dropdown
-                                                    options={apartmentOptions || []}
+                                                    options={getApartmentOptions(res.selectZone, res.streetName, res.building)}
                                                     onSelect={(option) => handleResidenceChange(res.id, 'apartment', option.label)}
                                                     selectOption={res.apartment || "Select Apartment"}
                                                     showSearch={false}

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
+import ReactDOM from 'react-dom'
 import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import useClickOutside from '@/app/utils/useClickOutside'
@@ -20,15 +21,49 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [activeEdit, setActiveEdit] = React.useState(false)
     const [activeDelete, setActiveDelete] = React.useState(false)
+    const [paymentStatusPortalStyle, setPaymentStatusPortalStyle] = React.useState<React.CSSProperties | null>(null)
+    const [actionDropdownPortalStyle, setActionDropdownPortalStyle] = React.useState<React.CSSProperties | null>(null)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const paymentStatusDropDownRef = React.useRef<HTMLDivElement>(null)
+    const paymentStatusButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
+    const actionButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
     })
     useClickOutside(paymentStatusDropDownRef as any, () => {
         setPaymentStatusDropdown(null)
     })
+
+    // Calculate portal position for payment status dropdown
+    React.useEffect(() => {
+        if (paymentStatusDropdown !== null && paymentStatusButtonRefs.current[paymentStatusDropdown]) {
+            const rect = paymentStatusButtonRefs.current[paymentStatusDropdown]!.getBoundingClientRect()
+            setPaymentStatusPortalStyle({
+                position: 'absolute',
+                top: rect.bottom + window.scrollY + 5,
+                left: rect.left + window.scrollX - 0, 
+                zIndex: 9999,
+            })
+        } else {
+            setPaymentStatusPortalStyle(null)
+        }
+    }, [paymentStatusDropdown])
+
+    // Calculate portal position for action dropdown
+    React.useEffect(() => {
+        if (actionDropdown !== null && actionButtonRefs.current[actionDropdown]) {
+            const rect = actionButtonRefs.current[actionDropdown]!.getBoundingClientRect()
+            setActionDropdownPortalStyle({
+                position: 'absolute',
+                top: rect.bottom + window.scrollY + 5,
+                left: rect.left + window.scrollX - 170,
+                zIndex: 9999,
+            })
+        } else {
+            setActionDropdownPortalStyle(null)
+        }
+    }, [actionDropdown])
 
     const itemsPerPage = 8
     const totalPages = Math.ceil(bills.length / itemsPerPage)
@@ -122,7 +157,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.amountPaid || '₦0.00'}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.paymentType || 'N/A'}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
-                                        <div style={{ position: 'relative', width: 160 }}>
+                                        <div style={{ width: 160 }}>
                                             {/** derive colors from paymentStatus: Paid (green), Pending (warning), Over Due (error) */}
                                             {(() => {
                                                 const ps = row.paymentStatus || row.status || 'Pending'
@@ -131,6 +166,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                 return (
                                                     <>
                                                         <button
+                                                            ref={(el) => { paymentStatusButtonRefs.current[idx] = el; }}
                                                             style={{
                                                                 width: 120,
                                                                 height: 33,
@@ -158,18 +194,15 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                                 <ArrowDown className={color} />
                                                             </span>
                                                         </button>
-                                                        {paymentStatusDropdown === idx && (
+                                                        {paymentStatusDropdown === idx && paymentStatusPortalStyle && ReactDOM.createPortal(
                                                             <div
                                                                 ref={paymentStatusDropDownRef}
                                                                 style={{
-                                                                    position: 'absolute',
-                                                                    top: 40,
-                                                                    left: 0,
+                                                                    ...paymentStatusPortalStyle,
                                                                     width: 120,
                                                                     borderRadius: 4,
                                                                     border: '1px solid #E6E6E6',
                                                                     background: '#fff',
-                                                                    zIndex: 100,
                                                                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                                                                     padding: '8px 8px',
                                                                     display: 'flex',
@@ -210,7 +243,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                                 >
                                                                     Over Due
                                                                 </button>
-                                                            </div>
+                                                            </div>,
+                                                            document.body
                                                         )}
                                                     </>
                                                 )
@@ -225,11 +259,12 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                         <button
                                             className="ml-4"
                                             onClick={() => setActionDropdown(idx)}
+                                            ref={(el) => { actionButtonRefs.current[idx] = el; }}
                                         >
                                             ⋮
                                         </button>
-                                        {actionDropdown === idx && (
-                                            <div ref={dropDownRef} className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around">
+                                        {actionDropdown === idx && actionDropdownPortalStyle && ReactDOM.createPortal(
+                                            <div ref={dropDownRef} className="drop-down z-[999999] w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around" style={actionDropdownPortalStyle}>
                                                 {/* Edit */}
                                                 <div
                                                     onMouseEnter={() => setActiveEdit(true)}
@@ -273,7 +308,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>,
+                                            document.body
                                         )}
                                     </td>
                                 </tr>

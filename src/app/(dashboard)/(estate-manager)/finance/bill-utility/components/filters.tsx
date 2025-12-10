@@ -44,13 +44,13 @@ const STATUS_OPTIONS = [
 ];
 
 interface FiltersProps {
-    setOpenCurrencyModal: (open: boolean) => void;
+    setOpenEditBillingModal: (open: boolean) => void;
     selectedRowsCount: number;
     onDeleteSelected: () => void;
     isDeletingMultiple: boolean;
 }
 
-const Filters = ({ setOpenCurrencyModal, selectedRowsCount, onDeleteSelected, isDeletingMultiple }: FiltersProps) => {
+const Filters = ({ setOpenEditBillingModal, selectedRowsCount, onDeleteSelected, isDeletingMultiple }: FiltersProps) => {
     const [isOpenTwo, setIsOpenTwo] = useState(false);
     const [isOpenI, setIsOpenI] = useState(false);
     const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
@@ -108,7 +108,7 @@ const Filters = ({ setOpenCurrencyModal, selectedRowsCount, onDeleteSelected, is
                         />
                     </div>
                     <div className='md:hidden block'>
-                        <button onClick={() => setOpenCurrencyModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
+                        <button onClick={() => setOpenEditBillingModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
                             <AddWhiteBox /> Create Bill
                         </button>
                     </div>
@@ -289,7 +289,7 @@ const Filters = ({ setOpenCurrencyModal, selectedRowsCount, onDeleteSelected, is
                                         <button
                                             onClick={onDeleteSelected}
                                             disabled={selectedRowsCount === 0 || isDeletingMultiple}
-                                            className='text-sm font-normal text-error hover:bg-whiteblue h-[37px] px-3 rounded-[4px] flex justify-start items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed'> 
+                                            className='text-sm font-normal text-error hover:bg-whiteblue h-[37px] px-3 rounded-[4px] flex justify-start items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed'>
                                             <DeleteIcon /> Delete selected bills {selectedRowsCount > 0 && `(${selectedRowsCount})`}
                                         </button>
                                     </div>
@@ -297,7 +297,7 @@ const Filters = ({ setOpenCurrencyModal, selectedRowsCount, onDeleteSelected, is
                             )}
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={onDeleteSelected}
                         disabled={selectedRowsCount === 0 || isDeletingMultiple}
                         className='hidden border border-error text-sm font-normal text-error hover:bg-bgRed h-[37px] px-3 rounded-[4px] md:flex justify-start items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed'>

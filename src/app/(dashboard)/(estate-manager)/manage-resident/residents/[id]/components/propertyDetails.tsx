@@ -18,6 +18,8 @@ export type PropertyDetailsType = {
         zone?: string
         ownershipType?: string
         residencyType?: string
+        rentDurationType?: string
+        rentDuration?: string | number  
     }
 }
 
@@ -54,8 +56,8 @@ const PropertyDetails: React.FC<Props> = ({ property, onBack }) => {
                     <p className="text-BlackHomz font-medium">Role</p>
                     <p className="text-GrayHomz">{d.role || 'Primary Resident'}</p>
                     
-                    <p/>
-                    <p className='text-BlueHomz flex items-center gap-1'><ProfileUser /> View Co-residents</p>
+                    {/* <p/>
+                    <p className='text-BlueHomz flex items-center gap-1'><ProfileUser /> View Co-residents</p> */}
 
 
                     <p className="text-BlackHomz font-medium">Rent Start Date</p>

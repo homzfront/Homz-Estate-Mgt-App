@@ -29,7 +29,7 @@ const AccessControl = () => {
 
     const [steps, setSteps] = React.useState<number>(0);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
-    const { error, accessData, setAccessData, fetchManagerAccess, initialLoading, setAccessStatusFilter, accessStatusFilter } = useAccessStore();
+    const { accessData, setAccessData, fetchManagerAccess, initialLoading, setAccessStatusFilter, accessStatusFilter } = useAccessStore();
     const [openAddManual, setOpenAddManual] = React.useState<boolean>(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const pages = [
@@ -68,12 +68,7 @@ const AccessControl = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [steps])
 
-    React.useEffect(() => {
-        // Clear error after 5 seconds
-        if (error) {
-            toast.error(error, { duration: 5000 });
-        }
-    }, [error])
+
 
     return (
         <div className='mb-[150px]'>

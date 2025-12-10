@@ -15,7 +15,7 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 const BillAndUti = () => {
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
   const { hasEverHadData, initialLoading, fetchBills } = useBillStore();
-  
+
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openCurrencyModal, setOpenCurrencyModal] = React.useState(false);
   const [openEditBillingModal, setOpenEditBillingModal] = React.useState(false);
@@ -72,13 +72,13 @@ const BillAndUti = () => {
             <button className='h-[37px] w-12 rounded-[4px] hidden md:flex justify-center items-center bg-whiteblue border border-BlueHomz'>
               <CoinsIcon />
             </button>
-            <button onClick={() => setOpenCurrencyModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-6 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
+            <button onClick={() => setOpenEditBillingModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-6 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
               <AddWhiteBox /> Create Bill
             </button>
           </div>
         }
       </div>
-      
+
       {initialLoading ? (
         <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
           <LoadingSpinner />
@@ -89,18 +89,18 @@ const BillAndUti = () => {
             <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
               <BillingEmpty />
             </div>
-            <button onClick={() => setOpenCurrencyModal(true)} className='bg-BlueHomz rounded-[4px] h-12 px-6 flex justify-center items-center gap-2 text-base font-semibold text-white'> <AddWhiteBox /> Create Bill</button>
+            <button onClick={() => setOpenEditBillingModal(true)} className='bg-BlueHomz rounded-[4px] h-12 px-6 flex justify-center items-center gap-2 text-base font-semibold text-white'> <AddWhiteBox /> Create Bill</button>
           </div>
         </div>
       ) : (
         <div className='w-full'>
-          <Filters 
-            setOpenCurrencyModal={setOpenCurrencyModal} 
+          <Filters
+            setOpenEditBillingModal={setOpenEditBillingModal}
             selectedRowsCount={selectedRowsCount}
             onDeleteSelected={() => deleteHandler?.()}
             isDeletingMultiple={isDeletingMultiple}
           />
-          <Table 
+          <Table
             onSelectedRowsChange={setSelectedRowsCount}
             onDeleteMultipleChange={(handler) => setDeleteHandler(() => handler)}
             onDeletingMultipleChange={setIsDeletingMultiple}

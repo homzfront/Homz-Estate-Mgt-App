@@ -33,8 +33,10 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
         totalPages,
         currentPage,
         limit,
+        error,
         pageLoading,
         isAppending,
+        setError,
         fetchManagerAccess,
         updateManagerAccessStatus,
     } = useAccessStore();
@@ -47,15 +49,11 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
     const [openPopIndex, setOpenPopIndex] = React.useState<number | null>(null);
     const popupRef = React.useRef<HTMLTableCellElement | null>(null);
     const [openStatusIndex, setOpenStatusIndex] = React.useState<number | null>(null);
+    const [updatingStatusId, setUpdatingStatusId] = React.useState<string | null>(null);
     const statusDropdownRef = React.useRef<HTMLDivElement | null>(null);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
 
-    useClickOutside(popupRef as React.RefObject<HTMLTableCellElement>, () => {
-        if (openPopIndex !== null) setOpenPopIndex(null);
-    });
-    useClickOutside(statusDropdownRef as React.RefObject<HTMLDivElement>, () => {
-        if (openStatusIndex !== null) setOpenStatusIndex(null);
-    });
+    // useClickOutside removed - handled internally by components
 
     React.useEffect(() => {
         if (currentPage !== initialPage) {
@@ -126,6 +124,24 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
         return () => observer.unobserve(el);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loaderRef.current, pageLoading, currentPage, totalPages]);
+
+    React.useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                position: "top-center",
+                duration: 2000,
+                style: {
+                    background: "#FFEBEE",
+                    color: "#C62828",
+                    fontWeight: 500,
+                    padding: "12px 20px",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                },
+            });
+            setError('');
+        }
+    }, [error])
 
     return (
         <div className="mt-6 w-full mx-auto">
@@ -288,7 +304,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                                 <div className="flex items-center gap-2">
                                                     <StatusDropDown
                                                         value={(row.accessStatus === 'pending' ? 'Pending' : row.accessStatus === 'signed in' ? 'Signed In' : 'Signed Out') as any}
-                                                        loading={false}
+                                                        loading={updatingStatusId === row._id}
                                                         isOpen={openStatusIndex === idx}
                                                         toggleDropdown={() => ability.can('update', 'access-control') && setOpenStatusIndex((prev) => (prev === idx ? null : idx))}
                                                         selectedStatus={null}
@@ -299,13 +315,16 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                                                 const next = status === 'Pending' ? 'pending' : status === 'Signed In' ? 'signed in' : 'signed out';
                                                                 (async () => {
                                                                     try {
+                                                                        setUpdatingStatusId(row._id);
                                                                         await updateManagerAccessStatus(row._id, next as any);
                                                                         fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
                                                                     } catch (error) {
                                                                         // Optionally show error toast here
                                                                         console.error('Error updating status:', error);
+
                                                                     } finally {
                                                                         setOpenStatusIndex(null);
+                                                                        setUpdatingStatusId(null);
                                                                     }
                                                                 })();
                                                             }
@@ -347,6 +366,8 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                                     setOpenDetails={(val) => { setOpenDetails(val); setOpenPopIndex(null); }}
                                                     fromDefault={false}
                                                     setOpenRevoke={(val) => { setOpenRevoke(val); setOpenPopIndex(null); }}
+                                                    onClose={() => setOpenPopIndex(null)}
+                                                    anchorRef={popupRef as any}
                                                 />
                                             )}
                                         </td>

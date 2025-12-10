@@ -9,6 +9,8 @@ import Billing from "./billing";
 import PropertyDetails, { PropertyDetailsType } from './propertyDetails'
 import AddPaymentRecordModal from "./addPaymentRecordModal";
 import AddIcon from "@/components/icons/addIcon";
+import BillPaymentPropertyList from "./billPaymentPropertyList";
+import ArrowLeft16Long from "@/components/icons/arrowLeft16Long";
 
 
 interface widgetMobileProps {
@@ -26,6 +28,10 @@ const WidgetMobile = ({
     const [modalInitialData, setModalInitialData] = React.useState<Record<string, unknown> | undefined>(undefined)
     const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
     const [selectedProperty, setSelectedProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
+    
+    const [showBillingDetails, setShowBillingDetails] = React.useState(false)
+    const [selectedBillingProperty, setSelectedBillingProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
+    
     const route = useRouter()
 
     const goBack = () => {
@@ -52,6 +58,17 @@ const WidgetMobile = ({
         setShowPropertyDetails(false)
     }
 
+    const openBillingDetails = (prop: PropertyDetailsType) => {
+        setSelectedBillingProperty(prop)
+        setShowBillingDetails(true)
+        setShowData(false)
+    }
+
+    const closeBillingDetails = () => {
+        setSelectedBillingProperty(undefined)
+        setShowBillingDetails(false)
+    }
+
     const openAddModal = () => {
         setModalInitialData(undefined)
         setOpenPaymentModal(true)
@@ -64,7 +81,7 @@ const WidgetMobile = ({
 
     return (
         <div className={`${!showPropertyDetails ? 'p-8' : ''} flex flex-col gap-2`}>
-            {!showPropertyDetails &&
+            {!showPropertyDetails && !showBillingDetails &&
                 <div className='flex gap-4 items-center'>
                     <div onClick={goBack} className='cursor-pointer'>
                         <div className='w-[28px] h-[28px] bg-walletBg rounded-[8px] flex justify-center items-center'>
@@ -79,7 +96,7 @@ const WidgetMobile = ({
             {showWidget
                 ?
                 <div>
-                    {!showPropertyDetails &&
+                    {!showPropertyDetails && !showBillingDetails &&
                         <div className="flex flex-row justify-between mt-8 w-full">
                             <div className="flex flex-wrap gap-[15px] w-full">
                                 <button
@@ -101,9 +118,21 @@ const WidgetMobile = ({
                                     Bill Payment History
                                 </button>
                             </div>
+                            {/* Only show Add button if not in list view for billing */}
+                            {/* {!activeTwo && ( */}
                                 <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /></button>
+                            {/* )} */}
                         </div>
                     }
+
+                    {showBillingDetails && (
+                        <div className="flex flex-row justify-between mt-0 md:mt-10 w-full items-center">
+                            <button onClick={closeBillingDetails} className="flex items-center gap-2 text-sm text-GrayHomz">
+                                <ArrowLeft16Long /> {selectedBillingProperty?.title || 'Back'}
+                            </button>
+                            <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /></button>
+                        </div>
+                    )}
 
                     <div className="my-7 rounded-[12px] w-full">
                         <div className={`${active ? "inline" : "hidden"}`}>
@@ -111,7 +140,12 @@ const WidgetMobile = ({
                             {showPropertyDetails && selectedProperty && <PropertyDetails property={selectedProperty as PropertyDetailsType} onBack={closePropertyDetails} />}
                         </div>
                         <div className={`${activeTwo ? "inline" : "hidden"}`}>
-                            <Billing onOpenPaymentModal={openEditModal} showData={showData} />
+                            {!showBillingDetails && (
+                                <BillPaymentPropertyList residentData={residentData} onSelectProperty={openBillingDetails} />
+                            )}
+                            {showBillingDetails && (
+                                <Billing onOpenPaymentModal={openEditModal} showData={showData} />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -131,7 +165,7 @@ const WidgetMobile = ({
                                 </div>
                             </div>
                             <h1 className="font-[700] my-2 text-[20px] text-GrayHomz">
-                                       {residentData ? `${residentData.firstName} ${residentData.lastName}` : ''}
+                                {residentData ? `${residentData.firstName} ${residentData.lastName}` : ''}
                             </h1>
                         </div>
                         <div className="mt-2 flex flex-col gap-2">
@@ -150,7 +184,7 @@ const WidgetMobile = ({
                             <div className="flex justify-between gap-3">
                                 <p className="text-[13px] font-[400] text-GrayHomz">Home Address</p>
                                 <p className="text-[13px] font-[500] text-end text-BlackHomz break-words w-[62%]">
-                                     {residentData ? `${residentData.building}, ${residentData.apartment}, ${residentData.streetName}, ${residentData.zone}` : ''}
+                                    {residentData ? `${residentData.building}, ${residentData.apartment}, ${residentData.streetName}, ${residentData.zone}` : ''}
                                 </p>
                             </div>
                         </div>
@@ -189,6 +223,8 @@ const WidgetMobile = ({
                 onRequestClose={() => setOpenPaymentModal(false)}
                 initialData={modalInitialData}
                 setShowData={setShowData}
+                residentData={residentData}
+                selectedProperty={selectedBillingProperty}
                 onSave={(d) => {
                     // placeholder: could dispatch update to table or API
                     console.log('saved payment record', d)

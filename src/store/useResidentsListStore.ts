@@ -27,6 +27,27 @@ export interface ManagerResidentItem {
     rentStartDate: string
     rentDueDate: string
   }
+  ownedDetails?: {
+    residencyStartDate: string
+  }
+  residences?: {
+    zone?: string
+    streetName: string
+    building: string
+    apartment: string
+    residencyType?: string
+    ownershipType: 'rented' | 'owned'
+    rentedDetails?: {
+        rentDurationType: 'Monthly' | 'Yearly'
+        rentDuration: number
+        rentStartDate: string
+        rentDueDate: string
+    }
+    ownedDetails?: {
+        residencyStartDate: string
+    }
+    _id: string
+  }[]
   invitationToken?: string
   isActive: boolean
   createdAt: string

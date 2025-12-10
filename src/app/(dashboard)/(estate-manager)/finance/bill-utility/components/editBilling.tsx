@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 import DotLoader from '@/components/general/dotLoader'
 import SelectCurrency from './selectCurrency'
 import { RESIDENCY_TYPES } from '@/constant/index'
+import DateIcon from '@/components/icons/dateIcon'
 
 const frequencyOptions = [
     { id: 'weekly', label: 'Weekly' },
@@ -58,6 +59,13 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
         }
         return ''
     })
+    const [endDate, setEndDate] = useState(() => {
+        if (billData?.billingEndDate) {
+            const date = new Date(billData.billingEndDate)
+            return date.toISOString().split('T')[0]
+        }
+        return ''
+    })
     const [showSection, setShowSection] = useState(!!(billData?.residencyAmounts && billData.residencyAmounts.length > 0))
     const [showAssignPanel, setShowAssignPanel] = useState(!!(billData?.residencyAmounts && billData.residencyAmounts.length > 0))
     const [residencyAmounts, setResidencyAmounts] = useState<Array<{ type: string, amount: string }>>(() => {
@@ -75,6 +83,55 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
         }
         return [false]
     })
+
+    const calculateEndDate = (start: string, freq: string) => {
+        if (!start || !freq) return ''
+        const date = new Date(start)
+        if (isNaN(date.getTime())) return ''
+
+        const nextDate = new Date(date)
+
+        switch (freq.toLowerCase()) {
+            case 'weekly':
+                nextDate.setDate(date.getDate() + 7)
+                break
+            case 'biweekly':
+                nextDate.setDate(date.getDate() + 14)
+                break
+            case 'monthly':
+                const currentDay = date.getDate()
+                nextDate.setMonth(date.getMonth() + 1)
+                if (nextDate.getDate() !== currentDay) {
+                    nextDate.setDate(0)
+                }
+                break
+            case 'quarterly':
+                const currentDayQ = date.getDate()
+                nextDate.setMonth(date.getMonth() + 3)
+                if (nextDate.getDate() !== currentDayQ) {
+                    nextDate.setDate(0)
+                }
+                break
+            case 'annually':
+                nextDate.setFullYear(date.getFullYear() + 1)
+                if (date.getMonth() === 1 && date.getDate() === 29 && nextDate.getMonth() === 2) {
+                    nextDate.setDate(0)
+                }
+                break
+            default:
+                return ''
+        }
+
+        nextDate.setDate(nextDate.getDate() - 1)
+        return nextDate.toISOString().split('T')[0]
+    }
+
+    React.useEffect(() => {
+        const newEndDate = calculateEndDate(startDate, frequency)
+        if (newEndDate) {
+            setEndDate(newEndDate)
+        }
+    }, [startDate, frequency])
 
     const handleResidencyTypeChange = (index: number, value: string) => {
         setResidencyAmounts(prev => prev.map((item, i) => i === index ? { ...item, type: value } : item))
@@ -180,7 +237,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                 <label htmlFor="applyAll" className="text-sm text-GrayHomz font-medium">Apply amount to all residency type</label>
                             </div>
 
-                            <div className="my-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="my-4">
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-GrayHomz mb-1">Frequency <span className="text-red-500">*</span></label>
                                     <Dropdown
@@ -197,15 +254,43 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                         height="h-[45px]"
                                     />
                                 </div>
-
-                                <div className="md:col-span-1">
-                                    <label className="block text-sm font-medium text-GrayHomz mb-1">Billing start date</label>
-                                    <input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full h-[45px] px-3 border rounded text-sm"
-                                    />
+                                <div className="mt-6">
+                                    <label className="block text-sm font-bold text-BlackHomz mb-1">Set Billing Cycle <span className="text-red-500">*</span></label>
+                                    <p className="text-xs text-GrayHomz mb-3">Choose the start and end dates for the first cycle. This helps the system calculate future billing periods automatically based on your selected frequency.</p>
+                                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-medium text-GrayHomz mb-1">Cycle start date</label>
+                                            <div className="relative mt-1">
+                                                <input
+                                                    type="date"
+                                                    value={startDate}
+                                                    onChange={(e) => setStartDate(e.target.value)}
+                                                    className="w-full h-[45px] px-3 border border-GrayHomz rounded text-sm input-hide-date-icon outline-none focus:border-BlueHomz"
+                                                    placeholder="Select Start date"
+                                                    required
+                                                />
+                                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                                    <DateIcon />
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-1">
+                                            <label className="block text-sm font-medium text-GrayHomz mb-1">Cycle end date</label>
+                                            <div className="relative mt-1 pointer-events-none">
+                                                <input
+                                                    type="date"
+                                                    value={endDate}
+                                                    onChange={(e) => setEndDate(e.target.value)}
+                                                    className="w-full h-[45px] px-3 border border-GrayHomz rounded text-sm input-hide-date-icon outline-none focus:border-BlueHomz"
+                                                    placeholder="Select End date"
+                                                    required
+                                                />
+                                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                                    <DateIcon />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -257,7 +342,11 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                                         <div className={`bg-white rounded-[4px] shadow-lg border border-GrayHomz max-h-[240px] flex flex-col`}>
 
                                                             <div className="overflow-y-auto flex-1 scrollbar-container">
-                                                                {RESIDENCY_TYPES.map((option, idx) => (
+                                                                {RESIDENCY_TYPES.filter(option => {
+                                                                    // Filter out options selected in other rows
+                                                                    const isSelectedElsewhere = residencyAmounts.some((ra, i) => i !== index && ra.type === option);
+                                                                    return !isSelectedElsewhere;
+                                                                }).map((option, idx) => (
                                                                     <div
                                                                         key={idx}
                                                                         className={`m-2 px-4 rounded-[4px] py-3 cursor-pointer hover:bg-whiteblue text-sm flex items-center gap-2 ${(item.type === option) ? "text-BlueHomz" : " hover:text-BlackHomz"
@@ -327,14 +416,10 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                     return
                                 }
 
-                                // Convert date to ISO format with start of day UTC
-                                const dateObj = new Date(startDate)
-                                const isoDate = new Date(Date.UTC(
-                                    dateObj.getFullYear(),
-                                    dateObj.getMonth(),
-                                    dateObj.getDate(),
-                                    0, 0, 0, 0
-                                )).toISOString()
+                                if (!endDate) {
+                                    toast.error('Billing end date is required', { position: 'top-center' })
+                                    return
+                                }
 
                                 // Build payload based on applyToAllResidencyTypes
                                 let payload: any = {
@@ -342,7 +427,8 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                     billName: billName.trim(),
                                     applyToAllResidencyTypes: applyAll,
                                     frequency,
-                                    billingStartDate: isoDate,
+                                    billingStartDate: startDate,
+                                    billingEndDate: endDate,
                                 }
 
                                 if (applyAll) {
@@ -350,17 +436,20 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                                     payload.amount = parseFloat(amount)
                                 } else {
                                     // If NOT applying to all, include residencyAmounts only
-                                    const hasValidResidencyAmounts = showSection && showAssignPanel &&
-                                        residencyAmounts.length > 0 &&
-                                        residencyAmounts.some(ra => ra.type && ra.amount)
 
-                                    if (!hasValidResidencyAmounts) {
+                                    if (!residencyAmounts || residencyAmounts.length === 0) {
                                         toast.error('Please add at least one residency type with amount', { position: 'top-center' })
                                         return
                                     }
 
+                                    // Check for incomplete rows
+                                    const incompleteRows = residencyAmounts.some(ra => !ra.type || !ra.amount)
+                                    if (incompleteRows) {
+                                        toast.error('Please ensure all residency types and amounts are filled', { position: 'top-center' })
+                                        return
+                                    }
+
                                     payload.residencyAmounts = residencyAmounts
-                                        .filter(ra => ra.type && ra.amount)
                                         .map(ra => ({
                                             residencyType: ra.type,
                                             amount: parseFloat(ra.amount),

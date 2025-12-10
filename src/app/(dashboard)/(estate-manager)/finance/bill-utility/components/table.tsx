@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
+import ReactDOM from 'react-dom'
 import Ticked from '@/components/icons/ticked'
 import UnTicked from '@/components/icons/unTicked'
 import LoadingSpinner from '@/components/general/loadingSpinner'
@@ -38,9 +39,13 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
     const [deletingId, setDeletingId] = React.useState<string | null>(null)
     const [updatingStatusId, setUpdatingStatusId] = React.useState<string | null>(null)
     const [deletingMultiple, setDeletingMultiple] = React.useState(false)
+    const [statusDropdownPortalStyle, setStatusDropdownPortalStyle] = React.useState<React.CSSProperties | null>(null)
+    const [actionDropdownPortalStyle, setActionDropdownPortalStyle] = React.useState<React.CSSProperties | null>(null)
     const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const statusDropDownRef = React.useRef<HTMLDivElement>(null)
+    const statusButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
+    const actionButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
 
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
@@ -48,6 +53,36 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
     useClickOutside(statusDropDownRef as any, () => {
         setStatusDropdown(null)
     })
+
+    // Calculate portal position for status dropdown
+    React.useEffect(() => {
+        if (statusDropdown !== null && statusButtonRefs.current[statusDropdown]) {
+            const rect = statusButtonRefs.current[statusDropdown]!.getBoundingClientRect()
+            setStatusDropdownPortalStyle({
+                position: 'absolute',
+                top: rect.bottom + window.scrollY + 5,
+                left: rect.left + window.scrollX - 0,
+                zIndex: 9999,
+            })
+        } else {
+            setStatusDropdownPortalStyle(null)
+        }
+    }, [statusDropdown])
+
+    // Calculate portal position for action dropdown
+    React.useEffect(() => {
+        if (actionDropdown !== null && actionButtonRefs.current[actionDropdown]) {
+            const rect = actionButtonRefs.current[actionDropdown]!.getBoundingClientRect()
+            setActionDropdownPortalStyle({
+                position: 'absolute',
+                top: rect.bottom + window.scrollY + 5,
+                left: rect.left + window.scrollX - 170,
+                zIndex: 9999,
+            })
+        } else {
+            setActionDropdownPortalStyle(null)
+        }
+    }, [actionDropdown])
 
     // Infinite scroll for loading more
     React.useEffect(() => {
@@ -283,13 +318,14 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px] capitalize">{row.frequency}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{formatDateDisplay(row.billingStartDate)}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
-                                        <div style={{ position: 'relative', width: 100 }}>
+                                        <div style={{ width: 100 }}>
                                             {updatingStatusId === row._id ? (
                                                 <div className='flex justify-center items-center w-full'>
                                                     <HourGlassLoader />
                                                 </div>  
                                             ) : (
                                                 <button
+                                                    ref={(el) => { statusButtonRefs.current[idx] = el; }}
                                                     style={{
                                                         width: 100,
                                                         height: 33,
@@ -318,18 +354,15 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                                                     </span>
                                                 </button>
                                             )}
-                                            {statusDropdown === idx && updatingStatusId !== row._id && (
+                                            {statusDropdown === idx && updatingStatusId !== row._id && statusDropdownPortalStyle && ReactDOM.createPortal(
                                                 <div
                                                     ref={statusDropDownRef}
                                                     style={{
-                                                        position: 'absolute',
-                                                        top: 40,
-                                                        left: 0,
+                                                        ...statusDropdownPortalStyle,
                                                         width: 100,
                                                         borderRadius: 4,
                                                         border: '1px solid #E6E6E6',
                                                         background: '#fff',
-                                                        zIndex: 100,
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                                                         padding: '8px 8px',
                                                         display: 'flex',
@@ -349,19 +382,21 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                                                     >
                                                         Inactive
                                                     </button>
-                                                </div>
+                                                </div>,
+                                                document.body
                                             )}
                                         </div>
                                     </td>
                                     <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
                                         <button
+                                            ref={(el) => { actionButtonRefs.current[idx] = el; }}
                                             className="ml-4"
                                             onClick={() => setActionDropdown(idx)}
                                         >
                                             ⋮
                                         </button>
-                                        {actionDropdown === idx && (
-                                            <div ref={dropDownRef} className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around">
+                                        {actionDropdown === idx && actionDropdownPortalStyle && ReactDOM.createPortal(
+                                            <div ref={dropDownRef} className="drop-down z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around" style={actionDropdownPortalStyle}>
                                                 {/* View */}
                                                 {/* <div
                                                     onMouseEnter={() => setActiveView(true)}
@@ -425,7 +460,8 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>,
+                                            document.body
                                         )}
                                     </td>
                                 </tr>

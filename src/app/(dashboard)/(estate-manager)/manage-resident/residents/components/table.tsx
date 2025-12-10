@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import Image from 'next/image';
 import { Resident } from './resident';
@@ -11,7 +12,6 @@ import useClickOutside from '@/app/utils/useClickOutside';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { LoaderIcon } from 'react-hot-toast';
-import ArrowDown from '@/components/icons/arrowDown';
 import { ManagerResidentItem } from '@/store/useResidentsListStore';
 
 
@@ -23,10 +23,8 @@ const Table = () => {
     const [selectedData, setSelectedData] = React.useState<ManagerResidentItem | null>(null);
     const [popUp, setpopUp] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
-    const [openCoResidents, setOpenCoResidents] = React.useState<number | null>(null)
     const { setResident } = useAccessStore();
-    const closeRef = React.useRef<HTMLDivElement>(null);
-    const coRef = React.useRef<HTMLDivElement>(null);
+    const buttonRefs = React.useRef<{ [key: string]: HTMLButtonElement | null }>({});
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
 
     const {
@@ -37,25 +35,22 @@ const Table = () => {
         pageLoading,
         isAppending,
         fetchResidents,
-        // totalCount,
         search,
     } = useResidentsListStore();
-
-    useClickOutside(closeRef as any, () => {
-        setpopUp(false);
-    });
-
-    useClickOutside(coRef as any, () => {
-        setOpenCoResidents(null);
-    });
 
     // initial fetch handled at page level
 
     const handleToggleMenu = (residentItem: ManagerResidentItem) => {
-        setpopUp(!popUp);
+        if (selectedDataId === residentItem._id && popUp) {
+            setpopUp(false);
+            return;
+        }
+        setpopUp(true);
         setSelectedDataId(residentItem._id);
         setSelectedData(residentItem);
     };
+
+
 
     React.useEffect(() => {
         if (!loaderRef.current) return;
@@ -125,7 +120,6 @@ const Table = () => {
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-[500] text-BlackHomz">
                                 <th className="text-left pl-4" style={{ width: "250px" }}>Resident</th>
-                                <th className="text-left" style={{ width: "250px" }}>Role & Relationship</th>
                                 <th className="text-left" style={{ width: "250px" }}>Zone</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "250px" }}>Street</th>
                                 <th className="text-left hidden md:table-cell" style={{ width: "250px" }}>Building</th>
@@ -205,143 +199,59 @@ const Table = () => {
                                 const phone = '-';
                                 const image = '/AvatarEmpty.png';
                                 const rowResident: Resident = { name, zone, street, building, apartment, email, phone, image };
-
-                                // ensure we have role and coResidents data available locally
-                                const roleText = ((residentItem as any).role) || 'Primary Resident'
-                                const coResidentsList = ((residentItem as any).coResidents) && (residentItem as any).coResidents.length > 0
-                                    ? (residentItem as any).coResidents
-                                    : [
-                                        { firstName: 'Noah', lastName: 'Cole', relationship: 'Co-Owner' },
-                                        { firstName: 'Amaka', lastName: 'Ibrahim', relationship: 'Tenant' }
-                                    ]
-
                                 return (
-                                    <React.Fragment key={residentItem._id}>
-                                        <tr
-                                            className="border-t-[1px] hover:bg-gray-50 cursor-pointer"
-                                        >
-                                            <td className="py-4 pl-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                                                        <Image
-                                                            src={image}
-                                                            alt={name}
-                                                            width={40}
-                                                            height={40}
-                                                            className="object-cover w-full h-full"
-                                                        />
-                                                    </div>
-                                                    <span className="text-GrayHomz font-[500] text-[11px]">
-                                                        {name}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px]">
-                                                <div className="text-[13px] font-[500] text-BlackHomz">{roleText}</div>
-                                                <div
-                                                    className="text-BlueHomz text-[12px] flex items-center gap-1 cursor-pointer mt-1"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setTimeout(() => setOpenCoResidents(prev => prev === index ? null : index), 0)
-                                                    }}
-                                                >
-                                                    <span>Co-residents</span>
-                                                    <span style={{ display: 'inline-flex', transition: 'transform 0.18s', transform: openCoResidents === index ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                                                        <ArrowDown className={'#006AFF'} />
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px]">{zone}</td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{street}</td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{building}</td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{apartment}</td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{email}</td>
-                                            <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{phone}</td>
-                                            <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 hover:bg-gray-50">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        handleToggleMenu(residentItem)
-                                                    }}
-                                                    className="p-1"
-                                                >
+                                    <tr
+                                        key={residentItem._id}
+                                        className="border-t-[1px] hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        <td className="py-4 pl-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full overflow-hidden">
                                                     <Image
-                                                        src="/dots-vertical.png"
-                                                        alt="Options"
-                                                        height={20}
-                                                        width={20}
+                                                        src={image}
+                                                        alt={name}
+                                                        width={40}
+                                                        height={40}
+                                                        className="object-cover w-full h-full"
                                                     />
-                                                </button>
-                                                {popUp && selectedDataId === residentItem._id && (
-                                                    <PopUp
-                                                        setOpenDetails={setOpenDetails}
-                                                        closeRef={closeRef}
-                                                        resident={residentItem}
-                                                    />
-                                                )}
-                                            </td>
-                                        </tr>
-                                        {openCoResidents === index && (
-                                            <tr>
-                                                <td colSpan={13} className="">
-                                                    <div ref={coRef} className="w-full bg-inputBg pl-2">
-                                                            <table className="w-full">
-                                                                <tbody>
-                                                                    {coResidentsList.map((cr: any, ci: number) => (
-                                                                        <tr key={ci} className="border-t bg-transparent">
-                                                                            <td className="py-3 pl-4 text-GrayHomz text-[11px]" style={{ width: "250px" }}>
-                                                                                <div className="flex items-center gap-3">
-                                                                                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                                                                                        <Image
-                                                                                            src={image}
-                                                                                            alt={roleText}
-                                                                                            width={40}
-                                                                                            height={40}
-                                                                                            className="object-cover w-full h-full"
-                                                                                        />
-                                                                                    </div>
-                                                                                    {`${cr.firstName || ''} ${cr.lastName || ''}`.trim() || cr.name || '—'}
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="py-3 text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.relationship || cr.role || 'Co-Resident'}</td>
-                                                                            <td className="py-3 text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.zone || '-'}</td>
-                                                                            <td className="py-3 hidden md:table-cell text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.street || '-'}</td>
-                                                                            <td className="py-3 hidden md:table-cell text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.building || '-'}</td>
-                                                                            <td className="py-3 hidden md:table-cell text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.residencyType || '-'}</td>
-                                                                            <td className="py-3 hidden md:table-cell text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.apartment || '-'}</td>
-                                                                            <td className="py-3 hidden md:table-cell text-GrayHomz text-[11px]" style={{ width: "250px" }}>{cr.email || '-'}</td>
-                                                                            <td className="py-3 w-[70px] md:w-[100px] relative">
-                                                                                <button
-                                                                                    onClick={(e) => {
-                                                                                        e.stopPropagation()
-                                                                                        handleToggleMenu(residentItem)
-                                                                                    }}
-                                                                                    className="p-1 flex-1"
-                                                                                >
-                                                                                    <Image
-                                                                                        src="/dots-vertical.png"
-                                                                                        alt="Options"
-                                                                                        height={20}
-                                                                                        width={20}
-                                                                                    />
-                                                                                </button>
-                                                                                {popUp && selectedDataId === residentItem._id && (
-                                                                                    <PopUp
-                                                                                        setOpenDetails={setOpenDetails}
-                                                                                        closeRef={closeRef}
-                                                                                        resident={residentItem}
-                                                                                    />
-                                                                                )}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </React.Fragment>
+                                                </div>
+                                                <span className="text-GrayHomz font-[500] text-[11px]">
+                                                    {name}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px]">{zone}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{street}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{building}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{apartment}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{email}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{phone}</td>
+                                        <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 hover:bg-gray-50">
+                                            <button
+                                                ref={(el) => { buttonRefs.current[residentItem._id] = el }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleMenu(residentItem);
+                                                }}
+                                                className="p-1"
+                                            >
+                                                <Image
+                                                    src="/dots-vertical.png"
+                                                    alt="Options"
+                                                    height={20}
+                                                    width={20}
+                                                />
+                                            </button>
+                                            {popUp && selectedDataId === residentItem._id && (
+                                                <PopUp
+                                                    setOpenDetails={setOpenDetails}
+                                                    resident={residentItem}
+                                                    onClose={() => setpopUp(false)}
+                                                    anchorRef={{ current: buttonRefs.current[residentItem._id] } as any}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
                                 )
                             })}
                             {currentPage < totalPages && (
