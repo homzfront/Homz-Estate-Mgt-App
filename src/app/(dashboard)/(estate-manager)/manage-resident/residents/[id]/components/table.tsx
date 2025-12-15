@@ -1,39 +1,72 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import useClickOutside from '@/app/utils/useClickOutside'
 import ArrowDown from '@/components/icons/arrowDown'
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
+import { useBillPaymentStore } from '@/store/useBillPaymentStore'
+import { useSelectedCommunity } from '@/store/useSelectedCommunity'
+import api from '@/utils/api'
 
 interface Props {
     onOpenPaymentModal?: (data?: any) => void
+    residentId: string
+    apartmentId?: string
 }
 
-const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
+const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId }) => {
     const [paymentStatusDropdown, setPaymentStatusDropdown] = React.useState<number | null>(null)
     const [actionDropdown, setActionDropdown] = React.useState<number | null>(null)
-    const [bills, setBills] = React.useState(estateBillingData)
-    const [displayedBills, setDisplayedBills] = React.useState(estateBillingData.slice(0, 8))
-    const [currentPage, setCurrentPage] = React.useState(1)
-    const [isLoading, setIsLoading] = React.useState(false)
     const [activeEdit, setActiveEdit] = React.useState(false)
     const [activeDelete, setActiveDelete] = React.useState(false)
     const [paymentStatusPortalStyle, setPaymentStatusPortalStyle] = React.useState<React.CSSProperties | null>(null)
     const [actionDropdownPortalStyle, setActionDropdownPortalStyle] = React.useState<React.CSSProperties | null>(null)
-    const loaderRef = React.useRef<HTMLDivElement | null>(null)
+    
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const paymentStatusDropDownRef = React.useRef<HTMLDivElement>(null)
     const paymentStatusButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
     const actionButtonRefs = React.useRef<{ [key: number]: HTMLButtonElement | null }>({})
+
+    const { selectedCommunity } = useSelectedCommunity();
+
+    const {
+        items,
+        // totalCount,
+        totalPages,
+        currentPage,
+        // limit,
+        initialLoading,
+        pageLoading,
+        isAppending,
+        // error,
+        // hasAnyData,
+        fetchBillPayments
+    } = useBillPaymentStore();
+
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
     })
     useClickOutside(paymentStatusDropDownRef as any, () => {
         setPaymentStatusDropdown(null)
     })
+
+    const loaderRef = React.useRef<HTMLDivElement | null>(null)
+
+    // Intersection observer for infinite scrolling
+    React.useEffect(() => {
+        if (!loaderRef.current) return
+        const el = loaderRef.current
+        const observer = new IntersectionObserver((entries) => {
+            const first = entries[0]
+            if (first.isIntersecting && currentPage < totalPages && !pageLoading && !isAppending) {
+                loadMore()
+            }
+        }, { rootMargin: '200px' })
+        observer.observe(el)
+        return () => observer.unobserve(el)
+    }, [loaderRef.current, currentPage, totalPages, pageLoading, isAppending])
 
     // Calculate portal position for payment status dropdown
     React.useEffect(() => {
@@ -65,39 +98,37 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
         }
     }, [actionDropdown])
 
-    const itemsPerPage = 8
-    const totalPages = Math.ceil(bills.length / itemsPerPage)
-
-    React.useEffect(() => {
-        if (!loaderRef.current) return
-        const el = loaderRef.current
-        const observer = new IntersectionObserver((entries) => {
-            const first = entries[0]
-            if (first.isIntersecting && !isLoading && currentPage < totalPages) {
-                loadMore()
-            }
-        }, { rootMargin: '200px' })
-        observer.observe(el)
-        return () => observer.unobserve(el)
-    }, [loaderRef.current, isLoading, currentPage, totalPages])
-
     const loadMore = () => {
-        setIsLoading(true)
-        setTimeout(() => {
-            const nextPage = currentPage + 1
-            const startIndex = nextPage * itemsPerPage
-            const endIndex = startIndex + itemsPerPage
-            const newBills = bills.slice(startIndex, endIndex)
-            setDisplayedBills(prev => [...prev, ...newBills])
-            setCurrentPage(nextPage)
-            setIsLoading(false)
-        }, 500) // Simulate loading delay
+        if (currentPage < totalPages && !pageLoading && !isAppending) {
+            fetchBillPayments({ residentId, apartmentId, page: currentPage + 1, append: true })
+        }
     }
 
-    // Delete bill
-    const deleteBill = (id: string) => {
-        setBills(prev => prev.filter(bill => bill._id !== id))
-        setDisplayedBills(prev => prev.filter(bill => bill._id !== id))
+    const handleStatusChange = async (paymentId: string, newStatus: string, billingId?: string) => {
+        try {
+            const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId
+            const estateId = selectedCommunity?.estate?._id
+
+            if (!organizationId || !estateId || !billingId) {
+                console.error('Missing required IDs for status update')
+                return
+            }
+
+            // Make API call to update payment status using the correct endpoint
+            const response = await api.patch(`/community-manager/bill-payment/${paymentId}/offine/organizations/${organizationId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, {
+                status: newStatus
+            });
+            
+            if (response.data.success) {
+                // Refresh the data after successful status update
+                fetchBillPayments({ page: currentPage });
+            }
+        } catch (error) {
+            console.error('Failed to update payment status:', error);
+            // You might want to show a toast notification here
+        } finally {
+            setPaymentStatusDropdown(null);
+        }
     }
 
     return (
@@ -121,7 +152,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayedBills.length === 0 && (
+                            {initialLoading && (
                                 Array.from({ length: 6 }).map((_, sk) => (
                                     <tr key={`sk-${sk}`} className="border-t-[1px]">
                                         <td className="py-[15px] pl-4">
@@ -149,20 +180,19 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                     </tr>
                                 ))
                             )}
-                            {displayedBills.map((row, idx) => (
+                            {!initialLoading && items.map((row, idx) => (
                                 <tr key={row._id} className="border-t min-h-[60px] bg-white">
                                     <td className="pl-4 py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{row.billType}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.frequency}</td>
-                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[120px]">{row.amount || 'N/A'}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.amountPaid || '₦0.00'}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.paymentType || 'N/A'}</td>
+                                    <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[120px]">₦{row.amount.toLocaleString()}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">₦{row.amountPaid.toLocaleString()}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.paymentType}</td>
                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">
                                         <div style={{ width: 160 }}>
-                                            {/** derive colors from paymentStatus: Paid (green), Pending (warning), Over Due (error) */}
                                             {(() => {
-                                                const ps = row.paymentStatus || row.status || 'Pending'
-                                                const bg = ps === 'Paid' ? '#CDEADD' : ps === 'Over Due' ? '#FDF2F2' : '#FCF3EB'
-                                                const color = ps === 'Paid' ? '#039855' : ps === 'Over Due' ? '#D92D20' : '#DC6803'
+                                                const ps = row.status
+                                                const bg = ps === 'paid' ? '#CDEADD' : ps === 'pending' ? '#FCF3EB' : '#FDF2F2'
+                                                const color = ps === 'paid' ? '#039855' : ps === 'pending' ? '#DC6803' : '#D92D20'
                                                 return (
                                                     <>
                                                         <button
@@ -213,10 +243,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                                 <button
                                                                     className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none mb-1 cursor-pointer text-left"
                                                                     onClick={() => {
-                                                                        // set to Paid
-                                                                        setBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Paid', status: 'Active' } : bill))
-                                                                        setDisplayedBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Paid', status: 'Active' } : bill))
-                                                                        setPaymentStatusDropdown(null)
+                                                                        handleStatusChange(row._id, 'paid', row.billingId)
                                                                     }}
                                                                 >
                                                                     Paid
@@ -224,24 +251,10 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                                 <button
                                                                     className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none cursor-pointer text-left"
                                                                     onClick={() => {
-                                                                        // set to Pending
-                                                                        setBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Pending', status: 'Active' } : bill))
-                                                                        setDisplayedBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Pending', status: 'Active' } : bill))
-                                                                        setPaymentStatusDropdown(null)
+                                                                        handleStatusChange(row._id, 'pending', row.billingId)
                                                                     }}
                                                                 >
                                                                     Pending
-                                                                </button>
-                                                                <button
-                                                                    className="h-[25px] hover:bg-whiteblue rounded px-2 font-normal text-[10px] leading-[150%] text-[#4E4E4E] bg-transparent border-none cursor-pointer text-left"
-                                                                    onClick={() => {
-                                                                        // set to Over Due
-                                                                        setBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Over Due', status: 'Inactive' } : bill))
-                                                                        setDisplayedBills(prev => prev.map(bill => bill._id === row._id ? { ...bill, paymentStatus: 'Over Due', status: 'Inactive' } : bill))
-                                                                        setPaymentStatusDropdown(null)
-                                                                    }}
-                                                                >
-                                                                    Over Due
                                                                 </button>
                                                             </div>,
                                                             document.body
@@ -251,10 +264,10 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                             })()}
                                         </div>
                                     </td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.paymentDate || 'N/A'}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.rentDuration || 'N/A'}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.startDate || 'N/A'}</td>
-                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.dueDate || 'N/A'}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{new Date(row.paymentDate).toLocaleDateString()}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{row.residencyDuration} Months</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{new Date(row.startDate).toLocaleDateString()}</td>
+                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] w-[120px]">{new Date(row.dueDate).toLocaleDateString()}</td>
                                     <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
                                         <button
                                             className="ml-4"
@@ -296,14 +309,14 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                                         <div
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
-                                                                deleteBill(row._id)
+                                                                // Note: Delete functionality would need API implementation
                                                                 setActionDropdown(null)
                                                             }}
                                                             className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                                                         >
                                                             <DeleteIcon className={activeDelete ? '#d92d20' : "#4e4e4e"} />
                                                             <p className={`${activeDelete ? 'text-error' : "text-GrayHomz"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
-                                                                Remove Resident
+                                                                Remove Record
                                                             </p>
                                                         </div>
                                                     </div>
@@ -318,7 +331,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal }) => {
                                 <tr>
                                     <td colSpan={12} className="py-2">
                                         <div ref={loaderRef} className="h-1" />
-                                        {isLoading && (
+                                        {(pageLoading || isAppending) && (
                                             <div className="w-full max-w-[1000px] flex items-center justify-center py-3">
                                                 <LoadingSpinner size={24} />
                                             </div>

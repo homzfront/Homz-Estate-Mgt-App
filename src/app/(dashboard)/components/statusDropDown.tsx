@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { RefObject, useState, useRef, useEffect } from "react";
 import ReactDOM from 'react-dom';
 // import Image from "next/image";

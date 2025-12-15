@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import ArrowRight from '@/components/icons/arrowRight';

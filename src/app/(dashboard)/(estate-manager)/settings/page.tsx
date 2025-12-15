@@ -46,7 +46,7 @@ const Settings = () => {
     fetchMembers,
     sendInvitation,
     setRoleFilter,
-    hasAnyData,
+    // hasAnyData,
     hasEverHadData,
     updateMemberRole
   } = useMembersStore();

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import api from '@/utils/api'
 import { useSelectedCommunity } from './useSelectedCommunity'
 
@@ -106,48 +107,50 @@ interface BillListState {
     deleteBill: (billingId: string) => Promise<void>
 }
 
-export const useBillStore = create<BillListState>((set, get) => ({
-    items: [],
-    totalCount: 0,
-    totalPages: 1,
-    currentPage: 1,
-    limit: 10,
-    search: '',
-    frequency: '',
-    status: '',
-    residencyType: '',
-    initialLoading: true,
-    pageLoading: false,
-    isAppending: false,
-    error: null,
-    hasAnyData: false,
-    hasEverHadData: false,
-    lastFetch: { page: 1, limit: 10, search: '', frequency: '', status: '', residencyType: '' },
-    lastEstateId: null,
-    selectedCurrency: '₦',
+export const useBillStore = create<BillListState>()(
+    persist(
+        (set, get) => ({
+            items: [],
+            totalCount: 0,
+            totalPages: 1,
+            currentPage: 1,
+            limit: 10,
+            search: '',
+            frequency: '',
+            status: '',
+            residencyType: '',
+            initialLoading: true,
+            pageLoading: false,
+            isAppending: false,
+            error: null,
+            hasAnyData: false,
+            hasEverHadData: false,
+            lastFetch: { page: 1, limit: 10, search: '', frequency: '', status: '', residencyType: '' },
+            lastEstateId: null,
+            selectedCurrency: '₦',
 
-    setSearch: (value) => set({ search: value }),
-    setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
-    setFrequency: (value) => set({ frequency: value, currentPage: 1 }),
-    setStatus: (value) => set({ status: value, currentPage: 1 }),
-    setResidencyType: (value) => set({ residencyType: value, currentPage: 1 }),
-    clearFilters: () => set({
-        search: '',
-        frequency: '',
-        status: '',
-        residencyType: '',
-        currentPage: 1
-    }),
+            setSearch: (value) => set({ search: value }),
+            setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
+            setFrequency: (value) => set({ frequency: value, currentPage: 1 }),
+            setStatus: (value) => set({ status: value, currentPage: 1 }),
+            setResidencyType: (value) => set({ residencyType: value, currentPage: 1 }),
+            clearFilters: () => set({
+                search: '',
+                frequency: '',
+                status: '',
+                residencyType: '',
+                currentPage: 1
+            }),
 
-    reset: () => set({
-        items: [],
-        totalCount: 0,
-        totalPages: 1,
-        currentPage: 1,
-        initialLoading: true,
-        hasAnyData: false,
-        hasEverHadData: false,
-        lastEstateId: null,
+            reset: () => set({
+                items: [],
+                totalCount: 0,
+                totalPages: 1,
+                currentPage: 1,
+                initialLoading: true,
+                hasAnyData: false,
+                hasEverHadData: false,
+                lastEstateId: null,
     }),
 
     fetchBills: async (params = {}) => {
@@ -365,4 +368,15 @@ export const useBillStore = create<BillListState>((set, get) => ({
             throw new Error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage)
         }
     },
-}))
+}),
+{
+    name: 'bill-store',
+    partialize: (state) => ({
+        items: state.items,
+        totalCount: state.totalCount,
+        totalPages: state.totalPages,
+        selectedCurrency: state.selectedCurrency,
+        // Don't persist loading states or temporary data
+    }),
+}
+))

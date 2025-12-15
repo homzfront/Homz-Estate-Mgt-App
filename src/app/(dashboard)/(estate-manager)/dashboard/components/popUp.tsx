@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
@@ -11,9 +12,10 @@ interface PopUpProps {
     fromDefault?: boolean;
     setOpenRevoke: (val: boolean) => void;
     onClose?: () => void;
+    anchorRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevoke = false, onClose, anchorRef }: PopUpProps & { anchorRef: React.RefObject<HTMLElement> }) {
+function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevoke = false, onClose, anchorRef }: PopUpProps) {
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
     const [portalStyle, setPortalStyle] = useState<React.CSSProperties | null>(null);

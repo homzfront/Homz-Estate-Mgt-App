@@ -8,7 +8,6 @@ import HourGlassLoader from '@/components/general/hourGlassLoader'
 import useClickOutside from '@/app/utils/useClickOutside'
 import CustomModal from '@/components/general/customModal'
 import ArrowDown from '@/components/icons/arrowDown'
-import Eye from '@/components/icons/Eye';
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
@@ -30,13 +29,12 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
     const [actionDropdown, setActionDropdown] = React.useState<number | null>(null)
     const [selectedRows, setSelectedRows] = React.useState<string[]>([])
     const [selectAll, setSelectAll] = React.useState(false)
-    const [activeView, setActiveView] = React.useState(false)
     const [activeEdit, setActiveEdit] = React.useState(false)
     const [activeDelete, setActiveDelete] = React.useState(false)
     const [modalOpen, setModalOpen] = React.useState(false)
     const [editModalOpen, setEditModalOpen] = React.useState(false)
     const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
-    const [deletingId, setDeletingId] = React.useState<string | null>(null)
+    // const [deletingId, setDeletingId] = React.useState<string | null>(null)
     const [updatingStatusId, setUpdatingStatusId] = React.useState<string | null>(null)
     const [deletingMultiple, setDeletingMultiple] = React.useState(false)
     const [statusDropdownPortalStyle, setStatusDropdownPortalStyle] = React.useState<React.CSSProperties | null>(null)
@@ -138,7 +136,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
 
     // Delete bill handler (single delete from action dropdown)
     const handleDeleteBill = async (id: string) => {
-        setDeletingId(id)
+        // setDeletingId(id)
         try {
             await deleteBill(id)
             toast.success('Bill deleted successfully', { position: 'top-center' })
@@ -147,7 +145,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
         } catch (error: any) {
             toast.error(error.message || 'Failed to delete bill', { position: 'top-center' })
         } finally {
-            setDeletingId(null)
+            // setDeletingId(null)
         }
     }
 
@@ -167,7 +165,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
                 try {
                     await deleteBill(billId)
                     deletedCount++
-                } catch (error: any) {
+                } catch {
                     failedBills.push(billId)
                 }
             }

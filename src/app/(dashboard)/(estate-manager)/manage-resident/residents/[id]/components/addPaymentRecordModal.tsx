@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import React from "react"
 import CustomModal from '@/components/general/customModal'
@@ -11,7 +12,7 @@ import { toast } from "react-hot-toast"
 import { ManagerResidentItem } from "@/store/useResidentsListStore"
 import api from '@/utils/api'
 import { PropertyDetailsType } from "./propertyDetails"
-import { BillItem } from "@/store/useBillStore"
+import { BillItem, useBillStore } from "@/store/useBillStore"
 
 interface FormData {
     paymentDate: string
@@ -38,8 +39,9 @@ interface Props {
 
 const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initialData, onSave, setShowData, residentData, selectedProperty }) => {
     const [loading, setLoading] = React.useState(false)
-    const [bills, setBills] = React.useState<BillItem[]>([])
     const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
+    
+    const { items: bills, fetchBills } = useBillStore();
     
     const [formData, setFormData] = React.useState<FormData>(() => ({
         paymentDate: (initialData?.paymentDate as string) || '',
@@ -54,43 +56,63 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
         dueDate: (initialData?.dueDate as string) || ''
     }))
 
-    // Fetch bills when modal opens
+    // Fetch bills when modal opens (only if not already loaded)
     React.useEffect(() => {
-        const fetchBills = async () => {
-            if (!residentData?.associatedIds?.organizationId || !residentData?.associatedIds?.estateId) return
-            
-            try {
-                const orgId = residentData.associatedIds.organizationId
-                const estateId = residentData.associatedIds.estateId
-                // Fetch all bills (limit 100 should be enough for dropdown)
-                const response = await api.get(`/community-manager/billings/organizations/${orgId}/estates/${estateId}?limit=100`)
-                if (response.data?.success) {
-                    setBills(response.data.data.results)
-                }
-            } catch (error) {
-                console.error("Failed to fetch bills", error)
-                toast.error("Failed to load bills")
-            }
+        if (isOpen && bills.length === 0 && residentData?.associatedIds?.organizationId && residentData?.associatedIds?.estateId) {
+            fetchBills({ limit: 100 })
         }
-
-        if (isOpen) {
-            fetchBills()
-        }
-    }, [isOpen, residentData])
+    }, [isOpen, bills.length, residentData, fetchBills])
 
     React.useEffect(() => {
         if (initialData) {
+            // Helper to format date to YYYY-MM-DD
+            const formatDateForInput = (dateValue: unknown): string => {
+                if (!dateValue) return ''
+                try {
+                    const date = new Date(dateValue as string | number | Date)
+                    if (isNaN(date.getTime())) return ''
+                    return date.toISOString().split('T')[0]
+                } catch {
+                    return ''
+                }
+            }
+
+            // Helper to map payment type
+            const mapPaymentType = (type: unknown): string => {
+                if (!type) return ''
+                const t = (type as string).toLowerCase()
+                if (t === 'part_payment') return 'Part-Payment'
+                if (t === 'full_payment') return 'Full-Payment'
+                return type as string
+            }
+
+            // Helper to map bill type
+            const mapBillType = (type: unknown): string => {
+                if (!type) return ''
+                const t = (type as string).toLowerCase()
+                if (t === 'security') return 'Estate Security'
+                // Add other mappings if needed
+                return (type as string).charAt(0).toUpperCase() + (type as string).slice(1)
+            }
+
+            // Helper to capitalize frequency
+            const capitalizeFrequency = (freq: unknown): string => {
+                if (!freq) return ''
+                const f = freq as string
+                return f.charAt(0).toUpperCase() + f.slice(1).toLowerCase()
+            }
+
             setFormData({
-                paymentDate: (initialData.paymentDate as string) || '',
-                billType: (initialData.billType as string) || '',
-                frequency: (initialData.frequency as string) || '',
-                periodNumber: (initialData.periodNumber as string) || '',
-                amount: (initialData.amount as string) || '',
-                amountPaid: (initialData.amountPaid as string) || '',
-                paymentType: (initialData.paymentType as string) || '',
-                residencyDuration: (initialData.residencyDuration as string) || '',
-                startDate: (initialData.startDate as string) || '',
-                dueDate: (initialData.dueDate as string) || ''
+                paymentDate: formatDateForInput(initialData.paymentDate),
+                billType: mapBillType(initialData.billType),
+                frequency: capitalizeFrequency(initialData.frequency),
+                periodNumber: initialData.periodNumber?.toString() || '1',
+                amount: initialData.amount?.toString() || '',
+                amountPaid: initialData.amountPaid?.toString() || '',
+                paymentType: mapPaymentType(initialData.paymentType),
+                residencyDuration: initialData.residencyDuration?.toString() || '',
+                startDate: formatDateForInput(initialData.startDate),
+                dueDate: formatDateForInput(initialData.dueDate)
             })
         }
     }, [initialData])
@@ -269,7 +291,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             }
 
             // Use selected bill's ID if available, otherwise fallback (though user should select a bill)
-            const billingId = selectedBill?._id || (initialData?._id as string)
+            const billingId = initialData?.billingId as string || selectedBill?._id
 
             if (!billingId) {
                 toast.error('Please select a valid bill type')
@@ -309,15 +331,22 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 ...(residencyTypeDetails && { residencyTypeDetails })
             }
 
-            await api.post(`/community-manager/bill-payment/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
+            if (initialData) {
+                // Edit: PATCH request
+                await api.patch(`/community-manager/bill-payment/${initialData._id}/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
+            } else {
+                // Add: POST request
+                await api.post(`/community-manager/bill-payment/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
+            }
 
             onSave?.(formData)
             setShowSuccess(true)
             onRequestClose()
-        } catch (error: any) {
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred while creating your profile";
+        } catch (error: unknown) {
+            const err = error as any
+            const backendMessage = err?.response?.data?.message;
+            const backendMessageTwo = err?.response?.data?.message?.[0];
+            const fallbackMessage = err?.message || "An error occurred while creating your profile";
 
             toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
                 position: "top-center",
@@ -335,19 +364,6 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             setLoading(false);
         }
     }
-
-    const canSave = !!(
-        formData.paymentDate &&
-        formData.billType &&
-        formData.frequency &&
-        formData.periodNumber &&
-        formData.amount &&
-        formData.amountPaid &&
-        formData.paymentType &&
-        formData.residencyDuration &&
-        formData.startDate &&
-        formData.dueDate
-    )
 
     // Map bills to options
     const billTypeOptions = bills.filter(bill => {
@@ -440,7 +456,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                     {/* close button top-right like design */}
                     <button onClick={onRequestClose} className='absolute right-4 top-4 text-GrayHomz hover:text-BlackHomz'><CloseTransluscentIcon /></button>
 
-                    <h2 className='text-[16px] font-medium text-BlackHomz'>Offline Bill Payment Record</h2>
+                    <h2 className='text-[16px] font-medium text-BlackHomz'>{initialData ? 'Edit' : 'Add'} Offline Bill Payment Record</h2>
                     <p className='mt-1 text-[13px] font-normal text-GrayHomz mr-[10%] md:mr-[20%]'>Manually log payments made outside the platform to keep records up-to-date and complete.</p>
 
                     <div className='mt-6'>

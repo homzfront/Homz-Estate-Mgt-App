@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import Image from 'next/image';
-import { Resident } from './resident';
+// import { Resident } from './resident';
 import { useRouter } from 'next/navigation';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
 import { useAccessStore } from '@/store/useAccessStore';
 import PopUp from './popUp';
-import useClickOutside from '@/app/utils/useClickOutside';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { LoaderIcon } from 'react-hot-toast';
@@ -189,7 +188,7 @@ const Table = () => {
                                     <td colSpan={13} className="text-center text-sm text-GrayHomz py-8">No match found for &quot;{search}&quot;</td>
                                 </tr>
                             )}
-                            {!pageLoading && items.map((residentItem, index) => {
+                            {!pageLoading && items.map((residentItem) => {
                                 const name = `${residentItem.firstName || ''} ${residentItem.lastName || ''}`.trim() || '-';
                                 const zone = residentItem.zone || 'N/A';
                                 const street = residentItem.streetName || '-';
@@ -198,7 +197,6 @@ const Table = () => {
                                 const email = residentItem.email || '-';
                                 const phone = '-';
                                 const image = '/AvatarEmpty.png';
-                                const rowResident: Resident = { name, zone, street, building, apartment, email, phone, image };
                                 return (
                                     <tr
                                         key={residentItem._id}

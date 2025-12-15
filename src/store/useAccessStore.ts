@@ -1,4 +1,4 @@
-import { Resident } from '@/app/(dashboard)/(estate-manager)/manage-resident/residents/components/resident';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Visitor } from '@/app/(dashboard)/components/visitors';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -196,10 +196,11 @@ export const useAccessStore = create<UseAccessStoreType>()(
                         error: null,
                         lastFetch: { page, limit, accessStatus, manualOnly },
                     }));
-                } catch (err: any) {
-                    const backendMessage = err?.response?.data?.message;
-                    const backendMessageTwo = err?.response?.data?.message?.[0];
-                    const fallbackMessage = err?.message || "Failed to fetch access records";
+                } catch (err: unknown) {
+                    const error = err as any
+                    const backendMessage = error?.response?.data?.message;
+                    const backendMessageTwo = error?.response?.data?.message?.[0];
+                    const fallbackMessage = error?.message || "Failed to fetch access records";
                     set({
                         error: backendMessage || backendMessageTwo || fallbackMessage || '',
                         items: [],
@@ -250,11 +251,12 @@ export const useAccessStore = create<UseAccessStoreType>()(
                     // Refetch using last filters/tab to sync with server
                     const { lastFetch } = get();
                     await get().fetchManagerAccess({ ...lastFetch, silent: true });
-                } catch (err: any) {
-                    const initialMessage = err?.response?.data?.errors?.[0]?.message
-                    const backendMessage = err?.response?.data?.message;
-                    const backendMessageTwo = err?.response?.data?.message?.[0];
-                    const fallbackMessage = err?.message || "Failed to update status";
+                } catch (err: unknown) {
+                    const error = err as any
+                    const initialMessage = error?.response?.data?.errors?.[0]?.message
+                    const backendMessage = error?.response?.data?.message;
+                    const backendMessageTwo = error?.response?.data?.message?.[0];
+                    const fallbackMessage = error?.message || "Failed to update status";
                     set({ error: initialMessage || backendMessage || backendMessageTwo || fallbackMessage || '' });
                     // Optionally refetch to sync with server
                     // await get().fetchManagerAccess({ silent: true });

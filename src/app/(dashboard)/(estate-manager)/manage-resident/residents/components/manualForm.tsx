@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AddBlue from '@/components/icons/addBlue';
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission';
 import CustomInput from '@/components/general/customInput';
 import DotLoader from '@/components/general/dotLoader';
@@ -134,7 +133,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
     const handleResidenceChange = (id: string, field: keyof ResidenceForm, value: string) => {
         setResidences(prev => prev.map(res => {
             if (res.id === id) {
-                let updatedRes = { ...res, [field]: value };
+                const updatedRes = { ...res, [field]: value };
 
                 // Handle cascading clears and auto-fills
                 if (field === 'selectZone') {

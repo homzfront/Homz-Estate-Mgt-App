@@ -1,7 +1,7 @@
 import React from 'react'
 import LongLeftArrow from '@/components/icons/longLeftArrow'
 import Tower from '@/components/icons/tower'
-import ProfileUser from '@/components/icons/ProfileUser'
+// import ProfileUser from '@/components/icons/ProfileUser'
 import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter'
 
 export type PropertyDetailsType = {

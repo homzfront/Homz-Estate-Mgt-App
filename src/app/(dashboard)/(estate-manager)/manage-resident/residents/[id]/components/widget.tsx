@@ -9,7 +9,7 @@ import Billing from "./billing";
 import AddPaymentRecordModal from './addPaymentRecordModal'
 import { ManagerResidentItem } from "@/store/useResidentsListStore";
 import BillPaymentPropertyList from "./billPaymentPropertyList";
-import ArrowLeft from "@/components/icons/arrowLeft";
+import { useBillPaymentStore } from '@/store/useBillPaymentStore'
 import ArrowLeft16Long from "@/components/icons/arrowLeft16Long";
 
 interface widgetProps {
@@ -26,6 +26,22 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
     
     const [showBillingDetails, setShowBillingDetails] = React.useState(false)
     const [selectedBillingProperty, setSelectedBillingProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
+
+    const { hasAnyData, fetchBillPayments } = useBillPaymentStore()
+
+    // Fetch bill payment data when component mounts (legacy, for backward compatibility)
+    React.useEffect(() => {
+        if (residentData?._id && !showBillingDetails) {
+            fetchBillPayments({ residentId: residentData._id, silent: true })
+        }
+    }, [residentData?._id, showBillingDetails, fetchBillPayments])
+
+    // Set showData when bill payments are loaded
+    React.useEffect(() => {
+        if (hasAnyData) {
+            setShowData(true)
+        }
+    }, [hasAnyData])
 
     const openAddModal = () => {
         setModalInitialData(undefined)
@@ -50,17 +66,18 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
     const openBillingDetails = (prop: PropertyDetailsType) => {
         setSelectedBillingProperty(prop)
         setShowBillingDetails(true)
-        setShowData(false)
+        setShowData(true) // Show data immediately (cached or fresh)
     }
 
     const closeBillingDetails = () => {
         setSelectedBillingProperty(undefined)
         setShowBillingDetails(false)
+        setShowData(false)
     }
 
     return (
         <div>
-            <div className="inline-block min-w-[620px] w-[100%] h-auto shadow-md bg-white rounded-[12px]">
+            <div className="inline-block min-w-[320px] md:min-w-[620px] w-[100%] h-auto shadow-md bg-white rounded-[12px]">
                 {!showPropertyDetails && !(step === 1 && showBillingDetails) &&
                     <div className="w-full p-6 border-b border-[#E6E6E6] flex items-center justify-between">
                         <div className="flex gap-2">
@@ -78,10 +95,10 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                             </div>
                         </div>
                         <div className="flex gap-2 items-center">
-                            {/* Only show Add button if not in list view for billing */}
-                            {/* {step !== 1 && ( */}
+                            {/* Only show Add button when an apartment is selected in billing */}
+                            {step === 1 && showBillingDetails && selectedBillingProperty && (
                                 <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /> Add new payment record </button>
-                            {/* )} */}
+                            )}
                             <button className="p-2 rounded-[8px] bg-[#EEF5FF]"><ExportIcon className="#006AFF" /></button>
                         </div>
                     </div>
@@ -109,7 +126,12 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                     )}
                     {step === 1 && showBillingDetails && (
                         <div>
-                             <Billing onOpenPaymentModal={openEditModal} showData={showData} />
+                             <Billing 
+                                onOpenPaymentModal={openEditModal} 
+                                showData={showData} 
+                                residentId={residentData?._id} 
+                                apartmentId={selectedBillingProperty?.id ? String(selectedBillingProperty.id) : undefined}
+                            />
                         </div>
                     )}
                 </div>
@@ -121,9 +143,16 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                 setShowData={setShowData}
                 residentData={residentData}
                 selectedProperty={selectedBillingProperty}
-                onSave={(d) => {
-                    // placeholder: could dispatch update to table or API
-                    console.log('saved payment record', d)
+                onSave={() => {
+                    // Refetch billing data after adding payment record
+                    if (residentData?._id && selectedBillingProperty?.id) {
+                        fetchBillPayments({ 
+                            residentId: residentData._id, 
+                            apartmentId: String(selectedBillingProperty.id),
+                            silent: false 
+                        })
+                    }
+                    setShowData(true)
                 }}
             />
         </div>

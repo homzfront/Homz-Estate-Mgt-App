@@ -13,7 +13,6 @@ import ProfileWhite from '@/components/icons/profileWhite';
 import RevokeAccess from '@/components/icons/revokeAccess';
 import { formatDateDisplay, formatExpectedRange } from '@/app/utils/formatDateTime';
 import PopUp from '../../dashboard/components/popUp';
-import useClickOutside from '@/app/utils/useClickOutside';
 import StatusDropDown from '@/app/(dashboard)/components/statusDropDown';
 import toast from 'react-hot-toast';
 import api from '@/utils/api';

@@ -29,7 +29,7 @@ const BillPaymentPropertyList: React.FC<Props> = ({ residentData, onSelectProper
                 street: residentData.streetName,
                 zone: residentData.zone,
                 ownershipType: residentData.ownershipType,
-                residencyType: (residentData as any).residencyType,
+                residencyType: (residentData as ManagerResidentItem & { residencyType?: string }).residencyType,
                 rentDurationType: residentData?.rentedDetails?.rentDurationType ? residentData.rentedDetails.rentDurationType : undefined,
                 rentDuration: residentData?.rentedDetails?.rentDuration ? residentData.rentedDetails.rentDuration : undefined
             }

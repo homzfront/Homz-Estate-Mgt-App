@@ -11,6 +11,7 @@ import AddPaymentRecordModal from "./addPaymentRecordModal";
 import AddIcon from "@/components/icons/addIcon";
 import BillPaymentPropertyList from "./billPaymentPropertyList";
 import ArrowLeft16Long from "@/components/icons/arrowLeft16Long";
+import { useBillPaymentStore } from '@/store/useBillPaymentStore'
 
 
 interface widgetMobileProps {
@@ -32,6 +33,7 @@ const WidgetMobile = ({
     const [showBillingDetails, setShowBillingDetails] = React.useState(false)
     const [selectedBillingProperty, setSelectedBillingProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
     
+    const { fetchBillPayments } = useBillPaymentStore()
     const route = useRouter()
 
     const goBack = () => {
@@ -61,12 +63,13 @@ const WidgetMobile = ({
     const openBillingDetails = (prop: PropertyDetailsType) => {
         setSelectedBillingProperty(prop)
         setShowBillingDetails(true)
-        setShowData(false)
+        setShowData(true) // Show data immediately (cached or fresh)
     }
 
     const closeBillingDetails = () => {
         setSelectedBillingProperty(undefined)
         setShowBillingDetails(false)
+        setShowData(false)
     }
 
     const openAddModal = () => {
@@ -144,7 +147,12 @@ const WidgetMobile = ({
                                 <BillPaymentPropertyList residentData={residentData} onSelectProperty={openBillingDetails} />
                             )}
                             {showBillingDetails && (
-                                <Billing onOpenPaymentModal={openEditModal} showData={showData} />
+                                <Billing 
+                                    onOpenPaymentModal={openEditModal} 
+                                    showData={showData} 
+                                    residentId={residentData?._id}
+                                    apartmentId={selectedBillingProperty?.id ? String(selectedBillingProperty.id) : undefined}
+                                />
                             )}
                         </div>
                     </div>
@@ -225,9 +233,16 @@ const WidgetMobile = ({
                 setShowData={setShowData}
                 residentData={residentData}
                 selectedProperty={selectedBillingProperty}
-                onSave={(d) => {
-                    // placeholder: could dispatch update to table or API
-                    console.log('saved payment record', d)
+                onSave={() => {
+                    // Refetch billing data after adding payment record
+                    if (residentData?._id && selectedBillingProperty?.id) {
+                        fetchBillPayments({ 
+                            residentId: residentData._id, 
+                            apartmentId: String(selectedBillingProperty.id),
+                            silent: false 
+                        })
+                    }
+                    setShowData(true)
                 }}
             />
         </div>

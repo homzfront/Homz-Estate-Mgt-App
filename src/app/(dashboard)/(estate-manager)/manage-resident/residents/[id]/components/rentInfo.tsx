@@ -35,7 +35,7 @@ const RentInfo: React.FC<RentInfoProps> = ({ residentData, onOpenProperty, prope
                 street: residentData.streetName,
                 zone: residentData.zone,
                 ownershipType: residentData.ownershipType,
-                residencyType: (residentData as any).residencyType
+                residencyType: (residentData as ManagerResidentItem & { residencyType?: string }).residencyType
             }
         });
 
