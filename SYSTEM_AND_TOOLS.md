@@ -74,4 +74,4 @@
 
 Explain First Tasks & Expectations ( Olayemi)
 will be to access project which i have given her already
-cloning, testing and running app. 
+Cloning, testing and running app. 
