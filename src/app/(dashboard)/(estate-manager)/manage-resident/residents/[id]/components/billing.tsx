@@ -11,18 +11,19 @@ interface Props {
     showData: boolean
     residentId?: string
     apartmentId?: string
+    openAddModal?: () => void
 }
 
-const Billing: React.FC<Props> = ({ onOpenPaymentModal, showData, residentId, apartmentId }) => {
+const Billing: React.FC<Props> = ({ openAddModal, onOpenPaymentModal, showData, residentId, apartmentId }) => {
     const { initialLoading, hasAnyData, items, lastApartmentId, fetchBillPayments, stats, isFilterActive } = useBillPaymentStore()
-    
+
     // Fetch data when component mounts or when apartmentId or residentId changes
     React.useEffect(() => {
         if (residentId && apartmentId) {
             const state = useBillPaymentStore.getState()
             const cacheKey = apartmentId
             const cachedData = state.apartmentCache[cacheKey]
-            
+
             if (cachedData) {
                 // Immediately load cached data to prevent empty state flash
                 useBillPaymentStore.setState({
@@ -45,17 +46,17 @@ const Billing: React.FC<Props> = ({ onOpenPaymentModal, showData, residentId, ap
             }
         }
     }, [apartmentId, residentId, fetchBillPayments])
-    
+
     // Only show data if it's for the current apartment
     const isDataForCurrentApartment = lastApartmentId === apartmentId
     const currentItems = isDataForCurrentApartment ? items : []
     const currentHasAnyData = isDataForCurrentApartment && hasAnyData && currentItems.length > 0
-    
+
     // Show skeleton only when truly loading for the current apartment without any data
     const showSkeleton = initialLoading && (!isDataForCurrentApartment || currentItems.length === 0)
     // Determine if we should show the data view
     const shouldShowData = showData || currentHasAnyData
-    
+
     return (
         <div className='min-w-[300px] w-full'>
             {
@@ -70,7 +71,7 @@ const Billing: React.FC<Props> = ({ onOpenPaymentModal, showData, residentId, ap
                             <ReceiptBillEmpty />
                         </button>
                         <p className='text-GrayHomz mt-4'>Bill payment records will be displayed here when added</p>
-                        <button onClick={onOpenPaymentModal} className=' text-BlueHomz flex justify-center items-center gap-2'><AddIcon /> Add Payment Record</button>
+                        <button onClick={openAddModal} className=' text-BlueHomz flex justify-center items-center gap-2'><AddIcon /> Add Payment Record</button>
                     </div>
                 ) : (
                     <>
@@ -139,7 +140,7 @@ const Billing: React.FC<Props> = ({ onOpenPaymentModal, showData, residentId, ap
                                     <ReceiptBillEmpty />
                                 </button>
                                 <p className='text-GrayHomz mt-4'>No bill payment records found for this apartment</p>
-                                <button onClick={onOpenPaymentModal} className=' text-BlueHomz flex justify-center items-center gap-2'><AddIcon /> Add Payment Record</button>
+                                <button onClick={openAddModal} className=' text-BlueHomz flex justify-center items-center gap-2'><AddIcon /> Add Payment Record</button>
                             </div>
                         )}
                     </>
