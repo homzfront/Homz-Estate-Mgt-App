@@ -14,6 +14,7 @@ import api from '@/utils/api'
 import { PropertyDetailsType } from "./propertyDetails"
 import { BillItem, useBillStore } from "@/store/useBillStore"
 import capitalizeFirstLetter from "@/app/utils/capitalizeFirstLetter"
+import formatBillType from "@/app/utils/formatBillType"
 
 interface FormData {
     paymentDate: string
@@ -40,9 +41,8 @@ interface Props {
 }
 
 const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initialData, onSave, setShowData, residentData, selectedProperty }) => {
-    const [loading, setLoading] = React.useState(false)
-    const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
-    console.log("selectedProperty:", selectedProperty)
+    const [loading, setLoading] = React.useState(false);
+    const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null);
     const { items: bills, fetchBills } = useBillStore();
 
     const [formData, setFormData] = React.useState<FormData>(() => ({
@@ -92,10 +92,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             // Helper to map bill type
             const mapBillType = (type: unknown): string => {
                 if (!type) return ''
-                const t = (type as string).toLowerCase()
-                if (t === 'security') return 'Estate Security'
-                // Add other mappings if needed
-                return (type as string).charAt(0).toUpperCase() + (type as string).slice(1)
+                return formatBillType(type as string)
             }
 
             // Helper to capitalize frequency

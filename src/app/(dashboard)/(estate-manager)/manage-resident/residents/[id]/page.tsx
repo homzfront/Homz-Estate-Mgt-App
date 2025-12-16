@@ -16,7 +16,7 @@ const ResidentProfile = () => {
     const router = useRouter();
     const { resident } = useAccessStore();
     return (
-        <div className="max-w-full">
+        <div className="w-full">
             <div className="w-full">
                 <div className="hidden md:block">
                     <button onClick={() => router.back()} className="text-sm text-GrayHomz font-normal flex items-center gap-2 p-8">

@@ -7,8 +7,8 @@ import ArrowDown from '@/components/icons/arrowDown'
 import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
 import EyeIcon from '@/components/icons/Eye';
-import CustomModal from '@/components/general/customModal';
-import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
+import BillingDetailsModal from './billingDetailsModal';
+import formatBillType from '@/app/utils/formatBillType';
 import { useBillPaymentStore } from '@/store/useBillPaymentStore'
 
 interface Props {
@@ -130,6 +130,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                 key,
                 items: groupItems,
                 billType: first.billType,
+                formattedBillType: formatBillType(first.billType),
                 frequency: first.frequency,
                 amount: totalAmount,
                 amountPaid: totalPaid,
@@ -154,7 +155,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
     return (
         <div className="mt-6 w-full mx-auto mb-[150px] md:mb-0">
             <div className="border overflow-x-auto scrollbar-container">
-                <div className="w-full min-w-[1000px]"> 
+                <div className="w-full md:w-[200%]">
                     <table className="w-full">
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
@@ -195,7 +196,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                     <React.Fragment key={group.key}>
                                         {/* Parent Row */}
                                         <tr className="border-t min-h-[60px] bg-white hover:bg-gray-50 transition-colors">
-                                            <td className="pl-4 py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{group.billType}</td>
+                                            <td className="pl-4 py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{group.formattedBillType}</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.frequency}</td>
                                             <td className="py-[15px] text-BlueHomz font-[600] text-[13px] cursor-pointer" onClick={() => toggleRow(group.key)}>
                                                 <div className="flex items-center gap-2">
@@ -388,114 +389,11 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
             </div>
 
             {/* Details Modal */}
-            <CustomModal isOpen={detailsModalOpen} onRequestClose={() => setDetailsModalOpen(false)}>
-                <div className='p-4 rounded-[12px] bg-white w-[350px] md:w-[550px] mb-[50px] md:mb-0 relative'>
-                    <button onClick={() => setDetailsModalOpen(false)} className='absolute right-4 top-4 text-GrayHomz hover:text-BlackHomz'>
-                        <CloseTransluscentIcon />
-                    </button>
-
-                    <h2 className='text-[16px] font-medium text-BlackHomz'>Billing Period Details</h2>
-                    <p className='mt-1 text-[13px] font-normal text-GrayHomz mr-[10%] md:mr-[20%]'>View detailed information for this billing period.</p>
-
-                    {selectedGroup && (
-                        <div className='mt-6 space-y-4'>
-                            <div className='bg-inputBg py-5 px-4 rounded-[8px] space-y-4'>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Bill Type</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.billType}</p>
-                                    </div>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Frequency</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.frequency}</p>
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Bill Amount</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.currency}{selectedGroup.amount.toLocaleString()}</p>
-                                    </div>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Total Amount Paid</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.currency}{selectedGroup.amountPaid.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Outstanding Balance</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.currency}{selectedGroup.outstanding.toLocaleString()}</p>
-                                    </div>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Status</label>
-                                        <div className='mt-1'>
-                                            <div 
-                                                style={{
-                                                    background: getStatusStyle(selectedGroup.status).bg,
-                                                    color: getStatusStyle(selectedGroup.status).color,
-                                                    padding: '4px 8px',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    width: 'fit-content',
-                                                    fontWeight: 500
-                                                }}
-                                            >
-                                                {getStatusStyle(selectedGroup.status).label}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Payment Type</label>
-                                        <p className='text-BlackHomz font-medium mt-1'>{selectedGroup.paymentType}</p>
-                                    </div>
-                                    <div>
-                                        <label className='text-sm text-GrayHomz font-medium'>Mode of Payment</label>
-                                        <p className='text-BlackHomz font-medium mt-1 capitalize'>[{selectedGroup.paymentMode}]</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {selectedGroup.items.length > 1 && (
-                                <div className='bg-inputBg py-5 px-4 rounded-[8px]'>
-                                    <h3 className='text-[14px] font-medium text-BlackHomz mb-4'>Payment History</h3>
-                                    <div className='space-y-3'>
-                                        {selectedGroup.items.map((item: any, index: number) => {
-                                            const sortedAsc = [...selectedGroup.items].sort((a: any, b: any) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime());
-                                            let runningPaid = 0;
-                                            const itemWithBalance = sortedAsc.map((i: any) => {
-                                                runningPaid += i.amountPaid;
-                                                return { ...i, balanceAfter: Math.max(0, selectedGroup.amount - runningPaid) };
-                                            });
-                                            const displayItem = itemWithBalance.find((i: any) => i._id === item._id);
-                                            const balance = displayItem ? displayItem.balanceAfter : 0;
-
-                                            return (
-                                                <div key={item._id} className='border border-gray-200 rounded-[6px] p-3'>
-                                                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                                                        <div>
-                                                            <label className='text-xs text-GrayHomz font-medium'>Amount Paid</label>
-                                                            <p className='text-BlackHomz font-medium text-sm mt-1'>{selectedGroup.currency}{item.amountPaid.toLocaleString()}</p>
-                                                        </div>
-                                                        <div>
-                                                            <label className='text-xs text-GrayHomz font-medium'>Outstanding Balance</label>
-                                                            <p className='text-BlackHomz font-medium text-sm mt-1'>{selectedGroup.currency}{balance.toLocaleString()}</p>
-                                                        </div>
-                                                        <div>
-                                                            <label className='text-xs text-GrayHomz font-medium'>Payment Date</label>
-                                                            <p className='text-BlackHomz font-medium text-sm mt-1'>{new Date(item.paymentDate).toLocaleDateString()}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </CustomModal>
+            <BillingDetailsModal
+                isOpen={detailsModalOpen}
+                onRequestClose={() => setDetailsModalOpen(false)}
+                selectedGroup={selectedGroup}
+            />
         </div>
     )
 }
