@@ -13,6 +13,7 @@ import { ManagerResidentItem } from "@/store/useResidentsListStore"
 import api from '@/utils/api'
 import { PropertyDetailsType } from "./propertyDetails"
 import { BillItem, useBillStore } from "@/store/useBillStore"
+import { useBillPaymentStore } from "@/store/useBillPaymentStore"
 import capitalizeFirstLetter from "@/app/utils/capitalizeFirstLetter"
 import formatBillType from "@/app/utils/formatBillType"
 
@@ -44,6 +45,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     const [loading, setLoading] = React.useState(false);
     const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null);
     const { items: bills, fetchBills } = useBillStore();
+    const { fetchBillPayments } = useBillPaymentStore();
 
     const [formData, setFormData] = React.useState<FormData>(() => ({
         paymentDate: (initialData?.paymentDate as string) || '',
@@ -59,12 +61,36 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
         dueDate: (initialData?.dueDate as string) || ''
     }))
 
+    const resetForm = () => {
+        setFormData({
+            paymentDate: '',
+            billType: '',
+            residencyType: '',
+            frequency: '',
+            periodNumber: '',
+            amount: '',
+            amountPaid: '',
+            paymentType: '',
+            residencyDuration: '',
+            startDate: '',
+            dueDate: ''
+        });
+        setSelectedBill(null);
+    };
+
     // Fetch bills when modal opens (only if not already loaded)
     React.useEffect(() => {
         if (isOpen && bills.length === 0 && residentData?.associatedIds?.organizationId && residentData?.associatedIds?.estateId) {
             fetchBills({ limit: 100 })
         }
     }, [isOpen, bills.length, residentData, fetchBills])
+
+    // Reset form when opening for add (no initialData)
+    React.useEffect(() => {
+        if (isOpen && !initialData) {
+            resetForm();
+        }
+    }, [isOpen, initialData])
 
     React.useEffect(() => {
         if (initialData) {
@@ -359,14 +385,23 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 amountPaid: parseFloat(formData.amountPaid),
                 paymentType: formData.paymentType,
                 startDate: formData.startDate,
-                residencyDuration: selectedProperty?.details?.ownershipType === "owned" ? 0 : parseInt(formData.residencyDuration),
-                dueDate: selectedProperty?.details?.ownershipType === "owned" ? "" : formData.dueDate,
+                // residencyDuration: selectedProperty?.details?.ownershipType === "owned" ? null : parseInt(formData.residencyDuration),
+                // dueDate: selectedProperty?.details?.ownershipType === "owned" ? null : formData.dueDate,
+                ...(selectedProperty?.details?.ownershipType !== "owned" && {
+                    residencyDuration: parseInt(formData.residencyDuration),
+                    dueDate: formData.dueDate,
+                }),
                 billingStartDate: selectedBill?.billingStartDate,
                 billingEndDate: selectedBill?.billingEndDate,
                 isResidencyType,
                 ...(residencyTypeDetails && { residencyTypeDetails })
             }
+            // ...(residencyTypeDetails && { residencyTypeDetails }),
 
+            //     ...(selectedProperty?.details?.ownershipType !== "owned" && {
+            //     residencyDuration: parseInt(formData.residencyDuration),
+            //     dueDate: formData.dueDate,
+            // })
             if (initialData) {
                 // Edit: PATCH request
                 await api.patch(`/community-manager/bill-payment/${initialData._id}/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
@@ -374,6 +409,16 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 // Add: POST request
                 await api.post(`/community-manager/bill-payment/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
             }
+
+            // Fetch the data again for the table
+            if (residentData?._id && apartmentId) {
+                await fetchBillPayments({
+                    residentId: residentData._id,
+                    apartmentId: String(apartmentId),
+                    silent: true
+                })
+            }
+            setShowData(true)
 
             onSave?.(formData)
             setShowSuccess(true)
@@ -490,6 +535,8 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
 
     console.log("selectedProperty:", selectedProperty)
     console.log("selectedBill:", selectedBill)
+    console.log("initialData:", initialData)
+    console.log("residentData:", residentData)
 
     return (
         <>

@@ -40,6 +40,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
         fetchBillPayments
     } = useBillPaymentStore();
 
+    console.log("Bill Payments:", items)
+
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
     })
@@ -126,6 +128,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
             // Latest payment date
             const latestDate = first.paymentDate;
 
+            const paidItem = groupItems.find(item => item.status?.toLowerCase() === 'paid');
+
             return {
                 key,
                 items: groupItems,
@@ -135,7 +139,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                 amount: totalAmount,
                 amountPaid: totalPaid,
                 outstanding: outstanding,
-                paymentType: groupItems.length > 1 ? 'Part Payment' : first.paymentType,
+                paymentType: paidItem ? paidItem.paymentType : (groupItems.length > 1 ? 'Part Payment' : first.paymentType),
                 paymentMode: first.paymentMode, 
                 status: status, 
                 paymentDate: latestDate,
@@ -159,9 +163,9 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                     <table className="w-full">
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
-                                <th className="pl-4 text-left w-auto md:w-[140px]">Bill Type</th>
+                                <th className="pl-4 text-left w-auto md:w-[140px]">Bill Amount</th>
+                                <th className="hidden md:table-cell text-left w-[140px]">Bill Type</th>
                                 <th className="hidden md:table-cell text-left w-[120px]">Frequency</th>
-                                <th className="text-left w-[140px]">Bill Amount</th>
                                 <th className="hidden md:table-cell text-left w-[140px]">Payment Type</th>
                                 <th className="hidden md:table-cell text-left w-[140px]">Mode of Payment</th>
                                 <th className="hidden md:table-cell text-left w-[140px]">Amount Paid</th>
@@ -191,14 +195,12 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                             {!initialLoading && groupedItems.map((group) => {
                                 const isExpanded = expandedRows.has(group.key);
                                 const statusStyle = getStatusStyle(group.status);
-                                
+                                console.log("Rendering group:", group);
                                 return (
                                     <React.Fragment key={group.key}>
                                         {/* Parent Row */}
                                         <tr className="border-t min-h-[60px] bg-white hover:bg-gray-50 transition-colors">
-                                            <td className="pl-4 py-[15px] text-GrayHomz4 font-[500] text-[11px] w-auto md:w-[140px]">{group.formattedBillType}</td>
-                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.frequency}</td>
-                                            <td className="py-[15px] text-BlueHomz font-[600] text-[13px] cursor-pointer" onClick={() => toggleRow(group.key)}>
+                                            <td className="pl-4 py-[15px] text-BlueHomz font-[600] text-[13px] cursor-pointer" onClick={() => toggleRow(group.key)}>
                                                 <div className="flex items-center gap-2">
                                                     {group.currency}{group.amount.toLocaleString()}
                                                     <span className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
@@ -206,6 +208,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                     </span>
                                                 </div>
                                             </td>
+                                            <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] hidden md:table-cell w-[140px]">{group.formattedBillType}</td>
+                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.frequency}</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.paymentType}</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] capitalize">[{group.paymentMode}]</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{group.amountPaid.toLocaleString()}</td>
@@ -283,7 +287,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                 <tr key={item._id} className="bg-gray-50 border-t border-gray-100">
                                                     <td className="pl-4 py-[15px]"></td>
                                                     <td className="hidden md:table-cell py-[15px]"></td>
-                                                    <td className="py-[15px]"></td>
+                                                    <td className="hidden md:table-cell py-[15px]"></td>
                                                     <td className="hidden md:table-cell py-[15px]"></td>
                                                     <td className="hidden md:table-cell py-[15px]"></td>
                                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{item.amountPaid.toLocaleString()}</td>
@@ -303,7 +307,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                             {childStatusStyle.label}
                                                         </div>
                                                     </td>
-                                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{new Date(item.paymentDate).toLocaleDateString()}</td>
+                                                    <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{item.paymentDate ? new Date(item.paymentDate).toLocaleDateString() : '-'}</td>
                                                     <td className="py-[15px] relative">
                                                         {item.paymentMode === 'offline' && (
                                                             <>
