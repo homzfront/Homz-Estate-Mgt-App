@@ -49,7 +49,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
         setActionDropdown(null)
     })
     useClickOutside(statusDropDownRef as any, () => {
-        setStatusDropdown(null)
+        // setStatusDropdown(null)
     })
 
     // Calculate portal position for status dropdown
@@ -136,6 +136,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
 
     // Delete bill handler (single delete from action dropdown)
     const handleDeleteBill = async (id: string) => {
+        // setDeletingId(id)
         // setDeletingId(id)
         try {
             await deleteBill(id)

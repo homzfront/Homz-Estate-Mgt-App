@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 import VisitorShield from '@/components/icons/estateManager&Resident/desktop/visitorShield';
-import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+// import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 // import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
 // import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
@@ -41,17 +41,17 @@ const Data = [
         active: false,
         comingSoon: false,
     },
-    {
-        id: 3,
-        image: <DuesAndPaymentIcon />,
-        image2: (
-            <DuesAndPaymentIcon className='#FFFFFF' />
-        ),
-        link: "/resident/bills-payments",
-        name: "Bills & Payments",
-        active: false,
-        comingSoon: false,
-    },
+    // {
+    //     id: 3,
+    //     image: <DuesAndPaymentIcon />,
+    //     image2: (
+    //         <DuesAndPaymentIcon className='#FFFFFF' />
+    //     ),
+    //     link: "/resident/dues-payments",
+    //     name: "Dues & Payments",
+    //         active: false,
+    //         comingSoon: true,
+    // },
     // {
     //     id: 4,
     //     image: <Profile16Icon />,
