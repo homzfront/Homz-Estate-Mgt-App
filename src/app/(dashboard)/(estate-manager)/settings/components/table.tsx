@@ -32,7 +32,7 @@ const Table: React.FC<TableProps> = ({
 
     const options = [
         { id: 1, label: 'Admin', value: 'admin' },
-        { id: 2, label: 'Account Manager', value: 'account_manager' },
+        // { id: 2, label: 'Account Manager', value: 'account_manager' },
         { id: 4, label: 'Security', value: 'security' },
         { id: 5, label: 'Viewer', value: 'viewer' },
     ];
@@ -152,6 +152,7 @@ const Table: React.FC<TableProps> = ({
                                             borderColor="border-[#A9A9A9]"
                                             arrowColor="#A9A9A9"
                                             bgColor="bg-transparent"
+                                            displayMode="portal"
                                         />
                                     </div>
                                 )}

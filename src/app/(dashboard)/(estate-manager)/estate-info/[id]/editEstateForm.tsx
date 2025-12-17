@@ -81,7 +81,8 @@ const EditEstateForm = () => {
                 label: apartment.name,
                 building: apartment.building,
                 street: apartment.street,
-                zone: apartment.zone
+                zone: apartment.zone,
+                residencyType: apartment.residencyType
             }));
             setApartments(mappedApartments);
         }
@@ -181,7 +182,8 @@ const EditEstateForm = () => {
                 name: apartment.label,
                 building: apartment.building,
                 street: apartment.street,
-                zone: apartment.zone
+                zone: apartment.zone,
+                residencyType: apartment.residencyType
             }))
         };
 
@@ -209,6 +211,8 @@ const EditEstateForm = () => {
             }
             // Show success toast
             await getEstates()
+            // Update apartments in the form store so the UI reflects the latest values
+            setApartments(apartments);
             setDoneUpdate(true);
 
         } catch (error: any) {

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Eye = ({ className = "w-6 h-6" }) => {
+const Eye = ({ className = "w-6 h-6", color= "currentColor" }) => {
   return (
     <a>
       <svg
@@ -8,7 +8,7 @@ const Eye = ({ className = "w-6 h-6" }) => {
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth="1.5"
-        stroke="currentColor"
+        stroke={color}
         className={className}
       >
         <path

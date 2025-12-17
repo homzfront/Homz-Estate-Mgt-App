@@ -32,7 +32,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
     const [selectedData, setSelectedData] = React.useState<Visitor | null>(null);
     const [popUp, setpopUp] = React.useState(false);
-    // const dropdownRef = React.useRef(null);
+    const anchorRef = React.useRef<HTMLButtonElement>(null);
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
     const [selectedStatus, setSelectedStatus] = React.useState<"Pending" | "Signed In" | "Signed Out" | null>("Pending");
     const [openDropdownIndex, setOpenDropdownIndex] = React.useState<number | null>(null);
@@ -364,7 +364,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                             {data.accessCode}
                                         </td>
                                         <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
-                                            <button onClick={(e) => {
+                                            <button ref={anchorRef} onClick={(e) => {
                                                 e.stopPropagation()
                                                 handleToggleMenu(index)
                                                 setSelectedData(data)
@@ -382,6 +382,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                                     setOpenDetails={setOpenDetails}
                                                     fromDefault={fromDefault}
                                                     setOpenRevoke={setOpenRevoke}
+                                                    anchorRef={anchorRef}
                                                 />
                                             )}
                                         </td>

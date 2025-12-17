@@ -37,13 +37,13 @@ const Settings = () => {
   const [activePage, setActivePage] = React.useState(0);
   const [sendingInvite, setSendingInvite] = React.useState(false);
   const [updatingRoleId, setUpdatingRoleId] = React.useState<string | null>(null);
-  
+
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-  const { 
-    members, 
-    initialLoading, 
-    pageLoading, 
-    fetchMembers, 
+  const {
+    members,
+    initialLoading,
+    pageLoading,
+    fetchMembers,
     sendInvitation,
     setRoleFilter,
     // hasAnyData,
@@ -54,26 +54,26 @@ const Settings = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  
+
   const [formData, setFormData] = React.useState({
     email: '',
     role: '',
   });
-  
+
   const options = [
     { id: 1, label: 'Admin', value: 'admin' },
-    { id: 2, label: 'Account Manager', value: 'account_manager' },
+    // { id: 2, label: 'Account Manager', value: 'account_manager' },
     { id: 4, label: 'Security', value: 'security' },
     { id: 5, label: 'Viewer', value: 'viewer' },
   ];
-  
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-  
+
   React.useEffect(() => {
     if (formData.email && formData.role) {
       setActive(true);
@@ -92,7 +92,7 @@ const Settings = () => {
 
   const handleSendInvite = async () => {
     if (!active) return;
-    
+
     setSendingInvite(true);
     try {
       await sendInvitation(formData.email, formData.role);
@@ -114,14 +114,14 @@ const Settings = () => {
       setSendingInvite(false);
     }
   };
-  
+
   const handleSubmit = () => {
     setOpenSuccess(false);
     setIsOpen(false);
     setActive(false);
     setFormData({ email: '', role: '' });
   };
-  
+
   const handleRoleChange = async (member: MemberItem, selectedOption: { id: number | string; label: string }) => {
     const roleOption = options.find(opt => opt.label === selectedOption.label);
     const roleValue = roleOption?.value || selectedOption.label;
@@ -161,11 +161,11 @@ const Settings = () => {
       setUpdatingRoleId(null);
     }
   };
-  
+
   const pages = [
     { label: "All", value: null },
     { label: "Admin", value: "admin" },
-    { label: "Account Manager", value: "account_manager" },
+    // { label: "Account Manager", value: "account_manager" },
     { label: "Security", value: "security" },
     { label: "Viewer", value: "viewer" },
   ];
@@ -303,16 +303,16 @@ const Settings = () => {
             </button>
           }
         </div>
-        
+
         {/* Members List */}
         {hasEverHadData && (
           <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
             {/* Filter Headers - Always Visible */}
             <div className='flex flex-wrap items-center gap-4 mt-8'>
               {pages.map((page, index) => (
-                <span 
-                  key={index} 
-                  onClick={() => handlePageChange(index)} 
+                <span
+                  key={index}
+                  onClick={() => handlePageChange(index)}
                   className={`${index === activePage ? "px-3 py-2 rounded-[4px] bg-BlueHomz text-white" : "px-3 py-2 md:px-0 md:py-0 rounded-[4px] md:rounded-none bg-whiteblue md:bg-transparent text-BlueHomz md:text-GrayHomz"} cursor-pointer`}
                 >
                   {page.label}

@@ -12,25 +12,35 @@ Homz provides a comprehensive solution for managing residential communities with
 
 ### Core Framework & Libraries
 - **Next.js 15.3.5** - React framework with App Router
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Utility-first CSS framework
+- **React 19.0.0** - Latest UI library with improved performance
+- **React DOM 19.0.0** - DOM rendering package
+- **TypeScript 5** - Type safety with latest features
+- **Tailwind CSS 3.3.0** - Utility-first CSS framework
 
 ### State Management & Data Fetching
-- **Zustand** - Lightweight state management with persistence
-- **Axios** - HTTP client with interceptors for authentication
+- **Zustand 5.0.6** - Lightweight state management with persistence
+- **Axios 1.12.0** - HTTP client with interceptors for authentication
 
 ### UI Components & Features
-- **React Hook Form** - Form validation and management
-- **React Hot Toast** - Toast notifications
-- **React Icons** - Icon library
-- **React Modal** - Modal dialogs
-- **React Slick & Swiper** - Carousels and sliders
-- **@tanstack/react-virtual** - Virtual scrolling for large lists
+- **React Hook Form 7.60.0** - Form validation and management
+- **React Hot Toast 2.5.2** - Toast notifications
+- **React Icons 5.5.0** - Icon library
+- **React Modal 3.16.1** - Modal dialogs
+- **React Slick 0.30.3 & Swiper 11.2.10** - Carousels and sliders
+- **React Loader Spinner 7.0.3** - Loading animations
+- **@tanstack/react-virtual 3.13.12** - Virtual scrolling for large lists
+- **clsx 2.1.1** - Utility for constructing className strings
+
+### Authorization & Security
+- **CASL Ability 6.7.3** - Isomorphic authorization library
+- **CASL React 5.0.0** - React bindings for permissions
+
+### Progressive Web App
+- **Next PWA 5.6.0** - PWA support for offline functionality
 
 ### Development Tools
-- **ESLint** - Code linting
-- **PostCSS & Autoprefixer** - CSS processing
+- **ESLint 9** - Code linting with latest rules
+- **PostCSS 8.5.6 & Autoprefixer 10.4.21** - CSS processing
 
 ## 📁 Project Structure
 
@@ -96,6 +106,12 @@ homz-estate-mgt-app/
 
 ## 🔑 Key Features
 
+### Progressive Web App (PWA)
+- Offline functionality support
+- App-like experience on mobile devices
+- Service worker for caching strategies
+- Installable on mobile home screens
+
 ### Authentication & Authorization
 - User registration with email verification
 - Secure login with JWT tokens
@@ -103,6 +119,8 @@ homz-estate-mgt-app/
 - Token refresh mechanism with automatic retry
 - Protected routes using Next.js middleware
 - Role-based access (Community Manager vs Resident)
+- Granular permissions using CASL ability framework
+- Context-based authorization for features and actions
 
 ### Community Manager Features
 1. **Dashboard**
@@ -216,8 +234,9 @@ The application is fully responsive with breakpoints for:
 ## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js 20 or higher
-- npm, yarn, pnpm, or bun package manager
+- **Node.js 20** or higher (compatible with Next.js 15)
+- **npm, yarn, pnpm, or bun** package manager
+- **TypeScript 5** support in your IDE
 
 ### Installation
 
@@ -281,7 +300,15 @@ npm run start
 Required environment variables:
 - `NEXT_PUBLIC_BACKEND_API_URL` - Backend API base URL
 
-## 📦 Deployment
+## � Recent Updates
+
+- **React 19.0.0** - Upgraded to latest React with improved performance
+- **TypeScript 5** - Enhanced type safety and developer experience
+- **CASL Authorization** - Added granular permission system
+- **PWA Support** - Offline functionality and app-like experience
+- **Enhanced UI Components** - Added loading spinners and improved modals
+
+## �📦 Deployment
 
 ### Deploy on Vercel
 

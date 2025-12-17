@@ -1,26 +1,67 @@
 import ArrowRight from '@/components/icons/arrowRight'
 import Tower from '@/components/icons/tower'
 import React from 'react'
+import { ManagerResidentItem } from '@/store/useResidentsListStore'
+import { PropertyDetailsType } from './propertyDetails'
 
-type PropertyItem = {
-    id: string | number
-    title: string
-    subtitle?: string
-}
+type PropertyItem = PropertyDetailsType
 
 interface RentInfoProps {
+    residentData: ManagerResidentItem | null
     // called when a property card is clicked — parent should open the property detail modal
     onOpenProperty?: (property: PropertyItem) => void
     // optional list to render; defaults to sample items
     properties?: PropertyItem[]
 }
 
-const RentInfo: React.FC<RentInfoProps> = ({ onOpenProperty, properties }) => {
-    const items: PropertyItem[] = properties ?? [
-        { id: 1, title: '[2-Bedroom Bungalow]', subtitle: '[View Gold Property]' },
-        { id: 2, title: '[4-Bedroom Bungalow]', subtitle: '[View Gold Property]' },
-        { id: 3, title: '[8-Bedroom Bungalow]', subtitle: '[View Gold Property]' },
-    ]
+const RentInfo: React.FC<RentInfoProps> = ({ residentData, onOpenProperty, properties }) => {
+    const items: PropertyItem[] = React.useMemo(() => {
+        if (properties) return properties;
+        if (!residentData) return [];
+
+        const list: PropertyItem[] = [];
+
+        // 1. Primary Residence
+        list.push({
+            id: residentData._id,
+            title: `${residentData.building || 'Building'} - ${residentData.apartment || 'Apartment'}`,
+            subtitle: `View ${residentData.estateName || 'Estate'}`,
+            details: {
+                role: 'Primary Resident',
+                rentStart: residentData.rentedDetails?.rentStartDate ? new Date(residentData.rentedDetails.rentStartDate).toLocaleDateString() : undefined,
+                rentDue: residentData.rentedDetails?.rentDueDate ? new Date(residentData.rentedDetails.rentDueDate).toLocaleDateString() : undefined,
+                apartment: residentData.apartment,
+                building: residentData.building,
+                street: residentData.streetName,
+                zone: residentData.zone,
+                ownershipType: residentData.ownershipType,
+                residencyType: (residentData as ManagerResidentItem & { residencyType?: string }).residencyType
+            }
+        });
+
+        // 2. Additional Residences
+        if (residentData.residences && residentData.residences.length > 0) {
+            residentData.residences.forEach((res) => {
+                list.push({
+                    id: res._id,
+                    title: `${res.building || 'Building'} - ${res.apartment || 'Apartment'}`,
+                    subtitle: `View ${residentData.estateName || 'Estate'}`,
+                    details: {
+                        role: 'Additional Residence',
+                        rentStart: res.rentedDetails?.rentStartDate ? new Date(res.rentedDetails.rentStartDate).toLocaleDateString() : undefined,
+                        rentDue: res.rentedDetails?.rentDueDate ? new Date(res.rentedDetails.rentDueDate).toLocaleDateString() : undefined,
+                        apartment: res.apartment,
+                        building: res.building,
+                        street: res.streetName,
+                        zone: res.zone,
+                        ownershipType: res.ownershipType,
+                        residencyType: res.residencyType
+                    }
+                });
+            });
+        }
+        return list;
+    }, [residentData, properties]);
 
     const handleKeyDown = (e: React.KeyboardEvent, item: PropertyItem) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -28,7 +69,7 @@ const RentInfo: React.FC<RentInfoProps> = ({ onOpenProperty, properties }) => {
             onOpenProperty?.(item)
         }
     }
-
+    console.log("residentData:", residentData)
     return (
         <div className='text-sm md:text-[16px]'>
             <p className="mt-2 text-GrayHomz font-normal">

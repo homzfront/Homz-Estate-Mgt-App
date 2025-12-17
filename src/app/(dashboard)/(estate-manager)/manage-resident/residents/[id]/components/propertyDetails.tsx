@@ -1,7 +1,8 @@
 import React from 'react'
 import LongLeftArrow from '@/components/icons/longLeftArrow'
 import Tower from '@/components/icons/tower'
-import ProfileUser from '@/components/icons/ProfileUser'
+// import ProfileUser from '@/components/icons/ProfileUser'
+import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter'
 
 export type PropertyDetailsType = {
     id: string | number
@@ -15,6 +16,10 @@ export type PropertyDetailsType = {
         building?: string
         street?: string
         zone?: string
+        ownershipType?: string
+        residencyType?: string
+        rentDurationType?: string
+        rentDuration?: string | number  
     }
 }
 
@@ -46,13 +51,13 @@ const PropertyDetails: React.FC<Props> = ({ property, onBack }) => {
 
                 <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-[1fr_2fr] text-sm">
                     <p className="text-BlackHomz font-medium">Ownership Type</p>
-                    <p className="text-GrayHomz">[Owner] / [Renter]</p>
+                    <p className="text-GrayHomz">{d.ownershipType ? capitalizeFirstLetter(d.ownershipType) : '[Owner] / [Renter]'}</p>
 
                     <p className="text-BlackHomz font-medium">Role</p>
                     <p className="text-GrayHomz">{d.role || 'Primary Resident'}</p>
                     
-                    <p/>
-                    <p className='text-BlueHomz flex items-center gap-1'><ProfileUser /> View Co-residents</p>
+                    {/* <p/>
+                    <p className='text-BlueHomz flex items-center gap-1'><ProfileUser /> View Co-residents</p> */}
 
 
                     <p className="text-BlackHomz font-medium">Rent Start Date</p>
@@ -65,7 +70,7 @@ const PropertyDetails: React.FC<Props> = ({ property, onBack }) => {
                     <p className="text-GrayHomz">{d.apartment || '[Apartment Name/No]'}</p>
 
                     <p className="text-BlackHomz font-medium">Residency Type</p>
-                    <p className="text-GrayHomz">[Residency Type]</p>
+                    <p className="text-GrayHomz">{d.residencyType ? capitalizeFirstLetter(d.residencyType) : '[Residency Type]'}</p>
 
                     <p className="text-BlackHomz font-medium">Building</p>
                     <p className="text-GrayHomz">{d.building || '[Building Name]'}</p>

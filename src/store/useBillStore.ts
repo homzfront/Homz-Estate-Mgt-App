@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import api from '@/utils/api'
 import { useSelectedCommunity } from './useSelectedCommunity'
 
@@ -7,6 +8,7 @@ export interface ResidencyAmount {
     residencyType: string
     amount: number
     currency: string
+    _id?: string
 }
 
 export interface AssociatedIds {
@@ -27,6 +29,7 @@ export interface BillItem {
     applyToAllResidencyTypes: boolean
     frequency: string
     billingStartDate: string
+    billingEndDate?: string
     residencyAmounts?: ResidencyAmount[]
     status: string
     isActive: boolean
@@ -57,6 +60,7 @@ interface CreateBillPayload {
     applyToAllResidencyTypes: boolean
     frequency: string
     billingStartDate: string
+    billingEndDate?: string
     residencyAmounts?: ResidencyAmount[]
 }
 
@@ -67,67 +71,96 @@ interface BillListState {
     currentPage: number
     limit: number
     search: string
+    frequency: string
+    status: string
+    residencyType: string
     initialLoading: boolean
     pageLoading: boolean
     isAppending: boolean
     error: string | null
     hasAnyData: boolean
     hasEverHadData: boolean
-    lastFetch: { page: number; limit: number; search: string }
+    lastFetch: { page: number; limit: number; search: string; frequency: string; status: string; residencyType: string }
     lastEstateId: string | null
     selectedCurrency: string
-    
+
     setSearch: (value: string) => void
     setSelectedCurrency: (currency: string) => void
+    setFrequency: (value: string) => void
+    setStatus: (value: string) => void
+    setResidencyType: (value: string) => void
+    clearFilters: () => void
     reset: () => void
     fetchBills: (params?: {
         page?: number
         limit?: number
         search?: string
+        frequency?: string
+        status?: string
+        residencyType?: string
         silent?: boolean
         append?: boolean
     }) => Promise<void>
     createBill: (payload: CreateBillPayload) => Promise<void>
     updateBill: (billingId: string, payload: CreateBillPayload) => Promise<void>
+    updateBillStatus: (billingId: string, status: 'active' | 'inactive') => Promise<void>
     deleteBill: (billingId: string) => Promise<void>
 }
 
-export const useBillStore = create<BillListState>((set, get) => ({
-    items: [],
-    totalCount: 0,
-    totalPages: 1,
-    currentPage: 1,
-    limit: 10,
-    search: '',
-    initialLoading: true,
-    pageLoading: false,
-    isAppending: false,
-    error: null,
-    hasAnyData: false,
-    hasEverHadData: false,
-    lastFetch: { page: 1, limit: 10, search: '' },
-    lastEstateId: null,
-    selectedCurrency: '₦',
-    
-    setSearch: (value) => set({ search: value }),
-    setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
-    
-    reset: () => set({
-        items: [],
-        totalCount: 0,
-        totalPages: 1,
-        currentPage: 1,
-        initialLoading: true,
-        hasAnyData: false,
-        hasEverHadData: false,
-        lastEstateId: null,
+export const useBillStore = create<BillListState>()(
+    persist(
+        (set, get) => ({
+            items: [],
+            totalCount: 0,
+            totalPages: 1,
+            currentPage: 1,
+            limit: 10,
+            search: '',
+            frequency: '',
+            status: '',
+            residencyType: '',
+            initialLoading: true,
+            pageLoading: false,
+            isAppending: false,
+            error: null,
+            hasAnyData: false,
+            hasEverHadData: false,
+            lastFetch: { page: 1, limit: 10, search: '', frequency: '', status: '', residencyType: '' },
+            lastEstateId: null,
+            selectedCurrency: '₦',
+
+            setSearch: (value) => set({ search: value }),
+            setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
+            setFrequency: (value) => set({ frequency: value, currentPage: 1 }),
+            setStatus: (value) => set({ status: value, currentPage: 1 }),
+            setResidencyType: (value) => set({ residencyType: value, currentPage: 1 }),
+            clearFilters: () => set({
+                search: '',
+                frequency: '',
+                status: '',
+                residencyType: '',
+                currentPage: 1
+            }),
+
+            reset: () => set({
+                items: [],
+                totalCount: 0,
+                totalPages: 1,
+                currentPage: 1,
+                initialLoading: true,
+                hasAnyData: false,
+                hasEverHadData: false,
+                lastEstateId: null,
     }),
-    
+
     fetchBills: async (params = {}) => {
         const state = get()
         const page = params.page ?? state.currentPage ?? 1
         const limit = params.limit ?? state.limit ?? 10
         const search = params.search ?? state.search ?? ''
+        const frequency = params.frequency ?? state.frequency ?? ''
+        const status = params.status ?? state.status ?? ''
+        const residencyType = params.residencyType ?? state.residencyType ?? ''
         const silent = params.silent ?? false
         const append = params.append ?? false
 
@@ -146,6 +179,9 @@ export const useBillStore = create<BillListState>((set, get) => ({
             state.lastFetch.page === page &&
             state.lastFetch.limit === limit &&
             state.lastFetch.search === search &&
+            state.lastFetch.frequency === frequency &&
+            state.lastFetch.status === status &&
+            state.lastFetch.residencyType === residencyType &&
             state.items.length > 0 &&
             !silent
         ) {
@@ -165,9 +201,18 @@ export const useBillStore = create<BillListState>((set, get) => ({
 
         try {
             let url = `/community-manager/billings/organizations/${organizationId}/estates/${estateId}?page=${page}&limit=${limit}`
-            
+
             if (search) {
                 url += `&search=${encodeURIComponent(search)}`
+            }
+            if (frequency) {
+                url += `&frequency=${encodeURIComponent(frequency)}`
+            }
+            if (status) {
+                url += `&status=${encodeURIComponent(status)}`
+            }
+            if (residencyType && residencyType !== 'All Residency Type') {
+                url += `&residencyType=${encodeURIComponent(residencyType)}`
             }
 
             const res = await api.get<BillsApiResponse>(url)
@@ -185,7 +230,10 @@ export const useBillStore = create<BillListState>((set, get) => ({
                 limit: responseData?.limit || limit,
                 error: null,
                 search,
-                lastFetch: { page, limit, search },
+                frequency,
+                status,
+                residencyType,
+                lastFetch: { page, limit, search, frequency, status, residencyType },
                 hasAnyData: currentHasData,
                 hasEverHadData: previousHasEverHadData || currentHasData,
                 initialLoading: false,
@@ -197,7 +245,7 @@ export const useBillStore = create<BillListState>((set, get) => ({
             const backendMessage = err?.response?.data?.message
             const backendMessageTwo = err?.response?.data?.message?.[0]
             const fallbackMessage = err?.message || 'Failed to fetch bills'
-            
+
             set({
                 error: backendMessage || backendMessageTwo || fallbackMessage || '',
                 items: [],
@@ -229,10 +277,11 @@ export const useBillStore = create<BillListState>((set, get) => ({
             // Refresh the bills list after successful creation
             await get().fetchBills({ silent: true })
         } catch (error: any) {
+            const initialMessage = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message
             const backendMessageTwo = error?.response?.data?.message?.[0]
             const fallbackMessage = error?.message || 'Failed to create bill'
-            throw new Error(backendMessage || backendMessageTwo || fallbackMessage)
+            throw new Error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage)
         }
     },
 
@@ -254,10 +303,41 @@ export const useBillStore = create<BillListState>((set, get) => ({
             // Refresh the bills list after successful update
             await get().fetchBills({ silent: true })
         } catch (error: any) {
+
             const backendMessage = error?.response?.data?.message
             const backendMessageTwo = error?.response?.data?.message?.[0]
             const fallbackMessage = error?.message || 'Failed to update bill'
             throw new Error(backendMessage || backendMessageTwo || fallbackMessage)
+        }
+    },
+
+    updateBillStatus: async (billingId: string, status: 'active' | 'inactive') => {
+        const selectedCommunity = useSelectedCommunity.getState().selectedCommunity
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId
+        const estateId = selectedCommunity?.estate?._id
+
+        if (!organizationId || !estateId) {
+            throw new Error('Missing organization or estate id')
+        }
+
+        try {
+            await api.patch(
+                `/community-manager/billings/${billingId}/status/organizations/${organizationId}/estates/${estateId}`,
+                { status }
+            )
+
+            // Update local state
+            set((state) => ({
+                items: state.items.map((bill) =>
+                    bill._id === billingId ? { ...bill, status } : bill
+                ),
+            }))
+        } catch (error: any) {
+            const initialMessage = error?.response?.data?.errors?.[0]?.message
+            const backendMessage = error?.response?.data?.message
+            const backendMessageTwo = error?.response?.data?.message?.[0]
+            const fallbackMessage = error?.message || 'Failed to update bill status'
+            throw new Error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage)
         }
     },
 
@@ -281,10 +361,22 @@ export const useBillStore = create<BillListState>((set, get) => ({
                 totalCount: state.totalCount - 1,
             }))
         } catch (error: any) {
+            const initialMessage = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message
             const backendMessageTwo = error?.response?.data?.message?.[0]
             const fallbackMessage = error?.message || 'Failed to delete bill'
-            throw new Error(backendMessage || backendMessageTwo || fallbackMessage)
+            throw new Error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage)
         }
     },
-}))
+}),
+{
+    name: 'bill-store',
+    partialize: (state) => ({
+        items: state.items,
+        totalCount: state.totalCount,
+        totalPages: state.totalPages,
+        selectedCurrency: state.selectedCurrency,
+        // Don't persist loading states or temporary data
+    }),
+}
+))
