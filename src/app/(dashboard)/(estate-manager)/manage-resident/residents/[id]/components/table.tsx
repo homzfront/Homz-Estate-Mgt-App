@@ -8,8 +8,11 @@ import DeleteIcon from '@/components/icons/deleteIcon';
 import EditIcon from '@/components/icons/editIcon';
 import EyeIcon from '@/components/icons/Eye';
 import BillingDetailsModal from './billingDetailsModal';
+import CustomModal from '@/components/general/customModal';
 import formatBillType from '@/app/utils/formatBillType';
 import { useBillPaymentStore } from '@/store/useBillPaymentStore'
+import SuccessModal from '@/app/(dashboard)/components/successModal'
+import DotLoader from '@/components/general/dotLoader'
 
 interface Props {
     onOpenPaymentModal?: (data?: any) => void
@@ -26,7 +29,11 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
     const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set())
     const [detailsModalOpen, setDetailsModalOpen] = React.useState(false)
     const [selectedGroup, setSelectedGroup] = React.useState<any>(null)
-    
+    const [deleteModalOpen, setDeleteModalOpen] = React.useState(false)
+    const [deletingItem, setDeletingItem] = React.useState<any>(null)
+    const [deleteLoading, setDeleteLoading] = React.useState(false)
+    const [successModalOpen, setSuccessModalOpen] = React.useState(false)
+
     const dropDownRef = React.useRef<HTMLDivElement>(null)
     const actionButtonRefs = React.useRef<{ [key: string]: HTMLButtonElement | null }>({})
 
@@ -99,6 +106,34 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
         setActionDropdown(null)
     }
 
+    const handleDeletePayment = async () => {
+        if (!deletingItem) return
+
+        setDeleteLoading(true)
+        try {
+            await useBillPaymentStore.getState().deleteBillPayment(
+                deletingItem._id,
+                deletingItem.billingId,
+                apartmentId
+            )
+            if (residentId && apartmentId) {
+                await fetchBillPayments({
+                    residentId: residentId,
+                    apartmentId: String(apartmentId),
+                    silent: true
+                })
+            }
+            setDeleteModalOpen(false)
+            setDeletingItem(null)
+            setSuccessModalOpen(true)
+        } catch (error) {
+            console.error('Failed to delete payment:', error)
+            // You might want to show an error message here
+        } finally {
+            setDeleteLoading(false)
+        }
+    }
+
     // Group items
     const groupedItems = React.useMemo(() => {
         const groups: { [key: string]: typeof items } = {};
@@ -116,10 +151,10 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
             groupItems.sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
 
             const first = groupItems[0];
-            const totalAmount = first.amount; 
+            const totalAmount = first.amount;
             const totalPaid = groupItems.reduce((sum, item) => sum + (item.amountPaid || 0), 0);
             const outstanding = Math.max(0, totalAmount - totalPaid);
-            
+
             // Determine status based on outstanding
             let status = 'pending';
             if (outstanding <= 0) status = 'paid';
@@ -140,10 +175,10 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                 amountPaid: totalPaid,
                 outstanding: outstanding,
                 paymentType: paidItem ? paidItem.paymentType : (groupItems.length > 1 ? 'Part Payment' : first.paymentType),
-                paymentMode: first.paymentMode, 
-                status: status, 
+                paymentMode: first.paymentMode,
+                status: status,
                 paymentDate: latestDate,
-                currency: "₦" 
+                currency: "₦"
             };
         });
     }, [items]);
@@ -204,7 +239,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                 <div className="flex items-center gap-2">
                                                     {group.currency}{group.amount.toLocaleString()}
                                                     <span className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                                                        <ArrowDown className="#006AFF" /> 
+                                                        <ArrowDown className="#006AFF" />
                                                     </span>
                                                 </div>
                                             </td>
@@ -215,7 +250,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{group.amountPaid.toLocaleString()}</td>
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{group.outstanding.toLocaleString()}</td>
                                             <td className="hidden md:table-cell py-[15px]">
-                                                <div 
+                                                <div
                                                     style={{
                                                         background: statusStyle.bg,
                                                         color: statusStyle.color,
@@ -253,6 +288,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                                         e.stopPropagation()
                                                                         setActionDropdown(null)
                                                                         handleViewDetails(group)
+                                                                        setDeleteModalOpen(true)
                                                                     }}
                                                                     className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                                                                 >
@@ -280,7 +316,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                             });
                                             const displayItem = itemWithBalance.find(i => i._id === item._id);
                                             const balance = displayItem ? displayItem.balanceAfter : 0;
-                                            
+
                                             const childStatusStyle = getStatusStyle(item.status);
 
                                             return (
@@ -293,7 +329,7 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                     <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{item.amountPaid.toLocaleString()}</td>
                                                     <td className="py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{balance.toLocaleString()}</td>
                                                     <td className="hidden md:table-cell py-[15px]">
-                                                         <div 
+                                                        <div
                                                             style={{
                                                                 background: childStatusStyle.bg,
                                                                 color: childStatusStyle.color,
@@ -352,7 +388,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                                                     onClick={(e) => {
                                                                                         e.stopPropagation()
                                                                                         setActionDropdown(null)
-                                                                                        // Delete logic here
+                                                                                        setDeletingItem(item)
+                                                                                        setDeleteModalOpen(true)
                                                                                     }}
                                                                                     className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                                                                                 >
@@ -397,6 +434,75 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                 isOpen={detailsModalOpen}
                 onRequestClose={() => setDetailsModalOpen(false)}
                 selectedGroup={selectedGroup}
+            />
+
+            {/* Delete Confirmation Modal */}
+            <CustomModal
+                isOpen={deleteModalOpen}
+                onRequestClose={() => {
+                    if (!deleteLoading) {
+                        setDeleteModalOpen(false)
+                        setDeletingItem(null)
+                    }
+                }}
+            >
+                <div className="bg-white p-6 rounded-lg max-w-md w-full">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Confirm Deletion
+                    </h3>
+
+                    {deletingItem && (
+                        <div className="bg-gray-50 p-4 rounded-md mb-6 text-sm">
+                            <div className="grid grid-cols-2 gap-2">
+                                <span className="text-gray-500">Amount Paid:</span>
+                                <span className="font-medium text-gray-900">₦{deletingItem.amountPaid?.toLocaleString()}</span>
+
+                                <span className="text-gray-500">Bill Type:</span>
+                                <span className="font-medium text-gray-900">{formatBillType(deletingItem.billType)}</span>
+
+                                <span className="text-gray-500">Payment Date:</span>
+                                <span className="font-medium text-gray-900">
+                                    {deletingItem.paymentDate ? new Date(deletingItem.paymentDate).toLocaleDateString() : '-'}
+                                </span>
+
+                                <span className="text-gray-500">Payment Mode:</span>
+                                <span className="font-medium text-gray-900 capitalize">{deletingItem.paymentMode}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <p className="text-gray-600 mb-6">
+                        Are you sure you want to delete this bill payment record? This action cannot be undone.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <button
+                            onClick={() => {
+                                setDeleteModalOpen(false)
+                                setDeletingItem(null)
+                            }}
+                            disabled={deleteLoading}
+                            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleDeletePayment}
+                            disabled={deleteLoading}
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            {deleteLoading ? <><DotLoader color='#ffffff' /></> : 'Delete'}
+                        </button>
+                    </div>
+                </div>
+            </CustomModal>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={successModalOpen}
+                title="Payment Record Deleted"
+                successText="The bill payment record has been successfully deleted."
+                closeSuccessModal={() => setSuccessModalOpen(false)}
+                handleBack={() => setSuccessModalOpen(false)}
             />
         </div>
     )

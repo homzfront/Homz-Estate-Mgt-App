@@ -130,6 +130,7 @@ interface BillPaymentListState {
         append?: boolean
         silent?: boolean
     }) => Promise<void>
+    deleteBillPayment: (billingPaymentId: string, billingId: string, apartmentId?: string) => Promise<void>
 }
 
 export const useBillPaymentStore = create<BillPaymentListState>((set, get) => ({
@@ -351,6 +352,38 @@ export const useBillPaymentStore = create<BillPaymentListState>((set, get) => ({
                 isAppending: false,
                 currentFetchingApartmentId: null,
             })
+        }
+    },
+
+    deleteBillPayment: async (billingPaymentId: string, billingId: string, apartmentId?: string) => {
+        const selectedCommunity = useSelectedCommunity.getState().selectedCommunity
+        const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId
+        const estateId = selectedCommunity?.estate?._id
+
+        if (!organizationId || !estateId) {
+            throw new Error('Missing organization or estate id')
+        }
+
+        const url = `/community-manager/bill-payment/${billingPaymentId}/organizations/${organizationId}/estates/${estateId}/apartments/${apartmentId || 'default'}/billings/${billingId}`
+
+        await api.delete(url)
+
+        // Remove the deleted item from the items array
+        set((state) => ({
+            items: state.items.filter(item => item._id !== billingPaymentId),
+            totalCount: state.totalCount - 1,
+        }))
+
+        // Update cache if exists
+        const cacheKey = apartmentId || 'default'
+        const updatedCache = { ...get().apartmentCache }
+        if (updatedCache[cacheKey]) {
+            updatedCache[cacheKey] = {
+                ...updatedCache[cacheKey],
+                items: updatedCache[cacheKey].items.filter(item => item._id !== billingPaymentId),
+                totalCount: updatedCache[cacheKey].totalCount - 1,
+            }
+            set({ apartmentCache: updatedCache })
         }
     },
 }))
