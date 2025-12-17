@@ -12,7 +12,7 @@ const ChangePassword = () => {
   const [loading, setLoading] = useState(false);
   const [showDialogue, setShowDialogue] = useState(false);
 
-  const isValidPassword = (password: any) => password.length >= 8;
+  const isValidPassword = (password: string) => password.length >= 8;
 
   const updateDone = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +58,7 @@ const ChangePassword = () => {
 
   return (
     <form
-      className="w-full max-w-md mx-auto flex flex-col pt-20 gap-5 px-4 md:px-0"
+      className="w-full max-w-md  flex flex-col pt-10 gap-5 px-4 md:px-0"
       onSubmit={updateDone}
     >
       <h2 className="text-xl font-semibold text-gray-800">Change Password</h2>
@@ -105,6 +105,9 @@ const ChangePassword = () => {
         loading={loading}
         showDialogue={showDialogue}
         setShowDialogue={setShowDialogue}
+        password={password}
+        newPassword={newPassword}
+        reEnterPassword={reEnterPassword}
       />
     </form>
   );
