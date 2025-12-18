@@ -9,14 +9,16 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 import VisitorShield from '@/components/icons/estateManager&Resident/desktop/visitorShield';
 // import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
+// import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
-// import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
-// import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
+import Profile16Icon from '@/components/icons/estateManager&Resident/desktop/profile16Icon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import api from '@/utils/api';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
 import { useAuthSlice } from '@/store/authStore';
 import InitialsAvatar from '@/components/general/InitialsAvatar';
+import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 // import { Coming_Soon } from 'next/font/google';
 
 const Data = [
@@ -41,37 +43,37 @@ const Data = [
         active: false,
         comingSoon: false,
     },
-    // {
-    //     id: 3,
-    //     image: <DuesAndPaymentIcon />,
-    //     image2: (
-    //         <DuesAndPaymentIcon className='#FFFFFF' />
-    //     ),
-    //     link: "/resident/dues-payments",
-    //     name: "Dues & Payments",
-    //         active: false,
-    //         comingSoon: true,
-    // },
-    // {
-    //     id: 4,
-    //     image: <Profile16Icon />,
-    //     image2: (
-    //         <Profile16Icon className='#FFFFFF' />
-    //     ),
-    //     link: "/resident/profile",
-    //     name: "Profile",
-    //     active: false,
-    // },
-    // {
-    //     id: 5,
-    //     image: <SettingsIcon w={"16"} h={"16"} className='#4E4E4E' />,
-    //     image2: (
-    //         <SettingsIcon w={"16"} h={"16"} className='#FFFFFF' />
-    //     ),
-    //     link: "/resident/settings",
-    //     name: "Settings",
-    //     active: false,
-    // },
+    {
+        id: 3,
+        image: <DuesAndPaymentIcon />,
+        image2: (
+            <DuesAndPaymentIcon className='#FFFFFF' />
+        ),
+        link: "/resident/bills-payments",
+        name: "Bills & Payments",
+        active: false,
+        comingSoon: false,
+    },
+    {
+        id: 4,
+        image: <Profile16Icon />,
+        image2: (
+            <Profile16Icon className='#FFFFFF' />
+        ),
+        link: "/resident/profile",
+        name: "Profile",
+        active: false,
+    },
+    {
+        id: 5,
+        image: <SettingsIcon w={"16"} h={"16"} className='#4E4E4E' />,
+        image2: (
+            <SettingsIcon w={"16"} h={"16"} className='#FFFFFF' />
+        ),
+        link: "/resident/settings",
+        name: "Settings",
+        active: false,
+    },
 ];
 
 const Sidebar = () => {
@@ -94,7 +96,7 @@ const Sidebar = () => {
     }
 
     React.useEffect(() => {
-        if (userData) {
+        if (userData && !residentCommunity) {
             fetchResidentEstate();
         }
     }, [userData]);
@@ -186,9 +188,9 @@ const Sidebar = () => {
                                     <Link
                                         key={data.id}
                                         href={data.link}
-                                        className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
+                                        className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-[16px] font-[500] transition-all duration-200 ${isActive(data, pathname)
                                             ? "bg-BlueHomz text-white"
-                                            : " hover:bg-whiteblue"
+                                            : "text-GrayHomz hover:bg-BlueHomz hover:text-white"
                                             } `}
                                     >
                                         {isActive(data, pathname) ? (
@@ -219,9 +221,9 @@ const Sidebar = () => {
                                 <Link
                                     key={data.id}
                                     href={data.link}
-                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-GrayHomz text-[16px] font-[500] ${isActive(data, pathname)
+                                    className={`h-[40px] px-2 flex justify-center items-center rounded-md gap-[12px] text-[16px] font-[500] transition-all duration-200 ${isActive(data, pathname)
                                         ? "bg-BlueHomz text-white"
-                                        : " hover:bg-whiteblue"
+                                        : "text-GrayHomz hover:bg-BlueHomz hover:text-white"
                                         } `}
                                 >
                                     {isActive(data, pathname) ? (
