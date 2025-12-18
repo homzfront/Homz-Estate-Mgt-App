@@ -164,7 +164,6 @@ const MobileFooter = () => {
                             key={data.id}
                             href={data?.link ? data.link : ""}
                             onClick={async  () => {
-                            onClick={async  () => {
                                 if (data?.extra) {
                                     setSubOpen(data as DataType)
                                 } else if (data?.name === "Logout") {
