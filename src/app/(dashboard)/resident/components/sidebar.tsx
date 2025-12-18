@@ -17,6 +17,7 @@ import api from '@/utils/api';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
 import { useAuthSlice } from '@/store/authStore';
 import InitialsAvatar from '@/components/general/InitialsAvatar';
+import DuesAndPaymentIcon from '@/components/icons/estateManager&Resident/desktop/duesAndPaymentIcon';
 // import { Coming_Soon } from 'next/font/google';
 
 const Data = [
