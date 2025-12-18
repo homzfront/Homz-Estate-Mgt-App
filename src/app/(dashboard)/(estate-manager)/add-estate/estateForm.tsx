@@ -255,6 +255,7 @@ const EstateForm = () => {
                         closeSuccessModal={() => {
                             clearForm();
                             setIsOpen(false);
+                            router.push("/dashboard");
                         }}
                     />
                 }
