@@ -53,6 +53,17 @@ const Data = [
     //         extra: false,
     //         comingSoon: true,
     // },
+    // {
+    //     id: 3,
+    //         image: <DuesAndPaymentIcon className="#202020" />,
+    //         image2: (
+    //             <DuesAndPaymentIcon className='#006AFF' />
+    //         ),
+    //         link: null,
+    //         name: "Dues & Payments",
+    //         extra: false,
+    //         comingSoon: true,
+    // },
     {
         id: 3,
         image: <DuesAndPaymentIcon className="#202020" />,
@@ -152,6 +163,7 @@ const MobileFooter = () => {
                         <Link
                             key={data.id}
                             href={data?.link ? data.link : ""}
+                            onClick={async  () => {
                             onClick={async  () => {
                                 if (data?.extra) {
                                     setSubOpen(data as DataType)
