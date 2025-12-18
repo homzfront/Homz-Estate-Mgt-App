@@ -133,7 +133,8 @@ const PopUpData = [
         image: <SettingsIcon />,
         image2: <SettingsIcon className='#006AFF' />,
         link: "/settings",
-        name: "Settings"
+        name: "Settings",
+        coming_Soon: false,
     },
     {
         id: 8,

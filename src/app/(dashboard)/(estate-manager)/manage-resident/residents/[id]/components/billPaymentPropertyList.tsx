@@ -22,7 +22,7 @@ const BillPaymentPropertyList: React.FC<Props> = ({ residentData, onSelectProper
             subtitle: `View ${residentData.estateName || 'Estate'}`,
             details: {
                 role: 'Primary Resident',
-                rentStart: residentData.rentedDetails?.rentStartDate ? new Date(residentData.rentedDetails.rentStartDate).toLocaleDateString() : undefined,
+                rentStart: residentData.rentedDetails?.rentStartDate ? new Date(residentData.rentedDetails.rentStartDate).toLocaleDateString() : residentData?.ownedDetails?.residencyStartDate,
                 rentDue: residentData.rentedDetails?.rentDueDate ? new Date(residentData.rentedDetails.rentDueDate).toLocaleDateString() : undefined,
                 apartment: residentData.apartment,
                 building: residentData.building,

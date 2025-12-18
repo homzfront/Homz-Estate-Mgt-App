@@ -23,7 +23,7 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
     const [showPropertyDetails, setShowPropertyDetails] = React.useState(false)
     const [showData, setShowData] = React.useState(false)
     const [selectedProperty, setSelectedProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
-    
+
     const [showBillingDetails, setShowBillingDetails] = React.useState(false)
     const [selectedBillingProperty, setSelectedBillingProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
 
@@ -74,6 +74,8 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
         setShowBillingDetails(false)
         setShowData(false)
     }
+
+    console.log("selectedBillingProperty:", selectedBillingProperty)
 
     return (
         <div>
@@ -126,10 +128,11 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                     )}
                     {step === 1 && showBillingDetails && (
                         <div>
-                             <Billing 
-                                onOpenPaymentModal={openEditModal} 
-                                showData={showData} 
-                                residentId={residentData?._id} 
+                            <Billing
+                                onOpenPaymentModal={openEditModal}
+                                openAddModal={openAddModal}
+                                showData={showData}
+                                residentId={residentData?._id}
                                 apartmentId={selectedBillingProperty?.id ? String(selectedBillingProperty.id) : undefined}
                             />
                         </div>
@@ -146,10 +149,10 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                 onSave={() => {
                     // Refetch billing data after adding payment record
                     if (residentData?._id && selectedBillingProperty?.id) {
-                        fetchBillPayments({ 
-                            residentId: residentData._id, 
+                        fetchBillPayments({
+                            residentId: residentData._id,
                             apartmentId: String(selectedBillingProperty.id),
-                            silent: false 
+                            silent: false
                         })
                     }
                     setShowData(true)

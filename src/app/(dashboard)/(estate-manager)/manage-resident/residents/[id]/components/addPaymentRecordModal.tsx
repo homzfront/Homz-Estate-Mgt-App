@@ -13,10 +13,14 @@ import { ManagerResidentItem } from "@/store/useResidentsListStore"
 import api from '@/utils/api'
 import { PropertyDetailsType } from "./propertyDetails"
 import { BillItem, useBillStore } from "@/store/useBillStore"
+import { useBillPaymentStore } from "@/store/useBillPaymentStore"
+import capitalizeFirstLetter from "@/app/utils/capitalizeFirstLetter"
+import formatBillType from "@/app/utils/formatBillType"
 
 interface FormData {
     paymentDate: string
     billType: string
+    residencyType: string
     frequency: string
     periodNumber: string
     amount: string
@@ -38,14 +42,15 @@ interface Props {
 }
 
 const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initialData, onSave, setShowData, residentData, selectedProperty }) => {
-    const [loading, setLoading] = React.useState(false)
-    const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null)
-    
+    const [loading, setLoading] = React.useState(false);
+    const [selectedBill, setSelectedBill] = React.useState<BillItem | null>(null);
     const { items: bills, fetchBills } = useBillStore();
-    
+    const { fetchBillPayments } = useBillPaymentStore();
+
     const [formData, setFormData] = React.useState<FormData>(() => ({
         paymentDate: (initialData?.paymentDate as string) || '',
         billType: (initialData?.billType as string) || '',
+        residencyType: (initialData?.residencyType as string) || '',
         frequency: (initialData?.frequency as string) || '',
         periodNumber: (initialData?.periodNumber as string) || '',
         amount: (initialData?.amount as string) || '',
@@ -56,12 +61,36 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
         dueDate: (initialData?.dueDate as string) || ''
     }))
 
+    const resetForm = () => {
+        setFormData({
+            paymentDate: '',
+            billType: '',
+            residencyType: '',
+            frequency: '',
+            periodNumber: '',
+            amount: '',
+            amountPaid: '',
+            paymentType: '',
+            residencyDuration: '',
+            startDate: '',
+            dueDate: ''
+        });
+        setSelectedBill(null);
+    };
+
     // Fetch bills when modal opens (only if not already loaded)
     React.useEffect(() => {
         if (isOpen && bills.length === 0 && residentData?.associatedIds?.organizationId && residentData?.associatedIds?.estateId) {
             fetchBills({ limit: 100 })
         }
     }, [isOpen, bills.length, residentData, fetchBills])
+
+    // Reset form when opening for add (no initialData)
+    React.useEffect(() => {
+        if (isOpen && !initialData) {
+            resetForm();
+        }
+    }, [isOpen, initialData])
 
     React.useEffect(() => {
         if (initialData) {
@@ -89,10 +118,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             // Helper to map bill type
             const mapBillType = (type: unknown): string => {
                 if (!type) return ''
-                const t = (type as string).toLowerCase()
-                if (t === 'security') return 'Estate Security'
-                // Add other mappings if needed
-                return (type as string).charAt(0).toUpperCase() + (type as string).slice(1)
+                return formatBillType(type as string)
             }
 
             // Helper to capitalize frequency
@@ -105,6 +131,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             setFormData({
                 paymentDate: formatDateForInput(initialData.paymentDate),
                 billType: mapBillType(initialData.billType),
+                residencyType: initialData.residencyType?.toString() || '',
                 frequency: capitalizeFrequency(initialData.frequency),
                 periodNumber: initialData.periodNumber?.toString() || '1',
                 amount: initialData.amount?.toString() || '',
@@ -120,7 +147,7 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     React.useEffect(() => {
         if (isOpen && selectedProperty?.details) {
             const { rentStart, rentDue, rentDuration, rentDurationType } = selectedProperty.details
-            
+
             const formatDate = (dateStr?: string) => {
                 if (!dateStr) return ''
                 const date = new Date(dateStr)
@@ -137,12 +164,12 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
 
             let durationInMonths = ''
             const rawDuration = rentDuration !== undefined && rentDuration !== null ? rentDuration : ''
-            
+
             if (rawDuration !== '') {
                 const val = typeof rawDuration === 'string' ? parseInt(rawDuration) : rawDuration
                 if (!isNaN(val)) {
                     durationInMonths = val.toString()
-                    
+
                     if (rentDurationType) {
                         const type = rentDurationType.toLowerCase()
                         if (type === 'yearly' || type === 'annually') {
@@ -181,21 +208,47 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     const handleBillSelect = (billName: string) => {
         const bill = bills.find(b => b.billName === billName)
         if (bill) {
+            let residencyType = ''
+            let amount = bill.amount ? bill.amount.toString() : ''
+
+            if (!bill.applyToAllResidencyTypes && bill.residencyAmounts) {
+                // Try to match with selectedProperty's residencyType
+                const matchingResidency = bill.residencyAmounts.find(ra => ra.residencyType === selectedProperty?.details?.residencyType)
+                if (matchingResidency) {
+                    residencyType = matchingResidency.residencyType
+                    amount = matchingResidency.amount.toString()
+                } else if (bill.residencyAmounts.length > 0) {
+                    // Default to first one
+                    residencyType = bill.residencyAmounts[0].residencyType
+                    amount = bill.residencyAmounts[0].amount.toString()
+                }
+            }
 
             setFormData(prev => ({
                 ...prev,
                 billType: bill.billName,
+                residencyType,
                 frequency: capitalizeFirstLetter(bill.frequency),
-                amount: bill.amount ? bill.amount.toString() : prev.amount,
-                }))
+                amount,
+            }))
+            setSelectedBill(bill)
         } else {
             handleChange('billType', billName)
+            setSelectedBill(null)
         }
     }
 
-    // Helper for capitalization
-    const capitalizeFirstLetter = (string: string) => {
-        return string.charAt(0).toUpperCase() + string.slice(1);
+    const handleResidencyTypeSelect = (residencyType: string) => {
+        const matchingResidency = selectedBill?.residencyAmounts?.find(ra => ra.residencyType === residencyType)
+        if (matchingResidency) {
+            setFormData(prev => ({
+                ...prev,
+                residencyType,
+                amount: matchingResidency.amount.toString(),
+            }))
+        } else {
+            handleChange('residencyType', residencyType)
+        }
     }
 
     const calculateDueDate = (start: string, duration: string) => {
@@ -222,13 +275,13 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     React.useEffect(() => {
         // Only recalculate if user manually changes start date or duration
         // If it was just auto-filled, it should be consistent.
-        if (formData.startDate && formData.residencyDuration) {
+        if (formData.startDate && formData.residencyDuration && selectedProperty?.details?.ownershipType !== "owned") {
             const newDueDate = calculateDueDate(formData.startDate, formData.residencyDuration)
             if (newDueDate !== formData.dueDate) {
                 setFormData(prev => ({ ...prev, dueDate: newDueDate }))
             }
         }
-    }, [formData.startDate, formData.residencyDuration])
+    }, [formData.startDate, formData.residencyDuration, selectedProperty?.details?.ownershipType])
 
     const handleSave = async () => {
         if (!residentData) {
@@ -245,10 +298,19 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             { key: 'amount', label: 'Amount' },
             { key: 'amountPaid', label: 'Amount Paid' },
             { key: 'paymentType', label: 'Payment Type' },
-            { key: 'residencyDuration', label: 'Residency Duration' },
-            { key: 'startDate', label: 'Start Date' },
-            { key: 'dueDate', label: 'Due Date' }
+            { key: 'startDate', label: 'Start Date' }
         ]
+
+        if (selectedProperty?.details?.ownershipType !== "owned") {
+            requiredFields.push(
+                { key: 'residencyDuration', label: 'Residency Duration' },
+                { key: 'dueDate', label: 'Due Date' }
+            )
+        }
+
+        if (selectedBill && !selectedBill.applyToAllResidencyTypes) {
+            requiredFields.push({ key: 'residencyType', label: 'Residency Type' })
+        }
 
         for (const field of requiredFields) {
             if (!formData[field.key as keyof FormData]) {
@@ -273,15 +335,15 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             const orgId = residentData.associatedIds?.organizationId
             const estateId = residentData.associatedIds?.estateId
             const residentId = residentData._id
-            
+
             // Determine apartmentId:
             // 1. Use selectedProperty.id if available (assuming it maps to residence/apartment ID)
             // 2. Or find residence matching residentData.apartment
             // 3. Or fallback to first residence
             let apartmentId = selectedProperty?.id
-            
+
             if (!apartmentId) {
-                 apartmentId = residentData.residences?.find(r => r.apartment === residentData.apartment)?._id || residentData.residences?.[0]?._id
+                apartmentId = residentData.residences?.find(r => r.apartment === residentData.apartment)?._id || residentData.residences?.[0]?._id
             }
 
             if (!orgId || !estateId || !residentId || !apartmentId) {
@@ -300,11 +362,11 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             }
 
             const isResidencyType = !selectedBill?.applyToAllResidencyTypes
-            
+
             let residencyTypeDetails = undefined
-            if (isResidencyType && selectedProperty?.details?.residencyType) {
+            if (isResidencyType && formData.residencyType) {
                 const matchingResidency = selectedBill?.residencyAmounts?.find(
-                    ra => ra.residencyType === selectedProperty.details?.residencyType
+                    ra => ra.residencyType === formData.residencyType
                 )
                 if (matchingResidency) {
                     residencyTypeDetails = {
@@ -322,15 +384,24 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 amount: parseFloat(formData.amount),
                 amountPaid: parseFloat(formData.amountPaid),
                 paymentType: formData.paymentType,
-                residencyDuration: parseInt(formData.residencyDuration),
                 startDate: formData.startDate,
-                dueDate: formData.dueDate,
+                // residencyDuration: selectedProperty?.details?.ownershipType === "owned" ? null : parseInt(formData.residencyDuration),
+                // dueDate: selectedProperty?.details?.ownershipType === "owned" ? null : formData.dueDate,
+                ...(selectedProperty?.details?.ownershipType !== "owned" && {
+                    residencyDuration: parseInt(formData.residencyDuration),
+                    dueDate: formData.dueDate,
+                }),
                 billingStartDate: selectedBill?.billingStartDate,
                 billingEndDate: selectedBill?.billingEndDate,
                 isResidencyType,
                 ...(residencyTypeDetails && { residencyTypeDetails })
             }
+            // ...(residencyTypeDetails && { residencyTypeDetails }),
 
+            //     ...(selectedProperty?.details?.ownershipType !== "owned" && {
+            //     residencyDuration: parseInt(formData.residencyDuration),
+            //     dueDate: formData.dueDate,
+            // })
             if (initialData) {
                 // Edit: PATCH request
                 await api.patch(`/community-manager/bill-payment/${initialData._id}/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
@@ -338,6 +409,16 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 // Add: POST request
                 await api.post(`/community-manager/bill-payment/offine/organizations/${orgId}/estates/${estateId}/residents/${residentId}/apartments/${apartmentId}/billings/${billingId}`, payload)
             }
+
+            // Fetch the data again for the table
+            if (residentData?._id && apartmentId) {
+                await fetchBillPayments({
+                    residentId: residentData._id,
+                    apartmentId: String(apartmentId),
+                    silent: true
+                })
+            }
+            setShowData(true)
 
             onSave?.(formData)
             setShowSuccess(true)
@@ -368,12 +449,12 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     // Map bills to options
     const billTypeOptions = bills.filter(bill => {
         if (bill.applyToAllResidencyTypes) return true
-        
+
         const userResidencyType = selectedProperty?.details?.residencyType
         if (userResidencyType) {
-             return bill.residencyAmounts?.some(ra => ra.residencyType === userResidencyType)
+            return bill.residencyAmounts?.some(ra => ra.residencyType === userResidencyType)
         }
-        
+
         return true
     }).map((bill, index) => ({
         id: bill._id || index, // Use _id if available
@@ -429,14 +510,20 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
 
     const periodOptions = getPeriodOptions()
 
+    const residencyTypeOptions = selectedBill?.residencyAmounts?.map((ra, index) => ({
+        id: ra._id || index,
+        label: ra.residencyType
+    })) || []
+
     // Helper to find ID by label for dropdowns
-    const getSelectedIdByLabel = (options: {id: string|number, label: string}[], label: string) => {
+    const getSelectedIdByLabel = (options: { id: string | number, label: string }[], label: string) => {
         return options.find(o => o.label === label)?.id ?? null
     }
 
     const selectedBillTypeId = getSelectedIdByLabel(billTypeOptions, formData.billType)
     const selectedFrequencyId = getSelectedIdByLabel(frequencyOptions, formData.frequency)
     const selectedPaymentTypeId = getSelectedIdByLabel(paymentTypeOptions, formData.paymentType)
+    const selectedResidencyTypeId = getSelectedIdByLabel(residencyTypeOptions, formData.residencyType)
     const selectedPeriodId = periodOptions.find(o => o.id.toString() === formData.periodNumber)?.id ?? null
 
     const [showSuccess, setShowSuccess] = React.useState(false)
@@ -448,6 +535,8 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
 
     console.log("selectedProperty:", selectedProperty)
     console.log("selectedBill:", selectedBill)
+    console.log("initialData:", initialData)
+    console.log("residentData:", residentData)
 
     return (
         <>
@@ -491,6 +580,20 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                                     selectedId={selectedBillTypeId}
                                 />
                             </div>
+                            {selectedBill && !selectedBill.applyToAllResidencyTypes && (
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
+                                    <label className='text-sm text-GrayHomz font-medium'>Residency Type <span className='text-red-500'>*</span></label>
+                                    <Dropdown
+                                        showSearch
+                                        className="text-sm w-full h-[45px]"
+                                        onSelect={(opt) => handleResidencyTypeSelect(opt.label)}
+                                        borderColor="border-GrayHomz"
+                                        selectOption={formData.residencyType || "Select Residency Type"}
+                                        options={residencyTypeOptions}
+                                        selectedId={selectedResidencyTypeId}
+                                    />
+                                </div>
+                            )}
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
                                 <label className='text-sm text-GrayHomz font-medium'>Frequency <span className='text-red-500'>*</span></label>
                                 <Dropdown
@@ -555,17 +658,21 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                         </div>
 
                         <div className='mt-4 bg-inputBg py-5 px-4 rounded-[8px] space-y-4'>
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
-                                <label className='text-sm text-GrayHomz font-medium'>Residency Duration (Months) <span className='text-red-500'>*</span></label>
-                                <CustomInput
-                                    borderColor='#4E4E4E'
-                                    value={formData.residencyDuration}
-                                    type="number"
-                                    onValueChange={(v) => handleChange('residencyDuration', v)}
-                                    className='text-sm h-[45px] pl-4'
-                                    placeholder="e.g 12"
-                                />
-                            </div>
+                            {selectedProperty?.details?.ownershipType === "owned" ? (
+                                null
+                            ) : (
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
+                                    <label className='text-sm text-GrayHomz font-medium'>Residency Duration (Months) <span className='text-red-500'>*</span></label>
+                                    <CustomInput
+                                        borderColor='#4E4E4E'
+                                        value={formData.residencyDuration}
+                                        type="number"
+                                        onValueChange={(v) => handleChange('residencyDuration', v)}
+                                        className='text-sm h-[45px] pl-4'
+                                        placeholder="e.g 12"
+                                    />
+                                </div>
+                            )}
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
                                 <label className='text-sm text-GrayHomz font-medium'>Start Date <span className='text-red-500'>*</span></label>
                                 <div className='relative'>
@@ -581,21 +688,23 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                                     </span>
                                 </div>
                             </div>
-                            <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
-                                <label className='text-sm text-GrayHomz font-medium'>Due Date <span className='text-red-500'>*</span></label>
-                                <div className='relative'>
-                                    <CustomInput
-                                        borderColor='#4E4E4E'
-                                        type='date'
-                                        className='text-sm h-[45px] px-4 pr-10 input-hide-date-icon'
-                                        value={formData.dueDate}
-                                        readOnly
-                                    />
-                                    <span className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none'>
-                                        <DateIcon />
-                                    </span>
+                            {selectedProperty?.details?.ownershipType === "owned" ? null : (
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
+                                    <label className='text-sm text-GrayHomz font-medium'>Due Date <span className='text-red-500'>*</span></label>
+                                    <div className='relative'>
+                                        <CustomInput
+                                            borderColor='#4E4E4E'
+                                            type='date'
+                                            className='text-sm h-[45px] px-4 pr-10 input-hide-date-icon'
+                                            value={formData.dueDate}
+                                            readOnly
+                                        />
+                                        <span className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none'>
+                                            <DateIcon />
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                         <button disabled={loading} onClick={handleSave} className={`${loading ? 'pointer-events-none flex justify-center h-[48px]' : ''} mt-4 w-full text-white bg-BlueHomz p-3 hover:bg-BlueHomzDark rounded-[4px]`}>{loading ? 'Saving...' : 'Record Transaction'}</button>
                     </div>
