@@ -49,3 +49,4 @@ next-env.d.ts
 **/public/worker-*.js.map
 
 SYSTEM_AND_TOOLS.md
+implementation_plan.md

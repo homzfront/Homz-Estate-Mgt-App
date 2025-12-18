@@ -95,7 +95,7 @@ const Sidebar = () => {
     }
 
     React.useEffect(() => {
-        if (userData) {
+        if (userData && !residentCommunity) {
             fetchResidentEstate();
         }
     }, [userData]);
