@@ -1,8 +1,8 @@
 "use client"
 
 import CustomInput from '@/components/general/customInput'
-import CameraIcon from '@/components/icons/cameraIcon'
-import DeleteIcon from '@/components/icons/deleteIcon'
+// import CameraIcon from '@/components/icons/cameraIcon'
+// import DeleteIcon from '@/components/icons/deleteIcon'
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import ChangePassword from './(changePassword)/changePassword'
@@ -97,7 +97,7 @@ const Profile = () => {
           <div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {/* Image Upload Section */}
-              <div className='md:h-[200px] bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex gap-4 items-center'>
+              {/* <div className='md:h-[200px] bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex gap-4 items-center'>
                 <Image
                   src={imagePreview || "/emptyImageUpload.png"}
                   alt='Profile'
@@ -147,7 +147,7 @@ const Profile = () => {
                   )}
                   <p className='text-[11px] font-normal text-GrayHomz'>PDF, JPG (max. 5mb)</p>
                 </div>
-              </div>
+              </div> */}
 
 
               {/* Personal Info Form */}

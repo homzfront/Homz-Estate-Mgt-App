@@ -4,8 +4,8 @@
 import CustomInput from '@/components/general/customInput';
 import React, { useState, useEffect } from 'react';
 import UpdateButtonPassword from '../(changePassword)/components/updateButtonPassword';
-import CameraIcon from '@/components/icons/cameraIcon';
-import DeleteIcon from '@/components/icons/deleteIcon';
+// import CameraIcon from '@/components/icons/cameraIcon';
+// import DeleteIcon from '@/components/icons/deleteIcon';
 import { useAuthSlice } from '@/store/authStore';
 import Image from 'next/image';
 
@@ -44,17 +44,17 @@ const BusinessInfo = () => {
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    setSelectedImage(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files || e.target.files.length === 0) return;
+  //   const file = e.target.files[0];
+  //   setSelectedImage(file);
+  //   setImagePreview(URL.createObjectURL(file));
+  // };
 
-  const handleDeleteImage = () => {
-    setSelectedImage(null);
-    setImagePreview('');
-  };
+  // const handleDeleteImage = () => {
+  //   setSelectedImage(null);
+  //   setImagePreview('');
+  // };
 
   const updateDone = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +72,7 @@ const BusinessInfo = () => {
       {/* Horizontal layout: Image + Form */}
       <div className="flex flex-col md:flex-row gap-4 mt-4">
         {/* Image Upload Section */}
-        <div className='md:w-1/2 md:h-[200px] bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex gap-4 items-center'>
+        {/* <div className='md:w-1/2 md:h-[200px] bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex gap-4 items-center'>
           <Image
             src={imagePreview || "/emptyImageUpload.png"}
             alt='Business'
@@ -122,7 +122,7 @@ const BusinessInfo = () => {
             )}
             <p className='text-[11px] font-normal text-GrayHomz'>PDF, JPG (max. 5mb)</p>
           </div>
-        </div>
+        </div> */}
 
         {/* Business Form */}
         <div className="md:w-1/2 bg-[#FCFCFC] rounded-[12px] p-4 flex flex-col gap-4">
