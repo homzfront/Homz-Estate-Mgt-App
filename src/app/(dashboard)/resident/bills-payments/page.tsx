@@ -9,36 +9,33 @@ import LoadingSpinner from '@/components/general/loadingSpinner';
 // import { useSelectedCommunity } from '@/store/useSelectedCommunity'; // If needed to know which community is active
 
 const BillAndPayment = () => {
-  const { 
-      bills, 
-      hasAnyData, 
-      fetchResidentBills, 
-      isLoading,
-      search,
-      frequency
+  const {
+    bills,
+    hasAnyData,
+    fetchResidentBills,
+    isLoading,
+    metrics,
+    search,
+    frequency
   } = useResidentBillStore();
 
   const { residentCommunity } = useResidentCommunity();
-  
+
   // Logic to get the correct IDs. 
   // Assuming we use the first community or a selected one.
   // You might need to use a selector if the user can switch communities.
   const activeCommunity = residentCommunity?.[0]; // Replace with actual selection logic
-
-  const hasFetchedRef = useRef(false);
-
+  // console.log("residentCommunity:", residentCommunity)
+  // console.log("bills:", bills)
   useEffect(() => {
-      if (activeCommunity) {
-          const isFirstLoad = !hasFetchedRef.current;
-          const { estateId, associatedIds } = activeCommunity;
-          fetchResidentBills({
-              estateId,
-              organizationId: associatedIds.organizationId,
-              residentOrganizationsId: associatedIds.residentOrganizationId,
-              silent: !isFirstLoad
-          });
-          hasFetchedRef.current = true;
-      }
+    if (activeCommunity) {
+      const { estateId, associatedIds } = activeCommunity;
+      fetchResidentBills({
+        estateId,
+        organizationId: associatedIds.organizationId,
+        residentId: associatedIds.residentId,
+      });
+    }
   }, [activeCommunity, fetchResidentBills, search, frequency]); // Re-fetch when filters change
 
   return (

@@ -1,41 +1,32 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
-import { estateBillingData } from '@/constant/index';
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import ArrowRight from '@/components/icons/arrowRight';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import PaymentRecordIcon from '@/components/icons/paymentRecordIcon';
 import CustomModal from '@/components/general/customModal';
 import DocDocuSmall from '@/components/icons/docDocuSmall';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
+import { ResidentBillItem } from '@/store/useResidentBillStore';
 
-const Table = () => {
+interface TableProps {
+    groupedBills: Record<string, ResidentBillItem[]>;
+}
+
+const Table = ({ groupedBills }: TableProps) => {
     const router = useRouter();
-    const [displayedBills, setDisplayedBills] = React.useState(estateBillingData.slice(0, 8))
-    const [currentPage, setCurrentPage] = React.useState(1)
-    const [isLoading, setIsLoading] = React.useState(false)
+    const { id: billingId } = useParams();
     const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null)
-    const [selectedBill, setSelectedBill] = React.useState<any>(null)
+    const [selectedBill, setSelectedBill] = React.useState<ResidentBillItem | null>(null)
     const [isModalOpen, setIsModalOpen] = React.useState(false)
-    const loaderRef = React.useRef<HTMLDivElement | null>(null)
     const dropdownRef = React.useRef<HTMLDivElement | null>(null)
     const [disabledPaymentRecord, setDisabledPaymentRecord] = React.useState(true);
 
-    const itemsPerPage = 8
-    const totalPages = Math.ceil(estateBillingData.length / itemsPerPage)
+    const billsList = React.useMemo(() => {
+        return Object.values(groupedBills).flat();
+    }, [groupedBills]);
 
-    React.useEffect(() => {
-        if (!loaderRef.current) return
-        const el = loaderRef.current
-        const observer = new IntersectionObserver((entries) => {
-            const first = entries[0]
-            if (first.isIntersecting && !isLoading && currentPage < totalPages) {
-                loadMore()
-            }
-        }, { rootMargin: '200px' })
-        observer.observe(el)
-        return () => observer.unobserve(el)
-    }, [loaderRef.current, isLoading, currentPage, totalPages])
+    // console.log("billsList:", billsList);
+    // console.log("groupedBills:", groupedBills);
 
     // Close dropdown when clicking outside
     React.useEffect(() => {
@@ -48,37 +39,37 @@ const Table = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    const loadMore = () => {
-        setIsLoading(true)
-        setTimeout(() => {
-            const nextPage = currentPage + 1
-            const startIndex = nextPage * itemsPerPage
-            const endIndex = startIndex + itemsPerPage
-            const newBills = estateBillingData.slice(startIndex, endIndex)
-            setDisplayedBills(prev => [...prev, ...newBills])
-            setCurrentPage(nextPage)
-            setIsLoading(false)
-        }, 500) // Simulate loading delay
-    };
-
-    const toggleDropdown = (id: string) => {
+    const toggleDropdown = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         setOpenDropdownId(openDropdownId === id ? null : id)
     }
 
-    const handleMoreInfo = (bill: any) => {
+    const handleMoreInfo = (bill: ResidentBillItem) => {
         setSelectedBill(bill)
-        const isInactive = bill.residentStatus === 'Pending' || bill.residentStatus === 'Overdue'
+        const isInactive = bill.status?.toLowerCase() === 'pending' || bill.status?.toLowerCase() === 'overdue'
         setDisabledPaymentRecord(isInactive)
         setIsModalOpen(true)
         setOpenDropdownId(null)
     }
 
-    const handlePaymentRecord = (idx: number, status: string) => {
-        const isInactive = status === 'Pending' || status === 'Overdue'
+    const handlePaymentRecord = (recordId: string, status: string) => {
+        const isInactive = status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'overdue'
         if (!isInactive) {
-            router.push(`/resident/bills-payments/${idx}/payment-record/${idx}`)
+            router.push(`/resident/bills-payments/${billingId}/payment-record/${recordId}`)
         }
         setOpenDropdownId(null)
+    }
+
+    const getStatusStyles = (status: string) => {
+        const s = status?.toLowerCase();
+        switch (s) {
+            case 'pending': return { bg: '#FCF3EB', color: '#DC6803' };
+            case 'partialpaid':
+            case 'partially paid': return { bg: '#EEF5FF', color: '#006AFF' };
+            case 'overdue': return { bg: '#FDF2F2', color: '#D92D20' };
+            case 'paid': return { bg: '#CDEADD', color: '#039855' };
+            default: return { bg: '#F6F6F6', color: '#333' };
+        }
     }
 
     return (
@@ -86,8 +77,8 @@ const Table = () => {
             <CustomModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
                 <div className='p-4 md:p-7 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
                     <div className='flex justify-between items-start pb-4'>
-                        <div onClick={() => setDisabledPaymentRecord(false)} className='max-w-[80%] text-sm font-medium text-BlueHomz'>
-                            [Bill Name] - [Period]
+                        <div className='max-w-[80%] text-sm font-medium text-BlueHomz capitalize'>
+                            {selectedBill?.billType?.replace(/_/g, ' ')} - {selectedBill?.period?.replace(/_/g, ' ')}
                         </div>
                         <button onClick={() => setIsModalOpen(false)}>
                             <CloseTransluscentIcon />
@@ -99,41 +90,31 @@ const Table = () => {
                             <div className="space-y-3 bg-[#F6F6F6] rounded-[12px] p-4">
                                 <div className="grid grid-cols-2 py-2">
                                     <span className="text-GrayHomz text-xs col-span-1">Period</span>
-                                    <span className="text-BlackHomz text-xs col-span-1">{selectedBill.frequency}</span>
+                                    <span className="text-BlackHomz text-xs col-span-1 uppercase">{selectedBill.period?.replace(/_/g, ' ')}</span>
                                 </div>
                                 <div className="grid grid-cols-2 py-2">
                                     <span className="text-GrayHomz text-xs col-span-1">Amount</span>
-                                    <span className="text-BlackHomz text-xs col-span-1">{selectedBill.amount}</span>
+                                    <span className="text-BlackHomz text-xs col-span-1">₦{selectedBill.amount?.toLocaleString()}</span>
                                 </div>
                                 <div className="grid grid-cols-2 py-2">
                                     <span className="text-GrayHomz text-xs col-span-1">Start Date</span>
-                                    <span className="text-BlackHomz text-xs col-span-1">{selectedBill.startDate}</span>
+                                    <span className="text-BlackHomz text-xs col-span-1">{new Date(selectedBill.billingStartDate).toLocaleDateString()}</span>
                                 </div>
                                 <div className="grid grid-cols-2 py-2">
                                     <span className="text-GrayHomz text-xs col-span-1">Due Date</span>
-                                    <span className="text-BlackHomz text-xs col-span-1">{selectedBill.dueDate}</span>
+                                    <span className="text-BlackHomz text-xs col-span-1">{new Date(selectedBill.billingEndDate).toLocaleDateString()}</span>
                                 </div>
                                 <div className="grid grid-cols-2 py-2">
                                     <span className="text-GrayHomz text-xs col-span-1">Status</span>
                                     <span >
                                         <span
-                                            className={'py-1 px-3 rounded-[4px] text-xs font-medium'}
+                                            className={'py-1 px-3 rounded-[4px] text-xs font-medium capitalize'}
                                             style={{
-                                                backgroundColor:
-                                                    selectedBill.residentStatus === 'Pending' ? '#FCF3EB'
-                                                        : selectedBill.residentStatus === 'Partially Paid' ? '#EEF5FF'
-                                                            : selectedBill.residentStatus === 'Overdue' ? '#FDF2F2'
-                                                                : selectedBill.residentStatus === 'Paid' ? '#CDEADD'
-                                                                    : '#F6F6F6',
-                                                color:
-                                                    selectedBill.residentStatus === 'Pending' ? '#DC6803'
-                                                        : selectedBill.residentStatus === 'Partially Paid' ? '#006AFF'
-                                                            : selectedBill.residentStatus === 'Overdue' ? '#D92D20'
-                                                                : selectedBill.residentStatus === 'Paid' ? '#039855'
-                                                                    : '#333',
+                                                backgroundColor: getStatusStyles(selectedBill.status).bg,
+                                                color: getStatusStyles(selectedBill.status).color
                                             }}
                                         >
-                                            {selectedBill.residentStatus}
+                                            {selectedBill.status === 'partialpaid' ? 'Partially Paid' : selectedBill.status}
                                         </span>
                                     </span>
                                 </div>
@@ -141,8 +122,7 @@ const Table = () => {
                             <button
                                 onClick={() => {
                                     if (!disabledPaymentRecord && selectedBill) {
-                                        const billIndex = displayedBills.findIndex(b => b._id === selectedBill._id)
-                                        router.push(`/resident/bills-payments/${billIndex}/payment-record/${billIndex}`)
+                                        router.push(`/resident/bills-payments/${billingId}/payment-record/${selectedBill._id}`)
                                     }
                                     setIsModalOpen(false);
                                 }}
@@ -171,130 +151,123 @@ const Table = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {displayedBills.length === 0 && (
+                                {billsList.length === 0 ? (
                                     Array.from({ length: 6 }).map((_, sk) => (
                                         <tr key={`sk-${sk}`} className="border-t-[1px]">
                                             <td className="py-[15px] pl-4">
                                                 <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
                                             </td>
-                                            <td className="py-[15px]">
+                                            <td className="py-[15px] hidden md:table-cell">
                                                 <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
                                             </td>
-                                            <td className="py-[15px] pr-4"></td>
+                                            <td className="py-[15px] hidden md:table-cell">
+                                                <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
+                                            </td>
+                                            <td className="py-[15px] hidden md:table-cell">
+                                                <div className="h-3 w-28 bg-whiteblue animate-pulse"></div>
+                                            </td>
+                                            <td className="py-[15px]">
+                                                <div className="h-3 w-24 bg-whiteblue animate-pulse"></div>
+                                            </td>
+                                            <td className="py-[15px]"></td>
                                         </tr>
                                     ))
-                                )}
-                                {displayedBills.map((row, idx) => {
-                                    const isInactive = row.residentStatus === 'Pending' || row.residentStatus === 'Overdue';
-                                    return (
-                                        <tr
-                                            key={row._id}
-                                            className="border-t min-h-[60px] bg-white hover:bg-gray-50 cursor-pointer transition-colors"
-                                            onClick={() => router.push(`/resident/bills-payments/${idx}`)}
-                                        >
-                                            <td className="pl-4 py-[15px] text-GrayHomz font-[500] text-[11px]">{row.frequency}</td>
-                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.amount}</td>
-                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.startDate}</td>
-                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">{row.dueDate}</td>
-                                            <td className="py-[15px] text-GrayHomz font-[500] text-[11px] min-w-[180px]">
-                                                <div className="flex justify-start">
-                                                    <span
-                                                        className={'py-2 px-3 rounded-[4px] inline-block text-center'}
-                                                        style={{
-                                                            backgroundColor:
-                                                                row.residentStatus === 'Pending' ? '#FCF3EB'
-                                                                    : row.residentStatus === 'Partially Paid' ? '#EEF5FF'
-                                                                        : row.residentStatus === 'Overdue' ? '#FDF2F2'
-                                                                            : row.residentStatus === 'Paid' ? '#CDEADD'
-                                                                                : '#F6F6F6',
-                                                            color:
-                                                                row.residentStatus === 'Pending' ? '#DC6803'
-                                                                    : row.residentStatus === 'Partially Paid' ? '#006AFF'
-                                                                        : row.residentStatus === 'Overdue' ? '#D92D20'
-                                                                            : row.residentStatus === 'Paid' ? '#039855'
-                                                                                : '#333',
-                                                            fontWeight: 600,
-                                                            width: '120px',
-                                                            fontSize: '12px',
-                                                        }}
-                                                    >
-                                                        {row.residentStatus}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="py-[15px] md:w-[180px]" onClick={(e) => e.stopPropagation()}>
-                                                {/* Desktop view - full button */}
-                                                <button
-                                                    onClick={() => !isInactive && router.push(`/resident/bills-payments/${idx}/payment-record/${idx}`)}
-                                                    className={`hidden md:flex items-center gap-2 font-semibold text-sm ${isInactive
-                                                        ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                                        : 'text-BlueHomz cursor-pointer hover:underline'
-                                                        }`}
-                                                    disabled={isInactive}
-                                                >
-                                                    <PaymentRecordIcon />  <span className='flex items-center gap-1'>Payment record <ArrowRight className='#006aff' /></span>
-                                                </button>
-
-                                                {/* Mobile view - 3-dot menu */}
-                                                <div className="md:hidden relative" ref={openDropdownId === row._id ? dropdownRef : null}>
+                                ) : (
+                                    billsList.map((row) => {
+                                        const isInactive = row.status === 'pending' || row.status === 'overdue';
+                                        const statusStyles = getStatusStyles(row.status);
+                                        return (
+                                            <tr
+                                                key={row._id}
+                                                className="border-t min-h-[60px] bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                                                onClick={() => handleMoreInfo(row)}
+                                            >
+                                                <td className="pl-4 py-[15px] text-GrayHomz font-[500] text-[11px] uppercase">
+                                                    {row.period?.replace(/_/g, ' ')}
+                                                </td>
+                                                <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
+                                                    ₦{row.amount?.toLocaleString()}
+                                                </td>
+                                                <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
+                                                    {new Date(row.billingStartDate).toLocaleDateString()}
+                                                </td>
+                                                <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
+                                                    {new Date(row.billingEndDate).toLocaleDateString()}
+                                                </td>
+                                                <td className="py-[15px] text-GrayHomz font-[500] text-[11px] min-w-[150px]">
+                                                    <div className="flex justify-start">
+                                                        <span
+                                                            className={'py-2 px-3 rounded-[4px] inline-block text-center font-semibold capitalize'}
+                                                            style={{
+                                                                backgroundColor: statusStyles.bg,
+                                                                color: statusStyles.color,
+                                                                width: '120px',
+                                                                fontSize: '11px',
+                                                            }}
+                                                        >
+                                                            {row.status === 'partialpaid' ? 'Partially Paid' : row.status}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-[15px] md:w-[180px]" onClick={(e) => e.stopPropagation()}>
+                                                    {/* Desktop view */}
                                                     <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            toggleDropdown(row._id);
-                                                        }}
-                                                        className="p-1"
+                                                        onClick={() => !isInactive && router.push(`/resident/bills-payments/${row._id}/payment-record/${row._id}`)}
+                                                        className={`hidden md:flex items-center gap-2 font-semibold text-sm ${isInactive
+                                                            ? 'text-gray-400 cursor-not-allowed opacity-50'
+                                                            : 'text-BlueHomz cursor-pointer hover:underline'
+                                                            }`}
+                                                        disabled={isInactive}
                                                     >
-                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                            <circle cx="12" cy="6" r="1.5" fill="#666" />
-                                                            <circle cx="12" cy="12" r="1.5" fill="#666" />
-                                                            <circle cx="12" cy="18" r="1.5" fill="#666" />
-                                                        </svg>
+                                                        <PaymentRecordIcon color={isInactive ? '#9ca3af' : '#006AFF'} />
+                                                        <span className='flex items-center gap-1'>Payment record <ArrowRight className={isInactive ? '#9ca3af' : '#006aff'} /></span>
                                                     </button>
-                                                    {openDropdownId === row._id && (
-                                                        <div className="absolute right-10 top-8 bg-white border rounded-lg shadow-lg z-10 w-48 py-1">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleMoreInfo(row);
-                                                                }}
-                                                                className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-GrayHomz"
-                                                            >
-                                                                <DocDocuSmall />
-                                                                <span>More info</span>
-                                                            </button>
-                                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handlePaymentRecord(idx, row.residentStatus);
-                                                                }}
-                                                                className={`w-full text-left px-4 py-2 flex items-center gap-2 text-sm font-medium ${
-                                                                    isInactive 
-                                                                        ? 'text-gray-400 cursor-not-allowed opacity-50' 
+
+                                                    {/* Mobile view */}
+                                                    <div className="md:hidden relative" ref={openDropdownId === row._id ? dropdownRef : null}>
+                                                        <button
+                                                            onClick={(e) => toggleDropdown(row._id, e)}
+                                                            className="p-1"
+                                                        >
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                                <circle cx="12" cy="6" r="1.5" fill="#666" />
+                                                                <circle cx="12" cy="12" r="1.5" fill="#666" />
+                                                                <circle cx="12" cy="18" r="1.5" fill="#666" />
+                                                            </svg>
+                                                        </button>
+                                                        {openDropdownId === row._id && (
+                                                            <div className="absolute right-0 top-8 bg-white border rounded-lg shadow-lg z-10 w-48 py-1">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleMoreInfo(row);
+                                                                    }}
+                                                                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-GrayHomz"
+                                                                >
+                                                                    <DocDocuSmall />
+                                                                    <span>More info</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handlePaymentRecord(row._id, row.status);
+                                                                    }}
+                                                                    className={`w-full text-left px-4 py-2 flex items-center gap-2 text-sm font-medium ${isInactive
+                                                                        ? 'text-gray-400 cursor-not-allowed opacity-50'
                                                                         : 'text-GrayHomz hover:bg-gray-50'
-                                                                }`}
-                                                                disabled={isInactive}
-                                                            >
-                                                                <PaymentRecordIcon color={isInactive ? '#D5D5D5' : '#4e4e4e'} />
-                                                                <span>Payment record</span>
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                                {currentPage < totalPages && (
-                                    <tr>
-                                        <td colSpan={8} className="py-2">
-                                            <div ref={loaderRef} className="h-1" />
-                                            {isLoading && (
-                                                <div className="w-full max-w-[1000px] flex items-center justify-center py-3">
-                                                    <LoadingSpinner size={24} />
-                                                </div>
-                                            )}
-                                        </td>
-                                    </tr>
+                                                                        }`}
+                                                                    disabled={isInactive}
+                                                                >
+                                                                    <PaymentRecordIcon color={isInactive ? '#D5D5D5' : '#4e4e4e'} />
+                                                                    <span>Payment record</span>
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>

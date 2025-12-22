@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import ArrowDown from "@/components/icons/arrowDown";
@@ -24,7 +23,7 @@ const Filters = () => {
         return () => clearTimeout(timer);
     }, [localSearch, setSearch]);
 
-    useClickOutside(closeAction as any, () => {
+    useClickOutside(closeAction, () => {
         setIsOpenI(false);
         setShowFrequencyDropdown(false);
     });
