@@ -533,10 +533,10 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
         setShowData(true)
     }
 
-    console.log("selectedProperty:", selectedProperty)
-    console.log("selectedBill:", selectedBill)
-    console.log("initialData:", initialData)
-    console.log("residentData:", residentData)
+    // console.log("selectedProperty:", selectedProperty)
+    // console.log("selectedBill:", selectedBill)
+    // console.log("initialData:", initialData)
+    // console.log("residentData:", residentData)
 
     return (
         <>

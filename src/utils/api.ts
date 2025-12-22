@@ -77,7 +77,7 @@ api.interceptors.response.use(
                     failedRequestsQueue = [];
 
                     return api(originalRequest);
-                } 
+                }
                 // else {
                 //     // If refresh fails, clear tokens and redirect to login
                 //     await deleteToken();
@@ -93,8 +93,8 @@ api.interceptors.response.use(
                 failedRequestsQueue.forEach((prom) => prom.reject(refreshError));
                 failedRequestsQueue = [];
 
-                displayTokenExpiredModal();
-                if (typeof window !== "undefined") {
+                if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+                    displayTokenExpiredModal();
                     setTimeout(() => {
                         window.location.href = "/login";
                     }, 3000);
@@ -103,6 +103,13 @@ api.interceptors.response.use(
                 return Promise.reject(new Error("Session expired. Please login again."));
             } finally {
                 isRefreshing = false;
+            }
+        } else if (error.response?.status === 401) {
+            if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+                await deleteToken();
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 3000);
             }
         }
 
