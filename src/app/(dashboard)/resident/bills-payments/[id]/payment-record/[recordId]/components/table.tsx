@@ -4,54 +4,35 @@ import CustomModal from '@/components/general/customModal'
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon'
 import DocDocuSmall from '@/components/icons/docDocuSmall'
 import { ResidentBillItem } from '@/store/useResidentBillStore'
+import Image from 'next/image'
+import PopUp from './popUp'
 
 interface TableProps {
     history: ResidentBillItem[];
 }
 
 const Table = ({ history }: TableProps) => {
-    const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null)
     const [selectedRecord, setSelectedRecord] = React.useState<ResidentBillItem | null>(null)
     const [isModalOpen, setIsModalOpen] = React.useState(false)
-    const dropdownRef = React.useRef<HTMLDivElement | null>(null)
+    const [popUp, setpopUp] = React.useState(false);
+    const [selectedDataId, setSelectedDataId] = React.useState<string | null>(null);
+    const buttonRefs = React.useRef<{ [key: string]: HTMLElement | null }>({});
 
-    // Close dropdown when clicking outside
-    React.useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setOpenDropdownId(null)
-            }
+    const handleToggleMenu = (record: ResidentBillItem) => {
+        if (selectedDataId === record._id && popUp) {
+            setpopUp(false);
+            setSelectedDataId(null);
+        } else {
+            setSelectedDataId(record._id);
+            setSelectedRecord(record);
+            setpopUp(true);
         }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [])
-
-    const getStatusStyle = (status: string) => {
-        const s = status?.toLowerCase();
-        switch (s) {
-            case 'pending':
-                return { backgroundColor: '#FCF3EB', color: '#DC6803' }
-            case 'partialpaid':
-            case 'partially paid':
-                return { backgroundColor: '#EEF5FF', color: '#006AFF' }
-            case 'overdue':
-                return { backgroundColor: '#FDF2F2', color: '#D92D20' }
-            case 'paid':
-                return { backgroundColor: '#CDEADD', color: '#039855' }
-            default:
-                return { backgroundColor: '#F6F6F6', color: '#333' }
-        }
-    }
-
-    const toggleDropdown = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setOpenDropdownId(openDropdownId === id ? null : id)
-    }
+    };
 
     const handleMoreInfo = (record: ResidentBillItem) => {
         setSelectedRecord(record)
         setIsModalOpen(true)
-        setOpenDropdownId(null)
+        setpopUp(false)
     }
 
     return (
@@ -173,33 +154,29 @@ const Table = ({ history }: TableProps) => {
                                                 <td className="py-[15px] text-GrayHomz font-[500] text-[11px] hidden md:table-cell">
                                                     {row.paymentDate ? new Date(row.paymentDate).toLocaleDateString() : '-'}
                                                 </td>
-                                                <td className="py-[15px] md:hidden" onClick={(e) => e.stopPropagation()}>
-                                                    <div className="relative" ref={openDropdownId === row._id ? dropdownRef : null}>
-                                                        <button
-                                                            onClick={(e) => toggleDropdown(row._id, e)}
-                                                            className="p-1"
-                                                        >
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                                <circle cx="12" cy="6" r="1.5" fill="#666" />
-                                                                <circle cx="12" cy="12" r="1.5" fill="#666" />
-                                                                <circle cx="12" cy="18" r="1.5" fill="#666" />
-                                                            </svg>
-                                                        </button>
-                                                        {openDropdownId === row._id && (
-                                                            <div className="absolute right-0 top-8 bg-white border rounded-lg shadow-lg z-10 w-48 py-1">
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleMoreInfo(row);
-                                                                    }}
-                                                                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-GrayHomz"
-                                                                >
-                                                                    <DocDocuSmall />
-                                                                    <span>More info</span>
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                <td className="py-[15px]" onClick={(e) => e.stopPropagation()}>
+                                                    <button
+                                                        ref={(el) => { buttonRefs.current[row._id] = el }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleMenu(row);
+                                                        }}
+                                                        className="p-1"
+                                                    >
+                                                        <Image
+                                                            src="/dots-vertical.png"
+                                                            alt="Options"
+                                                            height={20}
+                                                            width={20}
+                                                        />
+                                                    </button>
+                                                    {popUp && selectedDataId === row._id && (
+                                                        <PopUp
+                                                            onClose={() => setpopUp(false)}
+                                                            anchorRef={{ current: buttonRefs.current[row._id] } as any}
+                                                            handleMoreInfo={() => handleMoreInfo(row)}
+                                                        />
+                                                    )}
                                                 </td>
                                             </tr>
                                         )

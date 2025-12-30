@@ -54,7 +54,7 @@ const BillAndPayment = () => {
             </>
           }
         </div>
-        {hasAnyData ? <span className='block -mt-3 md:mt-0'><Filters /></span> : isLoading ? <div>Loading...</div> : null}
+        {/* {hasAnyData ? <span className='block -mt-3 md:mt-0'><Filters /></span> : isLoading ? <div>Loading...</div> : null} */}
       </div>
       {isLoading ? (
         <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>

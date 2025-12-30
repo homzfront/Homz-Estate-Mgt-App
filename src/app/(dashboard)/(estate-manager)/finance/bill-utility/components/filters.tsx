@@ -44,13 +44,13 @@ const STATUS_OPTIONS = [
 ];
 
 interface FiltersProps {
-    setOpenEditBillingModal: (open: boolean) => void;
+    handleCreateBillClick: () => void;
     selectedRowsCount: number;
     onDeleteSelected: () => void;
     isDeletingMultiple: boolean;
 }
 
-const Filters = ({ setOpenEditBillingModal, selectedRowsCount, onDeleteSelected, isDeletingMultiple }: FiltersProps) => {
+const Filters = ({ handleCreateBillClick, selectedRowsCount, onDeleteSelected, isDeletingMultiple }: FiltersProps) => {
     const [isOpenTwo, setIsOpenTwo] = useState(false);
     const [isOpenI, setIsOpenI] = useState(false);
     const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
@@ -108,7 +108,7 @@ const Filters = ({ setOpenEditBillingModal, selectedRowsCount, onDeleteSelected,
                         />
                     </div>
                     <div className='md:hidden block'>
-                        <button onClick={() => setOpenEditBillingModal(true)} className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
+                        <button onClick={handleCreateBillClick} className='bg-BlueHomz rounded-[4px] h-[37px] px-4 flex justify-center items-center gap-2 text-sm font-semibold text-white'>
                             <AddWhiteBox /> Create Bill
                         </button>
                     </div>

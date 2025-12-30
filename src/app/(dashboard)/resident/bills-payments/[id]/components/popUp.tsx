@@ -1,19 +1,21 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import ArrowRight from '@/components/icons/arrowRight';
-import RevokeIcon from '@/components/icons/revokeIcon';
+import DocDocuSmall from '@/components/icons/docDocuSmall';
+import PaymentRecordIcon from '@/components/icons/paymentRecordIcon';
 import useClickOutside from '@/app/utils/useClickOutside';
+import { ResidentBillItem } from '@/store/useResidentBillStore';
 
 interface PopUpProps {
-    setOpenDetails: (data: boolean) => void;
-    fromDefault?: boolean;
-    setOpenRevoke: (val: boolean) => void;
+    bill: ResidentBillItem;
     onClose?: () => void;
     anchorRef: React.RefObject<HTMLElement>;
+    handleMoreInfo: () => void;
+    handlePaymentRecord: () => void;
+    isInactive: boolean;
 }
 
-function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, onClose, anchorRef }: PopUpProps) {
+function PopUp({ bill, onClose, anchorRef, handleMoreInfo, handlePaymentRecord, isInactive }: PopUpProps) {
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
     const [portalStyle, setPortalStyle] = useState<React.CSSProperties | null>(null);
@@ -39,46 +41,46 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, onClose, anc
         <div
             ref={portalRef}
             style={portalStyle || {}}
-            className={`drop-down absolute w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md ${fromDefault ? "bg-[#F6F6F6]" : "bg-white"} md:bg-white flex flex-col items-center justify-around shadow-lg`}
+            className={`drop-down absolute w-[180px] text-GrayHomz font-[500] text-[13px] border py-2 rounded-md bg-white flex flex-col items-center justify-around shadow-lg`}
         >
-            {/* More Details */}
+            {/* More info */}
             <div
                 onMouseEnter={() => setActive(true)}
                 onMouseLeave={() => setActive(false)}
-                className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                className="h-[35px] rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
                 <div className="w-full ">
                     <div
                         onClick={(e) => {
                             e.stopPropagation()
-                            setOpenDetails(true)
-                            if (onClose) onClose();
+                            handleMoreInfo()
                         }}
                         className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                     >
-                        <ArrowRight className={active ? '#006AFF' : "#4E4E4E"} />
+                        <DocDocuSmall />
                         <p className={`${active ? 'text-[#006AFF]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
-                            More Details
+                            More info
                         </p>
                     </div>
                 </div>
             </div>
-            {/* Revoke Access */}
+            {/* Payment record */}
             <div
                 onMouseEnter={() => setActiveTwo(true)}
                 onMouseLeave={() => setActiveTwo(false)}
-                className="md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ">
+                className={`h-[35px] rounded-md flex gap-1 items-center ${isInactive ? 'opacity-50 cursor-not-allowed' : 'text-GrayHomz hover:text-BlueHomz'} py-1 px-2 w-full `}>
                 <div className="w-full ">
                     <div
                         onClick={(e) => {
                             e.stopPropagation()
-                            setOpenRevoke(true);
-                            if (onClose) onClose();
+                            if (!isInactive) {
+                                handlePaymentRecord();
+                            }
                         }}
-                        className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
+                        className={`px-2 flex gap-1 items-center h-full w-full rounded-md ${isInactive ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-whiteblue'}`}
                     >
-                        <RevokeIcon className={activeTwo ? '#D92D20' : "#4E4E4E"} />
-                        <p className={`${activeTwo ? 'text-[#D92D20]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
-                            Revoke Access
+                        <PaymentRecordIcon color={isInactive ? '#D5D5D5' : (activeTwo ? '#006AFF' : '#4E4E4E')} />
+                        <p className={`${isInactive ? 'text-[#D5D5D5]' : (activeTwo ? 'text-[#006AFF]' : "text-[#4E4E4E]")} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
+                            Payment record
                         </p>
                     </div>
                 </div>

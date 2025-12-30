@@ -17,6 +17,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useAbility } from '@/contexts/AbilityContext'
+import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore'
 
 interface PickEstateProps {
     closeRef?: any;
@@ -27,6 +28,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
     const { clearForm } = useEstateFormStore()
     const { estatesData, logOutUser } = useAuthSlice();
     const ability = useAbility();
+    const { setOpenEstateList: closeDropdown } = useOpenCommunityListStore();
     const [hoverEstate, setHoverEstate] = React.useState<boolean>(false);
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [searchEstate, setSearchEstate] = React.useState<string>('');
@@ -96,7 +98,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                             onClick={() => {
                                 clearForm()
                                 router.push("/add-estate")
-                                setOpenEstateList(false);
+                                closeDropdown(false);
                             }}>
                             <AddIcon /> Add New Estate
                         </button>
@@ -132,7 +134,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                                                 setIsSwitchingEstate(false);
                                             }, 800);
                                         }
-                                        setOpenEstateList(false);
+                                        closeDropdown(false);
                                     }}
                                     className={`px-2 py-1 text-xs flex gap-2 items-center rounded-[4px] cursor-pointer
                                                 ${selectedCommunity?.estate?._id === item.estate?._id ? "text-GrayHomz2 bg-GrayHomz6" : "text-BlueHomz bg-whiteblue"}`}

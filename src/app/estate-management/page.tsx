@@ -96,7 +96,7 @@ const EstateHomePage = () => {
 
     return (
         <div className='w-full'>
-            <div className='w-full md:px-6 mt-8 md:mt-14 max-w-[1160px] m-auto'>
+            <div className='w-full md:px-6 m-auto'>
                 <div className='relative w-full md:h-[820px] md:rounded-lg shadow-2xl bg-cover flex flex-col justify-between bg-BlueHomz bg-[url("/Background-image.png")]'>
                     {/* Content at the top */}
                     <div className='px-8 md:px-[100px] text-center md:text-start flex flex-col gap-5 pt-10 md:pt-[100px]'>
@@ -115,12 +115,12 @@ const EstateHomePage = () => {
                         <div className='w-full flex justify-center'>
                             <div className='mt-4 flex flex-col md:flex-row gap-4 items-center w-full justify-center'>
                                 <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
-                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-[400] rounded-[4px]'>
+                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-medium rounded-lg hover:bg-gray-50 transition-colors'>
                                         <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as a Community Manager</span><ArrowRightSize16 />
                                     </button>
                                 </a>
                                 <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
-                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-[4px]'>
+                                    <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-lg hover:bg-white/10 transition-colors'>
                                         See How It Works
                                     </button>
                                 </a>
@@ -130,18 +130,16 @@ const EstateHomePage = () => {
 
 
                     {/* Image at the bottom */}
-                    <div className="hidden md:block w-full px-[80px] mt-[50px] pb-0">
-                        <Image
-                            src={"/estate-img.png"}
-                            alt="img"
-                            width={2880}
-                            height={2048}
-                            layout="responsive"
-                            objectFit="cover"
-                            objectPosition="center"
-                            className="object-top bg-top image-clipIII border-t-4 border-l-4 border-r-4 sm:border-t-8 sm:border-l-8 sm:border-r-8 border-[#0058D4] rounded-[12px]"
-                            priority
-                        />
+                    <div className="hidden md:block absolute bottom-0 left-0 w-full px-[80px]">
+                        <div className="relative w-full h-[420px] lg:h-[480px] max-w-[1200px] mx-auto">
+                                <Image
+                                    src={"/estate-img.png"}
+                                    alt="img"
+                                    fill
+                                    className="border object-top bg-top border-t-4 border-l-4 border-r-4 sm:border-t-8 sm:border-l-8 sm:border-r-8 border-[#0058D4] rounded-t-[12px] object-cover"
+                                    priority
+                                />
+                        </div>
                     </div>
 
                     <div className="md:hidden w-full pl-8 mt-[50px] pb-0">
@@ -198,7 +196,7 @@ const EstateHomePage = () => {
                                 </p>
                             </div>
                             <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[240px]'>
-                                <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                                <button className='mt-2 text-white text-[16px] font-medium bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-lg hover:bg-blue-600 transition-colors'>
                                     Create Your First Community <ArrowRight className='#FFFFFF' />
                                 </button>
                             </a>
@@ -276,7 +274,7 @@ const EstateHomePage = () => {
                     </div>
                     <div className='w-full flex justify-center items-center mt-10'>
                         <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer'>
-                            <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-[180px] gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
+                            <button className='mt-2 text-white text-[16px] font-medium bg-BlueHomz w-[200px] gap-1 flex items-center justify-center h-[48px] rounded-lg hover:bg-blue-600 transition-colors'>
                                 Get Started Now <ArrowRight className='#FFFFFF' />
                             </button>
                         </a>

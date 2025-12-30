@@ -288,7 +288,6 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                                                         e.stopPropagation()
                                                                         setActionDropdown(null)
                                                                         handleViewDetails(group)
-                                                                        setDeleteModalOpen(true)
                                                                     }}
                                                                     className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                                                                 >

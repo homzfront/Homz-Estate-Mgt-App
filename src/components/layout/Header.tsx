@@ -16,6 +16,7 @@ import { useAuthSlice } from "@/store/authStore";
 import { getToken } from "@/utils/cookies";
 import ArrowRightSize16 from "../icons/arrowRightSize16";
 import useClickOutside from "@/app/utils/useClickOutside";
+import LogoutConfirmationModal from "../general/LogoutConfirmationModal";
 interface HeaderState {
   subMenuOpen: boolean;
   active: boolean;
@@ -23,6 +24,7 @@ interface HeaderState {
   activeThree: boolean;
   openModalForBusi: boolean;
   open: boolean;
+  showLogoutModal: boolean;
 };
 
 // Function to extract username from email address
@@ -49,7 +51,8 @@ const Header = () => {
     activeTwo: false,
     activeThree: false,
     openModalForBusi: false,
-    open: false
+    open: false,
+    showLogoutModal: false
   });
   const { logOutUser, userData, residentProfile } = useAuthSlice();
   const [open] = useState(false);
@@ -75,12 +78,26 @@ const Header = () => {
     if (state.subMenuOpen) setSubMenuOpen(false);
   });
 
-  // convenience helpers matching the new snippet API
   const toggleSubMenu = () => toggleState('subMenuOpen');
   const setSubMenuOpen = (val: boolean) => setSpecificState('subMenuOpen', val);
 
+  const handleLogout = async () => {
+    try {
+      await logOutUser();
+      setSpecificState('showLogoutModal', false);
+      if (state.open) setSpecificState('open', false);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } 
+  };
+
   return (
-    <div className="text-BlackHomz px-6 font-normal w-full md:flex justify-between text-[16px] max-w-[1160px] items-center md:m-auto pt-12 shadow-m relative">
+    <div className="text-BlackHomz px-6 font-normal w-full md:flex justify-between text-[16px] items-center md:m-auto py-4 md:py-6 sticky top-0 bg-white z-[100]">
+      <LogoutConfirmationModal
+        isOpen={state.showLogoutModal}
+        onRequestClose={() => setSpecificState('showLogoutModal', false)}
+        onConfirm={handleLogout}
+      />
       {state.openModalForBusi && (
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-30">
           <div className="bg-white w-[320px] md:w-[464px] h-[290px] rounded-[12px] flex flex-col p-8 items-center justify-around">
@@ -118,21 +135,21 @@ const Header = () => {
 
         {/* Mobile Menu Toggle */}
         <div
-          className="md:hidden border cursor-pointer p-2 rounded-md hover:bg-gray-100"
+          className="md:hidden cursor-pointer p-2 rounded-md hover:bg-gray-100 transition-colors"
           onClick={() => toggleState('open')}
         >
-          {state.open ? <Close /> : <Menu />}
+          {state.open ? <Close className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </div>
       </div>
       {/* Mobile Navigation Overlay */}
       {state.open && (
-        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => toggleState('open')} />
+        <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity" onClick={() => toggleState('open')} />
       )}
 
       {/* Navigation Menu */}
       <nav
         className={`${state.open
-          ? "fixed top-0 left-0 w-[280px] h-full bg-white z-50 shadow-xl transform translate-x-0 transition-transform duration-300 flex flex-col"
+          ? "fixed top-0 left-0 w-[300px] h-full bg-white z-50 shadow-2xl transform translate-x-0 transition-transform duration-300 ease-in-out flex flex-col"
           : "hidden md:flex md:gap-14 md:items-center"
           }`}
       >
@@ -146,21 +163,21 @@ const Header = () => {
               width={112}
             />
             <div
-              className="cursor-pointer p-1 rounded-md hover:bg-gray-100"
+              className="cursor-pointer p-2 rounded-full hover:bg-gray-100 transition-colors"
               onClick={() => toggleState('open')}
             >
-              <Close />
+              <Close className="w-5 h-5" />
             </div>
           </div>
         )}
 
         <div className={`${state.open
-          ? "flex flex-col gap-6 p-6 flex-1"
-          : "mt-5 text-[12px] lg:text-[16px] md:mt-0 flex gap-4 md:gap-5 lg:gap-10 flex-col md:flex-row"
+          ? "flex flex-col gap-2 p-4 flex-1 overflow-y-auto"
+          : "text-[12px] lg:text-[16px] flex gap-4 md:gap-5 lg:gap-10 flex-col md:flex-row"
           }`}>
           <Link
             href={"/"}
-            className={`${state.open ? "py-3 px-4 rounded-lg text-[16px] font-medium transition-colors" : ""} hover:text-blue-400 ${state.open && pathname === "/" ? "text-BlueHomz"
+            className={`${state.open ? "py-3 px-4 rounded-lg text-[16px] font-medium transition-colors hover:bg-blue-50" : ""} hover:text-blue-400 ${state.open && pathname === "/" ? "text-BlueHomz bg-blue-50"
               : ""
               }`}
             onClick={() => state.open && toggleState('open')}
@@ -169,14 +186,14 @@ const Header = () => {
           </Link>
           <Link
             href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}landlord`}
-            className={`${state.open ? "py-3 px-4 rounded-lg text-[16px] font-medium transition-colors" : ""} hover:text-blue-400 ${state.open && pathname === "/landlord" ? "bg-blue-50 text-BlueHomz" : pathname === "/landlord" ? "text-BlueHomz" : ""
+            className={`${state.open ? "py-3 px-4 rounded-lg text-[16px] font-medium transition-colors hover:bg-blue-50" : ""} hover:text-blue-400 ${state.open && pathname === "/landlord" ? "bg-blue-50 text-BlueHomz" : pathname === "/landlord" ? "text-BlueHomz" : ""
               }`}
             onClick={() => state.open && toggleState('open')}
           >
             Landlord
           </Link>
           <div className={`relative ${state.open ? "w-full" : "flex items-center gap-1"}`}>
-            <div className={`${state.open ? "flex items-center gap-1 w-full py-3 px-4 rounded-lg text-[16px] font-medium transition-colors" : "flex items-center gap-1"}`}>
+            <div className={`${state.open ? "flex items-center justify-between w-full py-3 px-4 rounded-lg text-[16px] font-medium transition-colors hover:bg-blue-50" : "flex items-center gap-1"}`}>
               <button
                 onClick={() => {
                   toggleSubMenu();
@@ -190,7 +207,7 @@ const Header = () => {
               </button>
               <button
                 onClick={toggleSubMenu}
-                className={`${state.open ? "" : "mt-0.5"} cursor-pointer flex`}
+                className={`${state.open ? "" : "mt-0.5"} cursor-pointer flex p-1`}
               >
                 {state.subMenuOpen ? <ArrowUpII /> : <Down />}
               </button>
@@ -199,36 +216,47 @@ const Header = () => {
               <div
                 ref={productRef}
                 className={`${state.open
-                  ? "mt-2 flex flex-col gap-1 w-full"
+                  ? "mt-1 flex flex-col gap-1 w-full pl-4"
                   : "px-0 py-3 flex flex-col md:flex-row gap-2 items-start justify-center rounded-[10px] text-[12px] md:text-[14px] text-BlackHomz bg-white md:absolute md:top-7 md:left-1/2 md:-translate-x-1/2 md:transform md:px-3 md:border md:z-[99999] md:shadow-lg"
                   }`}
               >
                 {/* Mobile: simplified list (icons + titles only) */}
-                <div className="md:hidden w-full mt--5">
+                <div className="md:hidden w-full">
                   <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}enterprise`} className="block w-full">
                     <div
-                      className={`flex items-center gap-3 py-3 pl-4 hover:bg-whiteblue rounded-[6px] ${pathname === `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}enterprise` ? "text-BlueHomz" : ""
+                      className={`flex items-center gap-3 py-3 pl-4 hover:bg-blue-50 rounded-[6px] ${pathname === `${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}enterprise` ? "text-BlueHomz" : ""
                         }`}
-                      onClick={() => setSubMenuOpen(false)}
+                      onClick={() => {
+                        setSubMenuOpen(false);
+                        toggleState('open');
+                      }}
                     >
                       <PropertyListing width="14" height="14" className="text-BlueHomz fill-BlueHomz" />
-                      <span className="flex-1 text-[12px] min-w-[180px]">Property Management</span>
+                      <span className="flex-1 text-[14px]">Property Management</span>
                     </div>
                   </Link>
                   <Link href="/" className="block w-full">
-                    <div className={`flex items-center gap-3 py-3 pl-4 pr-2 hover:bg-whiteblue rounded-[6px]`}>
+                    <div className={`flex items-center gap-3 py-3 pl-4 pr-2 hover:bg-blue-50 rounded-[6px]`}
+                      onClick={() => {
+                        setSubMenuOpen(false);
+                        toggleState('open');
+                      }}
+                    >
                       <PropertyManagement width="14" height="14" className="text-[#039855] fill-[#039855]" />
-                      <span className="flex-1 text-[12px] min-w-[180px]">Community Management</span>
+                      <span className="flex-1 text-[14px]">Community Management</span>
                     </div>
                   </Link>
                   <Link href={`${process.env.NEXT_PUBLIC_EXTERNAL_URL || 'https://homz.ng/'}document-generation`} className="block w-full">
                     <div
-                      className={`flex items-center gap-3 py-3 pl-4 pr-2 hover:bg-whiteblue rounded-[6px] ${pathname === "/document-generation" ? "text-[#DC6803]" : ""
+                      className={`flex items-center gap-3 py-3 pl-4 pr-2 hover:bg-blue-50 rounded-[6px] ${pathname === "/document-generation" ? "text-[#DC6803]" : ""
                         }`}
-                      onClick={() => setSubMenuOpen(false)}
+                      onClick={() => {
+                        setSubMenuOpen(false);
+                        toggleState('open');
+                      }}
                     >
                       <EnterpriseDoc className="#DC6803" />
-                      <span className="flex-1 text-[12px] min-w-[180px]">Document Generation</span>
+                      <span className="flex-1 text-[14px]">Document Generation</span>
                     </div>
                   </Link>
                 </div>
@@ -319,31 +347,55 @@ const Header = () => {
 
         {/* Mobile User Section */}
         {state.open && (
-          <div className="mt-auto p-6 border-t">
+          <div className="mt-auto p-6 border-t bg-white">
             {userData && token ? (
-              <div className="flex flex-col gap-4">
-                <Link
-                  href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
-                  className="text-[16px] font-medium"
-                  onClick={() => toggleState('open')}
-                >
-                  Hi, {extractUsername(userData?.email)}!
-                </Link>
-                <button
-                  onClick={async () => {
-                    await logOutUser();
-                    toggleState('open');
-                  }}
-                  className="w-full rounded-[4px] px-4 py-3 text-white bg-BlueHomz hover:bg-blue-400 font-medium"
-                >
-                  Logout
-                </button>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-BlueHomz/5 border border-BlueHomz/10 flex items-center justify-center text-BlueHomz text-xl font-bold">
+                    {extractUsername(userData?.email)?.[0]?.toUpperCase()}
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm text-GrayHomz font-medium">Welcome back,</p>
+                    <p className="text-lg font-bold text-BlackHomz leading-tight">
+                      {extractUsername(userData?.email)}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <Link
+                    href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
+                    className="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-BlueHomz to-blue-600 rounded-2xl text-white font-bold shadow-xl shadow-BlueHomz/25 active:scale-[0.98] transition-all"
+                    onClick={() => toggleState('open')}
+                  >
+                    <span>Go to Dashboard</span>
+                    <div className="bg-white/20 p-1 rounded-lg">
+                      <ArrowRightSize16 color="white" w="18" h="18" />
+                    </div>
+                  </Link>
+                  
+                  <button
+                    onClick={() => {
+                      toggleState('showLogoutModal');
+                    }}
+                    className="flex items-center justify-center w-full py-4 text-GrayHomz font-bold hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/register"
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-BlueHomz to-blue-600 text-white font-bold shadow-xl shadow-BlueHomz/25 active:scale-[0.98] transition-all"
+                  onClick={() => toggleState('open')}
+                >
+                  Get Started <ArrowRightSize16 color="white" />
+                </Link>
                 <Link
                   href="/login"
-                  className="text-[16px] font-medium hover:text-blue-400"
+                  className="w-full text-center py-4 rounded-2xl border border-gray-200 text-BlackHomz font-bold hover:bg-gray-50 transition-all active:scale-[0.98]"
                   onClick={() => toggleState('open')}
                 >
                   Sign in
@@ -369,8 +421,8 @@ const Header = () => {
               </p>
             </Link>
             <button
-              onClick={async () => {
-                await logOutUser()
+              onClick={() => {
+                toggleState('showLogoutModal');
               }}
               className={`w-[110px] rounded-[4px] px-2 text-white bg-BlueHomz h-[48px] py-1 hover:bg-blue-400 ${open ? "text-[12px]" : ""
                 }`}

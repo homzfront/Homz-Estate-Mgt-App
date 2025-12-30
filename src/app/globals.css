@@ -6,10 +6,13 @@
 
 .dashboard_main {
   min-width: 1200px;
-  max-width: 1440px;
-  margin: auto;
+  max-width: 1728px;
+  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: row;
+  background-color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
 .header {
@@ -18,14 +21,21 @@
 
 .sidebar {
   min-width: 278px;
+  transition: min-width 0.3s ease, width 0.3s ease;
+}
+
+.sidebar.sidebar-collapsed {
+  min-width: 80px;
+  width: 80px;
 }
 
 .mobile-footer {
   display: none;
 }
 
-.dashboard {
+.dashboard, .main {
   flex-grow: 1;
+  min-width: 0;
   /* This will make the dashboard fill the remaining space */
 }
 
@@ -120,8 +130,8 @@
   clip-path: polygon(
     0 0,
     100% 0,
-    100% 60%,
-    0 60%
-  ); /* Adjust percentages as needed */
+    100% 85%,
+    0 85%
+  ); /* Increased from 60% to show more of the image */
 }
 

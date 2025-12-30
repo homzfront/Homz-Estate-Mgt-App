@@ -14,6 +14,7 @@ import { LoaderIcon } from 'react-hot-toast';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useAbility } from '@/contexts/AbilityContext';
 import { useRouter } from 'next/navigation';
+import EmptyEstateState from '../../components/emptyEstateState';
 
 const ManageResidents = () => {
     const router = useRouter();
@@ -90,7 +91,11 @@ const ManageResidents = () => {
                 />
 
             }
-            {initialLoading ? (
+            {!selectedCommunity ? (
+                <div className="mt-6">
+                    <EmptyEstateState />
+                </div>
+            ) : initialLoading ? (
                 <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
             ) : (residentData || !!search) ? (
                 <div>

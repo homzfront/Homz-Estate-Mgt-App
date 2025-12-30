@@ -75,16 +75,16 @@ const PopUpData = [
         name: 'Requests',
         coming_Soon: false,
     },
-    {
-        id: 2,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: false,
-    },
+    // {
+    //     id: 2,
+    //     image: <PaymentIcon />,
+    //     image2: (
+    //         <PaymentIcon className='#006AFF' />
+    //     ),
+    //     link: "/finance/payment",
+    //     name: "Payments",
+    //     coming_Soon: false,
+    // },
     {
         id: 3,
         image: <ExpensesIcon />,

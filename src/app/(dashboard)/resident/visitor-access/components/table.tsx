@@ -36,10 +36,17 @@ const Table = ({
     // const [selectedStatus, setSelectedStatus] = React.useState<"pending" | "expired" | "revoke" | null>("pending");
     const { accessCode, currentPage, initialLoading, pageLoading, isAppending, getAccessCode } = useAccessCodeSlice();
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
+    const buttonRefs = React.useRef<{ [key: string]: HTMLElement | null }>({});
 
-    const handleToggleMenu = (id: string | number) => {
-        setpopUp(!popUp);
-        setSelectedDataId(id);
+    const handleToggleMenu = (data: AccessCodeType) => {
+        if (selectedDataId === data._id && popUp) {
+            setpopUp(false);
+            setSelectedDataId(null);
+        } else {
+            setSelectedDataId(data._id);
+            setSelectedData(data);
+            setpopUp(true);
+        }
     };
 
     const currentData = accessCode;
@@ -363,10 +370,10 @@ const Table = ({
                                     </td>
                                     <td className={`sticky right-[-24px] md:right-0 ${fromDefault && "bg-[#F6F6F6]"} md:bg-white py-[15px] pr-4 z-10`}>
                                         <button
+                                            ref={(el) => { buttonRefs.current[data?._id] = el }}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleToggleMenu(data?._id);
-                                                setSelectedData(data);
+                                                handleToggleMenu(data);
                                             }}
                                         >
                                             <Image
@@ -382,6 +389,8 @@ const Table = ({
                                                 setOpenDetails={setOpenDetails}
                                                 fromDefault={fromDefault}
                                                 setOpenRevoke={setOpenRevoke}
+                                                onClose={() => setpopUp(false)}
+                                                anchorRef={{ current: buttonRefs.current[data?._id] } as any}
                                             />
                                         )}
                                     </td>

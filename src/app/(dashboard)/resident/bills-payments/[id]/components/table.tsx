@@ -7,6 +7,8 @@ import CustomModal from '@/components/general/customModal';
 import DocDocuSmall from '@/components/icons/docDocuSmall';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import { ResidentBillItem } from '@/store/useResidentBillStore';
+import Image from 'next/image';
+import PopUp from './popUp';
 
 interface TableProps {
     groupedBills: Record<string, ResidentBillItem[]>;
@@ -15,41 +17,34 @@ interface TableProps {
 const Table = ({ groupedBills }: TableProps) => {
     const router = useRouter();
     const { id: billingId } = useParams();
-    const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null)
     const [selectedBill, setSelectedBill] = React.useState<ResidentBillItem | null>(null)
     const [isModalOpen, setIsModalOpen] = React.useState(false)
-    const dropdownRef = React.useRef<HTMLDivElement | null>(null)
     const [disabledPaymentRecord, setDisabledPaymentRecord] = React.useState(true);
+    const [popUp, setpopUp] = React.useState(false);
+    const [selectedDataId, setSelectedDataId] = React.useState<string | null>(null);
+    const buttonRefs = React.useRef<{ [key: string]: HTMLElement | null }>({});
 
     const billsList = React.useMemo(() => {
         return Object.values(groupedBills).flat();
     }, [groupedBills]);
 
-    // console.log("billsList:", billsList);
-    // console.log("groupedBills:", groupedBills);
-
-    // Close dropdown when clicking outside
-    React.useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setOpenDropdownId(null)
-            }
+    const handleToggleMenu = (bill: ResidentBillItem) => {
+        if (selectedDataId === bill._id && popUp) {
+            setpopUp(false);
+            setSelectedDataId(null);
+        } else {
+            setSelectedDataId(bill._id);
+            setSelectedBill(bill);
+            setpopUp(true);
         }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [])
-
-    const toggleDropdown = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setOpenDropdownId(openDropdownId === id ? null : id)
-    }
+    };
 
     const handleMoreInfo = (bill: ResidentBillItem) => {
         setSelectedBill(bill)
         const isInactive = bill.status?.toLowerCase() === 'pending' || bill.status?.toLowerCase() === 'overdue'
         setDisabledPaymentRecord(isInactive)
         setIsModalOpen(true)
-        setOpenDropdownId(null)
+        setpopUp(false)
     }
 
     const handlePaymentRecord = (recordId: string, status: string) => {
@@ -57,7 +52,7 @@ const Table = ({ groupedBills }: TableProps) => {
         if (!isInactive) {
             router.push(`/resident/bills-payments/${billingId}/payment-record/${recordId}`)
         }
-        setOpenDropdownId(null)
+        setpopUp(false)
     }
 
     const getStatusStyles = (status: string) => {
@@ -210,60 +205,31 @@ const Table = ({ groupedBills }: TableProps) => {
                                                     </div>
                                                 </td>
                                                 <td className="py-[15px] md:w-[180px]" onClick={(e) => e.stopPropagation()}>
-                                                    {/* Desktop view */}
                                                     <button
-                                                        onClick={() => !isInactive && router.push(`/resident/bills-payments/${row._id}/payment-record/${row._id}`)}
-                                                        className={`hidden md:flex items-center gap-2 font-semibold text-sm ${isInactive
-                                                            ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                                            : 'text-BlueHomz cursor-pointer hover:underline'
-                                                            }`}
-                                                        disabled={isInactive}
+                                                        ref={(el) => { buttonRefs.current[row._id] = el }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleMenu(row);
+                                                        }}
+                                                        className="p-1"
                                                     >
-                                                        <PaymentRecordIcon color={isInactive ? '#9ca3af' : '#006AFF'} />
-                                                        <span className='flex items-center gap-1'>Payment record <ArrowRight className={isInactive ? '#9ca3af' : '#006aff'} /></span>
+                                                        <Image
+                                                            src="/dots-vertical.png"
+                                                            alt="Options"
+                                                            height={20}
+                                                            width={20}
+                                                        />
                                                     </button>
-
-                                                    {/* Mobile view */}
-                                                    <div className="md:hidden relative" ref={openDropdownId === row._id ? dropdownRef : null}>
-                                                        <button
-                                                            onClick={(e) => toggleDropdown(row._id, e)}
-                                                            className="p-1"
-                                                        >
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                                <circle cx="12" cy="6" r="1.5" fill="#666" />
-                                                                <circle cx="12" cy="12" r="1.5" fill="#666" />
-                                                                <circle cx="12" cy="18" r="1.5" fill="#666" />
-                                                            </svg>
-                                                        </button>
-                                                        {openDropdownId === row._id && (
-                                                            <div className="absolute right-0 top-8 bg-white border rounded-lg shadow-lg z-10 w-48 py-1">
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleMoreInfo(row);
-                                                                    }}
-                                                                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-GrayHomz"
-                                                                >
-                                                                    <DocDocuSmall />
-                                                                    <span>More info</span>
-                                                                </button>
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handlePaymentRecord(row._id, row.status);
-                                                                    }}
-                                                                    className={`w-full text-left px-4 py-2 flex items-center gap-2 text-sm font-medium ${isInactive
-                                                                        ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                                                        : 'text-GrayHomz hover:bg-gray-50'
-                                                                        }`}
-                                                                    disabled={isInactive}
-                                                                >
-                                                                    <PaymentRecordIcon color={isInactive ? '#D5D5D5' : '#4e4e4e'} />
-                                                                    <span>Payment record</span>
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    {popUp && selectedDataId === row._id && (
+                                                        <PopUp
+                                                            bill={row}
+                                                            onClose={() => setpopUp(false)}
+                                                            anchorRef={{ current: buttonRefs.current[row._id] } as any}
+                                                            handleMoreInfo={() => handleMoreInfo(row)}
+                                                            handlePaymentRecord={() => handlePaymentRecord(row._id, row.status)}
+                                                            isInactive={isInactive}
+                                                        />
+                                                    )}
                                                 </td>
                                             </tr>
                                         );

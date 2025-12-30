@@ -21,9 +21,9 @@ const Footer = () => {
   ];
 
   return (
-    <div className="h-auto max-w-[1440px] m-auto font-[400] text-[14px]  px-8  sm:px-[140px] py-10  mt-36 bg-black text-white">
-      <div className=" items-center flex justify-center flex-col m-auto max-w-[1165px]">
-        <div className="flex md:text-sm lg:w-full xl:w-[1165px] flex-col lg:flex-row items-center justify-center gap-0 md:gap-4 lg:flex lg:items-start">
+    <div className="h-auto m-auto font-[400] text-[14px] px-8 sm:px-[140px] py-10  mt-36 bg-black text-white">
+      <div className=" items-center flex justify-center flex-col m-auto">
+        <div className="flex md:text-sm flex-col lg:flex-row items-center justify-center gap-0 md:gap-4 lg:flex lg:items-start">
           <div className="max-w-[338px] md:max-w-full lg:w-auto">
             <Link href={"/"}>
               <Image
@@ -52,13 +52,13 @@ const Footer = () => {
                 Get weekly updates on the best deals on Properties &
                 Developments in Nigeria.
               </p>
-              <div className="flex flex-col max-w-full lg:flex-row  gap-2">
+              <div className="flex flex-col max-w-full lg:flex-row gap-2">
                 <input
                   type="text"
                   placeholder="Email Address"
-                  className="border text-black font-semibold lg:w-[280px] h-8 text-[11.17px]  rounded-sm shadow-sm px-2 py-3"
+                  className="border text-black font-semibold lg:w-[280px] h-10 text-[12px] rounded-md shadow-sm px-3 py-2 outline-none focus:ring-2 focus:ring-BlueHomz"
                 />
-                <button className="boreder lg:w-[86px] rounded-sm shadow-sm  hover:bg-blue-400 bg-BlueHomz text-white h-8 p-1 text-[11.17px]">
+                <button className="lg:w-[100px] rounded-md shadow-sm hover:bg-blue-600 bg-BlueHomz text-white h-10 px-4 text-[12px] font-semibold transition-colors">
                   Subscribe
                 </button>
               </div>
