@@ -1,4 +1,4 @@
-import React from 'react'
+"use client";
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import EmptyEstateState from '../../components/emptyEstateState'
 

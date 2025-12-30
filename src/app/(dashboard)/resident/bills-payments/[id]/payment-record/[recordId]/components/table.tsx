@@ -2,11 +2,10 @@
 import React from 'react'
 import CustomModal from '@/components/general/customModal'
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon'
-import DocDocuSmall from '@/components/icons/docDocuSmall'
+// import DocDocuSmall from '@/components/icons/docDocuSmall'
 import { ResidentBillItem } from '@/store/useResidentBillStore'
 import Image from 'next/image'
 import PopUp from './popUp'
-
 interface TableProps {
     history: ResidentBillItem[];
 }
@@ -17,6 +16,18 @@ const Table = ({ history }: TableProps) => {
     const [popUp, setpopUp] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<string | null>(null);
     const buttonRefs = React.useRef<{ [key: string]: HTMLElement | null }>({});
+
+    const getStatusStyle = (status: string) => {
+        const s = status?.toLowerCase();
+        switch (s) {
+            case 'pending': return { backgroundColor: '#FCF3EB', color: '#DC6803' };
+            case 'partialpaid':
+            case 'partially paid': return { backgroundColor: '#EEF5FF', color: '#006AFF' };
+            case 'overdue': return { backgroundColor: '#FDF2F2', color: '#D92D20' };
+            case 'paid': return { backgroundColor: '#CDEADD', color: '#039855' };
+            default: return { backgroundColor: '#F6F6F6', color: '#333' };
+        }
+    }
 
     const handleToggleMenu = (record: ResidentBillItem) => {
         if (selectedDataId === record._id && popUp) {
