@@ -194,14 +194,16 @@ homz-estate-mgt-app/
 
 ## 🗄️ State Management
 
-The application uses **Zustand** for state management with the following key stores:
+The application uses **Zustand** for state management with a modular store architecture:
 
-- `authStore`: User authentication, profile data, estates list
-- `useAccessStore`: Access control and visitor management
-- `useResidentStore`: Resident-specific data
-- `useSelectedCommunity`: Currently selected community/estate
-- `useResidentsListStore`: Resident list with pagination
-- `useRequestStore`: Resident invitation requests
+- `authStore`: User authentication, profile data, and account switching.
+- `useSelectedCommunity`: Tracks the currently active community/estate context.
+- `useAccessStore`: Manages visitor access codes and security guard assignments.
+- `useBillStore` & `useResidentBillStore`: Handles estate billing, utility payments, and resident-side bill tracking.
+- `useResidentsListStore`: Manages the directory of residents with pagination and search.
+- `useRequestStore`: Handles resident join requests and invitations.
+- `useMembersStore`: Manages staff and community member roles.
+- `useSidebarStore`: Controls the navigation state across different dashboard views.
 
 ## 🌐 API Integration
 
@@ -214,14 +216,13 @@ The application uses **Zustand** for state management with the following key sto
 
 ## 🎨 UI/UX Features
 
-- Responsive design for mobile, tablet, and desktop
-- Custom color scheme (Blue and Gray variants)
-- Loading states and skeleton loaders
-- Toast notifications for user feedback
-- Custom modals and dropdowns
-- Image optimization with Next.js Image
-- Virtual scrolling for large lists
-- Interactive carousels and sliders
+- **Premium Mobile Header** - Sticky navigation with backdrop blur and a high-end sidebar design.
+- **Responsive Design** - Fully optimized for mobile, tablet, and desktop devices.
+- **Interactive Components** - Custom modals (including Logout Confirmation), dropdowns, and action menus.
+- **Visual Feedback** - Loading spinners, skeleton loaders, and toast notifications.
+- **Image Optimization** - High-performance image loading with Next.js Image and Cloudinary.
+- **Virtual Scrolling** - Efficient rendering for large lists using TanStack Virtual.
+- **Custom Styling** - Tailored color scheme with Blue and Gray variants using Tailwind CSS.
 
 ## 📱 Responsive Design
 
@@ -302,11 +303,14 @@ Required environment variables:
 
 ## � Recent Updates
 
-- **React 19.0.0** - Upgraded to latest React with improved performance
-- **TypeScript 5** - Enhanced type safety and developer experience
-- **CASL Authorization** - Added granular permission system
-- **PWA Support** - Offline functionality and app-like experience
-- **Enhanced UI Components** - Added loading spinners and improved modals
+- **Premium Mobile Experience** - Overhauled mobile header and sidebar with sticky positioning, backdrop blur, and a refined user profile section.
+- **Dashboard Logic Fixes** - Resolved infinite loading issues on Access Control and Join Requests pages when no estate is created.
+- **Resident Dashboard Parity** - Added action menus and sidebar enhancements to the Resident dashboard for feature parity with the Manager view.
+- **Logout Confirmation** - Implemented a secure logout flow with a confirmation modal.
+- **Landing Page Optimization** - Enhanced the Estate Management landing page with a pinned hero section and improved scaling.
+- **React 19.0.0** - Upgraded to latest React with improved performance.
+- **CASL Authorization** - Added granular permission system.
+- **PWA Support** - Offline functionality and app-like experience.
 
 ## �📦 Deployment
 

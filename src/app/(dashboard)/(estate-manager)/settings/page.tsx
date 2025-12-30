@@ -17,6 +17,7 @@ import LoadingSpinner from '@/components/general/loadingSpinner';
 import { useAbility } from '@/contexts/AbilityContext';
 import { useRouter } from 'next/navigation';
 import HourGlassLoader from '@/components/general/hourGlassLoader';
+import EmptyEstateState from '../components/emptyEstateState';
 
 const Settings = () => {
   const router = useRouter();
@@ -250,99 +251,108 @@ const Settings = () => {
           </div>
         </CustomModal>
       }
-      <h1 className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Settings</h1>
-      <div className='flex justify-start pb-8 border-b border-GrayHomz6 px-8'>
-        <button className='h-[37px] bg-BlueHomz text-white text-[11px] md:text-sm font-normal rounded-[4px] px-3 py-2 mt-4'>
-          Manage Users
-        </button>
-      </div>
-      <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage communities, Residents, bills, and visitor access</p>
-      <div className='px-8 py-4'>
-        <div className='bg-inputBg p-4 rounded-[12px]'>
-          <button onClick={toggleDropdown} className="flex justify-between w-full">
-            <p className='text-sm md:text-[16px] font-normal text-GrayHomz text-left'>
-              Add a working email and select a user role
-            </p>
-            <span className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "transform rotate-180" : "mt-1"}`}>
-              <ArrowDown size={20} className="#4E4E4E" />
-            </span>
-          </button>
-          {isOpen && (
-            <div className='mt-4 border-t border-GrayHomz6 pt-5'>
-              <div className='flex md:grid flex-col grid-cols-2 gap-4 w-full text-sm'>
-                <CustomInput
-                  type='email'
-                  placeholder='Enter email address'
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className='w-full border border-[#A9A9A9] rounded-[4px] px-3 py-2 bg-transparent'
-                />
-                <div className='hidden md:inline' />
-                <Dropdown
-                  options={options}
-                  onSelect={(option) => {
-                    const selectedOption = options.find(opt => opt.label === option.label);
-                    handleInputChange('role', selectedOption?.value || option.label);
-                  }}
-                  selectOption="Select role"
-                  showSearch={false}
-                  borderColor='border-[#A9A9A9]'
-                  arrowColor='#A9A9A9'
-                  bgColor='bg-transparent'
-                />
-              </div>
-            </div>
-          )}
-          {isOpen &&
-            <button
-              onClick={handleSendInvite}
-              disabled={!active || sendingInvite}
-              className={`mt-4 w-full md:w-auto h-[45px] flex justify-center items-center ${active ? "bg-BlueHomz text-white" : "bg-GrayHomz6 text-GrayHomz5"}  text-sm md:text-[16px] font-normal rounded-[4px] px-6 py-2 ${sendingInvite ? "pointer-events-none" : ""}`}
-            >
-              {sendingInvite ? <DotLoader /> : "Send Invite"}
-            </button>
-          }
+      <button onClick={()=> router.back()} className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Settings</button>
+
+      {!selectedCommunity ? (
+        <div className='px-8 mt-6'>
+          <EmptyEstateState />
         </div>
-
-        {/* Members List */}
-        {hasEverHadData && (
-          <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
-            {/* Filter Headers - Always Visible */}
-            <div className='flex flex-wrap items-center gap-4 mt-8'>
-              {pages.map((page, index) => (
-                <span
-                  key={index}
-                  onClick={() => handlePageChange(index)}
-                  className={`${index === activePage ? "px-3 py-2 rounded-[4px] bg-BlueHomz text-white" : "px-3 py-2 md:px-0 md:py-0 rounded-[4px] md:rounded-none bg-whiteblue md:bg-transparent text-BlueHomz md:text-GrayHomz"} cursor-pointer`}
-                >
-                  {page.label}
+      ) : (
+        <>
+          <div className='flex justify-start pb-8 border-b border-GrayHomz6 px-8'>
+            <button className='h-[37px] bg-BlueHomz text-white text-[11px] md:text-sm font-normal rounded-[4px] px-3 py-2 mt-4'>
+              Manage Users
+            </button>
+          </div>
+          <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage communities, Residents, bills, and visitor access</p>
+          <div className='px-8 py-4'>
+            <div className='bg-inputBg p-4 rounded-[12px]'>
+              <button onClick={toggleDropdown} className="flex justify-between w-full">
+                <p className='text-sm md:text-[16px] font-normal text-GrayHomz text-left'>
+                  Add a working email and select a user role
+                </p>
+                <span className={`w-5 h-5 transition-transform duration-200 ${isOpen ? "transform rotate-180" : "mt-1"}`}>
+                  <ArrowDown size={20} className="#4E4E4E" />
                 </span>
-              ))}
+              </button>
+              {isOpen && (
+                <div className='mt-4 border-t border-GrayHomz6 pt-5'>
+                  <div className='flex md:grid flex-col grid-cols-2 gap-4 w-full text-sm'>
+                    <CustomInput
+                      type='email'
+                      placeholder='Enter email address'
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className='w-full border border-[#A9A9A9] rounded-[4px] px-3 py-2 bg-transparent'
+                    />
+                    <div className='hidden md:inline' />
+                    <Dropdown
+                      options={options}
+                      onSelect={(option) => {
+                        const selectedOption = options.find(opt => opt.label === option.label);
+                        handleInputChange('role', selectedOption?.value || option.label);
+                      }}
+                      selectOption="Select role"
+                      showSearch={false}
+                      borderColor='border-[#A9A9A9]'
+                      arrowColor='#A9A9A9'
+                      bgColor='bg-transparent'
+                    />
+                  </div>
+                </div>
+              )}
+              {isOpen &&
+                <button
+                  onClick={handleSendInvite}
+                  disabled={!active || sendingInvite}
+                  className={`mt-4 w-full md:w-auto h-[45px] flex justify-center items-center ${active ? "bg-BlueHomz text-white" : "bg-GrayHomz6 text-GrayHomz5"}  text-sm md:text-[16px] font-normal rounded-[4px] px-6 py-2 ${sendingInvite ? "pointer-events-none" : ""}`}
+                >
+                  {sendingInvite ? <DotLoader /> : "Send Invite"}
+                </button>
+              }
             </div>
 
-            {/* Table Content Area */}
-            {(initialLoading || pageLoading) ? (
-              <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
-                <LoadingSpinner />
-              </div>
-            ) : filteredMembers.length > 0 ? (
-              <Table
-                currentData={filteredMembers}
-                setOpenDetails={setOpenDetails}
-                setSelectedData={setSelectedData}
-                onRoleChange={handleRoleChange}
-                updatingRoleId={updatingRoleId}
-              />
-            ) : (
-              <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
-                <p className='text-GrayHomz text-sm'>No members found for this role</p>
+            {/* Members List */}
+            {hasEverHadData && (
+              <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
+                {/* Filter Headers - Always Visible */}
+                <div className='flex flex-wrap items-center gap-4 mt-8'>
+                  {pages.map((page, index) => (
+                    <span
+                      key={index}
+                      onClick={() => handlePageChange(index)}
+                      className={`${index === activePage ? "px-3 py-2 rounded-[4px] bg-BlueHomz text-white" : "px-3 py-2 md:px-0 md:py-0 rounded-[4px] md:rounded-none bg-whiteblue md:bg-transparent text-BlueHomz md:text-GrayHomz"} cursor-pointer`}
+                    >
+                      {page.label}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Table Content Area */}
+                {(initialLoading || pageLoading) ? (
+                  <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
+                    <LoadingSpinner />
+                  </div>
+                ) : filteredMembers.length > 0 ? (
+                  <Table
+                    currentData={filteredMembers}
+                    setOpenDetails={setOpenDetails}
+                    setSelectedData={setSelectedData}
+                    onRoleChange={handleRoleChange}
+                    updatingRoleId={updatingRoleId}
+                  />
+                ) : (
+                  <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
+                    <p className='text-GrayHomz text-sm'>No members found for this role</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   )
 }
 
-export default Settings
+export default Settings;

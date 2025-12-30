@@ -26,7 +26,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      zIndex: 99,
+      zIndex: 9999,
       overflow: "auto", // allow scroll if content overflows
     },
     content: {

@@ -15,6 +15,7 @@ import { LoaderIcon } from 'react-hot-toast'
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import { useAbility } from '@/contexts/AbilityContext'
 import { useRouter } from 'next/navigation'
+import EmptyEstateState from '../components/emptyEstateState'
 
 const AccessControl = () => {
     const router = useRouter();
@@ -99,13 +100,18 @@ const AccessControl = () => {
                     }}
                 />
             }
-            {initialLoading ? (
+            {!selectedCommunity ?
                 <div className='p-8'>
-                    <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px]'>Visitor Access Control</h1>
-                    <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
+                    <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px] mb-6'>Visitor Access Control</h1>
+                    <EmptyEstateState />
                 </div>
-            ) : accessData ?
-                <div className='p-8'>
+                : initialLoading ? (
+                    <div className='p-8'>
+                        <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px]'>Visitor Access Control</h1>
+                        <div className='h-[60vh] w-full flex items-center justify-center text-GrayHomz'><LoaderIcon /></div>
+                    </div>
+                ) :
+                    <div className='p-8'>
                     <div className='flex justify-between items-center border-b border-[#E6E6E6] pb-8'>
                         <div>
                             <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control {ability.can('create', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}</h1>
@@ -164,29 +170,6 @@ const AccessControl = () => {
                                 <AccessTable
                                     steps={steps}
                                 />
-                            )}
-                        </div>
-                    </div>
-                </div>
-                :
-                <div className='p-8'>
-                    <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Visitor Access Control</h1>
-                    <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Visitor records of all your Residents will be displayed here</h3>
-                    <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                        <div className='flex flex-col items-center gap-2'>
-                            <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
-                                <EmptyAccess />
-                            </div>
-                            <p className='mt-2 text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
-                            {ability.can('create', 'access-control') && (
-                                <button
-                                    onClick={() => {
-                                        setOpenAddManual(true)
-                                    }}
-                                    className='bg-BlueHomz px-4 py-2 rounded-[4px] cursor-ponter text-sm font-normal text-white flex items-center gap-1'
-                                >
-                                    <AddWhiteBox /> Register Visitor
-                                </button>
                             )}
                         </div>
                     </div>
