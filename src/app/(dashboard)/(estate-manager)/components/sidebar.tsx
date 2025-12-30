@@ -4,15 +4,15 @@ import AddIcon from '@/components/icons/addIcon';
 import ArrowDown from '@/components/icons/arrowDown';
 import EstateAddIcon from '@/components/icons/estateAddIcon';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/desktop/accessControlIcon';
-// import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
+import BillAndUtiIcon from '@/components/icons/estateManager&Resident/desktop/billAndUtiIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
 // import ExpensesIcon from '@/components/icons/estateManager&Resident/desktop/expensesIcon';
-// import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
+import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
 import LogoutIcon from '@/components/icons/estateManager&Resident/desktop/logoutIcon';
 import ManageResidentIcon from '@/components/icons/estateManager&Resident/desktop/manageResidentIcon';
 // import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
-// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
+import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 // import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
@@ -91,32 +91,32 @@ const Data = [
         name: "Access Control",
         active: false,
     },
-    // {
-    //     id: 5,
-    //     image: <FinanceIcon />,
-    //     image2: (
-    //         <FinanceIcon className='#FFFFFF' />
-    //     ),
-    //     link: "#",
-    //     name: "Finance",
-    //     coming_Soon: false,
-    //     active: false,
-    //     submenu: true,
-    //     subMenuItems: [
-    //         {
-    //             title: "Estate Billing",
-    //             link: "/finance/bill-utility",
-    //             image: <BillAndUtiIcon className='#4E4E4E' />,
-    //             image2: <BillAndUtiIcon />,
-    //         },
-    //         {
-    //             title: "Payments",
-    //             link: "/finance/payment",
-    //             image: <PaymentIcon />,
-    //             image2: <PaymentIcon className='#006AFF' />,
-    //         },
-    //     ],
-    // },
+    {
+        id: 5,
+        image: <FinanceIcon />,
+        image2: (
+            <FinanceIcon className='#FFFFFF' />
+        ),
+        link: "#",
+        name: "Finance",
+        coming_Soon: false,
+        active: false,
+        submenu: true,
+        subMenuItems: [
+            {
+                title: "Estate Billing",
+                link: "/finance/bill-utility",
+                image: <BillAndUtiIcon className='#4E4E4E' />,
+                image2: <BillAndUtiIcon />,
+            },
+            {
+                title: "Payments",
+                link: "/finance/payment",
+                image: <PaymentIcon />,
+                image2: <PaymentIcon className='#006AFF' />,
+            },
+        ],
+    },
     // {
     //     id: 6,
     //     image: <ManageUserIcon />,
