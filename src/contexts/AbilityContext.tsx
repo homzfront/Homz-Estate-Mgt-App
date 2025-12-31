@@ -3,14 +3,18 @@
 import { createContext, useContext, useMemo } from 'react';
 import { AppAbility, defineAbilityFor } from '@/utils/ability';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useAuthSlice } from '@/store/authStore';
 
 const AbilityContext = createContext<AppAbility | null>(null);
 
 export function AbilityProvider({ children }: { children: React.ReactNode }) {
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+  const { estatesData } = useAuthSlice();
+  
   const ability = useMemo(() => {
-    return defineAbilityFor(selectedCommunity?.role || '');
-  }, [selectedCommunity?.role]);
+    const role = selectedCommunity?.role ? selectedCommunity.role : estatesData && estatesData.length === 0 ? 'owner' : '';
+    return defineAbilityFor(role);
+  }, [selectedCommunity?.role, estatesData]);
 
   return (
     <AbilityContext.Provider value={ability}>

@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import Image from 'next/image';
-import { Resident } from './resident';
+// import { Resident } from './resident';
 import { useRouter } from 'next/navigation';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import ProfileWhite from '@/components/icons/profileWhite';
 import { useAccessStore } from '@/store/useAccessStore';
 import PopUp from './popUp';
-import useClickOutside from '@/app/utils/useClickOutside';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { LoaderIcon } from 'react-hot-toast';
+import { ManagerResidentItem } from '@/store/useResidentsListStore';
 
 
 const Table = () => {
@@ -19,11 +19,11 @@ const Table = () => {
     // const searchParams = useSearchParams();
     // const initialPage = parseInt(searchParams.get('page') || '1', 10);
     const [openDetails, setOpenDetails] = React.useState<boolean>(false)
-    const [selectedData, setSelectedData] = React.useState<Resident | null>(null);
+    const [selectedData, setSelectedData] = React.useState<ManagerResidentItem | null>(null);
     const [popUp, setpopUp] = React.useState(false);
     const [selectedDataId, setSelectedDataId] = React.useState<any>(null);
     const { setResident } = useAccessStore();
-    const closeRef = React.useRef<HTMLDivElement>(null);
+    const buttonRefs = React.useRef<{ [key: string]: HTMLButtonElement | null }>({});
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
 
     const {
@@ -34,20 +34,22 @@ const Table = () => {
         pageLoading,
         isAppending,
         fetchResidents,
-        // totalCount,
         search,
     } = useResidentsListStore();
 
-    useClickOutside(closeRef as any, () => {
-        setpopUp(false);
-    });
-
     // initial fetch handled at page level
 
-    const handleToggleMenu = (id: string | number) => {
-        setpopUp(!popUp);
-        setSelectedDataId(id);
+    const handleToggleMenu = (residentItem: ManagerResidentItem) => {
+        if (selectedDataId === residentItem._id && popUp) {
+            setpopUp(false);
+            return;
+        }
+        setpopUp(true);
+        setSelectedDataId(residentItem._id);
+        setSelectedData(residentItem);
     };
+
+
 
     React.useEffect(() => {
         if (!loaderRef.current) return;
@@ -76,32 +78,32 @@ const Table = () => {
                         <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
                             <div className='grid grid-cols-2 gap-4'>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Name</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.name}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{`${selectedData.firstName || ''} ${selectedData.lastName || ''}`.trim() || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Zone</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.zone}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.zone || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Street</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.street}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.streetName || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Building</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.building}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.building || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Apartment</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.apartment}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.apartment || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Email</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.email}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.email || '-'}</p>
 
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>Phone</p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>{selectedData.phone}</p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium break-words whitespace-normal'>-</p>
                             </div>
                         </div>
 
                         <button
                             onClick={() => {
                                 setResident(selectedData)
-                                router.push(`/access-control/${selectedData.name}`)
+                                router.push(`/manage-resident/residents/${selectedData._id}`)
                             }}
                             className='mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'
                         >
@@ -186,7 +188,7 @@ const Table = () => {
                                     <td colSpan={13} className="text-center text-sm text-GrayHomz py-8">No match found for &quot;{search}&quot;</td>
                                 </tr>
                             )}
-                            {!pageLoading && items.map((residentItem, index) => {
+                            {!pageLoading && items.map((residentItem) => {
                                 const name = `${residentItem.firstName || ''} ${residentItem.lastName || ''}`.trim() || '-';
                                 const zone = residentItem.zone || 'N/A';
                                 const street = residentItem.streetName || '-';
@@ -195,58 +197,59 @@ const Table = () => {
                                 const email = residentItem.email || '-';
                                 const phone = '-';
                                 const image = '/AvatarEmpty.png';
-                                const rowResident: Resident = { name, zone, street, building, apartment, email, phone, image };
                                 return (
-                                <tr
-                                    key={residentItem._id}
-                                    className="border-t-[1px] hover:bg-gray-50 cursor-pointer"
-                                >
-                                    <td className="py-4 pl-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full overflow-hidden">
-                                                <Image
-                                                    src={image}
-                                                    alt={name}
-                                                    width={40}
-                                                    height={40}
-                                                    className="object-cover w-full h-full"
-                                                />
+                                    <tr
+                                        key={residentItem._id}
+                                        className="border-t-[1px] hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        <td className="py-4 pl-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full overflow-hidden">
+                                                    <Image
+                                                        src={image}
+                                                        alt={name}
+                                                        width={40}
+                                                        height={40}
+                                                        className="object-cover w-full h-full"
+                                                    />
+                                                </div>
+                                                <span className="text-GrayHomz font-[500] text-[11px]">
+                                                    {name}
+                                                </span>
                                             </div>
-                                            <span className="text-GrayHomz font-[500] text-[11px]">
-                                                {name}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px]">{zone}</td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{street}</td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{building}</td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{apartment}</td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{email}</td>
-                                    <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{phone}</td>
-                                    <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 hover:bg-gray-50">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleToggleMenu(index)
-                                                setSelectedData(rowResident);
-                                            }}
-                                            className="p-1"
-                                        >
-                                            <Image
-                                                src="/dots-vertical.png"
-                                                alt="Options"
-                                                height={20}
-                                                width={20}
-                                            />
-                                        </button>
-                                        {popUp && selectedDataId === index && (
-                                            <PopUp
-                                                setOpenDetails={setOpenDetails}
-                                                closeRef={closeRef}
-                                            />
-                                        )}
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px]">{zone}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{street}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{building}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{apartment}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{email}</td>
+                                        <td className="text-GrayHomz py-4 font-[500] text-[11px] hidden md:table-cell">{phone}</td>
+                                        <td className="sticky right-[-24px] md:right-0 py-4 pr-4 z-10 hover:bg-gray-50">
+                                            <button
+                                                ref={(el) => { buttonRefs.current[residentItem._id] = el }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleToggleMenu(residentItem);
+                                                }}
+                                                className="p-1"
+                                            >
+                                                <Image
+                                                    src="/dots-vertical.png"
+                                                    alt="Options"
+                                                    height={20}
+                                                    width={20}
+                                                />
+                                            </button>
+                                            {popUp && selectedDataId === residentItem._id && (
+                                                <PopUp
+                                                    setOpenDetails={setOpenDetails}
+                                                    resident={residentItem}
+                                                    onClose={() => setpopUp(false)}
+                                                    anchorRef={{ current: buttonRefs.current[residentItem._id] } as any}
+                                                />
+                                            )}
+                                        </td>
+                                    </tr>
                                 )
                             })}
                             {currentPage < totalPages && (

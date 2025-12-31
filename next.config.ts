@@ -23,8 +23,18 @@ const withPWA = require('next-pwa')({
 
 const nextConfig: NextConfig = {
   // All your configuration options go here
+  turbopack: {},
   images: {
-    domains: ['res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
   },
   async headers() {
     return [
@@ -43,4 +53,4 @@ const nextConfig: NextConfig = {
 };
 
 // Export the combined configuration
-module.exports = withPWA(nextConfig);
+export default withPWA(nextConfig);

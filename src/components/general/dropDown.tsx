@@ -61,10 +61,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     const [searchTerm, setSearchTerm] = useState("");
     const dropdownRef = React.useRef<HTMLDivElement>(null);
     const [portalStyle, setPortalStyle] = useState<React.CSSProperties | null>(null)
+    const portalRef = React.useRef<HTMLDivElement>(null);
 
     useClickOutside(dropdownRef as any, () => {
         setIsOpen(false);
-    });
+    }, [portalRef as any]);
 
     const filteredOptions = options.filter(option =>
         option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -170,7 +171,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
             {/* Portal mode: render dropdown content into document.body positioned using portalStyle */}
             {isOpen && displayMode === 'portal' && portalStyle && ReactDOM.createPortal(
-                <div style={portalStyle} className={`bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
+                <div style={portalStyle} ref={portalRef} className={`bg-white rounded-[4px] shadow-lg border ${openBorder} max-h-[240px] flex flex-col`}>
                     {showSearch &&
                         <div className="p-2 sticky top-0 bg-white">
                             <div className="relative">

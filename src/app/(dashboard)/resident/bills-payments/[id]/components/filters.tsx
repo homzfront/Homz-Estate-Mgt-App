@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useRef } from "react";
 import ArrowDown from "@/components/icons/arrowDown";
@@ -11,7 +10,7 @@ const Filters = () => {
     const [isOpenI, setIsOpenI] = useState(false);
     const closeAction = useRef<HTMLDivElement>(null);
 
-    useClickOutside(closeAction as any, () => {
+    useClickOutside(closeAction, () => {
         setIsOpenI(false)
     });
 

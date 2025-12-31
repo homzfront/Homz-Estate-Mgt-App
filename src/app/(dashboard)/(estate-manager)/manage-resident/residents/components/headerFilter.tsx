@@ -119,7 +119,7 @@ const HeaderFilter: React.FC<HeaderFilterProps> = ({ setOpenInvite, setOpenManua
                                                 </div>
                                                 <div onClick={() => setOpenManualForm(true)} className="flex gap-2 items-center hover:bg-whiteblue p-2 cursor-pointer">
                                                     <span className="w-4"><ManualAddIcon className="#4E4E4E" /></span>
-                                                    <span className="min-w-[80%]">Manually add Resident</span>
+                                                    <span className="min-w-[80%]">Add Resident by Mail</span>
                                                 </div>
                                             </>
                                         )}

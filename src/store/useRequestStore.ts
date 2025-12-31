@@ -84,7 +84,7 @@ export const useRequestSlice = create<RequestState>()(
 
                     const response = await api.get(query);
                     const data = response.data.data;
-                    console.log("Request data:", data);
+                    // console.log("Request data:", data);
                     set({ requestResponse: data });
                 } catch (error: any) {
                     set({ isLoading: false });

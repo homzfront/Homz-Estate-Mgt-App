@@ -1,14 +1,13 @@
 import React from "react";
 
-const Menu = ({ className ="bi bi-list" }) => {
+const Menu = ({ className = "w-4 h-4" }) => {
   return (
-    <div>
+    <div className={className}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        width="100%"
+        height="100%"
         fill="currentColor"
-        className={className}
         viewBox="0 0 16 16"
       >
         <path

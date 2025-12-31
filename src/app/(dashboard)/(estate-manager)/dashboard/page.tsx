@@ -10,6 +10,7 @@ import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mob
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import EmptyEstateState from '../components/emptyEstateState';
 import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
 import CustomModal from '@/components/general/customModal';
@@ -34,7 +35,7 @@ const Dashboard = () => {
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
     const ability = useAbility();
-    
+
     React.useEffect(() => {
         // On first mount or when community changes, fetch based on current tab
         if (selectedCommunity && ability.can('read', 'access-control')) {
@@ -64,25 +65,9 @@ const Dashboard = () => {
     // If no estates, prompt to add one
     if (!estatesData || estatesData.length === 0) {
         return (
-            <div className='py-8 md:p-8'>
-                <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px] text-center md:text-start'>Welcome, {communityProfile?.personal.firstName}</h1>
-                <h3 className='text-GrayHomz font-normal text-sm md:text-[16px] text-center md:text-start'>Add a new estate to get started</h3>
-                <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                    <div className='flex flex-col items-center gap-2'>
-                        <div className='hidden md:flex w-[144px] h-[144px] rounded-full bg-[#EEF5FF] justify-center items-center'>
-                            <EmptyEstateIcon />
-                        </div>
-                        <div className='md:hidden w-[112px] h-[112px] rounded-full bg-[#EEF5FF] flex justify-center items-center'>
-                            <EmptyEstateIconMobile />
-                        </div>
-                        <p className='text-[#141313] font-medium text-sm md:text-[16px]'>Add New Estate to Get Started</p>
-                        {ability.can('create', 'estate') && (
-                            <button onClick={() => router.push("/add-estate")} className='text-BlueHomz cursor-ponter text-sm font-normal flex items-center gap-1'>
-                                <AddIcon /> Add Estate
-                            </button>
-                        )}
-                    </div>
-                </div>
+            <div className='p-8'>
+                <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px] text-center md:text-start mb-6'>Welcome, {communityProfile?.personal.firstName}</h1>
+                <EmptyEstateState />
             </div>
         );
     }

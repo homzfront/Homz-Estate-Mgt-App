@@ -1,7 +1,7 @@
 {
-  "name": "Community App",
-  "short_name": "Homz Community App",
-  "description": "Homz.ng - Community Management Platform | Manage Residents, Billing & Access Control",
+  "name": "Homz.ng",
+  "short_name": "Homz",
+  "description": "Homz.ng is a comprehensive software solution simplifying community management. Manage communities, bill residents, control visitor access, and streamline operations with ease. Try Homz.ng today.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

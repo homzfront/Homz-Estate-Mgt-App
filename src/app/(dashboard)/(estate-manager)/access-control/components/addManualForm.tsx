@@ -84,7 +84,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
             // setCodeGenerated(true);
 
         } catch (error: any) {
-            console.log(error)
+            // console.log(error)
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];

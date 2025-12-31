@@ -74,7 +74,7 @@ const EstateManagerRegistration = () => {
             // Redirect to dashboard on success
             router.push("/dashboard");
         } catch (error: any) {
-            console.log(error)
+            // console.log(error)
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];

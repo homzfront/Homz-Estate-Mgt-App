@@ -22,9 +22,10 @@ export interface Building {
 export interface Apartment {
     id: number;
     label: string;
+    residencyType: string;
     building: string;
-    street: string
-    zone: string
+    street: string;
+    zone: string;
 }
 
 export interface EstateFormData {
@@ -121,6 +122,12 @@ export const useEstateFormStore = create<EstateFormStore>()(
         {
             name: 'estate-form-storage',
             storage: createJSONStorage(() => localStorage),
+            partialize: (state) => ({
+                formData: {
+                    ...state.formData,
+                    coverPhoto: null, // Do not persist the large base64 string
+                },
+            }),
         }
     )
 );

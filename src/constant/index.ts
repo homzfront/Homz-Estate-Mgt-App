@@ -259,3 +259,20 @@ export const estateBillingData = [
     };
   }),
 ];
+
+export const RESIDENCY_TYPES = [
+    'All Residency Type',
+    'Detached House / Bungalow',
+    'Semi-Detached House',
+    'Duplex/Two-Storey House',
+    'Flat / Apartment',
+    'Studio Apartment',
+    'Terraced / Row House',
+    'Serviced Apartment',
+    'Penthouse',
+    'Hostel / Lodging Unit',
+    'Shop / Store',
+    'Shopping Mall',
+    'Office Space',
+    'Kiosk / Mini-Store',
+]
