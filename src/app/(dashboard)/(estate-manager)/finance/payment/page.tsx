@@ -1,8 +1,18 @@
-import React from 'react'
+"use client";
+import { useSelectedCommunity } from '@/store/useSelectedCommunity'
+import EmptyEstateState from '../../components/emptyEstateState'
 
 const Payment = () => {
+  const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+
   return (
-    <div>Payment</div>
+    <div className='p-8 w-full'>
+      {!selectedCommunity ? (
+        <EmptyEstateState />
+      ) : (
+        <div>Payment content goes here</div>
+      )}
+    </div>
   )
 }
 

@@ -24,7 +24,8 @@ const UpdateResidentAccount = () => {
         rentDuration: '', // Non-editable as per image
         rentStartDate: '', // Non-editable as per image
         rentDueDate: '', // Non-editable as per image
-        durationType: '' // Non-editable as per image
+        durationType: '', // Non-editable as per image
+        residentType: '' // Non-editable as per image""
     });
 
     const handleInputChange = (field: any, value: any) => {
@@ -48,11 +49,12 @@ const UpdateResidentAccount = () => {
                 rentDuration: residentProfile.rentedDetails?.rentDuration ? `e.g ${residentProfile.rentedDetails.rentDuration}` : '',
                 rentStartDate: residentProfile.rentedDetails?.rentStartDate ? new Date(residentProfile.rentedDetails.rentStartDate).toLocaleDateString() : '',
                 rentDueDate: residentProfile.rentedDetails?.rentDueDate ? new Date(residentProfile.rentedDetails.rentDueDate).toLocaleDateString() : '',
-                durationType: residentProfile.rentedDetails?.rentDurationType || 'Months/Years'
+                durationType: residentProfile.rentedDetails?.rentDurationType || 'Months/Years',
+                residentType: residentProfile.residentType || ''
             });
         }
     }, [residentProfile]);
-    
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         // Handle form submission logic here
@@ -134,109 +136,121 @@ const UpdateResidentAccount = () => {
 
                 {/* Estate Name Field */}
                 {formData.estateName && (
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-gray-700">
-                        Estate Name <span className="text-red-500">*</span>
-                    </label>
-                    <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                        {formData.estateName}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Estate Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                            {formData.estateName}
+                        </div>
                     </div>
-                </div>
                 )}
 
                 {/* Zone and Street Name Fields */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
                     {formData.zone && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Select Zone (optional)
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.zone}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Select Zone (optional)
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.zone}
+                            </div>
                         </div>
-                    </div>
                     )}
                     {formData.streetName && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Street Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.streetName}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Street Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.streetName}
+                            </div>
                         </div>
-                    </div>
                     )}
                 </div>
 
                 {/* Building and Apartment Fields */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
                     {formData.building && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Building <span className="text-red-500">*</span>
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.building}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Building <span className="text-red-500">*</span>
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.building}
+                            </div>
                         </div>
-                    </div>
                     )}
                     {formData.apartment && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Apartment <span className="text-red-500">*</span>
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.apartment}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Apartment <span className="text-red-500">*</span>
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.apartment}
+                            </div>
                         </div>
-                    </div>
                     )}
                 </div>
 
+                {/* Resident Type */}
+                {formData.residentType && (
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Resident Type <span className="text-red-500">*</span>
+                        </label>
+                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                            {formData.residentType}
+                        </div>
+                    </div>
+                )}
+
                 {/* Ownership Type */}
                 {formData.ownershipType && (
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-gray-700">
-                        Select Ownership Type <span className="text-red-500">*</span>
-                    </label>
-                    <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                        {formData.ownershipType}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Select Ownership Type <span className="text-red-500">*</span>
+                        </label>
+                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                            {formData.ownershipType}
+                        </div>
                     </div>
-                </div>
                 )}
 
                 {/* Rent Duration */}
                 {formData.rentDuration && (
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-gray-700">
-                        Rent Duration <span className="text-red-500">*</span>
-                    </label>
-                    <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center justify-between px-3 text-gray-700">
-                        {formData.rentDuration}  <span>{formData.durationType}</span>
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-700">
+                            Rent Duration <span className="text-red-500">*</span>
+                        </label>
+                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center justify-between px-3 text-gray-700">
+                            {formData.rentDuration}  <span>{formData.durationType}</span>
+                        </div>
                     </div>
-                </div>
                 )}
 
                 {/* Rent Start Date and Rent Due Date */}
                 <div className="flex flex-col md:flex-row gap-6 md:gap-4">
                     {formData.rentStartDate && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Rent Start Date <span className="text-red-500">*</span>
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.rentStartDate}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Rent Start Date <span className="text-red-500">*</span>
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.rentStartDate}
+                            </div>
                         </div>
-                    </div>
                     )}
                     {formData.rentDueDate && (
-                    <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">
-                            Rent Due Date <span className="text-red-500">*</span>
-                        </label>
-                        <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
-                            {formData.rentDueDate}
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-sm font-medium text-gray-700">
+                                Rent Due Date <span className="text-red-500">*</span>
+                            </label>
+                            <div className="h-10 rounded bg-gray-100 text-sm w-full flex items-center px-3 text-gray-700">
+                                {formData.rentDueDate}
+                            </div>
                         </div>
-                    </div>
                     )}
                 </div>
 

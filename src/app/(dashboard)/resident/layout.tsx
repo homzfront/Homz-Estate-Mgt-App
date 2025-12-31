@@ -12,8 +12,7 @@ const Layout = ({
 }: Readonly<{
     children: React.ReactNode;
 }>) => {
-    const { openEstateList, setOpenEstateList } = useOpenCommunityListStore();
-    const [openPendingModal, setOpenPendingModal] = React.useState<boolean>(false);
+    const { openEstateList, setOpenEstateList, openPendingModal, setOpenPendingModal } = useOpenCommunityListStore();
     const closeRef = React.useRef<HTMLDivElement>(null);
     useClickOutside(closeRef as any, () => {
         setOpenEstateList(false);
@@ -21,7 +20,7 @@ const Layout = ({
 
     return (
 
-        <div className='relative'>
+        <div className='dashboard_main relative md:min-w-[1200px]'>
             {openEstateList && (
                 <div className="absolute inset-0 z-[99999999] bg-black bg-opacity-50 flex justify-start">
                     <div className="w-full h-fit mt-[185px] ml-[25px] shadow-lg">

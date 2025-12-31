@@ -24,6 +24,7 @@ import React, { useCallback, useRef } from 'react';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import { useAbility } from '@/contexts/AbilityContext';
 import { useRouter } from 'next/navigation';
+import EmptyEstateState from '../../components/emptyEstateState';
 
 const Request = () => {
     const router = useRouter();
@@ -140,7 +141,7 @@ const Request = () => {
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
             getRequest(pageNo, pageSize);
-            console.log(response);
+            // console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -178,7 +179,7 @@ const Request = () => {
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
             getRequest(pageNo, pageSize);
-            console.log(response);
+            // console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -319,7 +320,16 @@ const Request = () => {
                 </div>
             </CustomModal >
 
-            {(!requestResponse || requestResponse?.results?.length === 0) && !isLoading && search?.length === 0 && !isSearching && (
+            {!selectedCommunity ? (
+                <div>
+                    <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px] mb-6'>Join Requests</h1>
+                    <EmptyEstateState />
+                </div>
+            ) : isLoading ? (
+                <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+                    <LoaderIcon />
+                </div>
+            ) : (!requestResponse || requestResponse?.results?.length === 0) && search?.length === 0 && !isSearching ? (
                 <div>
                     <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
                     <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] max-w-[600px]'>View and manage pending requests from residents who want to join the estate. You can approve or decline each request.</h3>
@@ -335,113 +345,104 @@ const Request = () => {
                         </div>
                     </div>
                 </div>
-            )}
-            {
-                isLoading && (
-                    <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-                        <LoaderIcon />
-                    </div>
-                )
-            }
-            {
-                (search?.length > 0 || requestResponse?.results && requestResponse?.results.length > 0) && !isLoading && (
-                    <div className=''>
-                        {/* Header Section */}
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                            <div>
-                                <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
-                                <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] w-full'>
-                                    View and manage pending requests from residents who want to join the estate.
-                                </h3>
-                                <span className='hidden md:block text-GrayHomz font-normal text-[16px]'>You can approve or decline each request.</span>
-                            </div>
-                            {/* Mobile: Search + Actions */}
-                            <div className="flex gap-2 mt-4 md:mt-0 md:justify-end md:items-center relative">
-                                <div className="md:hidden flex-1">
-                                    <div className="flex items-center h-[40px] rounded-[4px] border border-GrayHomz2 px-2 py-1">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" className="text-GrayHomz2 mr-2">
-                                            <circle cx="7" cy="7" r="6" strokeWidth="2" />
-                                            <line x1="11" y1="11" x2="15" y2="15" strokeWidth="2" />
-                                        </svg>
-                                        <input
-                                            type="text"
-                                            value={search}
-                                            onChange={handleSearchChange}
-                                            placeholder="Search"
-                                            className="bg-transparent h-[40px] rounded-[4px] outline-none text-GrayHomz2 text-sm w-full"
-                                        />
-                                    </div>
-                                </div>
-                                {/* Actions Button */}
-                                {ability.can('update', 'residents') && (
-                                    <button
-                                        onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
-                                        className="flex items-center gap-1 border border-BlueHomz text-BlueHomz px-3 py-2 rounded font-medium text-sm">
-                                        Actions
-                                        <ArrowDown />
-                                    </button>
-                                )}
-                                {actionsMenuOpen && (
-                                    <div
-                                        ref={actionsMenuRef}
-                                        className="absolute top-12 right-0 z-50 w-[240px] bg-white border rounded shadow-lg flex flex-col p-2"
-                                    >
-                                        {ability.can('update', 'residents') && (
-                                            <>
-                                                <button
-                                                    className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
-                                                    onClick={() => handleBulkAction('approve')}
-                                                    disabled={isRequesting}
-                                                >
-                                                    <AddRound /> Approve selected requests
-                                                </button>
-                                                <button
-                                                    className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
-                                                    onClick={() => handleBulkAction('decline')}
-                                                    disabled={isRequesting}
-                                                >
-                                                    <MinusRound /> Decline selected requests
-                                                </button>
-                                            </>
-                                        )}
-                                        <button
-                                            className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
-                                            onClick={() => toast('Export coming soon')}
-                                        >
-                                            <ExportIcon />
-                                            Export as <ArrowDown className='#4E4E4E' />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+            ) : (search?.length > 0 || (requestResponse?.results && requestResponse?.results.length > 0)) && (
+                <div className=''>
+                    {/* Header Section */}
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+                        <div>
+                            <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
+                            <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] w-full'>
+                                View and manage pending requests from residents who want to join the estate.
+                            </h3>
+                            <span className='hidden md:block text-GrayHomz font-normal text-[16px]'>You can approve or decline each request.</span>
                         </div>
-
-                        {/* Table Section */}
-                        <div className="mt-6 border overflow-x-auto scrollbar-container">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
-                                        {/* Select All */}
-                                        {ability.can('update', 'residents') && (
-                                            <th
-                                                className="cursor-pointer text-left pl-4 w-[40px]"
-                                                onClick={handleSelectAll}
+                        {/* Mobile: Search + Actions */}
+                        <div className="flex gap-2 mt-4 md:mt-0 md:justify-end md:items-center relative">
+                            <div className="md:hidden flex-1">
+                                <div className="flex items-center h-[40px] rounded-[4px] border border-GrayHomz2 px-2 py-1">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" className="text-GrayHomz2 mr-2">
+                                        <circle cx="7" cy="7" r="6" strokeWidth="2" />
+                                        <line x1="11" y1="11" x2="15" y2="15" strokeWidth="2" />
+                                    </svg>
+                                    <input
+                                        type="text"
+                                        value={search}
+                                        onChange={handleSearchChange}
+                                        placeholder="Search"
+                                        className="bg-transparent h-[40px] rounded-[4px] outline-none text-GrayHomz2 text-sm w-full"
+                                    />
+                                </div>
+                            </div>
+                            {/* Actions Button */}
+                            {ability.can('update', 'residents') && (
+                                <button
+                                    onClick={() => setActionsMenuOpen(!actionsMenuOpen)}
+                                    className="flex items-center gap-1 border border-BlueHomz text-BlueHomz px-3 py-2 rounded font-medium text-sm">
+                                    Actions
+                                    <ArrowDown />
+                                </button>
+                            )}
+                            {actionsMenuOpen && (
+                                <div
+                                    ref={actionsMenuRef}
+                                    className="absolute top-12 right-0 z-50 w-[240px] bg-white border rounded shadow-lg flex flex-col p-2"
+                                >
+                                    {ability.can('update', 'residents') && (
+                                        <>
+                                            <button
+                                                className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
+                                                onClick={() => handleBulkAction('approve')}
+                                                disabled={isRequesting}
                                             >
-                                                {selectAll ? <Ticked /> : <UnTicked />}
-                                            </th>
-                                        )}
+                                                <AddRound /> Approve selected requests
+                                            </button>
+                                            <button
+                                                className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
+                                                onClick={() => handleBulkAction('decline')}
+                                                disabled={isRequesting}
+                                            >
+                                                <MinusRound /> Decline selected requests
+                                            </button>
+                                        </>
+                                    )}
+                                    <button
+                                        className="flex items-center gap-2 p-2 hover:bg-whiteblue text-GrayHomz text-sm text-left"
+                                        onClick={() => toast('Export coming soon')}
+                                    >
+                                        <ExportIcon />
+                                        Export as <ArrowDown className='#4E4E4E' />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                                        {/* Resident Name */}
-                                        <th className="text-left w-auto md:w-[150px]">Resident Name</th>
+                    {/* Table Section */}
+                    <div className="mt-6 border overflow-x-auto scrollbar-container">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
+                                    {/* Select All */}
+                                    {ability.can('update', 'residents') && (
+                                        <th
+                                            className="cursor-pointer text-left pl-4 w-[40px]"
+                                            onClick={handleSelectAll}
+                                        >
+                                            {selectAll ? <Ticked /> : <UnTicked />}
+                                        </th>
+                                    )}
 
-                                        {/* Hidden on mobile */}
-                                        <th className="hidden md:table-cell text-left w-[150px]">Email</th>
-                                        <th className="hidden md:table-cell text-left w-[150px]">Street</th>
-                                        <th className="hidden md:table-cell text-left w-[150px]">Building</th>
-                                        <th className="hidden md:table-cell text-left w-[150px]">Apartment</th>
-                                        <th className="hidden md:table-cell text-left w-[150px]">Requested On</th>
+                                    {/* Resident Name */}
+                                    <th className="text-left w-auto md:w-[150px]">Resident Name</th>
 
-                                        {/* Always visible */}
+                                    {/* Hidden on mobile */}
+                                    <th className="hidden md:table-cell text-left w-[150px]">Email</th>
+                                    <th className="hidden md:table-cell text-left w-[150px]">Street</th>
+                                    <th className="hidden md:table-cell text-left w-[150px]">Building</th>
+                                    <th className="hidden md:table-cell text-left w-[150px]">Apartment</th>
+                                    <th className="hidden md:table-cell text-left w-[150px]">Requested On</th>
+
+                                    {/* Always visible */}
                                         <th className="text-left w-auto md:w-[110px]">Status</th>
                                         {ability.can('update', 'residents') && (
                                             <th className="text-left w-auto md:w-[80px]">Action</th>
@@ -631,7 +632,7 @@ const Request = () => {
                     </div>
                 )
             }
-        </div >
+        </div>
     );
 };
 

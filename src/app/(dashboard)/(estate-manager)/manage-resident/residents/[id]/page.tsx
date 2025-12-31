@@ -14,10 +14,10 @@ import { useRouter } from "next/navigation";
 
 const ResidentProfile = () => {
     const router = useRouter();
-    const { residentData } = useAccessStore();
+    const { resident } = useAccessStore();
     return (
-        <div className="max-w-full">
-            <div className="w-full">
+        <div className="w-full">
+            <div className="w-full min-h-screen">
                 <div className="hidden md:block">
                     <button onClick={() => router.back()} className="text-sm text-GrayHomz font-normal flex items-center gap-2 p-8">
                         <LongLeftArrow /> Go Back <span className="text-[20px] font-medium text-BlackHomz">Resident Profile</span>
@@ -32,20 +32,20 @@ const ResidentProfile = () => {
                             style={{ height: "auto", width: "auto" }}
                         />
                     </div>
-                    <div className="w-full flex gap-6 mt-[-20px] px-8">
+                    <div className="w-full flex gap-6 mt-[-20px] px-8 mb-6">
                         <div className="w-[35%]">
-                            <ProfileCard residentData={residentData} />
+                            <ProfileCard residentData={resident} />
                         </div>
                         <div className="w-[65%]">
                             <Widget
-                                // residentData={residentData}
+                                residentData={resident}
                             />
                         </div>
                     </div>
                 </div>
                 <div className="md:hidden">
                     <MobileWidget
-                        residentData={residentData}
+                        residentData={resident}
                     />
                 </div>
             </div>

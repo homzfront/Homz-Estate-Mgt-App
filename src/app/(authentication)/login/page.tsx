@@ -263,7 +263,7 @@ const Login = () => {
                   Login In with google
                 </button> */}
 
-                {/* <p className="mt-4 text-center font-[400] text-[14px]">
+                <p className="mt-4 text-center font-[400] text-[14px]">
                   Didn&apos;t have an account?
                   <Link
                     className="text-center font-[700] text-[14px] text-BlueHomz ml-1"
@@ -271,7 +271,7 @@ const Login = () => {
                   >
                     Create Account
                   </Link>
-                </p> */}
+                </p>
               </div>
             </div>
           </div>

@@ -36,8 +36,12 @@ const Layout = ({
         setOpenEstateList(false);
     });
 
-    // Show loading until we have estate data and role
-    if (estateLoading || !selectedCommunity?.role) {
+    // console.log("estateLoading:", estateLoading)
+    // console.log("selectedCommunity:", selectedCommunity)
+    // console.log("estatesData:", estatesData)
+
+    // Show loading until we have estate data and role (unless no estates)
+    if (estateLoading || (!selectedCommunity?.role && estatesData && estatesData.length > 0)) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="p-6 flex flex-col items-center gap-3">
@@ -49,7 +53,7 @@ const Layout = ({
 
     return (
 
-        <div className='dashboard_main relative'>
+        <div className='dashboard_main relative md:min-w-[1200px]'>
             {/* Global estate switching loader */}
             {isSwitchingEstate && (
                 <div className="fixed inset-0 z-[999999999] bg-black bg-opacity-30 flex justify-center items-center">
@@ -61,7 +65,7 @@ const Layout = ({
             )}
             {openEstateList && (
                 <div className="absolute inset-0 z-[99999999] bg-black bg-opacity-50 flex justify-start">
-                    <div className="w-full h-fit mt-[170px] ml-[25px] shadow-lg">
+                    <div className="w-full h-fit mt-[190px] ml-[25px] shadow-lg">
                         <PickEstate closeRef={closeRef} />
                     </div>
                 </div>

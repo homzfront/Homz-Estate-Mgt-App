@@ -17,6 +17,7 @@ import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
 import toast from 'react-hot-toast'
 import api from '@/utils/api'
 import DotLoader from '@/components/general/dotLoader'
+import { useAuthSlice } from '@/store/authStore'
 
 const EstateForm = () => {
     // react components
@@ -37,6 +38,8 @@ const EstateForm = () => {
         setFormData,
         clearForm
     } = useEstateFormStore();
+
+    const { getEstates } = useAuthSlice();
 
     // Load state 
     React.useEffect(() => {
@@ -108,6 +111,7 @@ const EstateForm = () => {
             })),
             apartments: apartments.map(apartment => ({
                 name: apartment.label,
+                residencyType: apartment.residencyType,
                 building: apartment.building,
                 street: apartment.street,
                 zone: apartment.zone
@@ -139,6 +143,7 @@ const EstateForm = () => {
             }
             // On success
             setIsOpen(true);
+            await getEstates(); // Refresh estates list
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
@@ -245,11 +250,13 @@ const EstateForm = () => {
                         handleBack={() => {
                             clearForm();
                             setIsOpen(false);
+                            router.push("/dashboard");
                         }}
                         isOpen={isOpen}
                         closeSuccessModal={() => {
                             clearForm();
                             setIsOpen(false);
+                            router.push("/dashboard");
                         }}
                     />
                 }
@@ -313,18 +320,19 @@ const EstateForm = () => {
                 {/* Navigation Buttons */}
                 <div className={`mt-8 flex gap-4 md:gap-0 items-center flex-row md:items-start ${active === 0 ? "justify-end" : "justify-end md:justify-between"}`}>
                     {active > 0 && (
-                        <button
-                            onClick={() => { }}
-                            className="text-sm font-medium text-BlackHomz hover:text-gray-500"
-                        >
-                            Save <span className='md:hidden'>Progress</span>
-                        </button>
+                        // <button
+                        //     onClick={() => { }}
+                        //     className="text-sm font-medium text-BlackHomz hover:text-gray-500"
+                        // >
+                        //     Save <span className='md:hidden'>Progress</span>
+                        // </button>
+                        <div/>
                     )}
                     <div className='flex items-center gap-4'>
                         {active > 0 && (
                             <button
                                 onClick={handleBack}
-                                className="hidden text-sm font-medium text-BlackHomz hover:text-gray-700 md:flex gap-1 items-center"
+                                className="text-sm font-medium text-BlackHomz hover:text-gray-700 flex gap-1 items-center"
                             >
                                 <ArrowLeft /> Back
                             </button>
