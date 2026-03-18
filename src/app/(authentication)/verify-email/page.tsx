@@ -66,11 +66,8 @@ const VerifyEmail = () => {
     try {
       // Endpoint is public — no token needed
       await api.post("/auth/verify-otp", { email, pincode: otp.join("") });
-      // Fetch user profile
-      const profile = await api.get("/auth/current-user");
 
-      // Store user data
-      setUserData(profile.data.data);
+      // OTP verified — show success screen, user will log in next
       setVerificationSuccess(true);
       setError(false);
       setError2("");

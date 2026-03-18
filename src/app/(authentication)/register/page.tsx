@@ -265,20 +265,8 @@ const Register = () => {
             {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
               OR
             </span> */}
-            <div className="mt-[-5px]">
-              {/* <button
-                className="border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz"
-                type="button"
-              >
-                <Image
-                  src={"/Social icon.png"}
-                  alt="google"
-                  height={20}
-                  width={20}
-                />
-                Sign Up with Google
-              </button> */}
-              <p className="mt-4 text-center font-[400] text-[14px]">
+            <div className="mt-4">
+              <p className="text-center font-[400] text-[14px]">
                 Already have an account?{" "}
                 <Link
                   className="text-center font-[700] text-[14px] text-BlueHomz hover:underline"
