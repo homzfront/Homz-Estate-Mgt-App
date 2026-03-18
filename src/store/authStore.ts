@@ -27,6 +27,9 @@ export interface AuthResponse {
     userId: any;
     access_token: string;
     refresh_token?: string;
+    message?: string;
+    success?: boolean;
+    statusCode?: number;
 }
 
 export interface AccountDetailsType {

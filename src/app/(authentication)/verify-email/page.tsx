@@ -64,19 +64,8 @@ const VerifyEmail = () => {
     setError2("");
 
     try {
-      // Create a token on the fly
-      const token = generateToken();
-
-      // Send OTP request with token
-      await api.post(
-        "/auth/verify-otp",
-        { email, pincode: otp.join("") },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Endpoint is public — no token needed
+      await api.post("/auth/verify-otp", { email, pincode: otp.join("") });
       // Fetch user profile
       const profile = await api.get("/auth/current-user");
 
@@ -101,19 +90,8 @@ const VerifyEmail = () => {
     e?.preventDefault();
     setResend(true);
     try {
-      // Create a token on the fly
-      const token = generateToken();
-
-      // Send OTP request with token
-      await api.post(
-        "/auth/resend-otp",
-        { email },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Endpoint is public — no token needed
+      await api.post("/auth/resend-otp", { email });
       toast.success('OTP SENT');
       startTimer();
       setResend(false);

@@ -85,15 +85,25 @@ const Register = () => {
     }
 
     try {
-      await createUser({
+      const result = await createUser({
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword
       });
 
-      toast.success("Sign up successful!", {
+      // If user exists but unverified, backend returns account_not_verified with success: false
+      if (result?.message === "account_not_verified") {
+        toast.success("OTP sent! Please verify your email.", {
+          position: "top-center",
+          duration: 3000,
+        });
+        router.push("/verify-email");
+        return;
+      }
+
+      toast.success("Account created! Please check your email for the OTP.", {
         position: "top-center",
-        duration: 2000,
+        duration: 3000,
         style: {
           background: "#E8F5E9",
           color: "#2E7D32",
@@ -103,16 +113,17 @@ const Register = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
-      // On successful registration
-      router.push("/login");
+      // Redirect to OTP verification page instead of login
+      router.push("/verify-email");
 
     } catch (error: any) {
-      // Error is already handled in the store
       const backendMessage = error?.response?.data?.message;
       const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during registration";
 
-      if (error?.response?.data?.message?.includes("email")) {
+      if (backendMessage === "email already in use") {
+        setEmailError(backendMessage || fallbackMessage);
+      } else if (backendMessage?.includes("email")) {
         setEmailError(backendMessage || fallbackMessage);
       } else {
         setPasswordError(backendMessage || backendMessageTwo || fallbackMessage);

@@ -128,7 +128,9 @@ const Login = () => {
       const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during login";
 
-      if (backendMessage === "Account is not verified. Please verify your account.") {
+      if (backendMessage === "account_not_verified" || backendMessage === "Account is not verified. Please verify your account.") {
+        // Store email so the verify-email page knows who to verify
+        setUserData({ email });
         router.push("/verify-email")
       } else if (backendMessage === `Account "COMMUNITY_MANAGER" does not exist in user's profiles`) {
         router.push("/resident/dashboard")
