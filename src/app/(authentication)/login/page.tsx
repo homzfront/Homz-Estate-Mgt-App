@@ -98,16 +98,16 @@ const Login = () => {
           router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
-         
+          // Redirect to profile
           router.push("/select-profile");
         }
-        
       } else {
         clearResidentData();
         const response = await api.get("/community-manager/current-profile");
         if (!response) {
-          router.push("/resident/dashboard")  
+          router.push("/resident/dashboard")
         } else {
+          // Show success toast
           toast.success("Login successful!", {
             position: "top-center",
             duration: 2000,
@@ -120,7 +120,8 @@ const Login = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             },
           });
-          router.push("/dashboard");  
+          // Redirect to dashboard 
+          router.push("/dashboard");
         }
       }
     } catch (error: any) {

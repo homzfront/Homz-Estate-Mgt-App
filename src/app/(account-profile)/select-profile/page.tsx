@@ -21,16 +21,17 @@ const SelectProfile = () => {
             image: <EstateManagement />,
             imageII: ({ hover }: any) => <EstateManagement className={hover ? "#FF8C00" : "#DC6803"} classNameII={hover ? "#FFFAF0" : "white"} />,
             link: "/estate-form",
-            hoverBorderColor: "#DC6803", 
+            hoverBorderColor: "#DC6803", // Orange for Community Manager
             hoverBgColor: "bg-orange-50"
         },
         {
-            id: 2,  
+            id: 2,  // Changed id to be unique
             text: "As a resident, pay community dues, and request visitor access in one place.",
             header: "Resident",
             image: <Resident />,
             imageII: ({ hover }: any) => <Resident className={hover ? "#df2b1eff" : "#D92D20"} classNameII={hover ? "#FFF5F5" : "white"} />,
-            hoverBorderColor: "#D92D20",             hoverBgColor: "bg-red-50" 
+            hoverBorderColor: "#D92D20", // Red for Resident
+            hoverBgColor: "bg-red-50" // Light red background on hover
         }
     ];
 
@@ -86,9 +87,7 @@ const SelectProfile = () => {
                                     </div>
                                     <button
                                         onClick={() => {
-                                            if (data.link) {
-                                                router.push(data.link)  
-                                            }
+                                            if (data.link) { router.push(`${data.link}`) }
                                             else {
                                                 setOpenModal(true);
                                             }
