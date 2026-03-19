@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthSlider from "@/components/auth/authSlider";
 import api from "@/utils/api";
+import { storeToken } from "@/utils/cookies";
 import { useAuthSlice } from "@/store/authStore";
 import toast from "react-hot-toast";
 import DotLoader from "@/components/general/dotLoader";
@@ -65,9 +66,18 @@ const VerifyEmail = () => {
 
     try {
       // Endpoint is public — no token needed
-      await api.post("/auth/verify-otp", { email, pincode: otp.join("") });
+      const response = await api.post("/auth/verify-otp", { email, pincode: otp.join("") });
 
-      // OTP verified — show success screen, user will log in next
+      // Store token so user can continue without logging in again
+      const { data } = response.data;
+      if (data?.accessToken) {
+        await storeToken({
+          token: data.accessToken,
+          refresh_token: data.refreshToken,
+        });
+      }
+
+      // OTP verified — show success screen
       setVerificationSuccess(true);
       setError(false);
       setError2("");
@@ -116,9 +126,9 @@ const VerifyEmail = () => {
         organizationId: organizationId as any,
         estateId: estateId as any
       }).toString()
-
       router.push(`/resident/invitations/create?${params}`)
     } else {
+      // Token already stored after OTP verification — go straight to profile setup
       router.push("/select-profile");
     }
   };
