@@ -231,21 +231,19 @@ const Resident = () => {
                 return;
             }
 
-            // Prepare the payload based on ownership type
-            const payload: any = {
-                email: userData?.email || "",
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                estateName: publicCommunity?.basicDetails?.name,
-                zone: selectedStreetZone || undefined, // Optional
+            // Build the residence object to wrap in the residences array (as required by the backend DTO)
+            const ownershipType = selectedOwner === "I am renting this apartment/property" ? "rented" : "owned";
+
+            const residence: any = {
+                zone: selectedStreetZone || undefined,
                 streetName: selectedStreetName,
                 building: selectedBuilding,
                 apartment: selectedApartment,
-                residentType: selectedResidentType,
-                ownershipType: selectedOwner?.length > 0 && selectedOwner === "I am renting this apartment/property" ? "rented" : "owned",
+                residencyType: selectedResidentType,
+                ownershipType,
             };
 
-            if (selectedOwner === "I own this apartment/property") {
+            if (ownershipType === "owned") {
                 if (!formData.residencyStartDate) {
                     toast.error("Residency start date is required", {
                         position: "top-center",
@@ -261,10 +259,10 @@ const Resident = () => {
                     });
                     return;
                 }
-                payload.ownedDetails = {
+                residence.ownedDetails = {
                     residencyStartDate: new Date(formData.residencyStartDate).toISOString()
                 };
-            } else if (selectedOwner === "I am renting this apartment/property") {
+            } else {
                 if (!formData.rentDuration || !formData.rentStartDate) {
                     toast.error("Rent duration and start date are required", {
                         position: "top-center",
@@ -280,15 +278,32 @@ const Resident = () => {
                     });
                     return;
                 }
-
                 const startDate = new Date(formData.rentStartDate);
-                payload.rentedDetails = {
+                residence.rentedDetails = {
                     rentDurationType: formData.rentDurationType === 'months' ? 'Monthly' : 'Yearly',
                     rentDuration: parseInt(formData.rentDuration),
                     rentStartDate: startDate.toISOString(),
                     rentDueDate: formatDueDateForSubmission(calculatedDueDate)
                 };
             }
+
+            const payload: any = {
+                email: userData?.email || "",
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                estateName: publicCommunity?.basicDetails?.name,
+                // Top-level fields required by the backend DTO
+                zone: selectedStreetZone || undefined,
+                streetName: selectedStreetName,
+                building: selectedBuilding,
+                apartment: selectedApartment,
+                residencyType: selectedResidentType,
+                ownershipType,
+                ...(ownershipType === "owned"
+                    ? { ownedDetails: residence.ownedDetails }
+                    : { rentedDetails: residence.rentedDetails }),
+                residences: [residence],
+            };
 
             // Make API call
             await api.post(`/resident/create-profile/organizations/${organizationId}/estates/${estateId}?invitationToken=${residentToken}`, payload);
@@ -338,281 +353,268 @@ const Resident = () => {
     // console.log("publicCommunity:", publicCommunity)
 
     return (
-        <div>
+        <div className="min-h-screen bg-[#F8F9FB]">
             {/* Header */}
-            <div className='w-full bg-gradient-to-r from-BlueHomz2 to-BlueHomzDark py-[24px]'>
-                <div className='w-full flex justify-center items-center'>
+            <div className='w-full bg-gradient-to-r from-BlueHomz2 to-BlueHomzDark py-[20px] sticky top-0 z-50'>
+                <div className='w-full max-w-[1440px] mx-auto px-6 flex items-center justify-between'>
                     <Image
                         src={"/Homz_colorless.png"}
-                        className="ml-2 cursor-pointer"
+                        className="cursor-pointer"
                         height={27}
                         width={131}
                         alt="logo"
                         onClick={() => router.back()}
                     />
-                </div>
-            </div>
-            {/* Header */}
-            <div className="max-w-[750px] mx-auto mt-5 md:mt-10 p-4 md:p-2">
-                <h1 className='text-[23px] font-semibold text-BlackHomz'>
-                    Set Up Your Residential Details
-                </h1>
-                <p className='text-[16px] font-normal text-GrayHomz'>
-                    Review and complete your residential information to get started with your property dashboard.
-                </p>
-            </div>
-
-
-            {/* Form Section */}
-            <div className="max-w-[750px] mx-auto mt-4 p-4 pb-5 bg-[#FCFCFC] hidden md:grid grid-cols-2 gap-6">
-                <div className='w-full md:w-[100%]'>
-                    <label className="text-sm text-BlackHomz font-medium">
-                        First Name <span className="text-red-500">*</span>
-                    </label>
-                    <CustomInput
-                        borderColor="#4E4E4E"
-                        type="text"
-                        placeholder='e.g, Hunter'
-                        className="h-[45px] px-4 mt-1"
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        required
-                    />
-                </div>
-                <div className='w-full md:w-[100%]'>
-                    <label className="text-sm text-BlackHomz font-medium">
-                        Last Name <span className="text-red-500">*</span>
-                    </label>
-                    <CustomInput
-                        borderColor="#4E4E4E"
-                        type="text"
-                        placeholder='e.g, Jude'
-                        className="h-[45px] px-4 mt-1"
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        required
-                    />
+                    <span className='text-white text-sm font-normal opacity-80'>Resident Onboarding</span>
                 </div>
             </div>
 
+            {/* Main content — two column on desktop, single column on mobile */}
+            <div className="w-full max-w-[1200px] mx-auto px-4 md:px-8 py-8 md:py-12">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
 
-            <div className="max-w-[750px] mx-auto mt-4 p-4 md:bg-[#FCFCFC] flex flex-col gap-4 md:gap-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium mb-1">
-                            Email <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            value={`${userData?.email ? userData?.email : ""}`}
-                            className='h-[45px] rounded-[4px] bg-[#E6E6E6] px-6 flex justify-between items-center'
-                            disabled
-                        />
-                    </div>
-                    <div className='w-full md:w-[100%]'>
-                        <label className="text-sm text-BlackHomz font-medium">
-                            Estate Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            value={`${publicCommunity?.basicDetails?.name ? publicCommunity?.basicDetails?.name : ""}`}
-                            className='h-[45px] mt-1 w-full rounded-[4px] bg-[#E6E6E6] px-6 flex justify-between items-center'
-                            disabled
-                        />
-                    </div>
-                </div>
-
-                {/* Name */}
-                <div className="md:hidden grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div className='w-full md:w-[100%]'>
-                        <label className="text-sm text-BlackHomz font-medium">
-                            First Name <span className="text-red-500">*</span>
-                        </label>
-                        <CustomInput
-                            borderColor="#4E4E4E"
-                            type="text"
-                            placeholder='e.g, Hunter'
-                            className="h-[45px] px-4 mt-1"
-                            onChange={(e) => handleInputChange('firstName', e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className='w-full md:w-[100%]'>
-                        <label className="text-sm text-BlackHomz font-medium">
-                            Last Name <span className="text-red-500">*</span>
-                        </label>
-                        <CustomInput
-                            borderColor="#4E4E4E"
-                            type="text"
-                            placeholder='e.g, Jude'
-                            className="h-[45px] px-4 mt-1"
-                            onChange={(e) => handleInputChange('lastName', e.target.value)}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    {/* Zone Section */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium">
-                            Select Zone <span className="font-normal"> (optional)</span>
-                        </label>
-                        <Dropdown
-                            options={zoneOptions || []}
-                            onSelect={handleZoneSelect}
-                            selectOption="N/A"
-                        />
-                    </div>
-
-                    {/* Street Section */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium">
-                            Street Name <span className="text-red-500">*</span>
-                        </label>
-                        <Dropdown
-                            options={streetOptions || []}
-                            onSelect={handleStreetSelect}
-                            selectOption="Select Street"
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    {/* Building Section */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium">
-                            Building <span className="text-red-500">*</span>
-                        </label>
-                        <Dropdown
-                            options={buildingOptions || []}
-                            onSelect={handleBuildingSelect}
-                            selectOption="Select Building"
-                        />
-                    </div>
-
-                    {/* Apartment Section */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium">
-                            Apartment <span className="text-red-500">*</span>
-                        </label>
-                        <Dropdown
-                            options={apartmentOptions || []}
-                            onSelect={handleApartmentSelect}
-                            selectOption="Select Apartment"
-                        />
-                    </div>
-                </div>
-
-                {/* Resident Type Section */}
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium">
-                        Resident Type <span className="text-red-500">*</span>
-                    </label>
-                    <Dropdown
-                        options={residencyTypeOptions}
-                        onSelect={handleResidentTypeSelect}
-                        selectOption={"Select Resident Type"}
-                        showSearch={false}
-                    />
-                </div>
-
-
-                {/* Ownership Type Section */}
-                <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium">
-                        Select Ownership Type <span className="text-red-500">*</span>
-                    </label>
-                    <Dropdown
-                        options={ownerTypeOption}
-                        onSelect={handleOwnerSelect}
-                        selectOption={"Select OwnerShip Type"}
-                        showSearch={false}
-                    />
-                </div>
-
-                {/* Conditional Fields based on Ownership Type */}
-                {selectedOwner === "I am renting this apartment/property" && (
-                    <div className="grid grid-cols-1 gap-4 md:gap-6">
-                        <div className='relative'>
-                            <CustomInput
-                                borderColor="#4E4E4E"
-                                label="Rent Duration"
-                                placeholder="e.g 12"
-                                value={formData.rentDuration}
-                                onValueChange={(value) => handleInputChange('rentDuration', value)}
-                                required
-                                type='number'
-                                className='h-[45px] pl-4 pr-[100px] mt-1'
-                            />
-                            <select
-                                className="absolute top-9 right-2 border-none text-xs px-2 py-1 bg-transparent"
-                                value={formData.rentDurationType}
-                                onChange={(e) => handleDurationTypeChange(e.target.value)}
-                            >
-                                {durationTypeOptions.map(option => (
-                                    <option key={option.id} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                    {/* LEFT PANEL — Estate info (desktop only sidebar) */}
+                    <div className="w-full lg:w-[340px] lg:sticky lg:top-[80px] flex-shrink-0">
+                        <div className="bg-white rounded-[12px] border border-[#E6E6E6] p-6">
+                            <h2 className='text-[16px] font-semibold text-BlackHomz mb-4'>Estate Information</h2>
+                            <div className='flex flex-col gap-4'>
+                                <div>
+                                    <p className='text-xs text-GrayHomz font-normal mb-1'>Estate Name</p>
+                                    <p className='text-sm font-medium text-BlackHomz'>
+                                        {publicCommunity?.basicDetails?.name || '—'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className='text-xs text-GrayHomz font-normal mb-1'>Your Email</p>
+                                    <p className='text-sm font-medium text-BlackHomz break-all'>
+                                        {userData?.email || '—'}
+                                    </p>
+                                </div>
+                                {publicCommunity?.basicDetails?.location?.state && (
+                                    <div>
+                                        <p className='text-xs text-GrayHomz font-normal mb-1'>Location</p>
+                                        <p className='text-sm font-medium text-BlackHomz'>
+                                            {publicCommunity?.basicDetails?.location?.area}, {publicCommunity?.basicDetails?.location?.state}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className='mt-6 pt-4 border-t border-[#E6E6E6]'>
+                                <p className='text-xs text-GrayHomz font-normal leading-relaxed'>
+                                    Fill in your residential details to complete your profile and access your dashboard.
+                                </p>
+                            </div>
                         </div>
-                        <div className='flex flex-col md:flex-row items-center gap-4 md:gap-6'>
-                            <div className='w-full md:w-[50%]'>
-                                <label className="text-sm text-BlackHomz font-medium">
-                                    Rent Start Date <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative mt-1">
-                                    <CustomInput
-                                        borderColor="#4E4E4E"
-                                        type="date"
-                                        className="h-[45px] px-4 pr-10 input-hide-date-icon"
-                                        onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
-                                        required
-                                    />
-                                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
-                                        <DateIcon />
-                                    </span>
+                    </div>
+
+                    {/* RIGHT PANEL — Form */}
+                    <div className="flex-1 w-full">
+                        <div className="bg-white rounded-[12px] border border-[#E6E6E6] p-6 md:p-8">
+                            <h1 className='text-[20px] md:text-[22px] font-semibold text-BlackHomz mb-1'>
+                                Set Up Your Residential Details
+                            </h1>
+                            <p className='text-[14px] font-normal text-GrayHomz mb-6'>
+                                Complete your residential information to get started.
+                            </p>
+
+                            <div className="flex flex-col gap-5">
+                                {/* Name */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-sm text-BlackHomz font-medium">
+                                            First Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <CustomInput
+                                            borderColor="#4E4E4E"
+                                            type="text"
+                                            placeholder='e.g, Hunter'
+                                            className="h-[45px] px-4 mt-1"
+                                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm text-BlackHomz font-medium">
+                                            Last Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <CustomInput
+                                            borderColor="#4E4E4E"
+                                            type="text"
+                                            placeholder='e.g, Jude'
+                                            className="h-[45px] px-4 mt-1"
+                                            onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Zone & Street */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Select Zone <span className="font-normal text-GrayHomz"> (optional)</span>
+                                        </label>
+                                        <Dropdown
+                                            options={zoneOptions || []}
+                                            onSelect={handleZoneSelect}
+                                            selectOption="N/A"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Street Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <Dropdown
+                                            options={streetOptions || []}
+                                            onSelect={handleStreetSelect}
+                                            selectOption="Select Street"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Building & Apartment */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Building <span className="text-red-500">*</span>
+                                        </label>
+                                        <Dropdown
+                                            options={buildingOptions || []}
+                                            onSelect={handleBuildingSelect}
+                                            selectOption="Select Building"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Apartment <span className="text-red-500">*</span>
+                                        </label>
+                                        <Dropdown
+                                            options={apartmentOptions || []}
+                                            onSelect={handleApartmentSelect}
+                                            selectOption="Select Apartment"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Resident Type & Ownership Type */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Resident Type <span className="text-red-500">*</span>
+                                        </label>
+                                        <Dropdown
+                                            options={residencyTypeOptions}
+                                            onSelect={handleResidentTypeSelect}
+                                            selectOption={"Select Resident Type"}
+                                            showSearch={false}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-sm font-medium">
+                                            Ownership Type <span className="text-red-500">*</span>
+                                        </label>
+                                        <Dropdown
+                                            options={ownerTypeOption}
+                                            onSelect={handleOwnerSelect}
+                                            selectOption={"Select Ownership Type"}
+                                            showSearch={false}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Rented fields */}
+                                {selectedOwner === "I am renting this apartment/property" && (
+                                    <div className="flex flex-col gap-4 p-4 bg-[#F8F9FB] rounded-[8px] border border-[#E6E6E6]">
+                                        <h3 className='text-sm font-semibold text-BlackHomz'>Rental Details</h3>
+                                        <div className='relative'>
+                                            <CustomInput
+                                                borderColor="#4E4E4E"
+                                                label="Rent Duration"
+                                                placeholder="e.g 12"
+                                                value={formData.rentDuration}
+                                                onValueChange={(value) => handleInputChange('rentDuration', value)}
+                                                required
+                                                type='number'
+                                                className='h-[45px] pl-4 pr-[100px] mt-1'
+                                            />
+                                            <select
+                                                className="absolute top-9 right-2 border-none text-xs px-2 py-1 bg-transparent"
+                                                value={formData.rentDurationType}
+                                                onChange={(e) => handleDurationTypeChange(e.target.value)}
+                                            >
+                                                {durationTypeOptions.map(option => (
+                                                    <option key={option.id} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                                            <div>
+                                                <label className="text-sm text-BlackHomz font-medium">
+                                                    Rent Start Date <span className="text-red-500">*</span>
+                                                </label>
+                                                <div className="relative mt-1">
+                                                    <CustomInput
+                                                        borderColor="#4E4E4E"
+                                                        type="date"
+                                                        className="h-[45px] px-4 pr-10 input-hide-date-icon"
+                                                        onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
+                                                        required
+                                                    />
+                                                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                                        <DateIcon />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className='flex flex-col gap-1'>
+                                                <h3 className='text-sm font-medium text-BlackHomz mb-1'>Rent Due Date <span className='text-error'>*</span></h3>
+                                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4 text-sm text-GrayHomz'>
+                                                    {calculatedDueDate ? calculatedDueDate : 'Auto-filled'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Owned fields */}
+                                {selectedOwner === "I own this apartment/property" && (
+                                    <div className="flex flex-col gap-4 p-4 bg-[#F8F9FB] rounded-[8px] border border-[#E6E6E6]">
+                                        <h3 className='text-sm font-semibold text-BlackHomz'>Ownership Details</h3>
+                                        <div className='w-full sm:w-[50%]'>
+                                            <label className="text-sm text-BlackHomz font-medium">
+                                                Residency Start Date <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="relative">
+                                                <CustomInput
+                                                    borderColor="#4E4E4E"
+                                                    type="date"
+                                                    className="h-[45px] px-4 pr-10 input-hide-date-icon mt-1"
+                                                    onChange={(e) => handleInputChange('residencyStartDate', e.target.value)}
+                                                    required
+                                                />
+                                                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                                    <DateIcon />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Submit */}
+                                <div className="mt-4 flex justify-end">
+                                    <button
+                                        onClick={handleSubmit}
+                                        className={`bg-BlueHomz hover:bg-BlueHomzDark h-[45px] w-full sm:w-auto min-w-[180px] flex justify-center items-center font-normal text-[16px] text-white px-8 rounded-[4px] ${loading ? "pointer-events-none opacity-80" : ""}`}
+                                        disabled={loading}
+                                    >
+                                        {loading ? <DotLoader /> : "Go to Dashboard"}
+                                    </button>
                                 </div>
                             </div>
-                            <div className='flex flex-col gap-1 w-full md:w-[50%] text-sm'>
-                                <h3 className='text-sm font-medium text-BlackHomz mb-1'>Rent Due Date <span className='text-error'>*</span></h3>
-                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                                    {calculatedDueDate ? calculatedDueDate : 'Auto-filled'}
-                                </span>
-                            </div>
                         </div>
                     </div>
-                )}
 
-                {selectedOwner === "I own this apartment/property" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div className='w-full md:w-[100%]'>
-                            <label className="text-sm text-BlackHomz font-medium">
-                                Residency Start Date <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <CustomInput
-                                    borderColor="#4E4E4E"
-                                    type="date"
-                                    className="h-[45px] px-4 pr-10 input-hide-date-icon mt-1"
-                                    onChange={(e) => handleInputChange('residencyStartDate', e.target.value)}
-                                    required
-                                />
-                                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
-                                    <DateIcon />
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Submit Button */}
-                <div className="mt-10 flex justify-end">
-                    <button
-                        onClick={handleSubmit}
-                        className={`bg-BlueHomz hover:bg-BlueHomzDark h-[45px] flex justify-center items-center max-w-[210px] font-normal text-[16px] text-white px-6 py-2 rounded-md ${loading ? "pointer-events-none w-full flex justify-center" : ""
-                            }`}
-                        disabled={loading}
-                    >
-                        {loading ? <DotLoader /> : "Go to Dashboard"}
-                    </button>
                 </div>
             </div>
         </div>

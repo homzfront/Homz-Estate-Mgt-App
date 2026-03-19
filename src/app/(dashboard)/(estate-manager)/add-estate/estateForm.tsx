@@ -141,9 +141,9 @@ const EstateForm = () => {
                 }
 
             }
-            // On success
+            // On success — show modal first, then refresh estates in background
             setIsOpen(true);
-            await getEstates(); // Refresh estates list
+            getEstates().catch(() => {}); // Refresh estates list silently — don't block the success modal
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;

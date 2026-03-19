@@ -52,6 +52,16 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
         // setStatusDropdown(null)
     })
 
+    // Close dropdowns on scroll so they don't float away from their anchor
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setActionDropdown(null)
+            setStatusDropdown(null)
+        }
+        window.addEventListener('scroll', handleScroll, true)
+        return () => window.removeEventListener('scroll', handleScroll, true)
+    }, [])
+
     // Calculate portal position for status dropdown
     React.useEffect(() => {
         if (statusDropdown !== null && statusButtonRefs.current[statusDropdown]) {
@@ -218,7 +228,7 @@ const Table = ({ onSelectedRowsChange, onDeleteMultipleChange, onDeletingMultipl
     return (
         <div className="mt-6 w-full mx-auto mb-[150px] md:mb-0">
             <div className="border overflow-x-auto scrollbar-container">
-                <div className="w-full md:w-[150%]">
+                <div className="w-full">
                     <table className="w-full">
                         <thead>
                             <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
