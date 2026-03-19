@@ -12,7 +12,7 @@ interface PopUpProps {
     fromDefault?: boolean;
     setOpenRevoke: (val: boolean) => void;
     onClose?: () => void;
-    anchorRef: React.RefObject<HTMLButtonElement | null>;
+    anchorRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevoke = false, onClose, anchorRef }: PopUpProps) {
@@ -23,11 +23,11 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevo
 
     useClickOutside(anchorRef as any, () => {
         if (onClose) onClose();
-    }, [portalRef as any]);
+    }, anchorRef ? [portalRef as any] : []);
 
     useEffect(() => {
         const updatePosition = () => {
-            if (anchorRef.current) {
+            if (anchorRef?.current) {
                 const rect = anchorRef.current.getBoundingClientRect();
                 const isMobile = window.innerWidth < 768;
                 const width = isMobile ? 150 : 180;
@@ -52,7 +52,7 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevo
             window.removeEventListener('scroll', updatePosition, true);
             window.removeEventListener('resize', updatePosition);
         };
-    }, [anchorRef]);
+    }, [anchorRef, onClose]);
 
     const content = (
         <div
@@ -102,6 +102,11 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevo
             </div>
         </div>
     )
+
+    // If no anchorRef, render inline (legacy usage)
+    if (!anchorRef) {
+        return <div style={{ position: 'absolute', top: '36px', right: 0, zIndex: 9999 }}>{content}</div>;
+    }
 
     return (
         <>
