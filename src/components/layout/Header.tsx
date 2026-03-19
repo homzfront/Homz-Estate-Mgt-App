@@ -375,7 +375,7 @@ const Header = () => {
 
                 <div className="space-y-3">
                   <Link
-                    href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
+                    href={userData && token ? "/select-profile" : "/"}
                     className="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-BlueHomz to-blue-600 rounded-2xl text-white font-bold shadow-xl shadow-BlueHomz/25 active:scale-[0.98] transition-all"
                     onClick={() => toggleState('open')}
                   >
@@ -426,7 +426,7 @@ const Header = () => {
             className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
               }`}
           >
-            <Link href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
+            <Link href={userData && token ? "/select-profile" : "/"}>
               <p className={`w-full ${open ? "text-[12px] " : ""}`}>
                 Hi, {extractUsername(userData?.email)}!
               </p>

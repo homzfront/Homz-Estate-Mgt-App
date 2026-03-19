@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from '@/utils/api';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { useSelectedCommunity } from './useSelectedCommunity';
 interface RentedDetails {
     rentDurationType: string;
@@ -58,47 +57,38 @@ export interface RequestState {
 }
 
 export const useRequestSlice = create<RequestState>()(
-    persist(
-        (set) => ({
-            isLoading: true,
-            requestResponse: null,
+    (set) => ({
+        isLoading: true,
+        requestResponse: null,
 
-            getRequest: async (
-                page = 1,
-                limit = 6,
-                status?: string,
-                search?: string
-            ) => {
-                set({ isLoading: true });
-                try {
-                    const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?.estate?._id}`;
-                    let query = `${baseUrl}?limit=${limit}&page=${page}`;
+        getRequest: async (
+            page = 1,
+            limit = 6,
+            status?: string,
+            search?: string
+        ) => {
+            set({ isLoading: true });
+            try {
+                const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?.estate?._id}`;
+                let query = `${baseUrl}?limit=${limit}&page=${page}`;
 
-                    if (status) {
-                        query += `&status=${status}`;
-                    }
-
-                    if (search) {
-                        query += `&search=${search}`;
-                    }
-
-                    const response = await api.get(query);
-                    const data = response.data.data;
-                    console.log("Request data:", data);
-                    set({ requestResponse: data });
-                } catch (error: any) {
-                    set({ isLoading: false });
-                    throw error;
-                } finally {
-                    set({ isLoading: false });
+                if (status) {
+                    query += `&status=${status}`;
                 }
-            },
-        }),
-        {
-            name: "Request",
-            partialize: (state) => ({
-                requestResponse: state.requestResponse,
-            }),
-        }
-    )
+
+                if (search) {
+                    query += `&search=${search}`;
+                }
+
+                const response = await api.get(query);
+                const data = response.data.data;
+                set({ requestResponse: data });
+            } catch (error: any) {
+                set({ isLoading: false });
+                throw error;
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+    })
 );
