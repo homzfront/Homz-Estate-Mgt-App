@@ -24,6 +24,7 @@ import formatDateReadable from '@/app/utils/formatDateReadable';
 import { useRouter } from 'next/navigation';
 import { useAccessCodeSlice } from '@/store/useAccessCode';
 import { LoaderIcon } from 'react-hot-toast';
+import api from '@/utils/api';
 import Table from '../visitor-access/components/table';
 
 // const option = [
@@ -35,8 +36,9 @@ const Dashboard = () => {
   const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
   const [showTable, setShowTable] = React.useState<boolean>(false);
   const [unsucc, setUnsucc] = React.useState<boolean>(true);
-  const residentCommunity = useResidentCommunity((state) => state.residentCommunity);
+  const { residentCommunity, setResidentCommunity } = useResidentCommunity();
   const residentProfile = useAuthSlice((state) => state.residentProfile);
+  const userData = useAuthSlice((state) => state.userData);
   const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
   const { accessCode, getAccessCode, initialLoading, isLoading, pageLoading } = useAccessCodeSlice();
@@ -99,6 +101,29 @@ const Dashboard = () => {
       setShowTable(true)
     }
   }, [selectedEstate]);
+
+  // Poll every 10 seconds while status is pending to catch manager approval
+  React.useEffect(() => {
+    if (selectedEstate?.status !== 'pending' || !userData?._id) return;
+
+    const poll = setInterval(async () => {
+      try {
+        const response: any = await api.get(`estates/resident/all-estates/users/${userData._id}`);
+        const estates = response?.data?.data?.estates?.results;
+        if (estates) {
+          setResidentCommunity(estates);
+          // Check if our estate status changed
+          const updated = estates.find((e: any) => e._id === selectedEstate._id);
+          if (updated && updated.status === 'accepted') {
+            setSelectedEstate(updated);
+            clearInterval(poll);
+          }
+        }
+      } catch { /* silent — don't disrupt the UI */ }
+    }, 10000); // every 10 seconds
+
+    return () => clearInterval(poll);
+  }, [selectedEstate?.status, selectedEstate?._id, userData?._id]);
 
   return (
     <div className='p-8 mb-[150px]'>

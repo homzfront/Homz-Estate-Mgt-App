@@ -16,13 +16,24 @@ const SelectProfile = () => {
     const [hoveredCard, setHoveredCard] = React.useState<number | null>(null);
     const [openModal, setOpenModal] = React.useState<boolean>(false);
     const [navigating, setNavigating] = React.useState<string | null>(null);
-    const { userData, setUserAccountDetails } = useAuthSlice();
+    const [profilesLoading, setProfilesLoading] = React.useState(false);
+    const { userData, communityProfile, residentProfile, setUserAccountDetails, getCommunityManaProfile } = useAuthSlice();
 
-    const accounts = userData?.accounts ?? [];
-    const accountNames = accounts.map((acc: any) => acc?.name ?? acc?.accountType ?? '');
-    const hasCM = accountNames.some((n: string) => n === 'COMMUNITY_MANAGER');
-    const hasResident = accountNames.some((n: string) => n === 'RESIDENT');
-    const isReturningUser = accounts.length > 0;
+    const hasCM = !!communityProfile?._id;
+    const hasResident = !!residentProfile?._id;
+    const hasAccounts = (userData?.accounts?.length ?? 0) > 0;
+    const isReturningUser = hasCM || hasResident;
+
+    // If user has accounts but profiles not loaded yet (came from landing page header),
+    // fetch the CM profile so we know who they are
+    React.useEffect(() => {
+        if (hasAccounts && !hasCM && !hasResident && !profilesLoading) {
+            setProfilesLoading(true);
+            getCommunityManaProfile()
+                .catch(() => { }) // not a CM — that's fine
+                .finally(() => setProfilesLoading(false));
+        }
+    }, [hasAccounts, hasCM, hasResident]);
 
     const data = [
         {
@@ -32,18 +43,27 @@ const SelectProfile = () => {
             image: <EstateManagement />,
             imageII: ({ hover }: any) => <EstateManagement className={hover ? "#FF8C00" : "#DC6803"} classNameII={hover ? "#FFFAF0" : "white"} />,
             link: "/estate-form",
-            hoverBorderColor: "#DC6803", 
+            hoverBorderColor: "#DC6803",
             hoverBgColor: "bg-orange-50"
         },
         {
-            id: 2,  
+            id: 2,
             text: "As a resident, pay community dues, and request visitor access in one place.",
             header: "Resident",
             image: <Resident />,
             imageII: ({ hover }: any) => <Resident className={hover ? "#df2b1eff" : "#D92D20"} classNameII={hover ? "#FFF5F5" : "white"} />,
-            hoverBorderColor: "#D92D20",             hoverBgColor: "bg-red-50" 
+            hoverBorderColor: "#D92D20", hoverBgColor: "bg-red-50"
         }
     ];
+
+    // Show loading while fetching profile data
+    if (profilesLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <DotLoader />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen">
@@ -79,12 +99,11 @@ const SelectProfile = () => {
                                     key={data.id}
                                     onMouseEnter={() => setHoveredCard(data.id)}
                                     onMouseLeave={() => setHoveredCard(null)}
-                                    className={`w-full flex gap-4 items-center rounded-[8px] p-8 transition-all duration-300 border ${
-                                        isReturningUser && (
+                                    className={`w-full flex gap-4 items-center rounded-[8px] p-8 transition-all duration-300 border ${isReturningUser && (
                                             (data.id === 1 && !hasCM) ||
                                             (data.id === 2 && !hasResident)
                                         ) ? 'opacity-40 pointer-events-none' : ''
-                                    }`}
+                                        }`}
                                     style={{
                                         borderColor: hoveredCard === data.id ? data.hoverBorderColor : 'transparent',
                                         borderWidth: hoveredCard === data.id ? '2px' : '1px',
