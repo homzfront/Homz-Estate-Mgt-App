@@ -71,8 +71,8 @@ const EstateManagerRegistration = () => {
             const currentProfileResponse = await api.get('/community-manager/current-profile');
             setUserAccountDetails(currentProfileResponse?.data?.data)
 
-            // Redirect to dashboard on success
-            router.push("/dashboard");
+            // Redirect to add-estate — user must create an estate before accessing the dashboard
+            router.push("/add-estate");
         } catch (error: any) {
             console.log(error)
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
