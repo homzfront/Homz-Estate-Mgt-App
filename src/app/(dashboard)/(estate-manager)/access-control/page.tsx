@@ -14,7 +14,7 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import { LoaderIcon } from 'react-hot-toast'
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import { useAbility } from '@/contexts/AbilityContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import EmptyEstateState from '../components/emptyEstateState'
 
 const AccessControl = () => {
@@ -29,6 +29,9 @@ const AccessControl = () => {
     }, [ability, router]);
 
     const [steps, setSteps] = React.useState<number>(0);
+    const searchParams = useSearchParams();
+    const residentIdFilter = searchParams.get('residentId');
+    const residentNameFilter = searchParams.get('residentName');
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
     const { accessData, setAccessData, fetchManagerAccess, initialLoading, setAccessStatusFilter, accessStatusFilter } = useAccessStore();
     const [openAddManual, setOpenAddManual] = React.useState<boolean>(false);
@@ -114,7 +117,16 @@ const AccessControl = () => {
                     <div className='p-8'>
                     <div className='flex justify-between items-center border-b border-[#E6E6E6] pb-8'>
                         <div>
-                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>Visitor Access Control {ability.can('create', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}</h1>
+                            <h1 className='text-BlackHomz font-normal md:font-bold text-[16px] md:text-[23px] flex items-center gap-4'>
+                                Visitor Access Control
+                                {residentNameFilter && (
+                                    <span className='text-sm font-normal text-BlueHomz bg-whiteblue px-3 py-1 rounded-full flex items-center gap-2'>
+                                        {decodeURIComponent(residentNameFilter)}
+                                        <button onClick={() => router.replace('/access-control')} className='text-GrayHomz hover:text-error ml-1'>✕</button>
+                                    </span>
+                                )}
+                                {ability.can('create', 'access-control') && <span onClick={() => setOpenAddManual(true)} className='md:hidden bg-whiteblue h-[36px] w-[36px] rounded-[8px] flex items-center justify-center'><AddIcon /></span>}
+                            </h1>
                             <h3 className='text-GrayHomz font-normal hidden md:block text-[16px]'>{ability.can('update', 'access-control') ? 'Click on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
                             <h3 className='text-GrayHomz2 font-normal text-sm md:hidden mt-2'>{ability.can('update', 'access-control') ? 'Tap on access status to change visitor\'s access status' : 'View visitor access status'}</h3>
                         </div>
@@ -169,6 +181,7 @@ const AccessControl = () => {
                             ) : (
                                 <AccessTable
                                     steps={steps}
+                                    residentIdFilter={residentIdFilter || undefined}
                                 />
                             )}
                         </div>

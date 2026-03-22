@@ -22,9 +22,10 @@ import { useAbility } from '@/contexts/AbilityContext';
 
 interface AccessTableProps {
     steps: number;
+    residentIdFilter?: string;
 }
 
-const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
+const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) => {
     const searchParams = useSearchParams();
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
     const {
@@ -108,6 +109,11 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
     };
 
     const selected = selectedIndex !== null ? items[selectedIndex] : null;
+
+    // Client-side filter by resident when coming from resident profile
+    const displayedItems = residentIdFilter
+        ? items.filter((row) => row.associatedIds?.userId === residentIdFilter)
+        : items;
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
@@ -274,7 +280,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                     </tr>
                                 ))
                             ) : (
-                                items.map((row, idx) => (
+                                displayedItems.map((row, idx) => (
                                     <tr key={row._id} className="w-2 border-t-[1px] items-center">
                                         <td className="text-GrayHomz py-[25px] font-[500] text-[11px] hidden md:table-cell text-center">
                                             <span className='inline-block w-[8px] h-[8px] rounded-full bg-error' />
@@ -373,7 +379,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps }) => {
                                     </tr>
                                 )
                                 ))}
-                            {items.length === 0 && !pageLoading && (
+                            {displayedItems.length === 0 && !pageLoading && (
                                 <tr>
                                     <td colSpan={13} className="text-center text-sm text-GrayHomz py-8">{pageLoading ? 'Loading...' : 'No records found'}</td>
                                 </tr>

@@ -30,11 +30,19 @@ const Dashboard = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const router = useRouter();
     const { pageLoading, initialLoading: accessInitialLoading, fetchManagerAccess, items } = useAccessStore();
-    const { isCommunityManager, estateLoading, estatesData, communityProfile } = useAuthSlice();
+    const { isCommunityManager, estateLoading, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
     const { fetchResidents, totalCount } = useResidentsListStore();
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
     const ability = useAbility();
+
+    // Load CM profile + estates on mount if not already in store (first-time user)
+    React.useEffect(() => {
+        if (!communityProfile?._id) {
+            getCommunityManaProfile().catch(() => {});
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     React.useEffect(() => {
         // On first mount or when community changes, fetch based on current tab

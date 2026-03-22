@@ -100,7 +100,9 @@ function PopUp({ setOpenDetails, resident, onClose, anchorRef }: PopUpProps) {
                 <div className="w-full ">
                     <div
                         onClick={(e) => {
-                            e.stopPropagation()
+                            e.stopPropagation();
+                            if (onClose) onClose();
+                            router.push(`/access-control?residentId=${resident?.userId}&residentName=${encodeURIComponent(`${resident?.firstName} ${resident?.lastName}`)}`)
                         }}
                         className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                     >

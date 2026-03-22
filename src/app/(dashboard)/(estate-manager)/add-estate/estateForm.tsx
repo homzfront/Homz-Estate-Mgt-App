@@ -141,10 +141,8 @@ const EstateForm = () => {
                 }
 
             }
-            // Load CM profile first so dashboard has data, then show modal
-            try {
-                await getCommunityManaProfile();
-            } catch { /* continue even if this fails */ }
+            // Load CM profile + estates BEFORE showing modal so dashboard is ready
+            try { await getCommunityManaProfile(); } catch { /* continue */ }
             setIsOpen(true);
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message

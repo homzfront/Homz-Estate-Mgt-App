@@ -122,7 +122,7 @@ const Sidebar = () => {
     }
 
     React.useEffect(() => {
-        // Always refetch on mount — ensures status changes (pending→accepted) are reflected
+        // Always refetch on mount so status changes (pending→accepted) are reflected
         if (userData) {
             fetchResidentEstate();
         }
