@@ -254,9 +254,8 @@ const EstateForm = () => {
                         }}
                         isOpen={isOpen}
                         closeSuccessModal={() => {
-                            clearForm();
+                            // Don't navigate on overlay click — let user read the modal
                             setIsOpen(false);
-                            router.push("/dashboard");
                         }}
                     />
                 }

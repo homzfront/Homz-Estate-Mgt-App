@@ -20,9 +20,9 @@ const Layout = ({
     const { estatesData, estateLoading, getCommunityManaProfile } = useAuthSlice();
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
-    // Load profile + estates on mount — dashboard page also does this as fallback
+    // Load state 
     React.useEffect(() => {
-        getCommunityManaProfile().catch(() => { });
+        getCommunityManaProfile().catch(() => {});
     }, []);
 
     React.useEffect(() => {
@@ -41,7 +41,7 @@ const Layout = ({
     console.log("estatesData:", estatesData)
 
     // Only block render while actively fetching AND we have no data yet
-    // Once estatesData is set (even []) let children render
+    // Once estatesData is set (even []) let children render and handle their own state
     if (estateLoading && estatesData === null) {
         return (
             <div className="flex justify-center items-center h-screen">
