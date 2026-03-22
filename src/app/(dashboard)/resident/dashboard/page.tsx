@@ -67,18 +67,24 @@ const Dashboard = () => {
     }
   };
 
+  // Sync selectedEstate when residentCommunity updates (e.g. after approval polling)
+  // Use residentCommunity as the only dependency to avoid infinite loops
   React.useEffect(() => {
-    if (residentCommunity && residentCommunity?.length > 0 && !selectedEstate) {
+    if (!residentCommunity || residentCommunity.length === 0) return;
+
+    if (!selectedEstate) {
+      // No estate selected yet — pick first
       setSelectedEstate(residentCommunity[0]);
     } else {
-      const foundEstate =
-        residentCommunity?.find(
-          (estate) => estate._id === selectedEstate?._id
-        ) || null; // fallback to null if undefined
-
-      setSelectedEstate(foundEstate);
+      // Re-find the same estate from fresh data so status updates are reflected
+      const fresh = residentCommunity.find((e) => e._id === selectedEstate._id);
+      if (fresh && fresh.status !== selectedEstate.status) {
+        // Status changed — update
+        setSelectedEstate(fresh);
+      }
     }
-  }, [residentCommunity, selectedEstate, setSelectedEstate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [residentCommunity]);
 
   // Only fetch when selectedEstate changes
   React.useEffect(() => {

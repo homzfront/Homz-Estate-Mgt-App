@@ -39,7 +39,7 @@ const EstateForm = () => {
         clearForm
     } = useEstateFormStore();
 
-    const { getEstates } = useAuthSlice();
+    const { getEstates, getCommunityManaProfile } = useAuthSlice();
 
     // Load state 
     React.useEffect(() => {
@@ -141,9 +141,11 @@ const EstateForm = () => {
                 }
 
             }
-            // On success — show modal first, then refresh estates in background
+            // Load CM profile first so dashboard has data, then show modal
+            try {
+                await getCommunityManaProfile();
+            } catch { /* continue even if this fails */ }
             setIsOpen(true);
-            getEstates().catch(() => {}); // Refresh estates list silently — don't block the success modal
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;

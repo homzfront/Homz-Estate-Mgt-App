@@ -25,14 +25,20 @@ const SelectProfile = () => {
     const isReturningUser = hasCM || hasResident;
 
     // If user has accounts but profiles not loaded yet (came from landing page header),
-    // fetch the CM profile so we know who they are
+    // load the profile and route directly — don't wait for re-render
     React.useEffect(() => {
-        if (hasAccounts && !hasCM && !hasResident && !profilesLoading) {
-            setProfilesLoading(true);
-            getCommunityManaProfile()
-                .catch(() => { }) // not a CM — that's fine
-                .finally(() => setProfilesLoading(false));
-        }
+        if (!hasAccounts || hasCM || hasResident || profilesLoading) return;
+
+        setProfilesLoading(true);
+        getCommunityManaProfile()
+            .then(() => {
+                // Profile loaded — go straight to dashboard
+                router.push('/dashboard');
+            })
+            .catch(() => {
+                // Not a CM — stop loading and show cards
+                setProfilesLoading(false);
+            });
     }, [hasAccounts, hasCM, hasResident]);
 
     const data = [
