@@ -74,17 +74,17 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenRevoke, disabledRevo
                 onMouseEnter={() => setActiveTwo(true)}
                 onMouseLeave={() => setActiveTwo(false)}
                 title={disabledRevoke ? 'Only the resident who created this code can revoke it' : ''}
-                className={`md:h-[30px] h-auto rounded-md flex gap-1 items-center text-GrayHomz hover:text-BlueHomz py-1 px-2 w-full ${disabledRevoke ? 'opacity-40 cursor-not-allowed' : ''}`}>
-                <div className="w-full ">
+                className={`md:h-[30px] h-auto rounded-md flex gap-1 items-center py-1 px-2 w-full ${disabledRevoke ? 'opacity-40 pointer-events-none cursor-not-allowed' : 'text-GrayHomz hover:text-BlueHomz'}`}>
+                <div className="w-full">
                     <div
                         onClick={(e) => {
-                            e.stopPropagation()
+                            e.stopPropagation();
                             setOpenRevoke(true);
                         }}
                         className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                     >
                         <RevokeIcon className={activeTwo ? '#D92D20' : "#4E4E4E"} />
-                        <p className={`${activeTwo ? 'text-[#D92D20]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
+                        <p className={`${activeTwo && !disabledRevoke ? 'text-[#D92D20]' : "text-[#4E4E4E]"} text-[11px] md:text-[13px] font-[500] py-1 px-2`}>
                             Revoke Access
                         </p>
                     </div>
