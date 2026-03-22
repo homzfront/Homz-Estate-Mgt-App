@@ -36,12 +36,13 @@ const Dashboard = () => {
     const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
     const ability = useAbility();
 
-    // Load CM profile + estates on mount if not already in store (first-time user)
+    // Load CM profile + estates on mount if not already loaded
+    // Covers: first-time users, page refreshes, and returning users from landing page
     React.useEffect(() => {
-        if (!communityProfile?._id) {
-            getCommunityManaProfile().catch(() => {});
+        if (!communityProfile?._id || estatesData === null) {
+            getCommunityManaProfile().catch(() => { });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     React.useEffect(() => {
