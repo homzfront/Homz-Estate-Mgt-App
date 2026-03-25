@@ -84,7 +84,7 @@ const Settings = () => {
     setSelectedOption(option);
     setIsOpenRole(false);
     // example: update form state directly
-    // console.log("Selected role:", option.label);
+    console.log("Selected role:", option.label);
   };
 
   // Close dropdown when clicking outside

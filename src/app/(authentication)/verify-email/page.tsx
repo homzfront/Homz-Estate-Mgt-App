@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AuthSlider from "@/components/auth/authSlider";
 import api from "@/utils/api";
+import { storeToken } from "@/utils/cookies";
 import { useAuthSlice } from "@/store/authStore";
 import toast from "react-hot-toast";
 import DotLoader from "@/components/general/dotLoader";
@@ -64,24 +65,19 @@ const VerifyEmail = () => {
     setError2("");
 
     try {
-      // Create a token on the fly
-      const token = generateToken();
+      // Endpoint is public — no token needed
+      const response = await api.post("/auth/verify-otp", { email, pincode: otp.join("") });
 
-      // Send OTP request with token
-      await api.post(
-        "/auth/verify-otp",
-        { email, pincode: otp.join("") },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      // Fetch user profile
-      const profile = await api.get("/auth/current-user");
+      // Store token so user can continue without logging in again
+      const { data } = response.data;
+      if (data?.accessToken) {
+        await storeToken({
+          token: data.accessToken,
+          refresh_token: data.refreshToken,
+        });
+      }
 
-      // Store user data
-      setUserData(profile.data.data);
+      // OTP verified — show success screen
       setVerificationSuccess(true);
       setError(false);
       setError2("");
@@ -101,19 +97,8 @@ const VerifyEmail = () => {
     e?.preventDefault();
     setResend(true);
     try {
-      // Create a token on the fly
-      const token = generateToken();
-
-      // Send OTP request with token
-      await api.post(
-        "/auth/resend-otp",
-        { email },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Endpoint is public — no token needed
+      await api.post("/auth/resend-otp", { email });
       toast.success('OTP SENT');
       startTimer();
       setResend(false);
@@ -141,9 +126,9 @@ const VerifyEmail = () => {
         organizationId: organizationId as any,
         estateId: estateId as any
       }).toString()
-
       router.push(`/resident/invitations/create?${params}`)
     } else {
+      // Token already stored after OTP verification — go straight to profile setup
       router.push("/select-profile");
     }
   };

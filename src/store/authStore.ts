@@ -27,6 +27,9 @@ export interface AuthResponse {
     userId: any;
     access_token: string;
     refresh_token?: string;
+    message?: string;
+    success?: boolean;
+    statusCode?: number;
 }
 
 export interface AccountDetailsType {
@@ -164,7 +167,9 @@ export const useAuthSlice = create<AuthState>()(
                     const communityProfile = get().communityProfile;
 
                     if (!communityProfile?._id || !communityProfile?.organization?._id) {
-                        throw new Error("Missing community profile");
+                        // Profile missing — set empty array so dashboard exits loader
+                        set({ estatesData: [], estateLoading: false });
+                        return;
                     }
 
                     const response = await api.get(
@@ -174,6 +179,8 @@ export const useAuthSlice = create<AuthState>()(
                     set({ estatesData: response?.data?.data?.estates?.results || [] });
                 } catch (error) {
                     console.error("Failed to fetch estates:", error);
+                    // Set empty array on error so dashboard doesn't stay stuck on loader
+                    set({ estatesData: [] });
                 } finally {
                     set({ estateLoading: false });
                 }

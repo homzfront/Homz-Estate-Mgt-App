@@ -7,11 +7,39 @@ import LockIcon from '@/components/icons/lockIcon';
 import Resident from '@/components/icons/resident';
 import { useRouter } from 'next/navigation';
 import React from 'react'
+import { useAuthSlice } from '@/store/authStore';
+import api from '@/utils/api';
+import DotLoader from '@/components/general/dotLoader';
 
 const SelectProfile = () => {
     const router = useRouter();
     const [hoveredCard, setHoveredCard] = React.useState<number | null>(null);
     const [openModal, setOpenModal] = React.useState<boolean>(false);
+    const [navigating, setNavigating] = React.useState<string | null>(null);
+    const [profilesLoading, setProfilesLoading] = React.useState(false);
+    const { userData, communityProfile, residentProfile, setUserAccountDetails, getCommunityManaProfile } = useAuthSlice();
+
+    const hasCM = !!communityProfile?._id;
+    const hasResident = !!residentProfile?._id;
+    const hasAccounts = (userData?.accounts?.length ?? 0) > 0;
+    const isReturningUser = hasCM || hasResident;
+
+    // If user has accounts but profiles not loaded yet (came from landing page header),
+    // load the profile and route directly — don't wait for re-render
+    React.useEffect(() => {
+        if (!hasAccounts || hasCM || hasResident || profilesLoading) return;
+
+        setProfilesLoading(true);
+        getCommunityManaProfile()
+            .then(() => {
+                // Profile loaded — go straight to dashboard
+                router.push('/dashboard');
+            })
+            .catch(() => {
+                // Not a CM — stop loading and show cards
+                setProfilesLoading(false);
+            });
+    }, [hasAccounts, hasCM, hasResident]);
 
     const data = [
         {
@@ -21,19 +49,27 @@ const SelectProfile = () => {
             image: <EstateManagement />,
             imageII: ({ hover }: any) => <EstateManagement className={hover ? "#FF8C00" : "#DC6803"} classNameII={hover ? "#FFFAF0" : "white"} />,
             link: "/estate-form",
-            hoverBorderColor: "#DC6803", // Orange for Community Manager
+            hoverBorderColor: "#DC6803",
             hoverBgColor: "bg-orange-50"
         },
         {
-            id: 2,  // Changed id to be unique
+            id: 2,
             text: "As a resident, pay community dues, and request visitor access in one place.",
             header: "Resident",
             image: <Resident />,
             imageII: ({ hover }: any) => <Resident className={hover ? "#df2b1eff" : "#D92D20"} classNameII={hover ? "#FFF5F5" : "white"} />,
-            hoverBorderColor: "#D92D20", // Red for Resident
-            hoverBgColor: "bg-red-50" // Light red background on hover
+            hoverBorderColor: "#D92D20", hoverBgColor: "bg-red-50"
         }
     ];
+
+    // Show loading while fetching profile data
+    if (profilesLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <DotLoader />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen">
@@ -48,8 +84,15 @@ const SelectProfile = () => {
             </CustomModal>
             {/* Header */}
             <div className='w-full bg-gradient-to-r from-BlueHomz2 to-BlueHomzDark py-[60px] px-[24px]'>
-                <div className='w-full flex justify-center items-center'>
-                    <span className='text-[23px] text-center md:text-auto md:text-[36px] font-semibold text-[#FFFFFF]'> How Would You Like To Use Homz?</span>
+                <div className='w-full flex justify-center items-center flex-col gap-2'>
+                    <span className='text-[23px] text-center md:text-[36px] font-semibold text-[#FFFFFF]'>
+                        {isReturningUser ? 'Which dashboard would you like to enter?' : 'How Would You Like To Use Homz?'}
+                    </span>
+                    {isReturningUser && (
+                        <span className='text-white opacity-80 text-[14px] md:text-[16px] font-normal text-center'>
+                            Select the role you'd like to continue as
+                        </span>
+                    )}
                 </div>
             </div>
             {/* Main Content */}
@@ -62,7 +105,11 @@ const SelectProfile = () => {
                                     key={data.id}
                                     onMouseEnter={() => setHoveredCard(data.id)}
                                     onMouseLeave={() => setHoveredCard(null)}
-                                    className={`w-full flex gap-4 items-center rounded-[8px] p-8 transition-all duration-300 border`}
+                                    className={`w-full flex gap-4 items-center rounded-[8px] p-8 transition-all duration-300 border ${isReturningUser && (
+                                            (data.id === 1 && !hasCM) ||
+                                            (data.id === 2 && !hasResident)
+                                        ) ? 'opacity-40 pointer-events-none' : ''
+                                        }`}
                                     style={{
                                         borderColor: hoveredCard === data.id ? data.hoverBorderColor : 'transparent',
                                         borderWidth: hoveredCard === data.id ? '2px' : '1px',
@@ -86,15 +133,36 @@ const SelectProfile = () => {
                                         <p className='mt-1 text-[#4E4E4E] font-normal text-[16px]'>{data.text}</p>
                                     </div>
                                     <button
-                                        onClick={() => {
-                                            if (data.link) { router.push(`${data.link}`) }
-                                            else {
-                                                setOpenModal(true);
+                                        onClick={async () => {
+                                            if (isReturningUser) {
+                                                // Returning user — route to existing dashboard
+                                                if (data.id === 1 && hasCM) {
+                                                    setNavigating('cm');
+                                                    try {
+                                                        const cmProfile = await api.get("/community-manager/current-profile");
+                                                        setUserAccountDetails(cmProfile?.data?.data);
+                                                    } catch { /* continue */ }
+                                                    router.push("/dashboard");
+                                                } else if (data.id === 2 && hasResident) {
+                                                    setNavigating('resident');
+                                                    router.push("/resident/dashboard");
+                                                }
+                                            } else {
+                                                // First time user — go through setup
+                                                if (data.link) {
+                                                    router.push(data.link);
+                                                } else {
+                                                    setOpenModal(true);
+                                                }
                                             }
                                         }}
                                         className='cursor-pointer'
+                                        disabled={navigating !== null}
                                     >
-                                        <ArrowRightSolid />
+                                        {navigating === (data.id === 1 ? 'cm' : 'resident')
+                                            ? <DotLoader />
+                                            : <ArrowRightSolid />
+                                        }
                                     </button>
                                 </div>
                             ))}

@@ -24,6 +24,7 @@ import formatDateReadable from '@/app/utils/formatDateReadable';
 import { useRouter } from 'next/navigation';
 import { useAccessCodeSlice } from '@/store/useAccessCode';
 import { LoaderIcon } from 'react-hot-toast';
+import api from '@/utils/api';
 import Table from '../visitor-access/components/table';
 
 // const option = [
@@ -35,8 +36,9 @@ const Dashboard = () => {
   const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
   const [showTable, setShowTable] = React.useState<boolean>(false);
   const [unsucc, setUnsucc] = React.useState<boolean>(true);
-  const residentCommunity = useResidentCommunity((state) => state.residentCommunity);
+  const { residentCommunity, setResidentCommunity } = useResidentCommunity();
   const residentProfile = useAuthSlice((state) => state.residentProfile);
+  const userData = useAuthSlice((state) => state.userData);
   const selectedEstate = useSelectedEsate((state) => state.selectedEstate);
   const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
   const { accessCode, getAccessCode, initialLoading, isLoading, pageLoading } = useAccessCodeSlice();
@@ -66,17 +68,18 @@ const Dashboard = () => {
   };
 
   React.useEffect(() => {
-    if (residentCommunity && residentCommunity?.length > 0 && !selectedEstate) {
+    if (!residentCommunity || residentCommunity.length === 0) return;
+    if (!selectedEstate) {
       setSelectedEstate(residentCommunity[0]);
     } else {
-      const foundEstate =
-        residentCommunity?.find(
-          (estate) => estate._id === selectedEstate?._id
-        ) || null; // fallback to null if undefined
-
-      setSelectedEstate(foundEstate);
+      // Re-find from fresh data — picks up status changes (pending→accepted)
+      const fresh = residentCommunity.find((e) => e._id === selectedEstate._id);
+      if (fresh && fresh.status !== selectedEstate.status) {
+        setSelectedEstate(fresh);
+      }
     }
-  }, [residentCommunity, selectedEstate, setSelectedEstate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [residentCommunity]);
 
   // Only fetch when selectedEstate changes
   React.useEffect(() => {
@@ -99,6 +102,33 @@ const Dashboard = () => {
       setShowTable(true)
     }
   }, [selectedEstate]);
+
+  // Poll while pending to catch manager approval — also fires on mount
+  React.useEffect(() => {
+    const isPending = selectedEstate?.status === 'pending';
+    const noEstates = !selectedEstate && (!residentCommunity || residentCommunity.length === 0);
+    if ((!isPending && !noEstates) || !userData?._id) return;
+
+    const fetchLatest = async () => {
+      try {
+        const response: any = await api.get(`estates/resident/all-estates/users/${userData._id}`);
+        const estates = response?.data?.data?.estates?.results;
+        if (!estates || estates.length === 0) return;
+        setResidentCommunity(estates);
+        // Sync selectedEstate with fresh status
+        const current = estates.find((e: any) => e._id === selectedEstate?._id);
+        const target = current || estates[0];
+        if (target && target.status !== selectedEstate?.status) {
+          setSelectedEstate(target);
+        }
+      } catch { /* silent */ }
+    };
+
+    fetchLatest(); // fire immediately on mount
+    const poll = setInterval(fetchLatest, 8000);
+    return () => clearInterval(poll);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEstate?.status, userData?._id]);
 
   return (
     <div className='p-8 mb-[150px]'>

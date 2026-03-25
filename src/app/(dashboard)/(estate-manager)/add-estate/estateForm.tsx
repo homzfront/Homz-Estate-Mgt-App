@@ -39,7 +39,7 @@ const EstateForm = () => {
         clearForm
     } = useEstateFormStore();
 
-    const { getEstates } = useAuthSlice();
+    const { getEstates, getCommunityManaProfile } = useAuthSlice();
 
     // Load state 
     React.useEffect(() => {
@@ -141,9 +141,9 @@ const EstateForm = () => {
                 }
 
             }
-            // On success
+            // Load CM profile + estates BEFORE showing modal so dashboard is ready
+            try { await getCommunityManaProfile(); } catch { /* continue */ }
             setIsOpen(true);
-            await getEstates(); // Refresh estates list
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
@@ -254,9 +254,8 @@ const EstateForm = () => {
                         }}
                         isOpen={isOpen}
                         closeSuccessModal={() => {
-                            clearForm();
+                            // Don't navigate on overlay click — let user read the modal
                             setIsOpen(false);
-                            router.push("/dashboard");
                         }}
                     />
                 }

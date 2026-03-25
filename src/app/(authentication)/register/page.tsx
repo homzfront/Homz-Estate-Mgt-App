@@ -85,15 +85,25 @@ const Register = () => {
     }
 
     try {
-      await createUser({
+      const result = await createUser({
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword
       });
 
-      toast.success("Sign up successful!", {
+      // If user exists but unverified, backend returns account_not_verified with success: false
+      if (result?.message === "account_not_verified") {
+        toast.success("OTP sent! Please verify your email.", {
+          position: "top-center",
+          duration: 3000,
+        });
+        router.push("/verify-email");
+        return;
+      }
+
+      toast.success("Account created! Please check your email for the OTP.", {
         position: "top-center",
-        duration: 2000,
+        duration: 3000,
         style: {
           background: "#E8F5E9",
           color: "#2E7D32",
@@ -103,16 +113,17 @@ const Register = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
-      // On successful registration
-      router.push("/login");
+      // Redirect to OTP verification page instead of login
+      router.push("/verify-email");
 
     } catch (error: any) {
-      // Error is already handled in the store
       const backendMessage = error?.response?.data?.message;
       const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during registration";
 
-      if (error?.response?.data?.message?.includes("email")) {
+      if (backendMessage === "email already in use") {
+        setEmailError(backendMessage || fallbackMessage);
+      } else if (backendMessage?.includes("email")) {
         setEmailError(backendMessage || fallbackMessage);
       } else {
         setPasswordError(backendMessage || backendMessageTwo || fallbackMessage);
@@ -254,20 +265,8 @@ const Register = () => {
             {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
               OR
             </span> */}
-            <div className="mt-[-5px]">
-              {/* <button
-                className="border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz"
-                type="button"
-              >
-                <Image
-                  src={"/Social icon.png"}
-                  alt="google"
-                  height={20}
-                  width={20}
-                />
-                Sign Up with Google
-              </button> */}
-              <p className="mt-4 text-center font-[400] text-[14px]">
+            <div className="mt-4">
+              <p className="text-center font-[400] text-[14px]">
                 Already have an account?{" "}
                 <Link
                   className="text-center font-[700] text-[14px] text-BlueHomz hover:underline"

@@ -65,6 +65,17 @@ const Header = () => {
     })();
   }, []);
 
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSpecificState("open", false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const toggleState = (key: keyof HeaderState) => {
     setState(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -88,7 +99,7 @@ const Header = () => {
       if (state.open) setSpecificState('open', false);
     } catch (error) {
       console.error("Logout failed:", error);
-    } 
+    }
   };
 
   return (
@@ -361,10 +372,10 @@ const Header = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <Link
-                    href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}
+                    href={userData && token ? "/select-profile" : "/"}
                     className="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-BlueHomz to-blue-600 rounded-2xl text-white font-bold shadow-xl shadow-BlueHomz/25 active:scale-[0.98] transition-all"
                     onClick={() => toggleState('open')}
                   >
@@ -373,7 +384,7 @@ const Header = () => {
                       <ArrowRightSize16 color="white" w="18" h="18" />
                     </div>
                   </Link>
-                  
+
                   <button
                     onClick={() => {
                       toggleState('showLogoutModal');
@@ -415,7 +426,7 @@ const Header = () => {
             className={`flex items-center ${open ? "flex  flex-col gap-4 items-start" : "gap-2"
               }`}
           >
-            <Link href={userData?.accounts?.length === 0 ? "/select-profile" : residentProfile?._id ? "/resident/dashboard" : (userData && token) ? "/dashboard" : "/"}>
+            <Link href={userData && token ? "/select-profile" : "/"}>
               <p className={`w-full ${open ? "text-[12px] " : ""}`}>
                 Hi, {extractUsername(userData?.email)}!
               </p>
@@ -436,9 +447,16 @@ const Header = () => {
             <>
               <Link
                 href="/login"
-                className={`hover:text-blue-400 md:bg-BlueHomz text-GrayHomz p-0 md:p-2 md:rounded-md md:text-white ${state.open ? "text-[12px]" : ""}`}
+                className="hover:text-blue-400 text-GrayHomz"
               >
                 Sign in
+              </Link>
+
+              <Link
+                href="/register"
+                className="bg-BlueHomz text-white px-4 py-2 rounded-md hover:bg-blue-500 transition"
+              >
+                Get Started
               </Link>
             </>
           )}

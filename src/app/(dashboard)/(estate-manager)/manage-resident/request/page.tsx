@@ -21,6 +21,7 @@ import api from '@/utils/api';
 import { getToken } from '@/utils/cookies';
 import Image from 'next/image';
 import React, { useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import toast, { LoaderIcon } from 'react-hot-toast';
 import { useAbility } from '@/contexts/AbilityContext';
 import { useRouter } from 'next/navigation';
@@ -50,6 +51,7 @@ const Request = () => {
     const [isRequesting, setIsRequesting] = React.useState<boolean>(false);
     const [detailsOpen, setDetailsOpen] = React.useState(false);
     const [search, setSearch] = React.useState<string>("");
+    const [activeStatus, setActiveStatus] = React.useState<string>('pending');
     const [actionsMenuOpen, setActionsMenuOpen] = React.useState(false);
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const actionsMenuRef = useRef<HTMLDivElement>(null);
@@ -57,6 +59,34 @@ const Request = () => {
     const [isSearching, setIsSearching] = React.useState(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     useClickOutside(actionsMenuRef as any, () => setActionsMenuOpen(false));
+    const actionButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+    const [menuPortalStyle, setMenuPortalStyle] = React.useState<React.CSSProperties | null>(null);
+
+    // Reposition portal dropdown on scroll
+    React.useEffect(() => {
+        if (!popUpMenu || !selectedId || !actionButtonRefs.current[selectedId]) {
+            setMenuPortalStyle(null);
+            return;
+        }
+        const updatePos = () => {
+            const btn = actionButtonRefs.current[selectedId];
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            setMenuPortalStyle({
+                position: 'fixed',
+                top: rect.bottom + 4,
+                left: rect.right - 180,
+                zIndex: 99999,
+            });
+        };
+        updatePos();
+        window.addEventListener('scroll', updatePos, true);
+        window.addEventListener('resize', updatePos);
+        return () => {
+            window.removeEventListener('scroll', updatePos, true);
+            window.removeEventListener('resize', updatePos);
+        };
+    }, [popUpMenu, selectedId]);
 
     // Close pop-up menu when clicking outside
     useClickOutside(menuRef as any, () => {
@@ -93,12 +123,12 @@ const Request = () => {
         };
     }, []);
 
-    // fetch requests when page changes
+    // fetch requests when page or status filter changes
     React.useEffect(() => {
         if (selectedCommunity?.estate?._id) {
-            getRequest(pageNo, pageSize)
+            getRequest(pageNo, pageSize, activeStatus);
         };
-    }, [pageNo, selectedCommunity]);
+    }, [pageNo, selectedCommunity, activeStatus]);
 
 
     // Select all rows
@@ -137,11 +167,10 @@ const Request = () => {
                 }
             }
             setIsRequesting(true);
-            await getToken();
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
             getRequest(pageNo, pageSize);
-            // console.log(response);
+            console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -175,11 +204,10 @@ const Request = () => {
                 }
             }
             setIsRequesting(true);
-            await getToken();
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
             getRequest(pageNo, pageSize);
-            // console.log(response);
+            console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -223,12 +251,12 @@ const Request = () => {
                         "organizationId": data.associatedIds?.organizationId
                     }
                 };
-                const jwtToken = await getToken();
+                // Use the resident's invitationToken — NOT the manager's JWT auth token
                 if (type === 'approve') {
-                    await api.post(`/resident-invitation/residents/${data.userId}/accept/tokens/${jwtToken}`, payload);
+                    await api.post(`/resident-invitation/residents/${data._id}/accept/tokens/${data.invitationToken}`, payload);
                     toast.success(`Approved ${data.firstName} ${data.lastName}`);
                 } else {
-                    await api.post(`/resident-invitation/residents/${data.userId}/reject/tokens/${jwtToken}`, payload);
+                    await api.post(`/resident-invitation/residents/${data._id}/reject/tokens/${data.invitationToken}`, payload);
                     toast.success(`Declined ${data.firstName} ${data.lastName}`);
                 }
             } catch (error: any) {
@@ -417,8 +445,32 @@ const Request = () => {
                         </div>
                     </div>
 
+                    {/* Status Filter Tabs */}
+                    <div className="flex gap-2 mt-4 mb-2">
+                        {[
+                            { label: 'Pending', value: 'pending' },
+                            { label: 'Approved', value: 'accepted' },
+                            { label: 'Declined', value: 'rejected' },
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => {
+                                    setActiveStatus(tab.value);
+                                    setPageNo(1);
+                                }}
+                                className={`px-4 h-[34px] rounded-[4px] text-sm font-medium transition-all ${
+                                    activeStatus === tab.value
+                                        ? 'bg-BlueHomz text-white'
+                                        : 'bg-whiteblue text-BlueHomz'
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* Table Section */}
-                    <div className="mt-6 border overflow-x-auto scrollbar-container">
+                    <div className="mt-2 border overflow-x-auto scrollbar-container">
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-whiteblue h-[50px] text-[13px] font-semibold text-BlackHomz">
@@ -444,7 +496,7 @@ const Request = () => {
 
                                     {/* Always visible */}
                                         <th className="text-left w-auto md:w-[110px]">Status</th>
-                                        {ability.can('update', 'residents') && (
+                                        {ability.can('update', 'residents') && activeStatus === 'pending' && (
                                             <th className="text-left w-auto md:w-[80px]">Action</th>
                                         )}
                                     </tr>
@@ -487,26 +539,34 @@ const Request = () => {
 
                                             {/* Status */}
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px] w-auto md:w-[110px]">
-                                                <span className="bg-warningBg max-w-[80px] text-warning rounded-md py-1 px-3 flex items-center justify-center">
+                                                <span className={`max-w-[90px] rounded-md py-1 px-3 flex items-center justify-center capitalize text-[10px] ${
+                                                    data.status === 'accepted'
+                                                        ? 'bg-[#CDEADD] text-[#039855]'
+                                                        : data.status === 'rejected'
+                                                        ? 'bg-[#FDF2F2] text-error'
+                                                        : 'bg-warningBg text-warning'
+                                                }`}>
                                                     {data.status}
                                                 </span>
                                             </td>
 
-                                            {/* Action */}
-                                            {ability.can('update', 'residents') && (
-                                                <td className="py-[15px] z-10 sticky right-[-24px] md:right-0 w-auto md:w-[80px]">
+                                            {/* Action — only show for pending requests */}
+                                            {ability.can('update', 'residents') && activeStatus === 'pending' && (
+                                                <td className="py-[15px] w-auto md:w-[80px]">
                                                     <button
+                                                        ref={(el) => { actionButtonRefs.current[data._id] = el; }}
                                                         className="ml-4"
                                                         onClick={(e) => handleToggleMenu(data._id, e)}
                                                     >
                                                         ⋮
                                                     </button>
 
-                                                    {/* Pop-up menu */}
-                                                    {popUpMenu && selectedId === data._id && (
+                                                    {/* Pop-up menu rendered in portal so it never moves with the table */}
+                                                    {popUpMenu && selectedId === data._id && menuPortalStyle && ReactDOM.createPortal(
                                                         <div
                                                             ref={menuRef as any}
-                                                            className="drop-down absolute top-9 md:top-11 left-[-135px] md:left-[-170px] z-[999999] w-[150px] md:w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around"
+                                                            style={menuPortalStyle}
+                                                            className="drop-down w-[180px] text-GrayHomz font-[500] text-[13px] border p-2 rounded-md bg-white flex flex-col items-center justify-around shadow-lg"
                                                         >
                                                             <button
                                                                 className="flex md:hidden gap-2 items-center w-full text-left px-4 py-2 text-GrayHomz hover:bg-whiteblue"
@@ -542,7 +602,8 @@ const Request = () => {
                                                                     </button>
                                                                 </>
                                                             )}
-                                                        </div>
+                                                        </div>,
+                                                        document.body
                                                     )}
                                                 </td>
                                             )}

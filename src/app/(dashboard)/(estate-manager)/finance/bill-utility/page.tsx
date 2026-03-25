@@ -45,7 +45,7 @@ const BillAndUti = () => {
   };
 
   return (
-    <div className='w-full min-w-[375px] md:min-w-[1070px] p-8'>
+    <div className='w-full p-4 md:p-8'>
       {openSuccessModal && (
         <SuccessModal
           isOpen={openSuccessModal}

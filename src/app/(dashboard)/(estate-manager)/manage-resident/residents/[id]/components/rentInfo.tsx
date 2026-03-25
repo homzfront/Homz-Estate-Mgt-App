@@ -69,7 +69,7 @@ const RentInfo: React.FC<RentInfoProps> = ({ residentData, onOpenProperty, prope
             onOpenProperty?.(item)
         }
     }
-    // console.log("residentData:", residentData)
+    console.log("residentData:", residentData)
     return (
         <div className='text-sm md:text-[16px]'>
             <p className="mt-2 text-GrayHomz font-normal">

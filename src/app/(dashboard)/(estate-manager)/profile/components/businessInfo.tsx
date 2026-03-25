@@ -58,7 +58,7 @@ const BusinessInfo = () => {
 
   const updateDone = async (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log("Update done with data:", formData, selectedImage);
+    console.log("Update done with data:", formData, selectedImage);
     // API call to update business info & upload photo
   };
 

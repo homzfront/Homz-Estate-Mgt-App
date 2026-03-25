@@ -98,16 +98,16 @@ const Login = () => {
           router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
-          // Redirect to profile
+         
           router.push("/select-profile");
         }
+        
       } else {
         clearResidentData();
         const response = await api.get("/community-manager/current-profile");
         if (!response) {
-          router.push("/resident/dashboard")
+          router.push("/resident/dashboard")  
         } else {
-          // Show success toast
           toast.success("Login successful!", {
             position: "top-center",
             duration: 2000,
@@ -120,8 +120,7 @@ const Login = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             },
           });
-          // Redirect to dashboard 
-          router.push("/dashboard");
+          router.push("/dashboard");  
         }
       }
     } catch (error: any) {
@@ -129,7 +128,9 @@ const Login = () => {
       const backendMessageTwo = error?.response?.data?.message?.[0];
       const fallbackMessage = error?.message || "An error occurred during login";
 
-      if (backendMessage === "Account is not verified. Please verify your account.") {
+      if (backendMessage === "account_not_verified" || backendMessage === "Account is not verified. Please verify your account.") {
+        // Store email so the verify-email page knows who to verify
+        setUserData({ email });
         router.push("/verify-email")
       } else if (backendMessage === `Account "COMMUNITY_MANAGER" does not exist in user's profiles`) {
         router.push("/resident/dashboard")
@@ -248,25 +249,11 @@ const Login = () => {
               {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
                 OR
               </span> */}
-              <div className="mt-[-5px]">
-                {/* <button
-                  onClick={handleGoogleSignIn}
-                  className={`border flex justify-center items-center gap-3 font-[700] text-[16px] text-BlueHomz w-full sm:w-[360px] border-BlueHomz hover:border-BlackHomz rounded-[8px] h-[47px] hover:text-BlackHomz ${loading ? "pointer-events-none w-full flex justify-center" : ""
-                    }`}
-                >
-                  <Image
-                    src={"/Social icon.png"}
-                    alt="google"
-                    height={20}
-                    width={20}
-                  />
-                  Login In with google
-                </button> */}
-
-                <p className="mt-4 text-center font-[400] text-[14px]">
-                  Didn&apos;t have an account?
+              <div className="mt-4">
+                <p className="text-center font-[400] text-[14px]">
+                  Don&apos;t have an account?{" "}
                   <Link
-                    className="text-center font-[700] text-[14px] text-BlueHomz ml-1"
+                    className="text-center font-[700] text-[14px] text-BlueHomz hover:underline"
                     href={"/register"}
                   >
                     Create Account

@@ -22,7 +22,7 @@ const Layout = ({
 
     // Load state 
     React.useEffect(() => {
-        getCommunityManaProfile()
+        getCommunityManaProfile().catch(() => {});
     }, []);
 
     React.useEffect(() => {
@@ -36,12 +36,13 @@ const Layout = ({
         setOpenEstateList(false);
     });
 
-    // console.log("estateLoading:", estateLoading)
-    // console.log("selectedCommunity:", selectedCommunity)
-    // console.log("estatesData:", estatesData)
+    console.log("estateLoading:", estateLoading)
+    console.log("selectedCommunity:", selectedCommunity)
+    console.log("estatesData:", estatesData)
 
-    // Show loading until we have estate data and role (unless no estates)
-    if (estateLoading || (!selectedCommunity?.role && estatesData && estatesData.length > 0)) {
+    // Only block render while actively fetching AND we have no data yet
+    // Once estatesData is set (even []) let children render and handle their own state
+    if (estateLoading && estatesData === null) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="p-6 flex flex-col items-center gap-3">
