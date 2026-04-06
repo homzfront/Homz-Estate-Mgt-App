@@ -24,20 +24,35 @@ const SelectProfile = () => {
     const hasAccounts = (userData?.accounts?.length ?? 0) > 0;
     const isReturningUser = hasCM || hasResident;
 
-    // If user has accounts but profiles not loaded yet (came from landing page header),
-    // load the profile and route directly — don't wait for re-render
+    // If user has accounts but profiles not loaded yet (came from landing page header)
+    // Covers: CM owners, invited role members (admin/viewer/security), and residents
     React.useEffect(() => {
         if (!hasAccounts || hasCM || hasResident || profilesLoading) return;
 
         setProfilesLoading(true);
+
+        // Try loading CM profile first (works for estate owners)
         getCommunityManaProfile()
             .then(() => {
-                // Profile loaded — go straight to dashboard
                 router.push('/dashboard');
             })
             .catch(() => {
-                // Not a CM — stop loading and show cards
-                setProfilesLoading(false);
+                // getCommunityManaProfile failed — user might be an invited role member
+                // (admin/viewer/security) or a resident. Check account types.
+                const accounts = userData?.accounts ?? [];
+                const accountNames = accounts.map((acc: any) => acc?.name ?? acc?.accountType ?? '');
+                const hasCMAccount = accountNames.some((n: string) => n === 'COMMUNITY_MANAGER');
+                const hasResidentAccount = accountNames.some((n: string) => n === 'RESIDENT');
+
+                if (hasCMAccount) {
+                    // Invited role member — they belong to a CM estate, go to dashboard
+                    router.push('/dashboard');
+                } else if (hasResidentAccount) {
+                    router.push('/resident/dashboard');
+                } else {
+                    // Unknown — stop loading and show selection cards
+                    setProfilesLoading(false);
+                }
             });
     }, [hasAccounts, hasCM, hasResident]);
 

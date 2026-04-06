@@ -170,7 +170,6 @@ const Request = () => {
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
             getRequest(pageNo, pageSize);
-            console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -207,7 +206,6 @@ const Request = () => {
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
             getRequest(pageNo, pageSize);
-            console.log(response);
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {

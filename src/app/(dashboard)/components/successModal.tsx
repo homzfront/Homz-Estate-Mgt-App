@@ -29,6 +29,7 @@ const SuccessModal = ({
             <CustomModal
                 isOpen={isOpen}
                 onRequestClose={closeSuccessModal}
+                closeOnOverlayClick={false}
             >
                 <div className="bg-white flex flex-col w-[333px] md:w-[464px] p-[32px] rounded-[12px] gap-[18px]">
                     <div className="flex flex-col gap-6 items-center justify-center">

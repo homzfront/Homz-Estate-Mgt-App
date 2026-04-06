@@ -114,12 +114,12 @@ const EstateHomePage = () => {
                         </p>
                         <div className='w-full flex justify-center'>
                             <div className='mt-4 flex flex-col md:flex-row gap-4 items-center w-full justify-center'>
-                                <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
+                                <a href='/register'>
                                     <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 bg-white text-BlueHomz text-[16px] font-medium rounded-lg hover:bg-gray-50 transition-colors'>
                                         <span className='md:hidden'>Get Started </span><span className='hidden md:block'>Get Started as a Community Manager</span><ArrowRightSize16 />
                                     </button>
                                 </a>
-                                <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-auto'>
+                                <a href='/register'>
                                     <button className='w-full md:w-auto h-[48px] flex justify-center items-center px-6 text-white text-[16px] font-medium border border-white rounded-lg hover:bg-white/10 transition-colors'>
                                         See How It Works
                                     </button>
@@ -195,7 +195,7 @@ const EstateHomePage = () => {
                                     Remove or update resident status
                                 </p>
                             </div>
-                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[240px]'>
+                            <a href='/register'>
                                 <button className='mt-2 text-white text-[16px] font-medium bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-lg hover:bg-blue-600 transition-colors'>
                                     Create Your First Community <ArrowRight className='#FFFFFF' />
                                 </button>
@@ -273,7 +273,7 @@ const EstateHomePage = () => {
                         </Slider>
                     </div>
                     <div className='w-full flex justify-center items-center mt-10'>
-                        <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer'>
+                        <a href='/register'>
                             <button className='mt-2 text-white text-[16px] font-medium bg-BlueHomz w-[200px] gap-1 flex items-center justify-center h-[48px] rounded-lg hover:bg-blue-600 transition-colors'>
                                 Get Started Now <ArrowRight className='#FFFFFF' />
                             </button>
@@ -319,7 +319,7 @@ const EstateHomePage = () => {
                                     Enable secure community entry
                                 </p>
                             </div>
-                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[260px]'>
+                            <a href='/register'>
                                 <button className='mt-2 text-BlueHomz text-[16px] font-normal bg-white w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                                     Manage Visitor Access Now <ArrowRight className='#006AFF' />
                                 </button>
@@ -374,7 +374,7 @@ const EstateHomePage = () => {
                                     Maintain logs for accountability
                                 </p>
                             </div>
-                            <a href='https://cal.com/homz-community-management' target='_blank' rel='noopener noreferrer' className='w-full md:w-[240px]'>
+                            <a href='/register'>
                                 <button className='mt-2 text-white text-[16px] font-normal bg-BlueHomz w-full gap-1 flex items-center justify-center h-[48px] rounded-[4px]'>
                                     Add Your Security Team <ArrowRight className='#FFFFFF' />
                                 </button>

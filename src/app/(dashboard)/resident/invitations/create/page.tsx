@@ -13,6 +13,7 @@ import { useResidentParams } from '@/hooks/useResidentParams'
 import toast from "react-hot-toast";
 import DotLoader from '@/components/general/dotLoader'
 import api from '@/utils/api'
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage'
 import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import { RESIDENCY_TYPES } from '@/constant'
@@ -114,7 +115,6 @@ const Resident = () => {
         if (residentToken && organizationId) {
             (async () => {
                 const t = await getToken();
-                console.log(t)
                 if (!t || !userData) {
                     router.push("/register")
                 } else {
@@ -325,11 +325,8 @@ const Resident = () => {
             router.push('/resident/dashboard');
 
         } catch (error: any) {
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred while creating your profile";
-
-            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+            const errorMessage = getFriendlyErrorMessage(error);
+            toast.error(errorMessage, {
                 position: "top-center",
                 duration: 4000,
                 style: {

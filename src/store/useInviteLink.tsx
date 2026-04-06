@@ -29,7 +29,6 @@ export const useInviteLinkStore = create<InviteLinkState>()(
       clearInviteLink: (estateId) =>
         set((state) => {
           const { [estateId]:_, ...rest } = state.links;
-          console.log(_)
           return { links: rest };
         }),
     }),

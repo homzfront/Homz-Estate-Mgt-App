@@ -6,8 +6,10 @@ import Dropdown from '@/components/general/dropDown';
 import ArrowDown from '@/components/icons/arrowDown';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import DateIcon from '@/components/icons/dateIcon';
+import { useAuthSlice } from '@/store/authStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import api from '@/utils/api';
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage';
 import React from 'react'
 import toast from 'react-hot-toast';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
@@ -39,6 +41,7 @@ interface ResidenceForm {
 const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps) => {
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const [loading, setLoading] = React.useState(false);
+    const { getEstates } = useAuthSlice();
 
     // Personal Information
     const [personalInfo, setPersonalInfo] = React.useState({
@@ -69,6 +72,20 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
 
     const { fetchResidents } = useResidentsListStore();
 
+    // Refresh estate data when form opens to ensure zones are current
+    React.useEffect(() => {
+        const refreshData = async () => {
+            try {
+                await getEstates();
+            } catch (error) {
+                // Silently fail - component will use existing data
+                console.error('Failed to refresh estates data:', error);
+            }
+        };
+        refreshData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Prepare residency types for dropdown
     const residencyTypeOptions = RESIDENCY_TYPES
         .filter(type => type !== 'All Residency Type')
@@ -78,26 +95,52 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
         }));
 
     // Helper functions to get filtered options based on current selection
+    // Use dedicated estate arrays (zones/streets/buildings) so updates reflect immediately
     const getZoneOptions = () => {
+        // Use estate.zones[] directly — always reflects latest estate info updates
+        const estateZones = selectedCommunity?.estate?.zones || [];
+        if (estateZones.length > 0) {
+            return estateZones.map((z: { name: string }) => ({ id: z.name, label: z.name }));
+        }
+        // Fallback: derive from apartments if zones array is empty
         const apartments = selectedCommunity?.estate?.apartments || [];
-        const zones = new Set(apartments.map(a => a.zone).filter(Boolean));
+        const zones = new Set(apartments.map((a: any) => a.zone).filter(Boolean));
         return Array.from(zones).map(z => ({ id: z, label: z }));
     };
 
     const getStreetOptions = (selectedZone: string) => {
+        // Use estate.streets[] directly — always reflects latest estate info updates
+        const estateStreets = selectedCommunity?.estate?.streets || [];
+        if (estateStreets.length > 0) {
+            const filtered = selectedZone
+                ? estateStreets.filter((s: { name: string; zone: string }) => !s.zone || s.zone === selectedZone)
+                : estateStreets;
+            return filtered.map((s: { name: string }) => ({ id: s.name, label: s.name }));
+        }
+        // Fallback: derive from apartments
         const apartments = selectedCommunity?.estate?.apartments || [];
-        const filtered = apartments.filter(a => !selectedZone || a.zone === selectedZone);
-        const streets = new Set(filtered.map(a => a.street).filter(Boolean));
+        const filtered = apartments.filter((a: any) => !selectedZone || a.zone === selectedZone);
+        const streets = new Set(filtered.map((a: any) => a.street).filter(Boolean));
         return Array.from(streets).map(s => ({ id: s, label: s }));
     };
 
     const getBuildingOptions = (selectedZone: string, selectedStreet: string) => {
+        // Use estate.buildings[] directly — always reflects latest estate info updates
+        const estateBuildings = selectedCommunity?.estate?.buildings || [];
+        if (estateBuildings.length > 0) {
+            const filtered = estateBuildings.filter((b: { name: string; street: string; zone: string }) =>
+                (!selectedZone || !b.zone || b.zone === selectedZone) &&
+                (!selectedStreet || !b.street || b.street === selectedStreet)
+            );
+            return filtered.map((b: { name: string }) => ({ id: b.name, label: b.name }));
+        }
+        // Fallback: derive from apartments
         const apartments = selectedCommunity?.estate?.apartments || [];
-        const filtered = apartments.filter(a =>
+        const filtered = apartments.filter((a: any) =>
             (!selectedZone || a.zone === selectedZone) &&
             (!selectedStreet || a.street === selectedStreet)
         );
-        const buildings = new Set(filtered.map(a => a.building).filter(Boolean));
+        const buildings = new Set(filtered.map((a: any) => a.building).filter(Boolean));
         return Array.from(buildings).map(b => ({ id: b, label: b }));
     };
 
@@ -314,8 +357,8 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
                 residencyType: primaryRes.residentType || undefined,
                 ownershipType: primaryRes.selectOwnershipType === "Renting this apartment/property" ? "rented" : "owned",
 
-                // Residences array (additional residences, excluding primary)
-                residences: residences.slice(1).map(res => {
+                // Residences array — backend requires at least 1 element so include ALL residences
+                residences: residences.map(res => {
                     const resPayload: any = {
                         zone: res.selectZone || undefined,
                         streetName: res.streetName,
@@ -363,12 +406,8 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             fetchResidents({ page: 1, silent: true })
 
         } catch (error: any) {
-            const initialMessage = error?.response?.data?.errors?.[0]?.message
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred while creating your profile";
-
-            toast.error(initialMessage || backendMessage || backendMessageTwo || fallbackMessage, {
+            const errorMessage = getFriendlyErrorMessage(error);
+            toast.error(errorMessage, {
                 position: "top-center",
                 duration: 4000,
                 style: {

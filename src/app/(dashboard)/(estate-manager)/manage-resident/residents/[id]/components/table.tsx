@@ -47,7 +47,6 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
         fetchBillPayments
     } = useBillPaymentStore();
 
-    console.log("Bill Payments:", items)
 
     useClickOutside(dropDownRef as any, () => {
         setActionDropdown(null)
@@ -230,7 +229,6 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                             {!initialLoading && groupedItems.map((group) => {
                                 const isExpanded = expandedRows.has(group.key);
                                 const statusStyle = getStatusStyle(group.status);
-                                console.log("Rendering group:", group);
                                 return (
                                     <React.Fragment key={group.key}>
                                         {/* Parent Row */}

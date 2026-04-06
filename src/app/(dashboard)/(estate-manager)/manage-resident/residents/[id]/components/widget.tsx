@@ -75,7 +75,6 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
         setShowData(false)
     }
 
-    console.log("selectedBillingProperty:", selectedBillingProperty)
 
     return (
         <div>

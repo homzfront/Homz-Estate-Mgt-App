@@ -10,6 +10,7 @@ import api from "@/utils/api";
 import { storeToken } from "@/utils/cookies";
 import { useAuthSlice } from "@/store/authStore";
 import toast from "react-hot-toast";
+import { getFriendlyErrorMessage } from "@/utils/friendlyErrorMessage";
 import DotLoader from "@/components/general/dotLoader";
 import { useResidentStore } from "@/store/useResidentStore";
 
@@ -83,11 +84,8 @@ const VerifyEmail = () => {
       setError2("");
       setLoading(false);
     } catch (error: any) {
-      const backendMessage = error?.response?.data?.message;
-      const backendMes = error?.response?.data?.error;
-      const backendMessageTwo = error?.response?.data?.message?.[0];
-      const fallbackMessage = error?.message || "An error occurred";
-      setError2(backendMessage || backendMessageTwo || backendMes || fallbackMessage);
+      const errorMessage = getFriendlyErrorMessage(error);
+      setError2(errorMessage);
       setError(true);
       setLoading(false);
     }
@@ -103,11 +101,8 @@ const VerifyEmail = () => {
       startTimer();
       setResend(false);
     } catch (error: any) {
-      const backendMessage = error?.response?.data?.message;
-      const backendMessageTwo = error?.response?.data?.message?.[0];
-      const fallbackMessage = error?.message || "Failed to resend OTP";
-
-      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
+      const errorMessage = getFriendlyErrorMessage(error);
+      toast.error(errorMessage);
       setResend(false);
     }
   };

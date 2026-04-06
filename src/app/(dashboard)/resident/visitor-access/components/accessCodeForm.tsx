@@ -11,6 +11,7 @@ import { useAuthSlice } from '@/store/authStore';
 // import { useResidentCommunity } from '@/store/useResidentCommunity';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 import api from '@/utils/api';
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage';
 import React from 'react'
 import toast from "react-hot-toast";
 
@@ -89,18 +90,10 @@ const AccessCodeForm = ({
             setCodeGenerated(true);
 
         } catch (error: any) {
-            console.log(error)
-            const majorBackendError = error?.response?.data?.errors?.[0]?.message
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred, can't generate code";
-
+            const errorMessage = getFriendlyErrorMessage(error);
             // Show toast notification
             toast.error(
-                majorBackendError ||
-                backendMessage ||
-                backendMessageTwo ||
-                fallbackMessage,
+                errorMessage,
                 {
                     position: "top-center",
                     duration: 5000,

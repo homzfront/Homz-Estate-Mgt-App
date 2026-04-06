@@ -13,6 +13,7 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
 import toast from 'react-hot-toast';
 import api from '@/utils/api';
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage';
 import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
 import { Community, useAuthSlice } from '@/store/authStore';
 
@@ -93,15 +94,22 @@ const EditEstateForm = () => {
         chooseState()
     }, []);
 
-    // update selected community data when estatesData changes
+    // Update selectedCommunity with fresh estate data after a save
     React.useEffect(() => {
         if (estatesData && estatesData.length > 0 && doneUpdate) {
-            const foundData = estatesData.find((data) => data._id === selectedCommunity?.estate?._id);
-            if (foundData && foundData.estate) {
+            // Match by estateId (Community._id is the community record, not the estate)
+            const foundData = estatesData.find(
+                (data) => data.estateId === selectedCommunity?.estate?._id ||
+                    data.estate?._id === selectedCommunity?.estate?._id
+            );
+            if (foundData) {
                 setSelectedCommunity(foundData as Community);
+                toast.success('Estate updated successfully!', { position: 'top-center', duration: 3000 });
             }
+            setDoneUpdate(false);
         }
-    }, [estatesData, doneUpdate, selectedCommunity, setSelectedCommunity]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [estatesData, doneUpdate]);
 
 
     // Set initial active page from URL params
@@ -216,17 +224,10 @@ const EditEstateForm = () => {
             setDoneUpdate(true);
 
         } catch (error: any) {
-            const majorBackendError = error?.response?.data?.errors?.[0]?.message
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred during login";
-
+            const errorMessage = getFriendlyErrorMessage(error);
             // Show toast notification
             toast.error(
-                majorBackendError ||
-                backendMessage ||
-                backendMessageTwo ||
-                fallbackMessage,
+                errorMessage,
                 {
                     position: "top-center",
                     duration: 5000,
