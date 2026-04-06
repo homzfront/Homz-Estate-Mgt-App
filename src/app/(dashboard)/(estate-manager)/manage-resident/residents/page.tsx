@@ -51,7 +51,7 @@ const ManageResidents = () => {
         <div className='p-8 w-full'>
             {
                 openInvite &&
-                <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)}>
+                <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)} closeOnOverlayClick={false}>
                     <InviteResident
                         setOpenInvite={setOpenInvite}
                         setOpenSuccessModal={setOpenSuccessModal}

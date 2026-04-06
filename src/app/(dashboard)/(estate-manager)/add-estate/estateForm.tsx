@@ -16,6 +16,7 @@ import useStateStore from '@/store/useStateAndAreaStore/useStateStore'
 import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore'
 import toast from 'react-hot-toast'
 import api from '@/utils/api'
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage'
 import DotLoader from '@/components/general/dotLoader'
 import { useAuthSlice } from '@/store/authStore'
 
@@ -141,21 +142,15 @@ const EstateForm = () => {
                 }
 
             }
-            // Load CM profile + estates BEFORE showing modal so dashboard is ready
-            try { await getCommunityManaProfile(); } catch { /* continue */ }
+            // Show modal immediately — load profile in background so layout spinner
+            // doesn't unmount this component and reset isOpen to false
             setIsOpen(true);
+            getCommunityManaProfile().catch(() => {}); // background load
         } catch (error: any) {
-            const majorBackendError = error?.response?.data?.errors?.[0]?.message
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred during login";
-
+            const errorMessage = getFriendlyErrorMessage(error);
             // Show toast notification
             toast.error(
-                majorBackendError ||
-                backendMessage ||
-                backendMessageTwo ||
-                fallbackMessage,
+                errorMessage,
                 {
                     position: "top-center",
                     duration: 5000,
@@ -254,8 +249,7 @@ const EstateForm = () => {
                         }}
                         isOpen={isOpen}
                         closeSuccessModal={() => {
-                            // Don't navigate on overlay click — let user read the modal
-                            setIsOpen(false);
+                            // noop — modal should not close on overlay click
                         }}
                     />
                 }
@@ -325,7 +319,7 @@ const EstateForm = () => {
                         // >
                         //     Save <span className='md:hidden'>Progress</span>
                         // </button>
-                        <div/>
+                        <div />
                     )}
                     <div className='flex items-center gap-4'>
                         {active > 0 && (

@@ -74,7 +74,6 @@ const EstateManagerRegistration = () => {
             // Redirect to add-estate — user must create an estate before accessing the dashboard
             router.push("/add-estate");
         } catch (error: any) {
-            console.log(error)
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];

@@ -229,7 +229,7 @@ const Sidebar = () => {
 
     // Filter menu items based on permissions
     const filteredData = Data.filter(item => {
-        const subject = item.name.toLowerCase().replace(' ', '-') as Subjects;
+        const subject = item.name.toLowerCase().replace(/\s+/g, '-') as Subjects;
         return ability.can('read', subject);
     });
 

@@ -3,6 +3,7 @@ import DotLoader from '@/components/general/dotLoader';
 import { useAuthSlice } from '@/store/authStore';
 import { useResidentStore } from '@/store/useResidentStore';
 import api from '@/utils/api';
+import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -79,11 +80,8 @@ const UpdateResidentAccount = () => {
             });
             router.push("/resident/dashboard")
         } catch (error: any) {
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred while updating your profile";
-
-            toast.error(backendMessage || backendMessageTwo || fallbackMessage, {
+            const errorMessage = getFriendlyErrorMessage(error);
+            toast.error(errorMessage, {
                 position: "top-center",
                 duration: 4000,
                 style: {

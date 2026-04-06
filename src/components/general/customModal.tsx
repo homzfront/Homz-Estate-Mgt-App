@@ -7,6 +7,7 @@ interface CustomModalProps {
   onRequestClose: () => void;
   children: ReactNode;
   contentRef?: React.RefObject<HTMLDivElement>;
+  closeOnOverlayClick?: boolean;
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({
@@ -14,6 +15,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   onRequestClose,
   children,
   contentRef,
+  closeOnOverlayClick = true,
 }) => {
   const customStyles: Styles = {
     overlay: {
@@ -51,7 +53,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
       contentLabel="Custom Modal"
       ariaHideApp={false}
       style={customStyles}
-      shouldCloseOnOverlayClick={true} // ✅ important
+      shouldCloseOnOverlayClick={closeOnOverlayClick}
       shouldCloseOnEsc={true} // ✅ closes on ESC
     >
       <div

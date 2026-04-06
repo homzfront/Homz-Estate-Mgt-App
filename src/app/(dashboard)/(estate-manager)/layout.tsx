@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import React from 'react'
+import { usePathname } from 'next/navigation'
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore';
 import useClickOutside from '@/app/utils/useClickOutside';
 import PickEstate from './components/pickEstate';
@@ -36,13 +37,14 @@ const Layout = ({
         setOpenEstateList(false);
     });
 
-    console.log("estateLoading:", estateLoading)
-    console.log("selectedCommunity:", selectedCommunity)
-    console.log("estatesData:", estatesData)
 
     // Only block render while actively fetching AND we have no data yet
+    const pathname = usePathname();
+    // Don't block rendering on form pages that manage their own state
+    const skipSpinner = pathname?.includes('/add-estate') || pathname?.includes('/estate-info');
+
     // Once estatesData is set (even []) let children render and handle their own state
-    if (estateLoading && estatesData === null) {
+    if (!skipSpinner && estateLoading && estatesData === null) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="p-6 flex flex-col items-center gap-3">

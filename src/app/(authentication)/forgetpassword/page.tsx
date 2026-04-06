@@ -4,6 +4,7 @@
 import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
 import api from "@/utils/api";
+import { getFriendlyErrorMessage } from "@/utils/friendlyErrorMessage";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, FormEvent } from "react";
@@ -34,11 +35,9 @@ const ForgotPassword = () => {
         toast.error(response.data.message || "Failed to send reset link");
       }
     } catch (error: any) {
-      const backendMessage = error?.response?.data?.message;
-      const backendMessageTwo = error?.response?.data?.message?.[0];
-      const fallbackMessage = error?.message || "An error occurred.";
-      setEmailError(backendMessage || backendMessageTwo || fallbackMessage);
-      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
+      const errorMessage = getFriendlyErrorMessage(error);
+      setEmailError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -56,10 +55,8 @@ const ForgotPassword = () => {
         toast.error(response.data.message || "Failed to resend reset link");
       }
     } catch (error: any) {
-      const backendMessage = error?.response?.data?.message;
-      const backendMessageTwo = error?.response?.data?.message?.[0];
-      const fallbackMessage = error?.message || "An error occurred.";
-      toast.error(backendMessage || backendMessageTwo || fallbackMessage);
+      const errorMessage = getFriendlyErrorMessage(error);
+      toast.error(errorMessage);
     }
   };
 

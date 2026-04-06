@@ -353,7 +353,6 @@ const Table = ({ fromDefault = true }: TableProps) => {
                                                 selectedStatus={selectedStatus}
                                                 setSelectedStatus={setSelectedStatus}
                                                 handleStatusChange={(status) => {
-                                                    console.log("Selected:", status);
                                                 }}
                                             />
                                         </td>
