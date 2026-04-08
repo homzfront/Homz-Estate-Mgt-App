@@ -32,7 +32,8 @@ const Table: React.FC<TableProps> = ({
 
     const options = [
         { id: 1, label: 'Admin', value: 'admin' },
-        // { id: 2, label: 'Account Manager', value: 'account_manager' },
+        { id: 2, label: 'Account Manager', value: 'account_manager' },
+        { id: 3, label: 'Owner', value: 'owner' },
         { id: 4, label: 'Security', value: 'security' },
         { id: 5, label: 'Viewer', value: 'viewer' },
     ];

@@ -8,7 +8,7 @@ import RegisterTenantIcon from '@/components/icons/estateManager&Resident/deskto
 import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/mobile/registerTenantIcon';
 import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import EmptyEstateState from '../components/emptyEstateState';
 import ArrowDown from '@/components/icons/arrowDown';
@@ -24,10 +24,13 @@ import LoadingSpinner from '@/components/general/loadingSpinner';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import { useAbility } from '@/contexts/AbilityContext';
 import { PermissionGuard } from '@/components/PermissionGuard';
+import InviteResident from '../manage-resident/residents/components/inviteResident';
 // import { useAuthSlice } from '@/store/authStore';
 
 const Dashboard = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
+    const [openInvite, setOpenInvite] = React.useState<boolean>(false);
+    const searchParams = useSearchParams();
     const router = useRouter();
     const { pageLoading, initialLoading: accessInitialLoading, fetchManagerAccess, items } = useAccessStore();
     const { isCommunityManager, estateLoading, estatesData, communityProfile, getCommunityManaProfile } = useAuthSlice();
@@ -44,6 +47,20 @@ const Dashboard = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Show invite modal if navigated here with ?invite=true (from estate creation success)
+    React.useEffect(() => {
+        if (searchParams.get('invite') === 'true') {
+            setOpenInvite(true);
+        }
+    }, [searchParams]);
+
+    // Redirect users without dashboard permission to access-control if they have it.
+    React.useEffect(() => {
+        if (!ability.can('read', 'dashboard') && ability.can('read', 'access-control')) {
+            router.replace('/access-control');
+        }
+    }, [ability, router]);
 
     React.useEffect(() => {
         // On first mount or when community changes, fetch based on current tab
@@ -85,6 +102,14 @@ const Dashboard = () => {
             {openEstateList &&
                 <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
                     <PickEstate />
+                </CustomModal>
+            }
+            {openInvite &&
+                <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)} closeOnOverlayClick={false}>
+                    <InviteResident
+                        setOpenInvite={setOpenInvite}
+                        setOpenSuccessModal={() => { }}
+                    />
                 </CustomModal>
             }
             {estatesData && estatesData?.length > 0 && selectedCommunity ?

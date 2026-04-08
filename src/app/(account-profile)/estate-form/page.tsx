@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import toast from "react-hot-toast";
+import { getErrorMessage } from '@/utils/errorMessage';
 
 type FormValues = {
     firstName: string;
@@ -26,19 +27,48 @@ const EstateManagerRegistration = () => {
         register,
         handleSubmit,
         formState: { errors },
+        setValue,
+        watch
     } = useForm<FormValues>();
 
     const router = useRouter();
 
+    // Function to normalize phone numbers to consistent format
+    const normalizePhoneNumber = (phone: string): string => {
+        // Remove all spaces and non-digit characters except +
+        let cleaned = phone.replace(/[^\d+]/g, '');
+
+        // If starts with +234, convert to 0 format
+        if (cleaned.startsWith('+234')) {
+            return '0' + cleaned.substring(4);
+        }
+
+        // If starts with 234 (without +), convert to 0 format
+        if (cleaned.startsWith('234')) {
+            return '0' + cleaned.substring(3);
+        }
+
+        // If already starts with 0, return as is
+        if (cleaned.startsWith('0')) {
+            return cleaned;
+        }
+
+        // If it's just the local number, add 0 prefix
+        return '0' + cleaned;
+    };
+
     const onSubmit = async (data: FormValues) => {
         setLoading(true);
         try {
+            // Normalize phone number before sending
+            const normalizedPhone = normalizePhoneNumber(data.phoneNumber);
+
             // Prepare the payload in the required format
             const payload: any = {
                 personal: {
                     firstName: data.firstName,
                     lastName: data.lastName,
-                    phoneNumber: data.phoneNumber
+                    phoneNumber: normalizedPhone
                 }
             };
 
@@ -54,7 +84,7 @@ const EstateManagerRegistration = () => {
             await api.post("/community-manager/create-profile", removeEmptyFields(payload));
 
             // Show success toast
-            toast.success("Account created!", {
+            toast.success("Profile created successfully!", {
                 position: "top-center",
                 duration: 2000,
                 style: {
@@ -74,22 +104,12 @@ const EstateManagerRegistration = () => {
             // Redirect to add-estate — user must create an estate before accessing the dashboard
             router.push("/add-estate");
         } catch (error: any) {
-            const majorBackendError = error?.response?.data?.errors?.[0]?.message
-            const backendMessage = error?.response?.data?.message;
-            const backendMessageTwo = error?.response?.data?.message?.[0];
-            const fallbackMessage = error?.message || "An error occurred during login";
+            const message = getErrorMessage(error, "An error occurred during registration.");
 
-            // Show toast notification
-            toast.error(
-                majorBackendError ||
-                backendMessage ||
-                backendMessageTwo ||
-                fallbackMessage,
-                {
-                    position: "top-center",
-                    duration: 5000,
-                }
-            );
+            toast.error(message, {
+                position: "top-center",
+                duration: 5000,
+            });
         } finally {
             setLoading(false);
         }
@@ -171,8 +191,8 @@ const EstateManagerRegistration = () => {
                                 {...register("phoneNumber", {
                                     required: "Phone number is required",
                                     pattern: {
-                                        value: /^((\+234)+|0)[7-9]{1}[0-9]{9}$/,
-                                        message: "Invalid phone number format"
+                                        value: /^(\+234|0)[7-9][0-9]{9}$/,
+                                        message: "Invalid phone number format. Use +234XXXXXXXXXX or 0XXXXXXXXXX"
                                     }
                                 })}
                                 placeholder="e.g 070 0000 0000"
@@ -181,6 +201,7 @@ const EstateManagerRegistration = () => {
                             {errors.phoneNumber && (
                                 <p className="mt-1 text-sm text-red-600">{errors.phoneNumber.message}</p>
                             )}
+                            <p className="mt-1 text-xs text-gray-500">Phone numbers will be normalized to standard format (e.g., +234XXXXXXXXXX → 0XXXXXXXXXX)</p>
                         </div>
                     </div>
 

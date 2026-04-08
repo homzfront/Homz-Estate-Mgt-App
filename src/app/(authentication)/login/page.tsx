@@ -44,11 +44,11 @@ const Login = () => {
     }
 
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
     if (!passwordRegex.test(password)) {
       setLoginError(
-        "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character"
+        "Invalid password format. Passwords must be at least 8 characters long and include uppercase, lowercase, number, and one special character from @$!%*?&#."
       );
       return;
     };
@@ -98,15 +98,15 @@ const Login = () => {
           router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
-         
+
           router.push("/select-profile");
         }
-        
+
       } else {
         clearResidentData();
         const response = await api.get("/community-manager/current-profile");
         if (!response) {
-          router.push("/resident/dashboard")  
+          router.push("/resident/dashboard")
         } else {
           toast.success("Login successful!", {
             position: "top-center",
@@ -120,7 +120,7 @@ const Login = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             },
           });
-          router.push("/dashboard");  
+          router.push("/dashboard");
         }
       }
     } catch (error: any) {
@@ -210,8 +210,9 @@ const Login = () => {
                       placeholder="Enter your password"
                       autoComplete="current-password"
                       required
-                      minLength={6}
+                      minLength={8}
                     />
+                    <p className="text-[10px] text-gray-500 mt-1">Allowed special characters: @$!%*?&#</p>
                     <button
                       type="button"
                       className="absolute top-11 right-4"

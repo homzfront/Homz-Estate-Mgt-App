@@ -54,6 +54,16 @@ export interface RequestState {
         search?: string
     ) => Promise<void>;
     requestResponse: ReponseData | null;
+    sendCoResidentInvitation: (
+        coResidentData: {
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone?: string;
+            role: string;
+            relationship?: string;
+        }
+    ) => Promise<{ link: string }>;
 }
 
 export const useRequestSlice = create<RequestState>()(
@@ -88,6 +98,36 @@ export const useRequestSlice = create<RequestState>()(
                 throw error;
             } finally {
                 set({ isLoading: false });
+            }
+        },
+
+        sendCoResidentInvitation: async (coResidentData) => {
+            const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
+            const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
+            const estateId = selectedCommunity?.estate?._id;
+
+            if (!organizationId || !estateId) {
+                throw new Error('Missing organization or estate id');
+            }
+
+            try {
+                const response = await api.post(
+                    `/resident-invitation/generate-co-resident-link/organizations/${organizationId}/estates/${estateId}`,
+                    {
+                        coResident: coResidentData,
+                        validationIds: {
+                            estateId,
+                            organizationId
+                        }
+                    }
+                );
+
+                return response.data.data;
+            } catch (error: any) {
+                const backendMessage = error?.response?.data?.message;
+                const backendMessageTwo = error?.response?.data?.message?.[0];
+                const fallbackMessage = error?.message || "Failed to send co-resident invitation";
+                throw new Error(backendMessage || backendMessageTwo || fallbackMessage);
             }
         },
     })

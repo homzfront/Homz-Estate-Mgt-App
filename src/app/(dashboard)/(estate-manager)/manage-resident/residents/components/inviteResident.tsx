@@ -13,7 +13,7 @@ interface InviteResidentProps {
     setOpenInvite: (data: boolean) => void;
 }
 
-const InviteResident = ({ }: InviteResidentProps) => {
+const InviteResident = ({ setOpenInvite }: InviteResidentProps) => {
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const communityProfile = useAuthSlice((state) => state.communityProfile);
 
@@ -129,6 +129,15 @@ const InviteResident = ({ }: InviteResidentProps) => {
                             </button>
                         </>
                     )}
+                </div>
+
+                <div className='mt-6 flex gap-3 justify-end'>
+                    <button
+                        onClick={() => setOpenInvite(false)}
+                        className='px-4 py-2 rounded-[4px] border border-GrayHomz5 text-GrayHomz font-normal text-sm hover:bg-gray-50'
+                    >
+                        Cancel
+                    </button>
                 </div>
 
                 {/* <div className='flex justify-between items-center mt-7'>

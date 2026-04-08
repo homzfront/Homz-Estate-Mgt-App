@@ -13,6 +13,19 @@ const ChangePassword = () => {
   const [loading, setLoading] = useState(false);
   const [showDialogue, setShowDialogue] = useState(false);
 
+  // Password requirements checker
+  const getPasswordRequirements = (password: string) => {
+    return {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[\W_]/.test(password),
+    };
+  };
+
+  const passwordRequirements = getPasswordRequirements(newPassword);
+
   const isValidPassword = (password: any) => {
     return password.length >= 8;
   };
@@ -120,10 +133,48 @@ const ChangePassword = () => {
           autoComplete="new-password"  // For new password fields
         />
         <div>
-          <p className="mt-[-5px] text-GrayHomz2 text-[13px] font-[400]">
-            Must be at least 8 characters <br />
-            New password must be different from the previous password
+          <p className="mt-[-5px] text-GrayHomz2 text-[13px] font-[400] mb-2">
+            Password must meet these requirements:
           </p>
+
+          {/* Password Requirements Display */}
+          <div className="bg-gray-50 rounded-md p-2 border text-xs">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] ${passwordRequirements.length ? 'text-green-600' : 'text-gray-400'}`}>
+                  {passwordRequirements.length ? '✓' : '○'}
+                </span>
+                <span className="text-[10px] text-gray-600">At least 8 characters</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
+                  {passwordRequirements.uppercase ? '✓' : '○'}
+                </span>
+                <span className="text-[10px] text-gray-600">One uppercase (A-Z)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
+                  {passwordRequirements.lowercase ? '✓' : '○'}
+                </span>
+                <span className="text-[10px] text-gray-600">One lowercase (a-z)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] ${passwordRequirements.number ? 'text-green-600' : 'text-gray-400'}`}>
+                  {passwordRequirements.number ? '✓' : '○'}
+                </span>
+                <span className="text-[10px] text-gray-600">One number (0-9)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] ${passwordRequirements.special ? 'text-green-600' : 'text-gray-400'}`}>
+                  {passwordRequirements.special ? '✓' : '○'}
+                </span>
+                <span className="text-[10px] text-gray-600">One special character</span>
+              </div>
+            </div>
+            <div className="mt-1 pt-1 border-t border-gray-200">
+              <p className="text-[9px] text-gray-500">Must be different from current password</p>
+            </div>
+          </div>
         </div>
         <InputVisible
           password={reEnterPassword}

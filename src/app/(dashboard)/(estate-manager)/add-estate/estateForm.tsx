@@ -42,10 +42,10 @@ const EstateForm = () => {
 
     const { getEstates, getCommunityManaProfile } = useAuthSlice();
 
-    // Load state 
+    // Load state - only once on component mount
     React.useEffect(() => {
         chooseState()
-    }, []);
+    }, [chooseState]);
 
     const widgetHeaders = ["Estate Information", "Add Zones (Optional)", "Add Streets", "Add Buildings", "Add Apartments"]
 
@@ -145,7 +145,7 @@ const EstateForm = () => {
             // Show modal immediately — load profile in background so layout spinner
             // doesn't unmount this component and reset isOpen to false
             setIsOpen(true);
-            getCommunityManaProfile().catch(() => {}); // background load
+            getCommunityManaProfile().catch(() => { }); // background load
         } catch (error: any) {
             const errorMessage = getFriendlyErrorMessage(error);
             // Show toast notification
@@ -238,9 +238,9 @@ const EstateForm = () => {
                         successText='You can now manage community information, invite residents and add bills.'
                         submitText='Invite Residents'
                         handleSubmit={() => {
-                            // setUserData(true);
                             clearForm();
-                            router.push("/dashboard");
+                            // Navigate with invite=true so dashboard shows invite modal
+                            router.push("/dashboard?invite=true");
                         }}
                         handleBack={() => {
                             clearForm();

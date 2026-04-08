@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import DotLoader from '@/components/general/dotLoader';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { useAbility } from '@/contexts/AbilityContext';
+import { getErrorMessage } from '@/utils/errorMessage';
 import { useRouter } from 'next/navigation';
 import HourGlassLoader from '@/components/general/hourGlassLoader';
 import EmptyEstateState from '../components/emptyEstateState';
@@ -40,6 +41,7 @@ const Settings = () => {
   const [updatingRoleId, setUpdatingRoleId] = React.useState<string | null>(null);
 
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+  const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
   const {
     members,
     initialLoading,
@@ -63,7 +65,8 @@ const Settings = () => {
 
   const options = [
     { id: 1, label: 'Admin', value: 'admin' },
-    // { id: 2, label: 'Account Manager', value: 'account_manager' },
+    { id: 2, label: 'Account Manager', value: 'account_manager' },
+    { id: 3, label: 'Owner', value: 'owner' },
     { id: 4, label: 'Security', value: 'security' },
     { id: 5, label: 'Viewer', value: 'viewer' },
   ];
@@ -99,7 +102,7 @@ const Settings = () => {
       await sendInvitation(formData.email, formData.role);
       setOpenSuccess(true);
     } catch (error: any) {
-      toast.error(error.message || "Failed to send invitation", {
+      toast.error(getErrorMessage(error, 'Failed to send invitation.'), {
         position: "top-center",
         duration: 3000,
         style: {
@@ -142,11 +145,18 @@ const Settings = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
+      // If the currently selected community user had their role changed, update it immediately
+      if (selectedCommunity?.associatedIds?.userId === member.associatedIds?.userId) {
+        setSelectedCommunity({
+          ...selectedCommunity,
+          role: roleValue,
+        });
+      }
       // Fetch members for the current role filter after update
       const currentRole = pages[activePage].value;
       fetchMembers({ page: 1, role: currentRole });
     } catch (error: any) {
-      toast.error(error.message || "Failed to update role", {
+      toast.error(getErrorMessage(error, 'Failed to update role.'), {
         position: "top-center",
         duration: 2000,
         style: {
@@ -166,7 +176,8 @@ const Settings = () => {
   const pages = [
     { label: "All", value: null },
     { label: "Admin", value: "admin" },
-    // { label: "Account Manager", value: "account_manager" },
+    { label: "Account Manager", value: "account_manager" },
+    { label: "Owner", value: "owner" },
     { label: "Security", value: "security" },
     { label: "Viewer", value: "viewer" },
   ];
@@ -251,7 +262,7 @@ const Settings = () => {
           </div>
         </CustomModal>
       }
-      <button onClick={()=> router.back()} className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Settings</button>
+      <button onClick={() => router.back()} className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Settings</button>
 
       {!selectedCommunity ? (
         <div className='px-8 mt-6'>

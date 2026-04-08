@@ -18,12 +18,15 @@ const Layout = ({
 
     const isSwitchingEstate = useSelectedCommunity((state) => state.isSwitchingEstate);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const { estatesData, estateLoading, getCommunityManaProfile } = useAuthSlice();
+    const { estatesData, estateLoading, communityProfile, getCommunityManaProfile } = useAuthSlice();
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
-    // Load state 
+    // Load profile only if not already in store — prevents duplicate calls with dashboard page
     React.useEffect(() => {
-        getCommunityManaProfile().catch(() => {});
+        if (!communityProfile?._id || estatesData === null) {
+            getCommunityManaProfile().catch(() => {});
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     React.useEffect(() => {

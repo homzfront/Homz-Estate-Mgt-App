@@ -153,7 +153,7 @@ const Table = ({
                     <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
                         <div className='flex justify-between items-center'>
                             <div>
-                                <h2 className='text-BlueHomz text-sm font-medium'>Visitor Access Information</h2>
+                                <h2 className='text-BlueHomz text-sm font-medium'>Visitor Access Record</h2>
                             </div>
                             <button onClick={() => setOpenDetails(false)}><CloseTransluscentIcon /></button>
                         </div>
@@ -167,17 +167,28 @@ const Table = ({
                                     {selectedData?.resident?.firstName} {selectedData?.resident?.lastName}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
-                                    Role
+                                    Property
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {/* [Resident’s Role] */}
-                                    {selectedData?.resident?.ownershipType}
+                                    {selectedData?.resident?.estateName || '-'}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Apartment Number
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.resident?.apartment || '-'}
+                                </p>
+                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                    Address
+                                </p>
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                    {selectedData?.resident ? `${selectedData.resident.building}, ${selectedData.resident.streetName}, ${selectedData.resident.zone}` : '-'}
                                 </p>
                             </div>
                         </div>
 
 
-                        <div className='md:hidden mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
+                        <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
                             <div className='grid grid-cols-2 gap-4'>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Visitor
@@ -210,8 +221,7 @@ const Table = ({
                                     {formatDateDisplay(selectedData?.arrivalDate)}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
-                                    Expected time
-                                    of visit
+                                    Expected time of visit
                                 </p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
                                     {formatExpectedRange(selectedData?.expectedArrivalTime?.from, selectedData?.expectedArrivalTime?.to)}
@@ -223,29 +233,31 @@ const Table = ({
                                     {selectedData?.accessCode}
                                 </p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
-                                    Code Type
-                                </p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.codeType}
-                                </p>
-                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
                                     Access Status
                                 </p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {capitalizeFirstLetter(selectedData?.accessStatus)}
+                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium capitalize'>
+                                    {selectedData?.accessStatus}
                                 </p>
-                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
-                                    Time In
-                                </p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.timeIn ? new Date(selectedData.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
-                                </p>
-                                <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
-                                    Time Out
-                                </p>
-                                <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
-                                    {selectedData?.timeOut ? new Date(selectedData.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '-'}
-                                </p>
+                                {selectedData?.timeIn && (
+                                    <>
+                                        <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                            Time In
+                                        </p>
+                                        <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                            {new Date(selectedData.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        </p>
+                                    </>
+                                )}
+                                {selectedData?.timeOut && (
+                                    <>
+                                        <p className='text-[11px] md:text-sm text-GrayHomz font-normal md:font-medium'>
+                                            Time Out
+                                        </p>
+                                        <p className='text-[11px] md:text-sm text-BlackHomz font-normal md:font-medium'>
+                                            {new Date(selectedData.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                        </p>
+                                    </>
+                                )}
                             </div>
                         </div>
                         {/* 
@@ -386,9 +398,17 @@ const Table = ({
                                         </button>
                                         {popUp && selectedDataId === data?._id && (
                                             <PopUp
-                                                setOpenDetails={setOpenDetails}
+                                                onMoreDetails={() => {
+                                                    setSelectedData(data);
+                                                    setOpenDetails(true);
+                                                    setpopUp(false);
+                                                }}
+                                                onRevoke={() => {
+                                                    setSelectedData(data);
+                                                    setOpenRevoke(true);
+                                                    setpopUp(false);
+                                                }}
                                                 fromDefault={fromDefault}
-                                                setOpenRevoke={setOpenRevoke}
                                                 onClose={() => setpopUp(false)}
                                                 anchorRef={{ current: buttonRefs.current[data?._id] } as any}
                                             />

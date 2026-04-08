@@ -3,6 +3,7 @@
 import ArrowDown from '@/components/icons/arrowDown';
 import DashboardIcon from '@/components/icons/estateManager&Resident/desktop/dashboardIcon';
 // import SupportIcon from '@/components/icons/estateManager&Resident/desktop/supportIcon';
+import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -54,6 +55,17 @@ const Data = [
         ),
         link: "/resident/bills-payments",
         name: "Bills & Payments",
+        active: false,
+        comingSoon: false,
+    },
+    {
+        id: 4,
+        image: <SettingsIcon />,
+        image2: (
+            <SettingsIcon className='#FFFFFF' />
+        ),
+        link: "/resident/settings",
+        name: "Settings",
         active: false,
         comingSoon: false,
     },
@@ -249,7 +261,7 @@ const Sidebar = () => {
 
                     <div className='flex flex-col gap-10 mt-10'>
                         <div className="flex flex-col gap-3">
-                            {Data?.slice(0, 3).map((data) => {
+                            {Data?.map((data) => {
                                 if (data.comingSoon) {
                                     return (
                                         <div
