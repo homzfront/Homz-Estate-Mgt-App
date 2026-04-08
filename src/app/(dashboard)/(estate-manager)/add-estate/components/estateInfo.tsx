@@ -34,11 +34,15 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
     } = useEstateFormStore();
     const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
 
+    // Only show loading indicator if there's no data yet (first load)
+    const shouldShowStateLoading = loading && (!stateList || stateList.length === 0);
+    const shouldShowAreaLoading = loadingArea && (!areaData || areaData.length === 0);
+
     React.useEffect(() => {
         if (formData?.state) {
             chooseArea(formData?.state)
         }
-    }, [formData?.state])
+    }, [formData?.state, chooseArea])
 
     const handleImageUpload = () => {
         // Create a file input element
@@ -91,7 +95,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                         <div className='flex flex-col-reverse md:flex-row-reverse gap-4 '>
                             <Dropdown
                                 options={areaData as any}
-                                isLoading={loadingArea}
+                                isLoading={shouldShowAreaLoading}
                                 onSelect={(option) => handleInputChange('area', option)}
                                 selectOption={formData?.area ? formData?.area : "Select Area"}
                                 borderColor='border-[#A9A9A9]'
@@ -99,7 +103,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                             />
                             <Dropdown
                                 options={stateList as any}
-                                isLoading={loading}
+                                isLoading={shouldShowStateLoading}
                                 onSelect={(option) => handleInputChange('state', option)}
                                 selectOption={formData?.state ? formData?.state : "Select State"}
                                 borderColor='border-[#A9A9A9]'

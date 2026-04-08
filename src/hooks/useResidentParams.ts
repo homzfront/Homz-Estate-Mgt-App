@@ -17,16 +17,7 @@ export const useResidentParams = () => {
         const firstName = urlParams.get('firstName')
         const lastName = urlParams.get('lastName')
 
-        if (invitation && organizationId && estateId && email && firstName && lastName) {
-            setResidentData({
-                token: invitation,
-                organizationId,
-                estateId,
-                email,
-                firstName,
-                lastName,
-            })
-        } else if (invitation || organizationId || estateId || email || firstName || lastName) {
+        if (invitation || organizationId || estateId || email || firstName || lastName) {
             // Set only available values
             /* eslint-disable @typescript-eslint/no-explicit-any */
             const availableData: any = {}
@@ -36,11 +27,10 @@ export const useResidentParams = () => {
             if (email) availableData.email = email
             if (firstName) availableData.firstName = firstName
             if (lastName) availableData.lastName = lastName
-            
+
             setResidentData(availableData)
         } else {
-            // clearResidentData()
-            // router.push('/login')
+            clearResidentData()
         }
     }, [setResidentData, clearResidentData, router])
 }

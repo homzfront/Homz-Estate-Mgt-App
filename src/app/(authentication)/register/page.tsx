@@ -25,6 +25,21 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [emailError, setEmailError] = useState("");
 
+  const allowedSpecialCharacters = "@ $ ! % * ? & #";
+
+  // Password requirements checker
+  const getPasswordRequirements = (password: string) => {
+    return {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[\W_]/.test(password),
+    };
+  };
+
+  const passwordRequirements = getPasswordRequirements(formData.password);
+
   const handleInputChange = (field: string, value: any) => {
     setFormData({ ...formData, [field]: value });
     if (error || passwordError || emailError) {
@@ -72,10 +87,10 @@ const Register = () => {
     }
 
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
     if (!passwordRegex.test(formData?.password)) {
-      setPasswordError("Password must be at least 8 characters long, include uppercase, lowercase, number, and special character");
+      setPasswordError("Password does not meet requirements. Use at least 8 characters, including uppercase, lowercase, number, and one special character from @$!%*?&#.");
       return;
     }
 
@@ -193,6 +208,47 @@ const Register = () => {
                       <BashedEye className="w-4 h-4" />
                     )}
                   </button>
+                </div>
+
+                {/* Password Requirements Display */}
+                <div className="w-full sm:w-[360px] bg-gray-50 rounded-md p-3 border">
+                  <p className="text-[12px] font-[600] text-BlackHomz mb-2">Password Requirements:</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${passwordRequirements.length ? 'text-green-600' : 'text-gray-400'}`}>
+                        {passwordRequirements.length ? '✓' : '○'}
+                      </span>
+                      <span className="text-[11px] text-gray-600">At least 8 characters long</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
+                        {passwordRequirements.uppercase ? '✓' : '○'}
+                      </span>
+                      <span className="text-[11px] text-gray-600">One uppercase letter (A-Z)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
+                        {passwordRequirements.lowercase ? '✓' : '○'}
+                      </span>
+                      <span className="text-[11px] text-gray-600">One lowercase letter (a-z)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${passwordRequirements.number ? 'text-green-600' : 'text-gray-400'}`}>
+                        {passwordRequirements.number ? '✓' : '○'}
+                      </span>
+                      <span className="text-[11px] text-gray-600">One number (0-9)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] ${passwordRequirements.special ? 'text-green-600' : 'text-gray-400'}`}>
+                        {passwordRequirements.special ? '✓' : '○'}
+                      </span>
+                      <span className="text-[11px] text-gray-600">One special character</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <p className="text-[10px] text-gray-500 mb-1">Allowed special characters:</p>
+                    <p className="text-[10px] text-gray-500 font-mono">{allowedSpecialCharacters}</p>
+                  </div>
                 </div>
                 <div className="relative flex flex-col gap-2 items-start">
                   <label className="text-center text-[14px] font-[500] text-BlackHomz">

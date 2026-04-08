@@ -108,12 +108,13 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
         }
     };
 
-    const selected = selectedIndex !== null ? items[selectedIndex] : null;
-
     // Client-side filter by resident when navigating from resident profile
     const displayedItems = residentIdFilter
         ? items.filter((row) => row.associatedIds?.userId === residentIdFilter)
         : items;
+
+    const selected = selectedIndex !== null ? displayedItems[selectedIndex] : null;
+
     const loaderRef = React.useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
@@ -173,8 +174,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
                     <div className='p-4 rounded-[12px] bg-white md:w-[550px] mt-[120px] mb-[50px] md:mt-0 md:mb-0'>
                         <div className='flex justify-between items-center'>
                             <div>
-                                <h2 className='text-BlueHomz text-[16px] font-medium hidden md:block'>Resident Information</h2>
-                                <h2 className='text-BlueHomz text-sm font-medium md:hidden'>Visitor Access Record</h2>
+                                <h2 className='text-BlueHomz text-[16px] font-medium'>Visitor Access Record</h2>
                             </div>
                             <button onClick={() => setOpenDetails(false)}><CloseTransluscentIcon /></button>
                         </div>
@@ -192,7 +192,7 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
                             </div>
                         </div>
 
-                        <div className='md:hidden mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
+                        <div className='mt-4 py-7 px-5 bg-inputBg rounded-[12px]'>
                             <div className='grid grid-cols-2 gap-4'>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-medium'>Visitor</p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-medium'>{selected.visitor}</p>
@@ -210,6 +210,14 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-medium'>{selected.accessCode}</p>
                                 <p className='text-[11px] md:text-sm text-GrayHomz font-medium'>Access Status</p>
                                 <p className='text-[11px] md:text-sm text-BlackHomz font-medium capitalize'>{selected.accessStatus}</p>
+                                {selected.timeIn && (<>
+                                    <p className='text-[11px] md:text-sm text-GrayHomz font-medium'>Time In</p>
+                                    <p className='text-[11px] md:text-sm text-BlackHomz font-medium'>{new Date(selected.timeIn).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</p>
+                                </>)}
+                                {selected.timeOut && (<>
+                                    <p className='text-[11px] md:text-sm text-GrayHomz font-medium'>Time Out</p>
+                                    <p className='text-[11px] md:text-sm text-BlackHomz font-medium'>{new Date(selected.timeOut).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</p>
+                                </>)}
                             </div>
                         </div>
 

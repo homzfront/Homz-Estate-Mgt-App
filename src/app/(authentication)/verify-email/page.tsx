@@ -115,17 +115,8 @@ const VerifyEmail = () => {
 
   const handleEmailVerification = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isResident && organizationId && estateId && token) {
-      const params = new URLSearchParams({
-        invitation: token as any,
-        organizationId: organizationId as any,
-        estateId: estateId as any
-      }).toString()
-      router.push(`/resident/invitations/create?${params}`)
-    } else {
-      // Token already stored after OTP verification — go straight to profile setup
-      router.push("/select-profile");
-    }
+    // Navigate to login page for user to log in
+    router.push("/login");
   };
 
   const handleInputChange = (index: number, value: string) => {

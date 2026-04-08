@@ -31,6 +31,7 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
     const { getResidentProfile, setUserData } = useAuthSlice();
     const setSelectedEstate = useSelectedEsate((state) => state.setSelectedEstate);
     const { setResidentCommunity } = useResidentCommunity();
+    const isEmailEditable = !email;
     const handleInputChange = (field: string, value: any) => {
         setFormData({ ...formData, [field]: value });
         if (passwordError) {
@@ -144,9 +145,20 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
                 <div className={`flex flex-col gap-4 ${isSigningUP ? "pointer-events-none" : ""}`}>
                     <div className='flex flex-col gap-1 w-full text-sm'>
                         <h3 className='text-sm font-medium text-BlackHomz mb-1'>Email <span className='text-error'>*</span></h3>
-                        <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
-                            {email ? email : ''}
-                        </span>
+                        {email ? (
+                            <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4'>
+                                {email}
+                            </span>
+                        ) : (
+                            <input
+                                type='email'
+                                className='h-[45px] rounded-[4px] border border-[#A9A9A9] w-full px-4'
+                                value={formData.email}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
+                                placeholder='Enter your email address'
+                                required
+                            />
+                        )}
                     </div>
 
                     <div className="relative flex flex-col gap-2 items-start w-full">

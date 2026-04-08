@@ -12,27 +12,28 @@ export function defineAbilityFor(role: string): AppAbility {
         case 'admin':
             can('manage', 'all');
             can('create', 'residents'); // Admin can create/invite residents
-            cannot('read', 'settings'); // Admin cannot access settings
+            // Admin should also access settings
+            can('read', 'settings');
             break;
         case 'owner':
-                can('manage', 'all'); // Owner has full access including settings
-                can('update', 'estate-info'); // Explicitly allow update for estate-info
+            can('manage', 'all'); // Owner has full access including settings
+            can('update', 'estate-info'); // Explicitly allow update for estate-info
             break;
         case 'viewer':
             can('read', 'all');
             cannot('update', 'all');
             cannot('create', 'all');
             cannot('delete', 'all');
-            cannot('read', 'settings'); // Admin cannot access settings
+            cannot('read', 'settings');
             break;
         case 'security':
-            can('read', 'dashboard');
             can('read', 'access-control');
             can('update', 'access-control');
-            can('read', 'estate-info');
-            can('read', 'profile');
-            can('read', 'support');
-            cannot('read', 'settings'); // Admin cannot access settings
+            cannot('read', 'dashboard');
+            cannot('read', 'estate-info');
+            cannot('read', 'profile');
+            cannot('read', 'support');
+            cannot('read', 'settings');
             cannot('create', 'access-control'); // Security cannot create access codes
             break;
         case 'account_manager':
@@ -47,7 +48,7 @@ export function defineAbilityFor(role: string): AppAbility {
             can('read', 'estate-info');
             can('read', 'profile');
             can('read', 'support');
-            cannot('read', 'settings');
+            can('read', 'settings');
             break;
         default:
             // No permissions for unknown roles
