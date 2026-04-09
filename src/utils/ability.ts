@@ -48,7 +48,8 @@ export function defineAbilityFor(role: string): AppAbility {
             can('read', 'estate-info');
             can('read', 'profile');
             can('read', 'support');
-            can('read', 'settings');
+            // account_manager manages finance/residents only — not user/role management
+            cannot('read', 'settings');
             break;
         default:
             // No permissions for unknown roles

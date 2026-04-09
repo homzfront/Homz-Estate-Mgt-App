@@ -47,7 +47,7 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     try {
-      const response = await api.post("/auth/forgotpassword", { email });
+      const response = await api.post("/auth/forgot-password", { email });
 
       if (response.data.statuscode === 200 || response.data.statuscode === 201) {
         toast.success("Reset password link resent to your email.");

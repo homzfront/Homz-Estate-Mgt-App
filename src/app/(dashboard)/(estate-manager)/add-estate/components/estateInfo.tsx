@@ -8,6 +8,7 @@ import Dropdown from './dropDown';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
+import api from '@/utils/api';
 
 interface EstateInfoProps {
     handleInputChange: (field: keyof EstateFormData, value: string) => void;
@@ -26,13 +27,21 @@ interface EstateInfoProps {
     };
 }
 
+interface NigerianBank {
+    name: string;
+    code: string;
+}
+
 const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
     const { stateList, loading } = useStateStore()
     const {
         setCoverPhoto,
-        // clearForm
     } = useEstateFormStore();
     const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
+
+    const [banks, setBanks] = React.useState<NigerianBank[]>([]);
+    const [selectedBankCode, setSelectedBankCode] = React.useState('');
+    const [resolvingAccount, setResolvingAccount] = React.useState(false);
 
     // Only show loading indicator if there's no data yet (first load)
     const shouldShowStateLoading = loading && (!stateList || stateList.length === 0);
@@ -44,8 +53,58 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
         }
     }, [formData?.state, chooseArea])
 
+    // Fetch Nigerian bank list from backend (which proxies Paystack securely)
+    React.useEffect(() => {
+        const fetchBanks = async () => {
+            try {
+                const res = await api.get('/state-area/banks');
+                const data = res.data;
+                if (data.success && data.data) {
+                    // Deduplicate by code since Paystack sometimes returns duplicate bank codes
+                    const seen = new Set<string>();
+                    const unique = data.data.filter((b: any) => {
+                        if (seen.has(b.code)) return false;
+                        seen.add(b.code);
+                        return true;
+                    });
+                    setBanks(unique.map((b: any) => ({ name: b.name, code: b.code })));
+                }
+            } catch {
+                // Silently fail - bank list is optional
+            }
+        };
+        fetchBanks();
+    }, []);
+
+    // Auto-resolve account name when account number (10 digits) + bank are both set
+    React.useEffect(() => {
+        const acctNum = formData.accountNumber?.replace(/\D/g, '');
+        if (acctNum?.length !== 10 || !selectedBankCode) return;
+
+        const resolve = async () => {
+            setResolvingAccount(true);
+            try {
+                const res = await api.get(`/state-area/bank/resolve?account_number=${acctNum}&bank_code=${selectedBankCode}`);
+                const data = res.data;
+                if (data.success && data.data?.account_name) {
+                    handleInputChange('accountName', data.data.account_name);
+                } else {
+                    handleInputChange('accountName', '');
+                    toast.error('Could not verify account. Please check the number and bank.');
+                }
+            } catch {
+                handleInputChange('accountName', '');
+                toast.error('Account verification failed. Please try again.');
+            } finally {
+                setResolvingAccount(false);
+            }
+        };
+
+        resolve();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData.accountNumber, selectedBankCode]);
+
     const handleImageUpload = () => {
-        // Create a file input element
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/jpeg, image/png';
@@ -55,13 +114,11 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
             if (target.files && target.files[0]) {
                 const file = target.files[0];
 
-                // Check file size (5MB max)
                 if (file.size > 5 * 1024 * 1024) {
                     toast.error('File size should be less than 5MB');
                     return;
                 }
 
-                // Create a preview URL
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     setCoverPhoto(event.target?.result as string);
@@ -119,7 +176,6 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                     </div>
 
                     <div className='flex items-start gap-2'>
-                        {/* Image upload button or displayed image */}
                         {!formData?.coverPhoto ? (
                             <button
                                 className='h-[99px] rounded-[7px] w-[99px] bg-[#EEF5FF] flex justify-center items-center cursor-pointer'
@@ -139,7 +195,6 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                             </div>
                         )}
 
-                        {/* Delete button - only shown when image exists */}
                         {formData?.coverPhoto && (
                             <button
                                 onClick={handleImageRemove}
@@ -163,7 +218,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                 </h4>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
                     <CustomInput
-                        label="Manager’s Phone Number"
+                        label="Manager's Phone Number"
                         placeholder="e.g 0701 234 5678"
                         value={formData.managerPhone}
                         onValueChange={(value) => handleInputChange('managerPhone', value)}
@@ -200,7 +255,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
             <div className="bg-[#FCFCFC] p-4 grid grid-cols-1 md:grid-cols-2">
                 <div className='space-y-4'>
                     <h4 className='text-[#A9A9A9] font-normal text-[16px]'>
-                        Bank Account Details (Optional)
+                        Bank Account Details
                     </h4>
                     <div className='flex flex-col gap-4'>
                         <CustomInput
@@ -208,26 +263,44 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                             placeholder="e.g 1524368709"
                             value={formData.accountNumber}
                             onValueChange={(value) => handleInputChange('accountNumber', value)}
-                            required
                             type='number'
-                            className='h-[45px] pl-4'
-                        />
-                        <CustomInput
-                            label="Bank Name"
-                            placeholder="e.g Access Bank"
-                            value={formData.bankName}
-                            onValueChange={(value) => handleInputChange('bankName', value)}
                             required
                             className='h-[45px] pl-4'
                         />
-                        <CustomInput
-                            label="Account Name"
-                            placeholder="e.g Titi Idowu"
-                            value={formData.accountName}
-                            onValueChange={(value) => handleInputChange('accountName', value)}
-                            required
-                            className='h-[45px] pl-4'
-                        />
+                        {/* Bank selector — populated from Paystack bank list */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name <span className='text-error'>*</span></label>
+                            <select
+                                className='w-full h-[45px] pl-4 border border-[#A9A9A9] rounded-[4px] bg-white text-sm text-BlackHomz'
+                                value={selectedBankCode}
+                                onChange={(e) => {
+                                    const bank = banks.find(b => b.code === e.target.value);
+                                    setSelectedBankCode(e.target.value);
+                                    if (bank) handleInputChange('bankName', bank.name);
+                                }}
+                            >
+                                <option value=''>Select bank</option>
+                                {banks.map((bank, idx) => (
+                                    <option key={`${bank.code}-${idx}`} value={bank.code}>{bank.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {/* Account name — auto-filled after account number + bank are set */}
+                        <div className='relative'>
+                            <CustomInput
+                                label="Account Name"
+                                placeholder={resolvingAccount ? 'Verifying...' : 'Auto-filled after entering account number'}
+                                value={formData.accountName}
+                                onValueChange={(value) => handleInputChange('accountName', value)}
+                                className={`h-[45px] pl-4 ${resolvingAccount ? 'opacity-60' : ''}`}
+                                disabled={resolvingAccount}
+                            />
+                            {resolvingAccount && (
+                                <span className='absolute right-3 top-[38px] text-xs text-GrayHomz animate-pulse'>
+                                    Verifying...
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
