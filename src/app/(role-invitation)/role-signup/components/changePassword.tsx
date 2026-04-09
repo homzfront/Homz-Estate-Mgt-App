@@ -22,7 +22,7 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
     const [passwordError, setPasswordError] = useState("");
     const [isSigningUP, setIsSigningUp] = useState(false);
     const router = useRouter();
-    const { setUserData } = useAuthSlice();
+    const { setUserData, getCommunityManaProfile } = useAuthSlice();
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -87,11 +87,15 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
                 toast.error('Account creation failed.');
             }
 
-            // Fetch user profile
+            // Fetch user profile and store it
             const profile = await api.get("/auth/current-user");
-
-            // Store user data
             setUserData(profile.data.data);
+
+            // Load community profile + estates so the dashboard has the correct
+            // role and permissions ready before rendering — without this the user
+            // lands on the dashboard with no role and gets redirected away.
+            await getCommunityManaProfile();
+
             router.push('/dashboard');
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message

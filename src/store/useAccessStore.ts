@@ -139,15 +139,17 @@ export const useAccessStore = create<UseAccessStoreType>()(
                 }
 
                 // If we have data for this estate and same filters, skip refetch (unless forced)
+                // NOTE: always refetch when manualOnly changes (tab switch between All/Manually Added)
+                const manualOnlyChanged = state.lastFetch.manualOnly !== manualOnly;
                 if (
+                    !manualOnlyChanged &&
                     state.lastEstateId === estateId &&
                     state.items.length > 0 &&
                     !append &&
                     state.lastFetch.page === page &&
                     state.lastFetch.limit === limit &&
                     state.lastFetch.accessStatus === accessStatus &&
-                    state.lastFetch.manualOnly === manualOnly &&
-                    !silent // if silent=false, it means a fresh fetch is explicitly requested
+                    silent // only skip on truly silent background refreshes
                 ) {
                     // Data already loaded for this estate with same params - skip fetch
                     return;
@@ -266,5 +268,3 @@ export const useAccessStore = create<UseAccessStoreType>()(
         }),
         { name: 'access-store' }
     ));
-
-

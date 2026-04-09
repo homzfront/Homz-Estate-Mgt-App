@@ -18,22 +18,50 @@ const Layout = ({
 
     const isSwitchingEstate = useSelectedCommunity((state) => state.isSwitchingEstate);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
-    const { estatesData, estateLoading, communityProfile, getCommunityManaProfile } = useAuthSlice();
+    const { estatesData, estateLoading, communityProfile, getCommunityManaProfile, getEstates } = useAuthSlice();
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
 
-    // Load profile only if not already in store — prevents duplicate calls with dashboard page
     React.useEffect(() => {
         if (!communityProfile?._id || estatesData === null) {
+            // First load: fetch full profile + estates together
             getCommunityManaProfile().catch(() => {});
+        } else {
+            // Profile already in store: silently refresh estates on every mount.
+            // This ensures a role change made by an admin is reflected on the next
+            // page load without requiring the affected user to log out and back in.
+            getEstates().catch(() => {});
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // When fresh estatesData arrives, keep selectedCommunity role in sync.
+    // IMPORTANT: selectedCommunity must NOT be in the dep array — putting it there
+    // causes an infinite loop because setSelectedCommunity creates a new object,
+    // which changes selectedCommunity, which re-triggers this effect.
+    // We use a ref to read the latest selectedCommunity without depending on it.
+    const selectedCommunityRef = React.useRef(selectedCommunity);
     React.useEffect(() => {
-        if (!selectedCommunity && estatesData && estatesData.length > 0) {
-            setSelectedCommunity(estatesData[0]); // default first estate
+        selectedCommunityRef.current = selectedCommunity;
+    });
+
+    React.useEffect(() => {
+        if (!estatesData || estatesData.length === 0) return;
+
+        const current = selectedCommunityRef.current;
+
+        if (!current) {
+            setSelectedCommunity(estatesData[0]);
+            return;
         }
-    }, [selectedCommunity, estatesData, setSelectedCommunity]);
+
+        // Find the fresh record for the currently selected estate
+        const fresh = estatesData.find((e) => e._id === current._id);
+        if (fresh && fresh.role !== current.role) {
+            // Role was changed by an admin — update immediately so abilities recalculate
+            setSelectedCommunity({ ...current, role: fresh.role });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [estatesData]);
 
     const closeRef = React.useRef<HTMLDivElement>(null);
     useClickOutside(closeRef as any, () => {

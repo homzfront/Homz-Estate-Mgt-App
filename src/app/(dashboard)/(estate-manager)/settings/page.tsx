@@ -11,6 +11,7 @@ import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import { useMembersStore, MemberItem } from '@/store/useMembersStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useAuthSlice } from '@/store/authStore';
 import toast from 'react-hot-toast';
 import DotLoader from '@/components/general/dotLoader';
 import LoadingSpinner from '@/components/general/loadingSpinner';
@@ -42,6 +43,7 @@ const Settings = () => {
 
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
   const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
+  const { getEstates } = useAuthSlice();
   const {
     members,
     initialLoading,
@@ -145,7 +147,14 @@ const Settings = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
-      // If the currently selected community user had their role changed, update it immediately
+
+      // Refresh estates list so the new role is in the store.
+      // The layout's useEffect will pick this up and update selectedCommunity.role,
+      // causing AbilityContext to recalculate — affecting both the current user
+      // (if they changed their own role) and any other user on their next page load.
+      await getEstates();
+
+      // Also update selectedCommunity immediately if it's the current user's own record
       if (selectedCommunity?.associatedIds?.userId === member.associatedIds?.userId) {
         setSelectedCommunity({
           ...selectedCommunity,

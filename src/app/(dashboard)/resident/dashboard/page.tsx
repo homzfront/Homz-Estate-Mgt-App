@@ -220,7 +220,7 @@ const Dashboard = () => {
           <div className='bg-whiteblue p-4 w-full rounded-[12px] flex flex-col justify-between border border-BlueHomz'>
             <div className='flex justify-between items-center'>
               <h1 className='text-sm md:text-[16px] font-bold text-BlackHomz'>Occupancy Information</h1>
-              <span className='text-xs md:text-[13px] font-normal text-BlueHomz hidden md:flex items-center gap-1'>More Info <ArrowRight className='#006AFF' /></span>
+              <span onClick={() => router.push(`/resident/estate-info/${selectedEstate?.estateId}`)} className='cursor-pointer text-xs md:text-[13px] font-normal text-BlueHomz hidden md:flex items-center gap-1'>More Info <ArrowRight className='#006AFF' /></span>
             </div>
             <div className="grid grid-cols-2 md:gap-4 md:grid-cols-3 md:mt-6">
               {secondOptions.map((option, index) => (

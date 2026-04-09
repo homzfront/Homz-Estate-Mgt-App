@@ -2,7 +2,7 @@
 import React from 'react'
 import PopUp from './popUp'
 import Image from 'next/image';
-import { Visitor, Visitors } from '../../../components/visitors';
+import { Visitor } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomModal from '@/components/general/customModal';
@@ -27,8 +27,8 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const [pageNo, setPageNo] = React.useState<number>(initialPage);
     const pageSize = 8;
     React.useEffect(() => {
-        setTotalPages(Math.ceil(Visitors.length / pageSize));
-    }, [Visitors.length]);
+        setTotalPages(Math.ceil(0 / pageSize));
+    }, [0]);
 
     React.useEffect(() => {
         const params = new URLSearchParams(searchParams.toString());
@@ -62,7 +62,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
 
     const indexOfLastItem = pageNo * pageSize;
     const indexOfFirstItem = indexOfLastItem - pageSize;
-    const currentData = Visitors.slice(indexOfFirstItem, indexOfLastItem);
+    const currentData: Visitor[] = [];
 
     return (
         <div className="mt-6 w-full mx-auto">

@@ -3,7 +3,7 @@ import React from 'react'
 import PopUp from './popUp'
 // import SkeletonTableLoader from '@/components/icons/skeletonTableLoader'
 import Image from 'next/image';
-import { Visitor, Visitors } from '../../../components/visitors';
+import { Visitor } from '../../../components/visitors';
 import Pagination from '../../../components/pagination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ArrowDown from '@/components/icons/arrowDown';
@@ -39,8 +39,8 @@ const Table = ({ fromDefault = true }: TableProps) => {
     const pageSize = 8;
     const { setResidentData } = useAccessStore();
     React.useEffect(() => {
-        setTotalPages(Math.ceil(Visitors.length / pageSize));
-    }, [Visitors.length]);
+        setTotalPages(Math.ceil(0 / pageSize));
+    }, [0]);
 
     React.useEffect(() => {
         const params = new URLSearchParams(searchParams.toString());
@@ -78,7 +78,7 @@ const Table = ({ fromDefault = true }: TableProps) => {
 
     const indexOfLastItem = pageNo * pageSize;
     const indexOfFirstItem = indexOfLastItem - pageSize;
-    const currentData = Visitors.slice(indexOfFirstItem, indexOfLastItem);
+    const currentData: Visitor[] = [];
 
     const getStatusStyles = (status: Status | null): string => {
         switch (status) {
