@@ -25,7 +25,7 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [emailError, setEmailError] = useState("");
 
-  const allowedSpecialCharacters = "@ $ ! % * ? & #";
+
 
   // Password requirements checker
   const getPasswordRequirements = (password: string) => {
@@ -90,7 +90,7 @@ const Register = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
     if (!passwordRegex.test(formData?.password)) {
-      setPasswordError("Password does not meet requirements. Use at least 8 characters, including uppercase, lowercase, number, and one special character from @$!%*?&#.");
+      setPasswordError("Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (@$!%*?&#).");
       return;
     }
 
@@ -210,46 +210,23 @@ const Register = () => {
                   </button>
                 </div>
 
-                {/* Password Requirements Display */}
-                <div className="w-full sm:w-[360px] bg-gray-50 rounded-md p-3 border">
-                  <p className="text-[12px] font-[600] text-BlackHomz mb-2">Password Requirements:</p>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${passwordRequirements.length ? 'text-green-600' : 'text-gray-400'}`}>
-                        {passwordRequirements.length ? '✓' : '○'}
-                      </span>
-                      <span className="text-[11px] text-gray-600">At least 8 characters long</span>
+                {/* Password strength indicator — silent validation, no list */}
+                {formData.password.length > 0 && (() => {
+                  const met = Object.values(passwordRequirements).filter(Boolean).length;
+                  const strength = met <= 2 ? 'Weak' : met <= 4 ? 'Fair' : 'Strong';
+                  const color = met <= 2 ? 'bg-red-400' : met <= 4 ? 'bg-yellow-400' : 'bg-green-500';
+                  const textColor = met <= 2 ? 'text-red-500' : met <= 4 ? 'text-yellow-600' : 'text-green-600';
+                  return (
+                    <div className="w-full sm:w-[360px]">
+                      <div className="flex gap-1 mb-1">
+                        {[1,2,3,4,5].map((i) => (
+                          <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= met ? color : 'bg-gray-200'}`} />
+                        ))}
+                      </div>
+                      <p className={`text-[11px] font-medium ${textColor}`}>{strength}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
-                        {passwordRequirements.uppercase ? '✓' : '○'}
-                      </span>
-                      <span className="text-[11px] text-gray-600">One uppercase letter (A-Z)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
-                        {passwordRequirements.lowercase ? '✓' : '○'}
-                      </span>
-                      <span className="text-[11px] text-gray-600">One lowercase letter (a-z)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${passwordRequirements.number ? 'text-green-600' : 'text-gray-400'}`}>
-                        {passwordRequirements.number ? '✓' : '○'}
-                      </span>
-                      <span className="text-[11px] text-gray-600">One number (0-9)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] ${passwordRequirements.special ? 'text-green-600' : 'text-gray-400'}`}>
-                        {passwordRequirements.special ? '✓' : '○'}
-                      </span>
-                      <span className="text-[11px] text-gray-600">One special character</span>
-                    </div>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-gray-200">
-                    <p className="text-[10px] text-gray-500 mb-1">Allowed special characters:</p>
-                    <p className="text-[10px] text-gray-500 font-mono">{allowedSpecialCharacters}</p>
-                  </div>
-                </div>
+                  );
+                })()}
                 <div className="relative flex flex-col gap-2 items-start">
                   <label className="text-center text-[14px] font-[500] text-BlackHomz">
                     Confirm Password <span className="text-error">*</span>
