@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useSelectedEsate } from './useSelectedEstate';
 import { useResidentStore } from './useResidentStore';
+import { useResidentCommunity } from './useResidentCommunity';
 
 export interface RegisterUser {
     email: string;
@@ -255,16 +256,22 @@ export const useAuthSlice = create<AuthState>()(
             },
 
             getResidentProfile: async (residentId: string) => {
-                const organizationId = useSelectedEsate.getState()?.selectedEstate?.associatedIds?.organizationId ||
+                // residentId here is the resident DOCUMENT id (associatedIds.residentId)
+                // Get org/estate from selectedEstate or residentCommunity
+                const selectedEstate = useSelectedEsate.getState()?.selectedEstate;
+                const residentCommunity = useResidentCommunity.getState()?.residentCommunity;
+                const activeCommunity = selectedEstate || residentCommunity?.[0];
+
+                const organizationId = activeCommunity?.associatedIds?.organizationId ||
                     useResidentStore.getState().organizationId;
-                const estateId = useSelectedEsate.getState()?.selectedEstate?.estateId ||
+                const estateId = activeCommunity?.estateId ||
                     useResidentStore.getState().estateId;
                 try {
                     const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${residentId}`);
                     const data = response.data.data;
                     set({ residentProfile: data });
                 } catch (error: any) {
-                    console.error("failed to fetch community manager profile:", error);
+                    console.error("failed to fetch resident profile:", error);
                     set({ error: error.message || "failed" });
                     throw error;
                 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { removeEmptyFields } from '@/app/utils/removeEmptyFields';
 import CustomInput from '@/components/general/customInput';
 import DotLoader from '@/components/general/dotLoader';
@@ -9,6 +8,7 @@ import DateIcon from '@/components/icons/dateIcon';
 import InactiveToggle from '@/components/icons/inactiveToggle';
 import WarningIcon from '@/components/icons/warningIcon';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useResidentsListStore } from '@/store/useResidentsListStore';
 import api from '@/utils/api';
 import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage';
 import React from 'react'
@@ -19,10 +19,15 @@ interface AddManualFormProps {
 }
 const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormProps) => {
     const [isOpen, setIsOpen] = React.useState(true);
-    // const [accessCode, setAccessCode] = React.useState<string>("");
     const [loading, setLoading] = React.useState(false);
     const [codeGenerated, setCodeGenerated] = React.useState<boolean>(false);
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
+    const { items: residents, fetchResidents } = useResidentsListStore();
+    const [selectedResident, setSelectedResident] = React.useState<{ _id: string; name: string } | null>(null);
+    const [residentSearch, setResidentSearch] = React.useState('');
+    const [showResidentDropdown, setShowResidentDropdown] = React.useState(false);
+    const residentDropdownRef = React.useRef<HTMLDivElement>(null);
+
     const [formData, setFormData] = React.useState({
         visitorName: '',
         visitPurpose: '',
@@ -33,6 +38,29 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
         endTime: ''
     });
     const [timeCode, setTimeCode] = React.useState<string>("One-Time");
+
+    // Fetch residents for the dropdown
+    React.useEffect(() => {
+        fetchResidents({ page: 1, limit: 100, silent: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Close dropdown when clicking outside
+    React.useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (residentDropdownRef.current && !residentDropdownRef.current.contains(e.target as Node)) {
+                setShowResidentDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
+
+    const filteredResidents = residents.filter(r =>
+        `${r.firstName} ${r.lastName}`.toLowerCase().includes(residentSearch.toLowerCase()) ||
+        r.apartment?.toLowerCase().includes(residentSearch.toLowerCase())
+    );
+
     const handleDropdownToggle = () => {
         setIsOpen(prev => !prev);
     };
@@ -47,7 +75,6 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
     const onGenerateCode = async () => {
         setLoading(true);
         try {
-            // Format the payload according to the expected structure
             const payload = {
                 visitor: formData.visitorName,
                 purpose: formData.visitPurpose,
@@ -55,6 +82,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                 numberOfVisitors: parseInt(formData.NoOfPersons) || 1,
                 arrivalDate: formData.arrivalDate ? new Date(formData.arrivalDate).toISOString() : "",
                 codeType: timeCode === "One-Time" ? "One-Time Code" : "Permanent Code",
+                ...(selectedResident && { residentId: selectedResident._id }),
                 expectedArrivalTime: timeCode === "One-Time" ? {
                     from: formData.startTime ? new Date(`${formData.arrivalDate}T${formData.startTime}`).toISOString() : "",
                     to: formData.endTime ? new Date(`${formData.arrivalDate}T${formData.endTime}`).toISOString() : ""
@@ -135,6 +163,48 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                     <div>
                         <h2 className='text-[16px] font-medium text-BlueHomz'>Register Visitor</h2>
                         <h4 className='mt-1 text-[13px] font-normal text-GrayHomz'>Enter information about  visitor(s) </h4>
+
+                        {/* Resident selector */}
+                        <div className='mt-4 flex flex-col gap-1' ref={residentDropdownRef}>
+                            <label className='text-sm font-medium text-BlackHomz'>Link to Resident <span className='text-GrayHomz font-normal'>(optional)</span></label>
+                            <div className='relative'>
+                                <input
+                                    className='w-full h-[45px] pl-4 pr-10 border border-[#A9A9A9] rounded-[4px] text-sm text-BlackHomz bg-white'
+                                    placeholder='Search by name or apartment...'
+                                    value={selectedResident ? `${selectedResident.name}` : residentSearch}
+                                    onChange={(e) => {
+                                        setResidentSearch(e.target.value);
+                                        setSelectedResident(null);
+                                        setShowResidentDropdown(true);
+                                    }}
+                                    onFocus={() => setShowResidentDropdown(true)}
+                                />
+                                {selectedResident && (
+                                    <button
+                                        className='absolute right-3 top-1/2 -translate-y-1/2 text-GrayHomz text-xs hover:text-error'
+                                        onClick={() => { setSelectedResident(null); setResidentSearch(''); }}
+                                    >✕</button>
+                                )}
+                                {showResidentDropdown && !selectedResident && filteredResidents.length > 0 && (
+                                    <div className='absolute z-50 top-[46px] left-0 w-full bg-white border border-[#E6E6E6] rounded-[4px] shadow-lg max-h-[180px] overflow-y-auto'>
+                                        {filteredResidents.map((r) => (
+                                            <button
+                                                key={r._id}
+                                                className='w-full text-left px-4 py-2 text-sm text-BlackHomz hover:bg-whiteblue flex flex-col'
+                                                onClick={() => {
+                                                    setSelectedResident({ _id: r._id, name: `${r.firstName} ${r.lastName}` });
+                                                    setResidentSearch('');
+                                                    setShowResidentDropdown(false);
+                                                }}
+                                            >
+                                                <span>{r.firstName} {r.lastName}</span>
+                                                <span className='text-[11px] text-GrayHomz'>{r.apartment} · {r.building}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
                         <button
                             className={`mt-8 text-BlackHomz font-medium bg-GrayHomz6 text-sm p-4 rounded-[8px] cursor-pointer flex w-full items-center justify-between`}

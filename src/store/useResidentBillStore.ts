@@ -157,7 +157,6 @@ export const useResidentBillStore = create<ResidentBillStore>((set, get) => ({
             if (search) queryParams.append('search', search);
             if (frequency) queryParams.append('frequency', frequency);
             if (billingId) queryParams.append('billingId', billingId);
-
             const url = `/resident/bill-payment/organizations/${organizationId}/estates/${estateId}/residents/${residentId}?${queryParams.toString()}`;
 
             const response = await api.get(url);
@@ -204,5 +203,5 @@ export const useResidentBillStore = create<ResidentBillStore>((set, get) => ({
         await get().fetchResidentBills(params);
     },
 
-    reset: () => set({ bills: [], search: '', frequency: '', currentPage: 1, lastParams: null })
+    reset: () => set({ bills: [], detailedBills: [], fullBillsHistory: [], search: '', frequency: '', currentPage: 1, lastParams: null, currentBillingId: null, isInitialized: false, hasAnyData: false })
 }));

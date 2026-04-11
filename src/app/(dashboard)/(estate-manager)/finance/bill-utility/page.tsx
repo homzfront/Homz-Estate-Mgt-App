@@ -12,8 +12,19 @@ import { useBillStore } from '@/store/useBillStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import EmptyEstateState from '../../components/emptyEstateState';
+import { useAbility } from '@/contexts/AbilityContext';
+import { useRouter } from 'next/navigation';
 
 const BillAndUti = () => {
+  const router = useRouter();
+  const ability = useAbility();
+
+  React.useEffect(() => {
+    if (!ability.can('read', 'finance')) {
+      router.push('/dashboard');
+    }
+  }, [ability, router]);
+
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
   const { hasEverHadData, initialLoading, fetchBills } = useBillStore();
 

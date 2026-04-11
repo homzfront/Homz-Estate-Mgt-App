@@ -31,6 +31,7 @@ const VisitorAccess = () => {
   const [search] = React.useState<string>('');
   // Remove explicit page state; store manages pagination
   const [dateFilter, setDateFilter] = React.useState<string>('');
+  const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
   const { accessCode, getAccessCode, initialLoading } = useAccessCodeSlice();
   const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
   const [showPendingModal, setShowPendingModal] = React.useState(false);
@@ -45,6 +46,7 @@ const VisitorAccess = () => {
   const fetchAccessCode = async () => {
     if (selectedEstate) {
       await getAccessCode(1, pageSize, search, dateFilter);
+      setHasLoadedOnce(true);
     }
   };
 
@@ -55,18 +57,18 @@ const VisitorAccess = () => {
     const estateChanged = prevEstateIdRef.current !== selectedEstate.estateId;
     const isFirstLoad = !accessCode && initialLoading;
     
-    // Fetch only if: estate changed, first load, or filters changed
     if (estateChanged || isFirstLoad) {
       prevEstateIdRef.current = selectedEstate.estateId;
-      getAccessCode(1, pageSize, search, dateFilter);
+      getAccessCode(1, pageSize, search, dateFilter).then(() => setHasLoadedOnce(true));
     }
   }, [selectedEstate?.estateId]);
 
-  // Separate effect for filter changes (date filter only, since search is not used)
+  // Separate effect for filter changes
+  // Re-fetch whenever dateFilter changes — including when reset button clears it to ''
   React.useEffect(() => {
-    if (selectedEstate && dateFilter !== '' && prevEstateIdRef.current === selectedEstate.estateId) {
-      getAccessCode(1, pageSize, search, dateFilter);
-    }
+    if (!selectedEstate) return;
+    if (prevEstateIdRef.current !== selectedEstate.estateId) return;
+    getAccessCode(1, pageSize, search, dateFilter).then(() => setHasLoadedOnce(true));
   }, [dateFilter]);
 
   // Show full-page loader only on initial load with no data
@@ -159,6 +161,7 @@ const VisitorAccess = () => {
           closeSuccessModal={() => setOpenSuccessModal(false)}
         />
       }
+      {/* Show list if we have codes, or show filter-empty state if filter applied */}
       {accessCode && accessCode?.length > 0 ?
         <div>
           <div className='md:grid md:grid-cols-3 justify-between items-center pb-0'>
@@ -242,8 +245,24 @@ const VisitorAccess = () => {
         :
         <div>
           <h1 className='text-BlackHomz font-bold text-[16px] md:text-[23px]'>Visitor Access</h1>
-          <h3 className='text-GrayHomz font-normal text-sm md:tex t-[16px]'>Generate access codes for your visitors to gain entry into the estate</h3>
+          <h3 className='text-GrayHomz font-normal text-sm md:text-[16px]'>Generate access codes for your visitors to gain entry into the estate</h3>
           <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+            {/* If a date filter was applied and returned no results, show "no results" not create screen */}
+            {hasLoadedOnce && dateFilter ? (
+              <div className='flex flex-col items-center gap-2'>
+                <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
+                  <BigKeyIcon />
+                </div>
+                <p className='text-BlueHomz font-medium text-[16px] mt-2'>No access codes for this date</p>
+                <p className='text-center text-sm text-GrayHomz'>No visitor access records were found for the selected date.</p>
+                <button
+                  onClick={() => setDateFilter('')}
+                  className='mt-2 px-4 py-2 text-sm text-BlueHomz border border-BlueHomz rounded-[4px] hover:bg-whiteblue'
+                >
+                  Clear filter
+                </button>
+              </div>
+            ) : (
             <div className='flex flex-col items-center gap-2'>
               <div className='flex w-[136px] h-[136px] rounded-full bg-[#EEF5FF] justify-center items-center'>
                 <BigKeyIcon />
@@ -261,6 +280,7 @@ const VisitorAccess = () => {
                 <AddIcon /> Get Access Code
               </button>
             </div>
+            )}
           </div>
         </div>
       }

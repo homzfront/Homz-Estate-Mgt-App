@@ -15,6 +15,7 @@ import LogoutIcon from '@/components/icons/estateManager&Resident/mobile/logout'
 import { useAuthSlice } from '@/store/authStore';
 import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import UserTick from '@/components/icons/userTick';
+import { useAbility } from '@/contexts/AbilityContext';
 
 interface DataType {
     id: number;
@@ -75,16 +76,16 @@ const PopUpData = [
         name: 'Requests',
         coming_Soon: false,
     },
-    // {
-    //     id: 2,
-    //     image: <PaymentIcon />,
-    //     image2: (
-    //         <PaymentIcon className='#006AFF' />
-    //     ),
-    //     link: "/finance/payment",
-    //     name: "Payments",
-    //     coming_Soon: false,
-    // },
+    {
+        id: 2,
+        image: <PaymentIcon />,
+        image2: (
+            <PaymentIcon className='#006AFF' />
+        ),
+        link: "/finance/payment",
+        name: "Payments",
+        coming_Soon: false,
+    },
     {
         id: 3,
         image: <ExpensesIcon />,
@@ -146,6 +147,7 @@ const PopUpData = [
 ];
 
 const MobileFooter = () => {
+    const ability = useAbility();
     const { logOutUser } = useAuthSlice()
     const pathname = usePathname();
     const [subOpen, setSubOpen] = React.useState<DataType | null>(null);
@@ -173,7 +175,10 @@ const MobileFooter = () => {
                             </button>
                         </div>
                         <div className='grid grid-cols-4 justify-between gap-4 items-center'>
-                            {PopUpData.map((data) => (
+                            {PopUpData.filter((item) => {
+                if (item.link === '/manage-resident/request' && !ability.can('create', 'residents')) return false;
+                return true;
+            }).map((data) => (
                                 <Link
                                     href={data.link}
                                     key={data.id}

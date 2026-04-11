@@ -6,6 +6,7 @@ import CustomModal from '@/components/general/customModal'
 import Dropdown from '@/components/general/dropDown'
 import DotLoader from '@/components/general/dotLoader'
 import { useRequestSlice } from '@/store/useRequestStore'
+import toast from 'react-hot-toast'
 
 type FormData = {
   firstName: string
@@ -70,8 +71,9 @@ const Settings = () => {
       if (result?.link) setInviteLink(result.link)
       setShowSuccess(true)
       setFormData({ firstName: '', lastName: '', email: '', phone: '', relationship: 'None', role: '' })
-    } catch (error) {
-      console.error('Failed to send invitation', error)
+    } catch (error: any) {
+      const msg = error?.message || 'Failed to send invitation'
+      toast.error(msg, { position: 'top-center', duration: 4000 })
     } finally {
       setIsSending(false)
     }

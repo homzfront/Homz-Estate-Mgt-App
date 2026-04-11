@@ -68,9 +68,8 @@ const Settings = () => {
   const options = [
     { id: 1, label: 'Admin', value: 'admin' },
     { id: 2, label: 'Account Manager', value: 'account_manager' },
-    { id: 3, label: 'Owner', value: 'owner' },
-    { id: 4, label: 'Security', value: 'security' },
-    { id: 5, label: 'Viewer', value: 'viewer' },
+    { id: 3, label: 'Security', value: 'security' },
+    { id: 4, label: 'Viewer', value: 'viewer' },
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -186,7 +185,7 @@ const Settings = () => {
     { label: "All", value: null },
     { label: "Admin", value: "admin" },
     { label: "Account Manager", value: "account_manager" },
-    { label: "Owner", value: "owner" },
+    // { label: "Owner", value: "owner" },
     { label: "Security", value: "security" },
     { label: "Viewer", value: "viewer" },
   ];
@@ -332,8 +331,8 @@ const Settings = () => {
               }
             </div>
 
-            {/* Members List */}
-            {hasEverHadData && (
+            {/* Members List — always shown; members appear after they accept the invite */}
+            {selectedCommunity && (
               <div className='mt-8 border-t py-4 md:py-0 md:p-4 border-GrayHomz6 text-sm font-normal md:font-medium'>
                 {/* Filter Headers - Always Visible */}
                 <div className='flex flex-wrap items-center gap-4 mt-8'>
@@ -362,8 +361,9 @@ const Settings = () => {
                     updatingRoleId={updatingRoleId}
                   />
                 ) : (
-                  <div className='mt-8 h-[300px] w-full flex items-center justify-center'>
+                  <div className='mt-8 h-[300px] w-full flex flex-col items-center justify-center gap-2'>
                     <p className='text-GrayHomz text-sm'>No members found for this role</p>
+                    <p className='text-GrayHomz3 text-xs'>Invited members will appear here once they accept the invite</p>
                   </div>
                 )}
               </div>

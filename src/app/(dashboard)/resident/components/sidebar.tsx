@@ -232,6 +232,9 @@ const Sidebar = () => {
                                 {!isCollapsed && (
                                     <div className='flex flex-col items-start'>
                                         <p className="truncate max-w-[140px]">{selectedEstate ? selectedEstate?.estateName : ""}</p>
+                                        {selectedEstate?.role && (
+                                            <span className='text-[11px] font-normal text-GrayHomz2 capitalize'>{selectedEstate.role}</span>
+                                        )}
                                     </div>
                                 )}
                             </div>

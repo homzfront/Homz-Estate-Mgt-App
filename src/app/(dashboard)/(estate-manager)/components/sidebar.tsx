@@ -12,7 +12,7 @@ import LogoutIcon from '@/components/icons/estateManager&Resident/desktop/logout
 import ManageResidentIcon from '@/components/icons/estateManager&Resident/desktop/manageResidentIcon';
 // import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
 import MoreIcon from '@/components/icons/estateManager&Resident/desktop/moreIcon';
-// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
+import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 // import ProfileIcon from '@/components/icons/estateManager&Resident/desktop/profileIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/desktop/settingsIcon';
 import Image from 'next/image';
@@ -31,7 +31,6 @@ import { useSidebarStore } from '@/store/useSidebarStore';
 import { Subjects } from '@/utils/ability';
 // import FinanceIcon from '@/components/icons/estateManager&Resident/desktop/financeIcon';
 // import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
-// import PaymentIcon from '@/components/icons/estateManager&Resident/desktop/paymentIcon';
 
 const Data = [
     {
@@ -111,12 +110,12 @@ const Data = [
                 image: <BillAndUtiIcon className='#4E4E4E' />,
                 image2: <BillAndUtiIcon />,
             },
-            // {
-            //     title: "Payments",
-            //     link: "/finance/payment",
-            //     image: <PaymentIcon />,
-            //     image2: <PaymentIcon className='#006AFF' />,
-            // },
+            {
+                title: "Payments",
+                link: "/finance/payment",
+                image: <PaymentIcon />,
+                image2: <PaymentIcon className='#006AFF' />,
+            },
         ],
     },
     // {
@@ -399,7 +398,11 @@ const Sidebar = () => {
                                                 }}
                                             />
                                             <div className="my-2 flex flex-col space-y-4 w-full">
-                                                {data.subMenuItems?.map((subItem, idx) => {
+                                                {data.subMenuItems?.filter((subItem) => {
+                                                    // Hide Join Requests for Account Manager (they manage billing, not enrollment)
+                                                    if (subItem.title === 'Join Requests' && !ability.can('create', 'residents')) return false;
+                                                    return true;
+                                                }).map((subItem, idx) => {
                                                     return (
                                                         <Link
                                                             key={idx}

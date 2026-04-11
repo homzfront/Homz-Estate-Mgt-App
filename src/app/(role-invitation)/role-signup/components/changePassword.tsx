@@ -35,8 +35,32 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSigningUp(true);
         setPasswordError("");
+
+        // Client-side validation before hitting backend
+        if (!form.password) {
+            setPasswordError("Password is required");
+            return;
+        }
+        if (form.password.length < 8) {
+            setPasswordError("Password must be at least 8 characters long");
+            return;
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        if (!passwordRegex.test(form.password)) {
+            setPasswordError("Password must include uppercase, lowercase, a number, and a special character");
+            return;
+        }
+        if (!form.confirmPassword) {
+            setPasswordError("Please confirm your password");
+            return;
+        }
+        if (form.password !== form.confirmPassword) {
+            setPasswordError("Passwords do not match");
+            return;
+        }
+
+        setIsSigningUp(true);
         try {
             const payload = {
                 auth: {
@@ -96,7 +120,15 @@ const ChangePassword = ({ form, handleInputChange, params }: PasswordProps) => {
             // lands on the dashboard with no role and gets redirected away.
             await getCommunityManaProfile();
 
-            router.push('/dashboard');
+            // Route based on role — read from estatesData after profile load
+            // Security role has no dashboard access so send straight to access-control
+            const { estatesData } = useAuthSlice.getState();
+            const userRole = estatesData?.[0]?.role?.toLowerCase();
+            if (userRole === 'security') {
+                router.push('/access-control');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (error: any) {
             const majorBackendError = error?.response?.data?.errors?.[0]?.message
             const backendMessage = error?.response?.data?.message;

@@ -274,8 +274,9 @@ export const useMembersStore = create<MembersState>((set, get) => ({
                 }
             );
 
-            // Refresh the members list after successful invitation
-            await get().fetchMembers({ silent: true });
+            // Bust the cache so the members list always shows fresh data after invite
+            set({ cachedData: {} });
+            await get().fetchMembers({ page: 1, silent: true });
         } catch (error: any) {
             const backendMessage = error?.response?.data?.message;
             const backendMessageTwo = error?.response?.data?.message?.[0];

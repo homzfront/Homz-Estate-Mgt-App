@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import Table from './components/table';
 import Filters from './components/filters';
 import BillAndPayEmpty from '@/components/icons/BillAndPayEmpty';
 import { useResidentBillStore } from '@/store/useResidentBillStore';
 import { useResidentCommunity } from '@/store/useResidentCommunity';
+import { useSelectedEsate } from '@/store/useSelectedEstate';
 import LoadingSpinner from '@/components/general/loadingSpinner';
-// import { useSelectedCommunity } from '@/store/useSelectedCommunity'; // If needed to know which community is active
 
 const BillAndPayment = () => {
   const {
@@ -14,19 +14,23 @@ const BillAndPayment = () => {
     hasAnyData,
     fetchResidentBills,
     isLoading,
-    metrics,
     search,
-    frequency
+    frequency,
+    reset,
   } = useResidentBillStore();
 
   const { residentCommunity } = useResidentCommunity();
+  const { selectedEstate } = useSelectedEsate();
 
-  // Logic to get the correct IDs. 
-  // Assuming we use the first community or a selected one.
-  // You might need to use a selector if the user can switch communities.
-  const activeCommunity = residentCommunity?.[0]; // Replace with actual selection logic
-  // console.log("residentCommunity:", residentCommunity)
-  // console.log("bills:", bills)
+  // Use selectedEstate if available, otherwise fall back to first community
+  const activeCommunity = selectedEstate || residentCommunity?.[0];
+
+  // Reset store on mount so navigating back always shows fresh data
+  useEffect(() => {
+    reset();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (activeCommunity) {
       const { estateId, associatedIds } = activeCommunity;
@@ -34,9 +38,13 @@ const BillAndPayment = () => {
         estateId,
         organizationId: associatedIds.organizationId,
         residentId: associatedIds.residentId,
+        search: search || undefined,
+        frequency: frequency || undefined,
+        page: 1,
       });
     }
-  }, [activeCommunity, fetchResidentBills, search, frequency]); // Re-fetch when filters change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCommunity?.estateId, search, frequency]);
 
   return (
     <div className='w-full p-8'>
@@ -46,35 +54,31 @@ const BillAndPayment = () => {
           {hasAnyData &&
             <>
               <p className='hidden md:block text-base text-GrayHomz font-normal w-full'>
-                Here’s a summary of all your active and recurring bills. Click on any bill to see its details and payment history
+                Here&apos;s a summary of all your active and recurring bills. Click on any bill to see its details and payment history
               </p>
               <p className='md:hidden text-sm text-GrayHomz font-normal w-full'>
-                Here’s a summary of all your active and recurring bills.
+                Here&apos;s a summary of all your active and recurring bills.
               </p>
             </>
           }
         </div>
-        {/* {hasAnyData ? <span className='block -mt-3 md:mt-0'><Filters /></span> : isLoading ? <div>Loading...</div> : null} */}
+        {hasAnyData && <span className='block -mt-3 md:mt-0'><Filters /></span>}
       </div>
       {isLoading ? (
         <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
           <LoadingSpinner size={48} />
         </div>
       ) : !hasAnyData ? (
-        isLoading ? (
-          <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-            <LoadingSpinner size={48} />
-          </div>
-        ) : (
-          <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
-            <div className='flex flex-col items-center gap-6'>
-              <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
-                <BillAndPayEmpty />
-              </div>
-              <div className='text-base font-normal text-GrayHomz'>You currently don&apos;t have any active bills. Once your community manager assigns new bills, they&apos;ll appear here.</div>
+        <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
+          <div className='flex flex-col items-center gap-6'>
+            <div className='flex w-[120px] h-[120px] rounded-full bg-[#EEF5FF] justify-center items-center'>
+              <BillAndPayEmpty />
+            </div>
+            <div className='text-base font-normal text-GrayHomz text-center'>
+              You currently don&apos;t have any active bills. Once your community manager assigns new bills, they&apos;ll appear here.
             </div>
           </div>
-        )
+        </div>
       ) : (
         <div className='w-full'>
           <Table />

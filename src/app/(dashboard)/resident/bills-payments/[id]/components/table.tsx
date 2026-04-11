@@ -105,11 +105,11 @@ const Table = ({ groupedBills }: TableProps) => {
                                         <span
                                             className={'py-1 px-3 rounded-[4px] text-xs font-medium capitalize'}
                                             style={{
-                                                backgroundColor: getStatusStyles(selectedBill.status).bg,
-                                                color: getStatusStyles(selectedBill.status).color
+                                                backgroundColor: getStatusStyles(selectedBill.periodStatus || selectedBill.status).bg,
+                                                color: getStatusStyles(selectedBill.periodStatus || selectedBill.status).color
                                             }}
                                         >
-                                            {selectedBill.status === 'partialpaid' ? 'Partially Paid' : selectedBill.status}
+                                            {(selectedBill.periodStatus || selectedBill.status) === 'partialpaid' ? 'Partially Paid' : (selectedBill.periodStatus || selectedBill.status)}
                                         </span>
                                     </span>
                                 </div>
@@ -170,7 +170,7 @@ const Table = ({ groupedBills }: TableProps) => {
                                 ) : (
                                     billsList.map((row) => {
                                         const isInactive = row.status === 'pending' || row.status === 'overdue';
-                                        const statusStyles = getStatusStyles(row.status);
+                                        const statusStyles = getStatusStyles(row.periodStatus || row.status);
                                         return (
                                             <tr
                                                 key={row._id}
@@ -200,7 +200,7 @@ const Table = ({ groupedBills }: TableProps) => {
                                                                 fontSize: '11px',
                                                             }}
                                                         >
-                                                            {row.status === 'partialpaid' ? 'Partially Paid' : row.status}
+                                                            {(row.periodStatus || row.status) === 'partialpaid' ? 'Partially Paid' : (row.periodStatus || row.status)}
                                                         </span>
                                                     </div>
                                                 </td>

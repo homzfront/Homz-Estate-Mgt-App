@@ -4,14 +4,14 @@ import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import AuthSlider from "@/components/auth/authSlider";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/utils/api";
 import DotLoader from "@/components/general/dotLoader";
 
-const ResetPasswordForm = () => {
+const ResetPassword = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [formData, setFormData] = useState({
@@ -63,7 +63,7 @@ const ResetPasswordForm = () => {
 
     try {
 
-await api.post("/auth/reset-password", {
+await api.put("/auth/reset-password", {
         token,
         newPassword: formData.password,
         confirmPassword: formData.repassword
@@ -204,14 +204,6 @@ await api.post("/auth/reset-password", {
         </div>
       </div>
     </div>
-  );
-};
-
-const ResetPassword = () => {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center h-screen"><DotLoader /></div>}>
-      <ResetPasswordForm />
-    </Suspense>
   );
 };
 

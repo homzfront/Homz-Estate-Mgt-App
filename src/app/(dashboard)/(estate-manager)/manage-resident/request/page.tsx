@@ -38,7 +38,16 @@ const Request = () => {
         }
     }, [ability, router]);
 
-    const { requestResponse, isLoading, getRequest } = useRequestSlice();
+    const { requestResponse, isLoading, getRequest, clearRequest } = useRequestSlice();
+    // Track whether we've completed at least one fetch so we don't flash empty state
+    const [hasFetched, setHasFetched] = React.useState(false);
+
+    // Clear stale data when component mounts so navigating back shows fresh state
+    React.useEffect(() => {
+        clearRequest();
+        setHasFetched(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     const [selectedRows, setSelectedRows] = React.useState<string[]>([]);
     const [selectAll, setSelectAll] = React.useState(false);
     const [popUpMenu, setPopUpMenu] = React.useState(false);
@@ -126,7 +135,7 @@ const Request = () => {
     // fetch requests when page or status filter changes
     React.useEffect(() => {
         if (selectedCommunity?.estate?._id) {
-            getRequest(pageNo, pageSize, activeStatus);
+            getRequest(pageNo, pageSize, activeStatus).finally(() => setHasFetched(true));
         };
     }, [pageNo, selectedCommunity, activeStatus]);
 
@@ -169,7 +178,9 @@ const Request = () => {
             setIsRequesting(true);
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/accept/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation approved");
-            getRequest(pageNo, pageSize);
+            setActiveStatus('accepted');
+            setPageNo(1);
+            getRequest(1, pageSize, 'accepted');
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -205,7 +216,9 @@ const Request = () => {
             setIsRequesting(true);
             const response = await api.post(`/resident-invitation/residents/${selectedData?._id}/reject/tokens/${selectedData?.invitationToken}`, payload)
             toast.success("Invitation declined successfully");
-            getRequest(pageNo, pageSize);
+            setActiveStatus('rejected');
+            setPageNo(1);
+            getRequest(1, pageSize, 'rejected');
             setPopUpMenu(false);
             setModelOpen('');
         } catch (error: any) {
@@ -266,7 +279,7 @@ const Request = () => {
         }
         setIsRequesting(false);
         setActionsMenuOpen(false);
-        getRequest(pageNo, pageSize);
+        getRequest(pageNo, pageSize, activeStatus);
     };
 
 
@@ -355,7 +368,7 @@ const Request = () => {
                 <div className='h-[80vh] md:h-[500px] w-full flex justify-center items-center'>
                     <LoaderIcon />
                 </div>
-            ) : (!requestResponse || requestResponse?.results?.length === 0) && search?.length === 0 && !isSearching ? (
+            ) : (!hasFetched || !requestResponse || requestResponse?.results?.length === 0) && search?.length === 0 && !isSearching && !isLoading ? (
                 <div>
                     <h1 className='text-BlackHomz font-medium text-[16px] md:text-[20px]'>Join Requests</h1>
                     <h3 className='mt-2 text-GrayHomz font-normal text-sm md:text-[16px] max-w-[600px]'>View and manage pending requests from residents who want to join the estate. You can approve or decline each request.</h3>

@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api from '@/utils/api'
 import { useSelectedCommunity } from './useSelectedCommunity'
+import { useResidentBillStore } from './useResidentBillStore'
 
 export interface ResidencyAmount {
     residencyType: string
@@ -358,11 +359,14 @@ export const useBillStore = create<BillListState>()(
                         `/community-manager/billings/${billingId}/organizations/${organizationId}/estates/${estateId}`
                     )
 
-                    // Remove from local state
+                    // Remove from local EM state
                     set((state) => ({
                         items: state.items.filter((bill) => bill._id !== billingId),
                         totalCount: state.totalCount - 1,
                     }))
+
+                    // Invalidate resident bill store so residents see updated bills
+                    useResidentBillStore.getState().reset()
                 } catch (error: any) {
                     const initialMessage = error?.response?.data?.errors?.[0]?.message
                     const backendMessage = error?.response?.data?.message
