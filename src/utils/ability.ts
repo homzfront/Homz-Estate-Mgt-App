@@ -11,48 +11,62 @@ export function defineAbilityFor(role: string): AppAbility {
     switch (role?.toLowerCase()) {
         case 'admin':
             can('manage', 'all');
-            can('create', 'residents'); // Admin can create/invite residents
-            // Admin should also access settings
+            can('create', 'residents');
             can('read', 'settings');
             break;
+
         case 'owner':
-            can('manage', 'all'); // Owner has full access including settings
-            can('update', 'estate-info'); // Explicitly allow update for estate-info
+            can('manage', 'all');
+            can('update', 'estate-info');
             break;
+
         case 'viewer':
+            // Read everything + can update their own profile, but nothing else
             can('read', 'all');
-            cannot('update', 'all');
+            can('update', 'profile');   // Can edit their own profile
+            cannot('update', 'estate-info');
+            cannot('update', 'residents');
+            cannot('update', 'finance');
+            cannot('update', 'access-control');
             cannot('create', 'all');
             cannot('delete', 'all');
             cannot('read', 'settings');
             break;
+
         case 'security':
+            // Can access access-control, estate-info (read-only), and own profile
             can('read', 'access-control');
-            can('update', 'access-control');
+            can('update', 'access-control'); // sign in/out visitors
+            can('read', 'estate-info');
+            can('read', 'profile');
+            can('update', 'profile');   // Can edit their own profile
             cannot('read', 'dashboard');
-            cannot('read', 'estate-info');
-            cannot('read', 'profile');
+            cannot('read', 'residents');
+            cannot('read', 'finance');
             cannot('read', 'support');
             cannot('read', 'settings');
-            cannot('create', 'access-control'); // Security cannot create access codes
+            cannot('create', 'access-control'); // Cannot create access codes
             break;
+
         case 'account_manager':
             can('read', 'dashboard');
             can('read', 'residents');
-            cannot('update', 'residents');
-            cannot('create', 'residents');
             can('read', 'finance');
             can('update', 'finance');
             can('create', 'finance');
             can('delete', 'finance');
             can('read', 'estate-info');
             can('read', 'profile');
+            can('update', 'profile');   // Can edit their own profile
             can('read', 'support');
-            // account_manager manages finance/residents only — not user/role management
+            can('read', 'access-control');
+            cannot('update', 'residents');
+            cannot('create', 'residents');
+            cannot('delete', 'residents');
             cannot('read', 'settings');
             break;
+
         default:
-            // No permissions for unknown roles
             break;
     }
 

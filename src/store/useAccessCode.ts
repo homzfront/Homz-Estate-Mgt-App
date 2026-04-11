@@ -152,27 +152,46 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                         }
                     }
 
-                    const res = await api.get(url);
-                    set((prev) => {
-                        const results: AccessCodeType[] = res?.data?.data?.results || [];
-                        const nextItems = pageNo > 1 && prev.accessCode
-                            ? Array.from(new Map([...(prev.accessCode || []), ...results].map((it) => [it._id, it])).values())
-                            : results;
-                        return {
-                            accessCode: nextItems,
-                            totalPages: res.data.data.totalPages,
-                            totalResults: res.data.data.totalResults,
-                            isLoading: false,
-                            currentPage: pageNo,
-                            limit: pageSize,
-                            initialLoading: false,
-                            pageLoading: false,
-                            isAppending: false,
-                            lastSearch: search,
-                            lastDate: typeof date === 'string' ? date : (date instanceof Date ? date.toISOString() : ''),
-                            hasAnyData: (search || date) ? (prev as any).hasAnyData : (results?.length ?? 0) > 0,
-                        } as AccessCodeSlice;
-                    });
+                    try {
+                        const res = await api.get(url);
+                        set((prev) => {
+                            const results: AccessCodeType[] = res?.data?.data?.results || [];
+                            const nextItems = pageNo > 1 && prev.accessCode
+                                ? Array.from(new Map([...(prev.accessCode || []), ...results].map((it) => [it._id, it])).values())
+                                : results;
+                            return {
+                                accessCode: nextItems,
+                                totalPages: res.data.data.totalPages || 1,
+                                totalResults: res.data.data.totalResults || 0,
+                                isLoading: false,
+                                currentPage: pageNo,
+                                limit: pageSize,
+                                initialLoading: false,
+                                pageLoading: false,
+                                isAppending: false,
+                                lastSearch: search,
+                                lastDate: typeof date === 'string' ? date : (date instanceof Date ? date.toISOString() : ''),
+                                hasAnyData: (search || date) ? (prev as any).hasAnyData : (results?.length ?? 0) > 0,
+                            } as AccessCodeSlice;
+                        });
+                    } catch (apiError: any) {
+                        // 400 means no results for this filter (e.g. date with no records) — show empty state
+                        if (apiError?.response?.status === 400 || apiError?.response?.status === 404) {
+                            set({
+                                accessCode: [],
+                                totalPages: 1,
+                                totalResults: 0,
+                                isLoading: false,
+                                initialLoading: false,
+                                pageLoading: false,
+                                isAppending: false,
+                                lastSearch: search,
+                                lastDate: typeof date === 'string' ? date : (date instanceof Date ? date.toISOString() : ''),
+                            });
+                        } else {
+                            throw apiError;
+                        }
+                    }
                 } catch (error: any) {
                     console.error("Error fetching access codes:", error);
                     set({ isLoading: false, initialLoading: false, pageLoading: false, isAppending: false, accessCode: null });

@@ -32,11 +32,11 @@ const UpdateButtonPassword = ({ updateDone, doneUpdate, setDoneUpdate, loading, 
     return (
         <div className="">
             <div className="mt-[5%] flex justify-end">
-                {(ability.can('update', 'estate-info') &&
+                {(ability.can('update', 'profile') || ability.can('update', 'estate-info')) &&
                     <button onClick={handleUpdate} className="w-full md:w-auto text-[14px] font-[500] h-[42px] px-4 rounded-md text-white bg-BlueHomz flex justify-center items-center">
                         Save Update
                     </button>
-                )}
+                }
             </div>
             <CustomModal isOpen={showDialogue} onRequestClose={() => setShowDialogue(false)}>
                 {doneUpdate ?

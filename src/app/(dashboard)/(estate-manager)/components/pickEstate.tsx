@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useAbility } from '@/contexts/AbilityContext'
 import { useOpenCommunityListStore } from '@/store/useOpenCommunityListStore'
+import api from '@/utils/api'
 
 interface PickEstateProps {
     closeRef?: any;
@@ -40,6 +41,23 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
     const setSelectedCommunity = useSelectedCommunity((state) => state.setSelectedCommunity);
     const setIsSwitchingEstate = useSelectedCommunity((state) => state.setIsSwitchingEstate);
     const { totalCount } = useResidentsListStore();
+    const [securityCount, setSecurityCount] = React.useState<number | null>(null);
+
+    // Security role can't fetch full residents list — call lightweight count endpoint
+    React.useEffect(() => {
+        const role = selectedCommunity?.role?.toLowerCase();
+        if (role === 'security' && selectedCommunity?.estate?._id) {
+            const orgId = selectedCommunity.estate.associatedIds?.organizationId;
+            const estateId = selectedCommunity.estate._id;
+            if (orgId && estateId) {
+                api.get(`/community-manager/resident/count/organizations/${orgId}/estates/${estateId}`)
+                    .then((res) => setSecurityCount(res?.data?.data?.count ?? 0))
+                    .catch(() => setSecurityCount(0));
+            }
+        }
+    }, [selectedCommunity?.estate?._id, selectedCommunity?.role]);
+
+    const residentCount = totalCount || securityCount || 0;
     return (
         <div ref={closeRef} className={`p-4 rounded-[12px] bg-white ${openEstateList ? "md:w-[320px]" : "md:w-[270px]"}  min-w-[260px] mt-[120px] mb-[50px] md:mt-0 md:mb-0`}>
             {!openEstateList ?
@@ -62,7 +80,7 @@ const PickEstate = ({ closeRef }: PickEstateProps) => {
                             </div>
                             <div className='flex flex-col gap-1 w-full'>
                                 <span className='text-sm font-medium text-GrayHomz truncate'>{selectedCommunity ? selectedCommunity?.estate?.basicDetails?.name : ""}</span>
-                                <span className='text-[11px] font-normal text-GrayHomz truncate'>{totalCount || 0} Resident(s)</span>
+                                <span className='text-[11px] font-normal text-GrayHomz truncate'>{residentCount} Resident(s)</span>
                                 <span className='text-[11px] font-normal text-GrayHomz2 truncate'>{selectedCommunity ? selectedCommunity?.role : ""}</span>
                                 {/* <span className='text-[11px] font-normal text-GrayHomz2 truncate'>Owner</span> */}
                                 <div className='mt-2 flex items-center justify-between w-full'>

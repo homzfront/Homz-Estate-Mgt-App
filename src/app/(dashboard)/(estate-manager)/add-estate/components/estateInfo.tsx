@@ -5,6 +5,7 @@ import useAreaStore from '@/store/useStateAndAreaStore/useAreaStore';
 import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
 import React from 'react'
 import Dropdown from './dropDown';
+import AppDropdown from '@/components/general/dropDown';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { EstateFormData, useEstateFormStore } from '@/store/useEstateFormStore';
@@ -12,6 +13,8 @@ import api from '@/utils/api';
 
 interface EstateInfoProps {
     handleInputChange: (field: keyof EstateFormData, value: string) => void;
+    readOnly?: boolean;
+    hideBankDetails?: boolean;
     formData: {
         estateName: string;
         area: string;
@@ -32,7 +35,7 @@ interface NigerianBank {
     code: string;
 }
 
-const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
+const EstateInfo = ({ handleInputChange, formData, readOnly = false, hideBankDetails = false }: EstateInfoProps) => {
     const { stateList, loading } = useStateStore()
     const {
         setCoverPhoto,
@@ -257,43 +260,56 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                     <h4 className='text-[#A9A9A9] font-normal text-[16px]'>
                         Bank Account Details
                     </h4>
+                    {hideBankDetails ? (
+                        <div className='flex flex-col gap-2 py-4'>
+                            <p className='text-sm text-GrayHomz'>Bank account details are hidden for your role.</p>
+                        </div>
+                    ) : (
                     <div className='flex flex-col gap-4'>
                         <CustomInput
                             label="Account Number"
                             placeholder="e.g 1524368709"
                             value={formData.accountNumber}
-                            onValueChange={(value) => handleInputChange('accountNumber', value)}
+                            onValueChange={(value) => !readOnly && handleInputChange('accountNumber', value)}
                             type='number'
-                            required
+                            required={!readOnly}
+                            disabled={readOnly}
                             className='h-[45px] pl-4'
                         />
-                        {/* Bank selector — populated from Paystack bank list */}
+                        {/* Bank selector — searchable dropdown populated from Paystack bank list */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name <span className='text-error'>*</span></label>
-                            <select
-                                className='w-full h-[45px] pl-4 border border-[#A9A9A9] rounded-[4px] bg-white text-sm text-BlackHomz'
-                                value={selectedBankCode}
-                                onChange={(e) => {
-                                    const bank = banks.find(b => b.code === e.target.value);
-                                    setSelectedBankCode(e.target.value);
-                                    if (bank) handleInputChange('bankName', bank.name);
-                                }}
-                            >
-                                <option value=''>Select bank</option>
-                                {banks.map((bank, idx) => (
-                                    <option key={`${bank.code}-${idx}`} value={bank.code}>{bank.name}</option>
-                                ))}
-                            </select>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name {!readOnly && <span className='text-error'>*</span>}</label>
+                            {readOnly ? (
+                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4 text-sm text-GrayHomz'>
+                                    {formData.bankName || '—'}
+                                </span>
+                            ) : (
+                                <AppDropdown
+                                    options={banks.map(b => ({ id: b.code, label: b.name }))}
+                                    onSelect={(option) => {
+                                        setSelectedBankCode(String(option.id));
+                                        handleInputChange('bankName', option.label);
+                                    }}
+                                    selectOption={formData.bankName || 'Search or select bank'}
+                                    selectedId={selectedBankCode || null}
+                                    showSearch={true}
+                                    height='h-[45px]'
+                                    borderColor='border-[#A9A9A9]'
+                                    arrowColor='#A9A9A9'
+                                    displayMode='portal'
+                                    isLoading={banks.length === 0}
+                                />
+                            )}
                         </div>
-                        {/* Account name — auto-filled after account number + bank are set */}
+                        {/* Account name */}
                         <div className='relative'>
                             <CustomInput
                                 label="Account Name"
                                 placeholder={resolvingAccount ? 'Verifying...' : 'Auto-filled after entering account number'}
                                 value={formData.accountName}
-                                onValueChange={(value) => handleInputChange('accountName', value)}
+                                onValueChange={(value) => !readOnly && handleInputChange('accountName', value)}
                                 className={`h-[45px] pl-4 ${resolvingAccount ? 'opacity-60' : ''}`}
-                                disabled={resolvingAccount}
+                                disabled={resolvingAccount || readOnly}
                             />
                             {resolvingAccount && (
                                 <span className='absolute right-3 top-[38px] text-xs text-GrayHomz animate-pulse'>
@@ -302,6 +318,7 @@ const EstateInfo = ({ handleInputChange, formData }: EstateInfoProps) => {
                             )}
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
         </div>

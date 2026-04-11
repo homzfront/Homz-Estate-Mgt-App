@@ -3,6 +3,7 @@ import ArrowLeft16Long from '@/components/icons/arrowLeft16Long';
 import ArrowLeftMob from '@/components/icons/arrowLeftMob';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react'
+import { useAbility } from '@/contexts/AbilityContext';
 import EstateInfo from '../../add-estate/components/estateInfo';
 import AddZone from '../../add-estate/components/addZone';
 import AddStreet from '../../add-estate/components/addStreet';
@@ -18,6 +19,10 @@ import useStateStore from '@/store/useStateAndAreaStore/useStateStore';
 import { Community, useAuthSlice } from '@/store/authStore';
 
 const EditEstateForm = () => {
+    const ability = useAbility();
+    // Viewer and Security can view but not edit; they also can't see bank details
+    const canEdit = ability.can('update', 'estate-info');
+    const canSeeBankDetails = ability.can('update', 'estate-info'); // only editors (owner/admin) see bank details
     const router = useRouter();
     const searchParams = useSearchParams();
     const [loading, setLoading] = React.useState<boolean>(false);
@@ -250,6 +255,8 @@ const EditEstateForm = () => {
                     <EstateInfo
                         handleInputChange={handleInputChange}
                         formData={formData}
+                        readOnly={!canEdit}
+                        hideBankDetails={!canSeeBankDetails}
                     />
                 );
             case 1:
@@ -337,15 +344,17 @@ const EditEstateForm = () => {
                 {/* Form Content */}
                 {renderFormContent()}
 
-                {/* Navigation Buttons */}
-                <UpdateButtonPassword
-                    updateDone={updateDone}
-                    doneUpdate={doneUpdate}
-                    setDoneUpdate={setDoneUpdate}
-                    loading={loading}
-                    showDialogue={showDialogue}
-                    setShowDialogue={setShowDialogue}
-                />
+                {/* Navigation Buttons — hidden for read-only roles */}
+                {canEdit && (
+                    <UpdateButtonPassword
+                        updateDone={updateDone}
+                        doneUpdate={doneUpdate}
+                        setDoneUpdate={setDoneUpdate}
+                        loading={loading}
+                        showDialogue={showDialogue}
+                        setShowDialogue={setShowDialogue}
+                    />
+                )}
             </div>
         </div>
 

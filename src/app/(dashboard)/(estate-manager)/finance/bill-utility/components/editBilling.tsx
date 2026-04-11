@@ -177,7 +177,7 @@ const EditBilling: React.FC<EditBillingProps> = ({ isOpen, onRequestClose, setOp
                     <div className="bg-[#F6F6F6] rounded-lg p-3 shadow-sm mt-4">
                         <p className='text-base text-GrayHomz font-medium'>Bill Information</p>
                         <div className="mt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                                 <div className="md:col-span-2">
                                     <CustomInput
                                         label="Bill Name"

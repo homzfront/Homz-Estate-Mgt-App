@@ -23,6 +23,7 @@ import AccessTable from '../access-control/components/accessTable';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import { useResidentsListStore } from '@/store/useResidentsListStore';
 import { useAbility } from '@/contexts/AbilityContext';
+import ViewerWelcomeModal from './components/ViewerWelcomeModal';
 import { PermissionGuard } from '@/components/PermissionGuard';
 import InviteResident from '../manage-resident/residents/components/inviteResident';
 // import { useAuthSlice } from '@/store/authStore';
@@ -38,6 +39,17 @@ const Dashboard = () => {
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const [hasLoadedOnce, setHasLoadedOnce] = React.useState(false);
     const ability = useAbility();
+
+    // Viewer welcome modal — shown once per session
+    const [showViewerModal, setShowViewerModal] = React.useState(false);
+    React.useEffect(() => {
+        const isViewer = selectedCommunity?.role?.toLowerCase() === 'viewer';
+        const key = `viewer_welcomed_${selectedCommunity?.estate?._id}`;
+        if (isViewer && !sessionStorage.getItem(key)) {
+            setShowViewerModal(true);
+            sessionStorage.setItem(key, '1');
+        }
+    }, [selectedCommunity?.role, selectedCommunity?.estate?._id]);
 
     // Load CM profile + estates on mount if not already loaded
     // Covers: first-time users, page refreshes, and returning users from landing page
@@ -98,6 +110,8 @@ const Dashboard = () => {
         );
     }
     return (
+        <>
+        <ViewerWelcomeModal isOpen={showViewerModal} onClose={() => setShowViewerModal(false)} />
         <div className='mb-[150px]'>
             {openEstateList &&
                 <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
@@ -206,6 +220,7 @@ const Dashboard = () => {
                 </div> : null
             }
         </div>
+        </>
     )
 }
 

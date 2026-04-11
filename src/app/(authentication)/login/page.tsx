@@ -89,6 +89,8 @@ const Login = () => {
       // console.log("profile:", profile)
       if (profile?.data?.data?.accounts?.length === 0) {
         if (isResident && organizationId && estateId && token) {
+          // User logged in but hasn't completed resident profile yet
+          // Send them back to the invite link to complete signup
           const params = new URLSearchParams({
             invitation: token as any,
             organizationId: organizationId as any,
@@ -98,11 +100,21 @@ const Login = () => {
           router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
-
           router.push("/select-profile");
         }
 
       } else {
+        // User has accounts — check if they have a pending resident invite to complete
+        if (isResident && organizationId && estateId && token) {
+          const params = new URLSearchParams({
+            invitation: token as any,
+            organizationId: organizationId as any,
+            estateId: estateId as any
+          }).toString()
+          router.push(`/resident/invitations/create?${params}`)
+          return;
+        }
+
         clearResidentData();
         const response = await api.get("/community-manager/current-profile");
         if (!response) {

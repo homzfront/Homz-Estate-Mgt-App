@@ -126,6 +126,38 @@ const FilterHeader = () => {
                     />
                 </div>
                 <div className='flex items-center gap-2'>
+                    {/* Export CSV button */}
+                    <button
+                        onClick={() => {
+                            const { items } = useBillPaymentStore.getState();
+                            if (!items.length) return;
+                            const headers = ['Bill Type','Period','Amount','Amount Paid','Status','Payment Date','Due Date'];
+                            const rows = items.map((r: any) => [
+                                r.billType || '',
+                                r.period || '',
+                                r.amount || 0,
+                                r.amountPaid || 0,
+                                r.periodStatus || '',
+                                r.paymentDate ? new Date(r.paymentDate).toLocaleDateString() : '—',
+                                r.dueDate ? new Date(r.dueDate).toLocaleDateString() : '—',
+                            ]);
+                            const csv = [headers, ...rows].map((r: any[]) => r.join(',')).join('\n');
+                            const blob = new Blob([csv], { type: 'text/csv' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `bill-statement-${new Date().toISOString().split('T')[0]}.csv`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }}
+                        className='h-[45px] md:h-[38px] px-3 border border-GrayHomz2 text-GrayHomz text-sm rounded-[4px] flex items-center gap-1 hover:border-BlueHomz hover:text-BlueHomz transition-colors'
+                        title='Export bill statement as CSV'
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        <span className="hidden md:inline">Export</span>
+                    </button>
                     <div className='relative'>
                         <div ref={closeDeleteAction}>
                             <div

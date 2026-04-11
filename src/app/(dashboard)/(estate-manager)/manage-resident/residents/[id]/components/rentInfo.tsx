@@ -39,9 +39,16 @@ const RentInfo: React.FC<RentInfoProps> = ({ residentData, onOpenProperty, prope
             }
         });
 
-        // 2. Additional Residences
+        // 2. Additional Residences — skip any that duplicate the primary
         if (residentData.residences && residentData.residences.length > 0) {
             residentData.residences.forEach((res) => {
+                // Skip if this residence is the same as the primary (same building + apartment)
+                const isPrimary =
+                    res.building === residentData.building &&
+                    res.apartment === residentData.apartment &&
+                    res.streetName === residentData.streetName;
+                if (isPrimary) return;
+
                 list.push({
                     id: res._id,
                     title: `${res.building || 'Building'} - ${res.apartment || 'Apartment'}`,

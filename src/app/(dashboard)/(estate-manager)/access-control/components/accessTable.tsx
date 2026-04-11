@@ -2,6 +2,7 @@
 "use client";
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useAccessStore } from '@/store/useAccessStore';
 import LoadingSpinner from '@/components/general/loadingSpinner';
@@ -26,6 +27,7 @@ interface AccessTableProps {
 }
 
 const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) => {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const initialPage = parseInt(searchParams.get('page') || '1', 10);
     const {
@@ -221,8 +223,17 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
                             </div>
                         </div>
 
-                        <button disabled={true} onClick={() => setOpenDetails(false)} className='pointer-events-none opacity-50 mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium'>
-                            <ProfileWhite /> View Resident’s profile
+                        <button
+                            disabled={!selected?.associatedIds?.residentId || !ability.can('read', 'residents')}
+                            onClick={() => {
+                                if (selected?.associatedIds?.residentId && ability.can('read', 'residents')) {
+                                    setOpenDetails(false);
+                                    router.push(`/manage-resident/residents/${selected.associatedIds.residentId}`);
+                                }
+                            }}
+                            className={`mt-4 w-full rounded-[4px] md:w-[518px] h-[45px] bg-BlueHomz flex items-center justify-center gap-2 text-white text-sm font-medium transition-all ${(!selected?.associatedIds?.residentId || !ability.can('read', 'residents')) ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:opacity-80 active:scale-95'}`}
+                        >
+                            <ProfileWhite /> View Resident&apos;s profile
                         </button>
                     </div>
                 </CustomModal>

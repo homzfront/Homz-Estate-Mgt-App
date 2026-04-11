@@ -35,9 +35,12 @@ const BillPaymentPropertyList: React.FC<Props> = ({ residentData, onSelectProper
             }
         });
 
-        // 2. Additional Residences
+        // 2. Additional Residences — skip duplicates of the primary
+        const primaryKey = `${residentData.building}||${residentData.apartment}||${residentData.streetName}`;
         if (residentData.residences && residentData.residences.length > 0) {
             residentData.residences.forEach((res) => {
+                const resKey = `${res.building}||${res.apartment}||${res.streetName}`;
+                if (resKey === primaryKey) return; // skip duplicate
                 list.push({
                     id: res._id,
                     title: `${res.building || 'Building'} - ${res.apartment || 'Apartment'}`,

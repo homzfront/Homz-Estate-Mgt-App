@@ -50,6 +50,15 @@ const Table = () => {
                                     {bill.billType?.replace(/_/g, ' ')}
                                 </p>
                                 <p className='text-[11px] md:text-[13px] text-GrayHomz mt-1 capitalize'>{bill.frequency}</p>
+                                {bill.periodStatus && (
+                                    <span className={`mt-1 inline-block text-[10px] font-medium px-2 py-0.5 rounded-full capitalize
+                                        ${bill.periodStatus?.toLowerCase() === 'paid' ? 'bg-[#CDEADD] text-[#039855]' :
+                                          bill.periodStatus?.toLowerCase() === 'overdue' ? 'bg-[#FDF2F2] text-[#D92D20]' :
+                                          bill.periodStatus?.toLowerCase() === 'partialpaid' ? 'bg-[#EEF5FF] text-[#006AFF]' :
+                                          'bg-[#FCF3EB] text-[#DC6803]'}`}>
+                                        {bill.periodStatus?.toLowerCase() === 'partialpaid' ? 'Partially Paid' : bill.periodStatus}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <button

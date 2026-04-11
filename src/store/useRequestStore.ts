@@ -2,6 +2,8 @@
 import api from '@/utils/api';
 import { create } from 'zustand';
 import { useSelectedCommunity } from './useSelectedCommunity';
+import { useSelectedEsate } from './useSelectedEstate';
+import { useResidentCommunity } from './useResidentCommunity';
 interface RentedDetails {
     rentDurationType: string;
     rentDuration: number;
@@ -54,6 +56,7 @@ export interface RequestState {
         search?: string
     ) => Promise<void>;
     requestResponse: ReponseData | null;
+    clearRequest: () => void;
     sendCoResidentInvitation: (
         coResidentData: {
             firstName: string;
@@ -70,6 +73,8 @@ export const useRequestSlice = create<RequestState>()(
     (set) => ({
         isLoading: true,
         requestResponse: null,
+
+        clearRequest: () => set({ requestResponse: null, isLoading: false }),
 
         getRequest: async (
             page = 1,
@@ -102,9 +107,13 @@ export const useRequestSlice = create<RequestState>()(
         },
 
         sendCoResidentInvitation: async (coResidentData) => {
-            const selectedCommunity = useSelectedCommunity.getState().selectedCommunity;
-            const organizationId = selectedCommunity?.estate?.associatedIds?.organizationId;
-            const estateId = selectedCommunity?.estate?._id;
+            // On resident side: use selectedEstate or residentCommunity stores
+            const selectedEstate = useSelectedEsate.getState()?.selectedEstate;
+            const residentCommunity = useResidentCommunity.getState()?.residentCommunity;
+            const activeCommunity = selectedEstate || residentCommunity?.[0];
+
+            const organizationId = activeCommunity?.associatedIds?.organizationId;
+            const estateId = activeCommunity?.estateId;
 
             if (!organizationId || !estateId) {
                 throw new Error('Missing organization or estate id');
@@ -112,13 +121,9 @@ export const useRequestSlice = create<RequestState>()(
 
             try {
                 const response = await api.post(
-                    `/resident-invitation/generate-co-resident-link/organizations/${organizationId}/estates/${estateId}`,
+                    `/resident/invite-co-resident/organizations/${organizationId}/estates/${estateId}`,
                     {
                         coResident: coResidentData,
-                        validationIds: {
-                            estateId,
-                            organizationId
-                        }
                     }
                 );
 

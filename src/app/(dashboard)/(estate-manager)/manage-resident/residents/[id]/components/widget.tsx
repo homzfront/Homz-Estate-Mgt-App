@@ -27,7 +27,7 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
     const [showBillingDetails, setShowBillingDetails] = React.useState(false)
     const [selectedBillingProperty, setSelectedBillingProperty] = React.useState<PropertyDetailsType | undefined>(undefined)
 
-    const { hasAnyData, fetchBillPayments } = useBillPaymentStore()
+    const { hasAnyData, fetchBillPayments, items: billItems } = useBillPaymentStore()
 
     // Fetch bill payment data when component mounts (legacy, for backward compatibility)
     React.useEffect(() => {
@@ -52,6 +52,28 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
         setModalInitialData(data as Record<string, unknown>)
         setOpenPaymentModal(true)
     }
+
+    const handleExportCSV = () => {
+        if (!billItems || billItems.length === 0) return;
+        const headers = ['Bill Type', 'Period', 'Amount', 'Amount Paid', 'Status', 'Payment Date', 'Due Date'];
+        const rows = billItems.map((r: any) => [
+            r.billType || '',
+            r.periodNumber || '',
+            r.amount || 0,
+            r.amountPaid || 0,
+            r.periodStatus || '',
+            r.paymentDate ? new Date(r.paymentDate).toLocaleDateString() : '—',
+            r.dueDate ? new Date(r.dueDate).toLocaleDateString() : '—',
+        ]);
+        const csv = [headers, ...rows].map((r: any[]) => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bill-statement-${residentData?.firstName || 'resident'}-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     const openPropertyDetails = (prop: PropertyDetailsType) => {
         setSelectedProperty(prop)
@@ -100,7 +122,7 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                             {step === 1 && showBillingDetails && selectedBillingProperty && (
                                 <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /> Add new payment record </button>
                             )}
-                            <button className="p-2 rounded-[8px] bg-[#EEF5FF]"><ExportIcon className="#006AFF" /></button>
+                            <button onClick={handleExportCSV} title="Export bill records as CSV" className="p-2 rounded-[8px] bg-[#EEF5FF] hover:bg-BlueHomz transition-colors group"><ExportIcon className="#006AFF" /></button>
                         </div>
                     </div>
                 }
@@ -111,7 +133,7 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                         </button>
                         <div className="flex gap-2 items-center">
                             <button onClick={openAddModal} className="flex gap-1 items-center text-BlueHomz text-sm"><AddIcon /> Add new payment record </button>
-                            <button className="p-2 rounded-[8px] bg-[#EEF5FF]"><ExportIcon className="#006AFF" /></button>
+                            <button onClick={handleExportCSV} title="Export bill records as CSV" className="p-2 rounded-[8px] bg-[#EEF5FF] hover:bg-BlueHomz transition-colors group"><ExportIcon className="#006AFF" /></button>
                         </div>
                     </div>
                 )}

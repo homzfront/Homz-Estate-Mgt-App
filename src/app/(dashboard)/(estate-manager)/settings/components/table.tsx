@@ -9,6 +9,8 @@ import { MemberItem, useMembersStore } from '@/store/useMembersStore';
 import toast from 'react-hot-toast';
 import HourGlassLoader from '@/components/general/hourGlassLoader';
 import capitalizeFirstLetter from '@/app/utils/capitalizeFirstLetter';
+import { useAuthSlice } from '@/store/authStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 
 type TableProps = {
     currentData: MemberItem[];
@@ -29,11 +31,13 @@ const Table: React.FC<TableProps> = ({
     const [openPopUp, setOpenPopUp] = React.useState(false);
     const [deletingId, setDeletingId] = React.useState<string | null>(null);
     const { deleteMember } = useMembersStore();
+    const { communityProfile } = useAuthSlice();
+    // Use email to identify the logged-in user's row (communityManagerId in members refers to ESTATE owner not the member)
+    const currentUserEmail = communityProfile?.email;
 
     const options = [
         { id: 1, label: 'Admin', value: 'admin' },
         { id: 2, label: 'Account Manager', value: 'account_manager' },
-        { id: 3, label: 'Owner', value: 'owner' },
         { id: 4, label: 'Security', value: 'security' },
         { id: 5, label: 'Viewer', value: 'viewer' },
     ];
@@ -142,6 +146,15 @@ const Table: React.FC<TableProps> = ({
                                 {updatingRoleId === data._id ? (
                                     <div className="w-[130px] md:w-full flex justify-center items-center">
                                         <HourGlassLoader />
+                                    </div>
+                                ) : (data.role === 'owner' || (currentUserEmail && data.email === currentUserEmail)) ? (
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm font-medium text-GrayHomz px-2 py-1 rounded-[4px] bg-[#F6F6F6]">
+                                            {getRoleLabel(data.role)}
+                                        </span>
+                                        {currentUserEmail && data.email === currentUserEmail && (
+                                            <span className="text-[10px] text-BlueHomz font-medium px-2">You</span>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className='w-[130px] md:w-full'>

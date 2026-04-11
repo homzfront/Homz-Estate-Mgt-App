@@ -1,17 +1,27 @@
 "use client"
 
 import CustomInput from '@/components/general/customInput'
-// import CameraIcon from '@/components/icons/cameraIcon'
-// import DeleteIcon from '@/components/icons/deleteIcon'
-import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import ChangePassword from './(changePassword)/changePassword'
 import { useAuthSlice } from '@/store/authStore'
 import { useResidentStore } from '@/store/useResidentStore'
+import { useSelectedEsate } from '@/store/useSelectedEstate'
+import { useResidentCommunity } from '@/store/useResidentCommunity'
+import api from '@/utils/api'
+import toast from 'react-hot-toast'
+import DotLoader from '@/components/general/dotLoader'
 
 const Profile = () => {
-  const { residentProfile, getResidentProfile, userData } = useAuthSlice()
+  const { residentProfile, getResidentProfile, communityProfile, getCommunityManaProfile } = useAuthSlice()
   const { isResident } = useResidentStore()
+  const selectedEstate = useSelectedEsate((state) => state.selectedEstate)
+  const { residentCommunity } = useResidentCommunity()
+
+  // Use the resident document ID from residentCommunity (not user account ID)
+  const activeCommunity = selectedEstate || residentCommunity?.[0]
+  const residentId = activeCommunity?.associatedIds?.residentId
+  const orgId = activeCommunity?.associatedIds?.organizationId
+  const estateId = activeCommunity?.estateId
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -21,56 +31,75 @@ const Profile = () => {
   })
 
   const [activeTab, setActiveTab] = useState<'personal' | 'password'>('personal')
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return
-    const file = e.target.files[0]
-    setSelectedImage(file)
-    setImagePreview(URL.createObjectURL(file))
-  }
-
-  const handleDeleteImage = () => {
-    setSelectedImage(null)
-    setImagePreview('')
-  }
-
-  // Fetch resident profile when component mounts
+  // Fetch resident profile on mount
   useEffect(() => {
-    if (!isResident) return
-    const residentId = userData?._id || userData?.userId
-    if (residentId) {
-      getResidentProfile(residentId)
-    }
-  }, [isResident, userData, getResidentProfile])
+    if (!isResident || !residentId) return
+    getResidentProfile(residentId)
+  }, [isResident, residentId, getResidentProfile])
 
-  // Update form when residentProfile changes
+  // Populate form from residentProfile + communityProfile (for phone)
   useEffect(() => {
-    if (!residentProfile) return;
-
+    if (!residentProfile) return
     setFormData({
       firstName: residentProfile.firstName || '',
       lastName: residentProfile.lastName || '',
       email: residentProfile.email || '',
-      phoneNumber: '', // phone not available yet
-    });
-  }, [residentProfile]);
+      // Phone lives on the community manager / user profile, not the resident record
+      phoneNumber: communityProfile?.personal?.phoneNumber || '',
+    })
+  }, [residentProfile, communityProfile])
+
+  const handleSave = async () => {
+    if (!residentId || !orgId || !estateId) {
+      toast.error('Missing profile information. Please refresh and try again.')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      // Update resident name fields
+      await api.patch(
+        `/resident/update-profile/organizations/${orgId}/estates/${estateId}/residents/${residentId}`,
+        { firstName: formData.firstName, lastName: formData.lastName }
+      )
+
+      // Update phone number on the user/CM account if it changed
+      const originalPhone = communityProfile?.personal?.phoneNumber || ''
+      if (formData.phoneNumber && formData.phoneNumber !== originalPhone) {
+        if (communityProfile?._id) {
+          await api.patch(`/community-manager/update-profile/${communityProfile._id}`, {
+            phoneNumber: formData.phoneNumber,
+          })
+          await getCommunityManaProfile()
+        }
+      }
+
+      toast.success('Profile updated successfully!', {
+        position: 'top-center',
+        duration: 2000,
+        style: { background: '#E8F5E9', color: '#2E7D32', fontWeight: 500, padding: '12px 20px', borderRadius: '8px' },
+      })
+      await getResidentProfile(residentId)
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.response?.data?.message?.[0] || error?.message || 'Failed to update profile'
+      toast.error(msg, { position: 'top-center', duration: 4000 })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const canSave = Boolean(formData.firstName && formData.lastName)
 
   return (
     <div className='p-8 mb-[150px]'>
-      <h1 className='text-[16px] md:text-[20px] text-BlackHomz font-normal md:font-medium'>
-        Profile
-      </h1>
+      <h1 className='text-[16px] md:text-[20px] text-BlackHomz font-normal md:font-medium'>Profile</h1>
 
-      {/* Tabs */}
       <div className='mt-4 flex flex-col md:flex-row gap-4'>
         <div className="flex gap-4">
           <button
@@ -86,71 +115,13 @@ const Profile = () => {
             Change Password
           </button>
         </div>
-
-        {/* Mobile-only gray line */}
         <div className="md:hidden mt-2 mb-4 h-[10px] bg-black w-max rounded-full"></div>
       </div>
 
-      {/* Tab Content */}
       <div className='mt-4'>
         {activeTab === 'personal' && (
           <div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {/* Image Upload Section */}
-              {/* <div className='md:h-[200px] bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex gap-4 items-center'>
-                <Image
-                  src={imagePreview || "/emptyImageUpload.png"}
-                  alt='Profile'
-                  height={152}
-                  width={152}
-                  className='hidden md:block rounded-full'
-                />
-                <Image
-                  src={imagePreview || "/emptyImageUploadMo.png"}
-                  alt='Profile'
-                  height={72}
-                  width={72}
-                  className='md:hidden rounded-full'
-                />
-                <div className='flex flex-col gap-2'>
-                  {!selectedImage ? (
-                    <label className='cursor-pointer text-BlueHomz flex items-center gap-1'>
-                      <CameraIcon />
-                      Click to upload
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                  ) : (
-                    <div className='flex flex-col gap-2'>
-                      <label className='cursor-pointer text-BlueHomz flex items-center gap-1'>
-                        <CameraIcon />
-                        Change Photo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                      <button
-                        onClick={handleDeleteImage}
-                        className='flex items-center gap-1 text-RedHomz'
-                      >
-                        <DeleteIcon />
-                        Delete Photo
-                      </button>
-                    </div>
-                  )}
-                  <p className='text-[11px] font-normal text-GrayHomz'>PDF, JPG (max. 5mb)</p>
-                </div>
-              </div> */}
-
-
-              {/* Personal Info Form */}
               <div className='bg-[#FCFCFC] md:bg-[#F6F6F6] rounded-[12px] p-6 flex flex-col gap-8'>
                 <div className='flex flex-col gap-1 w-full text-sm'>
                   <h3 className='mb-1 text-sm font-medium text-GrayHomz'>Email</h3>
@@ -158,7 +129,6 @@ const Profile = () => {
                     {formData.email || "Auto-filled"}
                   </span>
                 </div>
-
                 <div className='flex flex-col md:flex-row items-center gap-4'>
                   <CustomInput
                     borderColor="#A9A9A9"
@@ -177,7 +147,6 @@ const Profile = () => {
                     className='h-[45px] pl-4 bg-[#FCFCFC] md:bg-[#F6F6F6]'
                   />
                 </div>
-
                 <CustomInput
                   borderColor="#A9A9A9"
                   type='number'
@@ -189,23 +158,17 @@ const Profile = () => {
                 />
               </div>
             </div>
-
             <div className='mt-8 flex justify-end'>
               <button
-                className={`${!formData?.firstName || !formData?.lastName || !formData?.phoneNumber
-                  ? "bg-GrayHomz6 text-GrayHomz5 cursor-not-allowed"
-                  : "text-white bg-BlueHomz hover:bg-blue-700"
-                  } 
-      rounded-[4px] md:text-[16px] text-sm font-normal h-[48px] px-6 flex justify-center items-center
-      w-full md:w-auto` }
-                disabled={!formData?.firstName || !formData?.lastName || !formData?.phoneNumber}
+                onClick={handleSave}
+                disabled={!canSave || isSaving}
+                className={`${!canSave ? "bg-GrayHomz6 text-GrayHomz5 cursor-not-allowed" : "text-white bg-BlueHomz hover:bg-blue-700"} rounded-[4px] md:text-[16px] text-sm font-normal h-[48px] px-6 flex justify-center items-center w-full md:w-auto ${isSaving ? 'pointer-events-none opacity-70' : ''}`}
               >
-                Save Update
+                {isSaving ? <DotLoader /> : 'Save Update'}
               </button>
             </div>
           </div>
         )}
-
         {activeTab === 'password' && (
           <div className='mt-4'>
             <ChangePassword />

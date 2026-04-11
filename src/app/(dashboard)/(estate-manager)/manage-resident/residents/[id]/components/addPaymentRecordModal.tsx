@@ -391,8 +391,13 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                     residencyDuration: parseInt(formData.residencyDuration),
                     dueDate: formData.dueDate,
                 }),
-                billingStartDate: selectedBill?.billingStartDate,
-                billingEndDate: selectedBill?.billingEndDate,
+                // Pass dates exactly as received from the server to avoid timezone shifts
+                billingStartDate: selectedBill?.billingStartDate
+                    ? new Date(selectedBill.billingStartDate).toISOString()
+                    : undefined,
+                billingEndDate: selectedBill?.billingEndDate
+                    ? new Date(selectedBill.billingEndDate).toISOString()
+                    : undefined,
                 isResidencyType,
                 ...(residencyTypeDetails && { residencyTypeDetails })
             }

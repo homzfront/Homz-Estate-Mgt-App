@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import api from "@/utils/api";
 import DotLoader from "@/components/general/dotLoader";
 
-const ResetPasswordForm = () => {
+const ResetPasswordInner = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [formData, setFormData] = useState({
@@ -63,7 +63,7 @@ const ResetPasswordForm = () => {
 
     try {
 
-await api.post("/auth/reset-password", {
+      await api.put("/auth/reset-password", {
         token,
         newPassword: formData.password,
         confirmPassword: formData.repassword
@@ -207,12 +207,10 @@ await api.post("/auth/reset-password", {
   );
 };
 
-const ResetPassword = () => {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center h-screen"><DotLoader /></div>}>
-      <ResetPasswordForm />
-    </Suspense>
-  );
-};
+const ResetPassword = () => (
+  <Suspense fallback={<div className="flex h-screen items-center justify-center"><DotLoader /></div>}>
+    <ResetPasswordInner />
+  </Suspense>
+);
 
 export default ResetPassword;

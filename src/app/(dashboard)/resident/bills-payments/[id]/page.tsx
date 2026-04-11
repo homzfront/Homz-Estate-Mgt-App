@@ -23,26 +23,19 @@ const DetailedPage = () => {
     const { residentCommunity } = useResidentCommunity();
     const activeCommunity = residentCommunity?.[0];
 
-    const hasFetchedRef = React.useRef<string | null>(null);
-
+    // Always fetch fresh on mount and when id/filters change — picks up EM status changes
     useEffect(() => {
         if (activeCommunity && id) {
-            const isDifferentBill = hasFetchedRef.current !== id;
-            if (isDifferentBill) {
-                const { estateId, associatedIds } = activeCommunity;
-                const hasDataForThisBill = bills.some(b => b.billingId === id);
-
-                fetchResidentBills({
-                    estateId,
-                    organizationId: associatedIds.organizationId,
-                    residentId: associatedIds.residentId,
-                    billingId: id as string,
-                    silent: hasDataForThisBill
-                });
-                hasFetchedRef.current = id as string;
-            }
+            const { estateId, associatedIds } = activeCommunity;
+            fetchResidentBills({
+                estateId,
+                organizationId: associatedIds.organizationId,
+                residentId: associatedIds.residentId,
+                billingId: id as string,
+                silent: false,
+            });
         }
-    }, [activeCommunity, id, fetchResidentBills, search, frequency]); // Removed bills from dependencies to avoid infinite loop
+    }, [activeCommunity?.estateId, id, fetchResidentBills, search, frequency]);
 
     const groupedBills = useMemo(() => {
         const uniquePeriods: Record<string, ResidentBillItem> = {};
