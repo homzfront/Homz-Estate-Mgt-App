@@ -221,7 +221,7 @@ export const useBillStore = create<BillListState>()(
 
                     const res = await api.get<BillsApiResponse>(url)
                     const responseData = res.data?.data
-                    const results = responseData?.results || []
+                    const results = (responseData?.results || []).filter((b: any) => !b.isDeleted)
 
                     const currentHasData = results.length > 0
                     const previousHasEverHadData = get().hasEverHadData

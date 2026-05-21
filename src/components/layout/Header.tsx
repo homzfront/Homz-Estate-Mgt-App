@@ -97,8 +97,8 @@ const Header = () => {
       await logOutUser();
       setSpecificState('showLogoutModal', false);
       if (state.open) setSpecificState('open', false);
-    } catch (error) {
-      console.error("Logout failed:", error);
+    } catch {
+      // silent
     }
   };
 

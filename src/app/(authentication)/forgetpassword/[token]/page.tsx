@@ -4,7 +4,7 @@ import BashedEye from "@/components/icons/BashedEye";
 import Eye from "@/components/icons/Eye";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import AuthSlider from "@/components/auth/authSlider";
 import { useSearchParams } from "next/navigation";
 import { storeToken } from "@/utils/cookies";
@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import api from "@/utils/api";
 import DotLoader from "@/components/general/dotLoader";
 
-const ResetPassword = () => {
+const ResetPasswordInner = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [formData, setFormData] = useState({
@@ -212,4 +212,10 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <ResetPasswordInner />
+        </Suspense>
+    );
+}

@@ -192,8 +192,7 @@ export const useAccessCodeSlice = create<AccessCodeSlice>()(
                             throw apiError;
                         }
                     }
-                } catch (error: any) {
-                    console.error("Error fetching access codes:", error);
+                } catch {
                     set({ isLoading: false, initialLoading: false, pageLoading: false, isAppending: false, accessCode: null });
                 }
             },

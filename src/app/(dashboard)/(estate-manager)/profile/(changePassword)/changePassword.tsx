@@ -86,8 +86,7 @@ const ChangePassword = () => {
       //   setLoading(false);
       //   setShowDialogue(false);
       // }
-    } catch (error) {
-      console.error("Update error", error);
+    } catch {
       //
       setLoading(false);
       // if (

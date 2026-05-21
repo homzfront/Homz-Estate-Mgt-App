@@ -19,7 +19,7 @@ import AddIcon from '@/components/icons/addIcon';
 
 interface ManualFormProps {
     setOpenManualForm: (data: boolean) => void;
-    setOpenSuccessModal: (data: boolean) => void;
+    setOpenSuccessModal: (data: boolean, email?: string) => void;
 };
 
 interface ResidenceForm {
@@ -77,10 +77,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
         const refreshData = async () => {
             try {
                 await getEstates();
-            } catch (error) {
-                // Silently fail - component will use existing data
-                console.error('Failed to refresh estates data:', error);
-            }
+            } catch { /* silent — component uses existing data */ }
         };
         refreshData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -401,7 +398,7 @@ const ManualForm = ({ setOpenManualForm, setOpenSuccessModal }: ManualFormProps)
             // Make API call
             await api.post(`/community-manager/resident/create-profile/organizations/${selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${selectedCommunity?.estate?._id}`, payload);
 
-            setOpenSuccessModal(true)
+            setOpenSuccessModal(true, personalInfo.email)
             setOpenManualForm(false)
             fetchResidents({ page: 1, silent: true })
 

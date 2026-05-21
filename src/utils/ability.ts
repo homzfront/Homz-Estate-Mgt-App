@@ -48,6 +48,22 @@ export function defineAbilityFor(role: string): AppAbility {
             cannot('create', 'access-control'); // Cannot create access codes
             break;
 
+        case 'landlord':
+            // Landlord: read-only access to estate info and own profile
+            // Backend has no defined CASL for this role (defaults to cannot manage all)
+            can('read', 'dashboard');
+            can('read', 'estate-info');
+            can('read', 'profile');
+            can('update', 'profile');
+            cannot('create', 'all');
+            cannot('update', 'estate-info');
+            cannot('delete', 'all');
+            cannot('read', 'residents');
+            cannot('read', 'finance');
+            cannot('read', 'settings');
+            cannot('read', 'access-control');
+            break;
+
         case 'account_manager':
             can('read', 'dashboard');
             can('read', 'residents');

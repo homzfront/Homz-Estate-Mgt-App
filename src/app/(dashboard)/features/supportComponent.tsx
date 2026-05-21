@@ -1,155 +1,157 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-import React, { useState, FormEvent } from "react";
-import SuccessModal from "../components/successModal";
-import CustomInput from "@/components/general/customInput";
-import SectionOne from "./sectionOne";
+'use client';
+import React, { useState } from 'react';
+import { useAuthSlice } from '@/store/authStore';
+import toast from 'react-hot-toast';
+import DotLoader from '@/components/general/dotLoader';
+import { useRouter, usePathname } from 'next/navigation';
+import ArrowLeft from '@/components/icons/arrowLeft';
+import api from '@/utils/api';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
+import { useResidentCommunity } from '@/store/useResidentCommunity';
+import { useSelectedEsate } from '@/store/useSelectedEstate';
 
-interface SupportFormData {
-  fullname: string;
-  phoneNumber: string;
-  message: string;
-}
+const SupportComponent = () => {
+    const router = useRouter();
+    const pathname = usePathname();
+    const isResident = pathname?.startsWith('/resident');
+    const { userData, communityProfile } = useAuthSlice();
 
-const Support = () => {
-  const [doneDialogue, setDoneDialogue] = useState<boolean>(false);
-  const [formData, setFormData] = useState<SupportFormData>({
-    fullname: "",
-    phoneNumber: "",
-    message: ""
-  });
-  // const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+    // IDs for endpoints
+    const selectedCommunity = useSelectedCommunity((s) => s.selectedCommunity);
+    const { residentCommunity } = useResidentCommunity();
+    const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
+    const active = selectedEstate || residentCommunity?.[0];
 
-  const handleChange = (field: keyof SupportFormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    setError(null);
-  };
+    const emOrgId = selectedCommunity?.estate?.associatedIds?.organizationId || '';
+    const emEstateId = selectedCommunity?.estate?._id || '';
+    const resOrgId = active?.associatedIds?.organizationId || '';
+    const resEstateId = active?.estateId || '';
 
-  const validateForm = (): boolean => {
-    if (!formData.fullname.trim()) {
-      setError("Full name is required");
-      return false;
-    }
-    if (!formData.phoneNumber.trim()) {
-      setError("Phone number is required");
-      return false;
-    }
-    if (!/^\d+$/.test(formData.phoneNumber)) {
-      setError("Phone number must contain only digits");
-      return false;
-    }
-    if (!formData.message.trim()) {
-      setError("Message is required");
-      return false;
-    }
-    return true;
-  };
+    const defaultFirstName = communityProfile?.personal?.firstName || (userData as any)?.firstName || '';
+    const defaultLastName = communityProfile?.personal?.lastName || (userData as any)?.lastName || '';
+    const defaultEmail = communityProfile?.email || userData?.email || '';
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+    const [form, setForm] = useState({
+        firstName: defaultFirstName,
+        lastName: defaultLastName,
+        email: defaultEmail,
+        message: '',
+    });
+    const [loading, setLoading] = useState(false);
 
-    if (!validateForm()) return;
-    setDoneDialogue(true);
-    // if (loading) return;
+    const handleChange = (field: keyof typeof form, value: string) => {
+        setForm((prev) => ({ ...prev, [field]: value }));
+    };
 
-    // setLoading(true);
+    const handleSubmit = async () => {
+        if (!form.firstName || !form.lastName || !form.email || !form.message) {
+            toast.error('Please fill in all fields', { position: 'top-center' });
+            return;
+        }
+        setLoading(true);
+        try {
+            const payload = {
+                firstName: form.firstName,
+                lastName: form.lastName,
+                email: form.email,
+                message: form.message,
+            };
 
-    // try {
-    //   const response = await api.post("/support/create/enterprise", {
-    //     fullname: formData.fullname,
-    //     message: formData.message,
-    //     phoneNumber: parseInt(formData.phoneNumber),
-    //   });
+            if (isResident) {
+                await api.post(
+                    `/support/resident/organizations/${resOrgId}/estates/${resEstateId}`,
+                    payload
+                );
+            } else {
+                await api.post(
+                    `/support/community-manager/organizations/${emOrgId}/estates/${emEstateId}`,
+                    payload
+                );
+            }
 
-    //   if (response.data.statuscode === 200 || response.data.statuscode === 201) {
-    //     setFormData({
-    //       fullname: "",
-    //       phoneNumber: "",
-    //       message: ""
-    //     });
-    //     setDoneDialogue(true);
-    //   } else {
-    //     const errorMessage = response?.error?.message || "Failed to send message";
-    //     setError(errorMessage);
-    //   }
-    // } catch (error: any) {
-    //   let errorMessage = "Failed to send message";
+            toast.success("Message sent! We'll get back to you shortly.", {
+                position: 'top-center',
+                style: { background: '#E8F5E9', color: '#2E7D32', fontWeight: 500 },
+            });
+            setForm((f) => ({ ...f, message: '' }));
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || 'Failed to send message. Please try again.';
+            toast.error(msg, { position: 'top-center' });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    //   if (error?.response?.data?.error?.errors?.length > 0) {
-    //     errorMessage = error.response.data.error.errors[0];
-    //   } else if (error?.response?.data?.message) {
-    //     errorMessage = error.response.data.message;
-    //   }
-
-    //   setError(errorMessage);
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
-
-  return (
-    <div className="w-full p-7">
-      <h1 className="text-[20px] font-[500] mb-4 text-BlackHomz">Support</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-        <SectionOne />
-        <div>
-          <div className="flex flex-col max-w-[780px] gap-4">
-            <CustomInput
-              label="Full Name"
-              onChange={(e: any) => handleChange("fullname", e.target.value)}
-              value={formData.fullname}
-              type="text"
-              placeholder="FullName"
-              required
-              className='h-[45px] pl-4'
-            />
-            <CustomInput
-              label="Phone Number"
-              type="text" // Changed from number to text to better handle validation
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={(e: any) => handleChange("phoneNumber", e.target.value)}
-              required
-              className='h-[45px] pl-4'
-            />
-            <label className="text-BlackHomz text-[14px] font-[500] mb-1">
-              Your Message <span className="text-error">*</span>
-            </label>
-            <textarea
-              value={formData.message}
-              onChange={(e: any) => handleChange("message", e.target.value)}
-              placeholder="Your Message"
-              className="rounded-md px-4 h-[156px] border py-2"
-            />
-            {error && <span className="text-error text-[11px] italic">{error}</span>}
-            <button
-              onClick={handleSubmit}
-              className={`bg-BlueHomz mt-4 hover:bg-blue-400 text-white h-10 w-full rounded-md`}
-              type="submit"
-            // disabled={loading}
-            >
-              {/* {loading ? <LoadingFormII /> :  */}
-              Send Message
+    return (
+        <div className='p-8 w-full'>
+            <button onClick={() => router.back()} className='mb-6 flex items-center gap-2 text-[11px] text-GrayHomz2 font-medium'>
+                <ArrowLeft /> Back
             </button>
-          </div>
+            <div className='mb-6'>
+                <h1 className='text-[20px] font-semibold text-BlackHomz'>Contact Support</h1>
+                <p className='text-sm text-GrayHomz mt-0.5'>Send us a message and our team at <span className='font-medium text-BlackHomz'>support@homz.ng</span> will get back to you.</p>
+            </div>
+
+            <div className='bg-white rounded-[12px] border border-[#E6E6E6] p-6 max-w-[700px]'>
+                <div className='flex flex-col gap-5'>
+                    {/* First + Last name */}
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                        <div className='flex flex-col gap-1.5'>
+                            <label className='text-[13px] font-medium text-BlackHomz'>First Name</label>
+                            <input
+                                className='border border-[#E6E6E6] rounded-[8px] h-[48px] px-4 text-sm outline-none focus:border-BlueHomz transition-colors'
+                                placeholder='e.g. Josiah'
+                                value={form.firstName}
+                                onChange={(e) => handleChange('firstName', e.target.value)}
+                            />
+                        </div>
+                        <div className='flex flex-col gap-1.5'>
+                            <label className='text-[13px] font-medium text-BlackHomz'>Last Name</label>
+                            <input
+                                className='border border-[#E6E6E6] rounded-[8px] h-[48px] px-4 text-sm outline-none focus:border-BlueHomz transition-colors'
+                                placeholder='e.g. Martins'
+                                value={form.lastName}
+                                onChange={(e) => handleChange('lastName', e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className='flex flex-col gap-1.5'>
+                        <label className='text-[13px] font-medium text-BlackHomz'>Email</label>
+                        <input
+                            type='email'
+                            className='border border-[#E6E6E6] rounded-[8px] h-[48px] px-4 text-sm outline-none focus:border-BlueHomz transition-colors'
+                            placeholder='e.g. myemail@gmail.com'
+                            value={form.email}
+                            onChange={(e) => handleChange('email', e.target.value)}
+                        />
+                    </div>
+
+                    {/* Message */}
+                    <div className='flex flex-col gap-1.5'>
+                        <label className='text-[13px] font-medium text-BlackHomz'>Message</label>
+                        <textarea
+                            className='border border-[#E6E6E6] rounded-[8px] p-4 text-sm outline-none focus:border-BlueHomz transition-colors resize-none'
+                            rows={5}
+                            placeholder='Report issue here...'
+                            value={form.message}
+                            onChange={(e) => handleChange('message', e.target.value)}
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className='w-full h-[48px] bg-BlueHomz text-white rounded-[8px] font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center'
+                    >
+                        {loading ? <DotLoader /> : 'Send Message'}
+                    </button>
+                </div>
+            </div>
         </div>
-        {doneDialogue && (
-          <SuccessModal
-            isOpen={doneDialogue}
-            handleSubmit={() => { setDoneDialogue(false) }}
-            title="Message Sent"
-            successText="We'll get back to you shortly"
-            submitText="Close"
-            closeSuccessModal={() => setDoneDialogue(false)}
-          />
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
-export default Support;
+export default SupportComponent;

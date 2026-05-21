@@ -6,6 +6,14 @@ import { useRouter } from 'next/navigation';
 import ReceiptBill from '@/components/icons/receiptBill';
 import { useResidentBillStore, ResidentBillItem } from '@/store/useResidentBillStore';
 
+// billingId may come back as a populated object or a plain string
+const getBillingId = (billingId: any): string => {
+    if (!billingId) return '';
+    if (typeof billingId === 'string') return billingId;
+    if (typeof billingId === 'object') return billingId._id || billingId.id || String(billingId);
+    return String(billingId);
+};
+
 const Table = () => {
     const router = useRouter();
     const { bills, isLoading, currentPage, totalPages, loadMoreBills } = useResidentBillStore();
@@ -25,10 +33,14 @@ const Table = () => {
     }, [loaderRef.current, isLoading, currentPage, totalPages, loadMoreBills])
 
     const uniqueBills = React.useMemo(() => {
-        const seen = new Set();
+        // billingId comes back as a populated object {_id, name, isDeleted...} from $lookup
+        // Extract the string id for proper deduplication
+        const seen = new Set<string>();
         return bills.filter((bill: ResidentBillItem) => {
-            if (seen.has(bill.billingId)) return false;
-            seen.add(bill.billingId);
+            const bid = bill.billingId as any;
+            const key = typeof bid === 'object' && bid !== null ? (bid._id || String(bid)) : String(bid);
+            if (seen.has(key)) return false;
+            seen.add(key);
             return true;
         });
     }, [bills]);
@@ -47,7 +59,7 @@ const Table = () => {
                             </div>
                             <div>
                                 <p className='text-sm md:text-base font-medium text-GrayHomz capitalize'>
-                                    {bill.billType?.replace(/_/g, ' ')}
+                                    {(bill.billType?.replace(/_/g, ' ') || '').split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                                 </p>
                                 <p className='text-[11px] md:text-[13px] text-GrayHomz mt-1 capitalize'>{bill.frequency}</p>
                                 {bill.periodStatus && (
@@ -62,14 +74,14 @@ const Table = () => {
                             </div>
                         </div>
                         <button
-                            onClick={() => router.push(`/resident/bills-payments/${bill.billingId}`)}
+                            onClick={() => router.push(`/resident/bills-payments/${getBillingId(bill.billingId)}`)}
                             className="hidden md:flex items-center gap-2 text-BlueHomz font-semibold text-sm"
 
                         >
                             <BillNote /> <span className='flex items-center gap-1'>Bill details <ArrowRight className='#006aff' /></span>
                         </button>
                         <button
-                            onClick={() => router.push(`/resident/bills-payments/${bill.billingId}`)}
+                            onClick={() => router.push(`/resident/bills-payments/${getBillingId(bill.billingId)}`)}
                             className="md:hidden flex items-center gap-2 text-BlueHomz font-semibold text-sm"
                         >
                             <span><ArrowRight className='#006aff' /></span>

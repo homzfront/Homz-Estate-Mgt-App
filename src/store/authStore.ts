@@ -27,7 +27,9 @@ export interface AuthResponse {
     user: UserObject;
     userId: any;
     access_token: string;
+    accessToken?: string;
     refresh_token?: string;
+    refreshToken?: string;
     message?: string;
     success?: boolean;
     statusCode?: number;
@@ -178,8 +180,7 @@ export const useAuthSlice = create<AuthState>()(
                     );
                  
                     set({ estatesData: response?.data?.data?.estates?.results || [] });
-                } catch (error) {
-                    console.error("Failed to fetch estates:", error);
+                } catch {
                     // Set empty array on error so dashboard doesn't stay stuck on loader
                     set({ estatesData: [] });
                 } finally {
@@ -199,36 +200,74 @@ export const useAuthSlice = create<AuthState>()(
                     });
 
                     window.location.href = "/login";
-                } catch (error) {
-                    console.error("Logout error:", error);
+                } catch {
                     set({ error: "Failed to log out properly" });
                 }
             },
 
             createUser: async (payload: RegisterUser) => {
-                // const { isResident, estateId, organizationId } = useResidentStore.getState();
                 try {
                     set({ isSigningUP: true, error: null });
                     let response = null
                     let data = null
-                    // if (isResident && estateId && organizationId) {
-                    //     response = await api.post("/auth/resident/sign-up", payload);
-                    //     data = response.data;
-                    // } else {
-                    response = await api.post("/auth/sign-up", payload);
+                    // Check for pending co-resident invitation — use resident signup endpoint
+                    const pendingInvite = typeof window !== 'undefined'
+                        ? sessionStorage.getItem('homz_pending_coresident_invite')
+                        : null;
+                    if (pendingInvite) {
+                        response = await api.post("/auth/resident/sign-up", payload);
+                    } else {
+                        response = await api.post("/auth/sign-up", payload);
+                    }
                     data = response.data;
-                    // }
+
+                    // signUp_resident returns: { data: { accessToken, refreshToken, userId } }
+                    // signUp returns: { data: { accessToken, refreshToken } } or account_not_verified
+                    const tokenData = data.data || data;
+                    // Store token FIRST before setting userData
+                    // This ensures the cookie is written before any downstream effects fire
+                    if (tokenData?.accessToken) {
+                        await storeToken({
+                            token: tokenData.accessToken,
+                            refresh_token: tokenData.refreshToken,
+                        });
+                        // Set Authorization header immediately for subsequent api calls
+                        api.defaults.headers.common.Authorization = `Bearer ${tokenData.accessToken}`;
+                        // Also store in sessionStorage as fallback for immediate client-side access
+                        if (typeof window !== 'undefined') {
+                            sessionStorage.setItem('homz_access_token', tokenData.accessToken);
+                        }
+                    } else if (data.access_token) {
+                        await storeToken({ token: data.access_token });
+                        api.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
+                        if (typeof window !== 'undefined') {
+                            sessionStorage.setItem('homz_access_token', data.access_token);
+                        }
+                    }
+
                     set({
                         userData: { email: payload.email },
                     });
 
-                    if (data.access_token) {
-                        await storeToken({ token: data.access_token });
-                    }
+                    // Fetch full user profile using the fresh token directly
+                    // Don't use api instance here — it may still have old session token
+                    try {
+                        const freshToken = tokenData?.accessToken || data.access_token;
+                        if (freshToken) {
+                            const axios = (await import('axios')).default;
+                            const profile = await axios.get(
+                                `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/auth/current-user`,
+                                { headers: { Authorization: `Bearer ${freshToken}` } }
+                            );
+                            if (profile?.data?.data) {
+                                set({ userData: profile.data.data });
+                            }
+                        }
+                    } catch { /* silent - sidebar will guard against undefined _id */ }
 
-                    return data;
+                    // Return flattened so AuthResponse fields are accessible
+                    return { ...data, ...(data.data || {}), accessToken: tokenData?.accessToken };
                 } catch (error: any) {
-                    console.error("Registration error:", error);
                     set({ error: error.message || "Registration failed" });
                     throw error;
                 } finally {
@@ -246,7 +285,6 @@ export const useAuthSlice = create<AuthState>()(
                     // Automatically fetch estates after profile loads
                     await get().getEstates();
                 } catch (error: any) {
-                    console.error("failed to fetch community manager profile:", error);
                     set({ error: error.message || "failed", estateLoading: false });
                     throw error;
                 }
@@ -260,18 +298,29 @@ export const useAuthSlice = create<AuthState>()(
                 // Get org/estate from selectedEstate or residentCommunity
                 const selectedEstate = useSelectedEsate.getState()?.selectedEstate;
                 const residentCommunity = useResidentCommunity.getState()?.residentCommunity;
-                const activeCommunity = selectedEstate || residentCommunity?.[0];
+
+                // Always prefer fresh residentCommunity data over potentially stale selectedEstate
+                // The residentCommunity is fetched fresh on every login via fetchResidentEstate
+                const activeCommunity = residentCommunity?.find(
+                    e => e._id === selectedEstate?._id
+                ) || residentCommunity?.[0] || selectedEstate;
 
                 const organizationId = activeCommunity?.associatedIds?.organizationId ||
                     useResidentStore.getState().organizationId;
                 const estateId = activeCommunity?.estateId ||
                     useResidentStore.getState().estateId;
+                // Use residentId from fresh community data, not the passed param which may be stale
+                const freshResidentId = activeCommunity?.associatedIds?.residentId || residentId;
+
+                // Guard: don't call if any param is missing
+                if (!organizationId || !estateId || !freshResidentId) {
+                    return;
+                }
                 try {
-                    const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${residentId}`);
+                    const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${freshResidentId}`);
                     const data = response.data.data;
                     set({ residentProfile: data });
                 } catch (error: any) {
-                    console.error("failed to fetch resident profile:", error);
                     set({ error: error.message || "failed" });
                     throw error;
                 }

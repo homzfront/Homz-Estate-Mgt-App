@@ -31,26 +31,19 @@ const SelectProfile = () => {
 
         setProfilesLoading(true);
 
-        // Try loading CM profile first (works for estate owners)
+        // Try loading CM profile first
+        // 403 = not a CM (resident or unrecognised) — route to resident dashboard
         getCommunityManaProfile()
             .then(() => {
                 router.push('/dashboard');
             })
-            .catch(() => {
-                // getCommunityManaProfile failed — user might be an invited role member
-                // (admin/viewer/security) or a resident. Check account types.
-                const accounts = userData?.accounts ?? [];
-                const accountNames = accounts.map((acc: any) => acc?.name ?? acc?.accountType ?? '');
-                const hasCMAccount = accountNames.some((n: string) => n === 'COMMUNITY_MANAGER');
-                const hasResidentAccount = accountNames.some((n: string) => n === 'RESIDENT');
-
-                if (hasCMAccount) {
-                    // Invited role member — they belong to a CM estate, go to dashboard
-                    router.push('/dashboard');
-                } else if (hasResidentAccount) {
+            .catch((err: any) => {
+                const status = err?.response?.status;
+                if (status === 403 || status === 401) {
+                    // User is not a community manager — treat as resident
                     router.push('/resident/dashboard');
                 } else {
-                    // Unknown — stop loading and show selection cards
+                    // Unexpected error — show selection cards so user can choose
                     setProfilesLoading(false);
                 }
             });

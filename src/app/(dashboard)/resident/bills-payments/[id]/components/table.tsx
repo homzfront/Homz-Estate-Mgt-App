@@ -39,17 +39,23 @@ const Table = ({ groupedBills }: TableProps) => {
         }
     };
 
+    const isPeriodPaid = (bill: ResidentBillItem) => {
+        // Check both fields — backend sets `status` after wallet payment, `periodStatus` after cron
+        // A period is considered paid if EITHER field says 'paid'
+        const ps = bill.periodStatus?.toLowerCase();
+        const s = bill.status?.toLowerCase();
+        return ps === 'paid' || s === 'paid';
+    };
+
     const handleMoreInfo = (bill: ResidentBillItem) => {
         setSelectedBill(bill)
-        const isInactive = bill.status?.toLowerCase() === 'pending' || bill.status?.toLowerCase() === 'overdue'
-        setDisabledPaymentRecord(isInactive)
+        setDisabledPaymentRecord(isPeriodPaid(bill))
         setIsModalOpen(true)
         setpopUp(false)
     }
 
-    const handlePaymentRecord = (recordId: string, status: string) => {
-        const isInactive = status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'overdue'
-        if (!isInactive) {
+    const handlePaymentRecord = (recordId: string, bill: ResidentBillItem) => {
+        if (!isPeriodPaid(bill)) {
             router.push(`/resident/bills-payments/${billingId}/payment-record/${recordId}`)
         }
         setpopUp(false)
@@ -169,7 +175,7 @@ const Table = ({ groupedBills }: TableProps) => {
                                     ))
                                 ) : (
                                     billsList.map((row) => {
-                                        const isInactive = row.status === 'pending' || row.status === 'overdue';
+                                        const isInactive = isPeriodPaid(row);
                                         const statusStyles = getStatusStyles(row.periodStatus || row.status);
                                         return (
                                             <tr
@@ -226,7 +232,7 @@ const Table = ({ groupedBills }: TableProps) => {
                                                             onClose={() => setpopUp(false)}
                                                             anchorRef={{ current: buttonRefs.current[row._id] } as any}
                                                             handleMoreInfo={() => handleMoreInfo(row)}
-                                                            handlePaymentRecord={() => handlePaymentRecord(row._id, row.status)}
+                                                            handlePaymentRecord={() => handlePaymentRecord(row._id, row)}
                                                             isInactive={isInactive}
                                                         />
                                                     )}
@@ -239,6 +245,18 @@ const Table = ({ groupedBills }: TableProps) => {
                         </table>
                     </div>
                 </div>
+                {/* Upfront payment note — shown when latest period is fully paid */}
+                {billsList.length > 0 && billsList.every(b => isPeriodPaid(b)) && (
+                    <div className='mt-4 flex items-start gap-3 bg-[#EEF5FF] border border-[#C8DEFF] rounded-[10px] px-4 py-3'>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 mt-0.5">
+                            <circle cx="12" cy="12" r="10" stroke="#006AFF" strokeWidth="1.5"/>
+                            <path d="M12 8v4m0 4h.01" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <p className='text-[12px] text-BlueHomz leading-relaxed'>
+                            <span className='font-semibold'>All current periods are paid.</span> Your next billing period will appear here automatically once your current cycle ends. Upfront payment for future periods is not yet supported — you&apos;ll be notified when the next period is ready.
+                        </p>
+                    </div>
+                )}
             </div>
         </>
     )

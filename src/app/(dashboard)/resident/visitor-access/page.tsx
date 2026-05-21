@@ -2,7 +2,7 @@
 "use client"
 import AddIcon from '@/components/icons/addIcon';
 import BigKeyIcon from '@/components/icons/estateManager&Resident/desktop/bigKeyIcon';
-import React from 'react'
+import React, { Suspense } from 'react'
 import AccessCodeForm from './components/accessCodeForm';
 import SuccessModal from '../../components/successModal';
 import CustomModal from '@/components/general/customModal';
@@ -18,7 +18,7 @@ import { useAccessCodeSlice } from '@/store/useAccessCode';
 import { useSelectedEsate } from '@/store/useSelectedEstate';
 import { LoaderIcon } from 'react-hot-toast';
 
-const VisitorAccess = () => {
+const VisitorAccessInner = () => {
   // const searchParams = useSearchParams();
   // const initialPage = parseInt(searchParams.get('page') || '1', 10);
   const pageSize = 10;
@@ -288,4 +288,10 @@ const VisitorAccess = () => {
   )
 }
 
-export default VisitorAccess
+export default function VisitorAccess() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <VisitorAccessInner />
+        </Suspense>
+    );
+}

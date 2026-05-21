@@ -125,9 +125,8 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
             setDeleteModalOpen(false)
             setDeletingItem(null)
             setSuccessModalOpen(true)
-        } catch (error) {
-            console.error('Failed to delete payment:', error)
-            // You might want to show an error message here
+        } catch {
+            // silent — UI keeps modal closed
         } finally {
             setDeleteLoading(false)
         }
@@ -244,7 +243,15 @@ const Table: React.FC<Props> = ({ onOpenPaymentModal, residentId, apartmentId })
                                             <td className="py-[15px] text-GrayHomz4 font-[500] text-[11px] hidden md:table-cell w-[140px]">{group.formattedBillType}</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.frequency}</td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.paymentType}</td>
-                                            <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px] capitalize">[{group.paymentMode}]</td>
+                                            <td className="hidden md:table-cell py-[15px]">
+                                                {group.paymentMode === 'in-app' ? (
+                                                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#EEF5FF] text-BlueHomz">Wallet</span>
+                                                ) : group.paymentMode === 'offline' ? (
+                                                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#FFF3E0] text-[#E65100]">Offline</span>
+                                                ) : (
+                                                    <span className="text-[11px] text-GrayHomz">—</span>
+                                                )}
+                                            </td>
                                             <td className="hidden md:table-cell py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{group.amountPaid.toLocaleString()}</td>
                                             <td className="py-[15px] text-GrayHomz font-[500] text-[11px]">{group.currency}{group.outstanding.toLocaleString()}</td>
                                             <td className="hidden md:table-cell py-[15px]">

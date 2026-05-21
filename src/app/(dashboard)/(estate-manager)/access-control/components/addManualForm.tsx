@@ -147,8 +147,7 @@ const AddManualForm = ({ setOpenAddManual, setOpenSuccessModal }: AddManualFormP
                     duration: 2000,
                 });
             })
-            .catch(err => {
-                console.error('Failed to copy: ', err);
+            .catch(() => {
                 toast.error("Failed to copy message", {
                     position: "top-center",
                     duration: 2000,

@@ -12,10 +12,11 @@ interface PopUpProps {
     dropdownRef?: React.RefObject<HTMLDivElement>;
     memberData?: MemberItem;
     onDelete?: (member: MemberItem) => void;
+    onConfirmDelete?: (member: MemberItem) => void;
     deletingId?: string | null;
 }
 
-function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef, memberData, onDelete, deletingId }: PopUpProps) {
+function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef, memberData, onDelete, onConfirmDelete, deletingId }: PopUpProps) {
     const [active, setActive] = React.useState(false);
     const [activeTwo, setActiveTwo] = React.useState(false);
     return (
@@ -59,10 +60,12 @@ function PopUp({ setOpenDetails, fromDefault = true, setOpenPopUp, dropdownRef, 
                             <div
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    if (memberData && onDelete) {
+                                    setOpenPopUp(false);
+                                    if (memberData && onConfirmDelete) {
+                                        onConfirmDelete(memberData);
+                                    } else if (memberData && onDelete) {
                                         onDelete(memberData);
                                     }
-                                    setOpenPopUp(false);
                                 }}
                                 className="cursor-pointer px-2 hover:bg-whiteblue flex gap-1 items-center h-full w-full rounded-md"
                             >

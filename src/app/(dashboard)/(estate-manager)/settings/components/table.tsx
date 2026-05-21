@@ -30,6 +30,7 @@ const Table: React.FC<TableProps> = ({
     const [popUpIndex, setPopUpIndex] = React.useState<number | null>(null);
     const [openPopUp, setOpenPopUp] = React.useState(false);
     const [deletingId, setDeletingId] = React.useState<string | null>(null);
+    const [confirmMember, setConfirmMember] = React.useState<MemberItem | null>(null);
     const { deleteMember } = useMembersStore();
     const { communityProfile } = useAuthSlice();
     // Use email to identify the logged-in user's row (communityManagerId in members refers to ESTATE owner not the member)
@@ -92,6 +93,7 @@ const Table: React.FC<TableProps> = ({
     };
 
     return (
+        <>
         <div className="mt-8 w-full overflow-x-auto">
             <table className="w-full table-auto border-collapse">
                 <thead>
@@ -180,10 +182,7 @@ const Table: React.FC<TableProps> = ({
                                     </div>
                                 ) : (
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(data);
-                                        }}
+                                        onClick={(e) => { e.stopPropagation(); setConfirmMember(data); }}
                                         className="flex items-center gap-2 text-error font-[500] text-[11px] hover:opacity-70 transition-opacity"
                                     >
                                         <DeleteIcon /> Remove
@@ -217,6 +216,7 @@ const Table: React.FC<TableProps> = ({
                                         setOpenDetails={setOpenDetails}
                                         memberData={data}
                                         onDelete={handleDelete}
+                                        onConfirmDelete={(m: MemberItem) => { setOpenPopUp(false); setConfirmMember(m); }}
                                         deletingId={deletingId}
                                     />
                                 )}
@@ -226,6 +226,31 @@ const Table: React.FC<TableProps> = ({
                 </tbody>
             </table>
         </div>
+            {confirmMember && (
+                <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-[999] p-4'>
+                    <div className='bg-white rounded-[16px] w-full max-w-[360px] p-6 shadow-xl'>
+                        <div className='w-12 h-12 rounded-full bg-[#FEF2F2] flex items-center justify-center mx-auto mb-4'>
+                            <DeleteIcon />
+                        </div>
+                        <h3 className='text-[16px] font-bold text-BlackHomz text-center mb-1'>Remove Member?</h3>
+                        <p className='text-[13px] text-GrayHomz text-center mb-6'>
+                            Are you sure you want to remove <span className='font-semibold text-BlackHomz'>{confirmMember.firstName} {confirmMember.lastName}</span> from this estate?
+                        </p>
+                        <div className='flex gap-3'>
+                            <button onClick={() => setConfirmMember(null)}
+                                className='flex-1 h-[44px] border border-[#E8E8E8] rounded-[8px] text-[13px] font-medium text-BlackHomz hover:bg-[#F5F5F5]'>
+                                Cancel
+                            </button>
+                            <button onClick={async () => { const m = confirmMember!; setConfirmMember(null); await handleDelete(m); }}
+                                disabled={!!deletingId}
+                                className='flex-1 h-[44px] bg-[#D92D20] text-white rounded-[8px] text-[13px] font-semibold hover:bg-red-700 disabled:opacity-60'>
+                                Yes, Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

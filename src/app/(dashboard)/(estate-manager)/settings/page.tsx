@@ -270,7 +270,7 @@ const Settings = () => {
           </div>
         </CustomModal>
       }
-      <button onClick={() => router.back()} className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Settings</button>
+      <button onClick={() => router.back()} className='text-[16px] md:text-[20px] font-normal text-BlackHomz px-8 flex items-center gap-1'><span className='md:hidden'><ArrowLeft16Long /></span>Team &amp; Roles</button>
 
       {!selectedCommunity ? (
         <div className='px-8 mt-6'>
@@ -280,10 +280,10 @@ const Settings = () => {
         <>
           <div className='flex justify-start pb-8 border-b border-GrayHomz6 px-8'>
             <button className='h-[37px] bg-BlueHomz text-white text-[11px] md:text-sm font-normal rounded-[4px] px-3 py-2 mt-4'>
-              Manage Users
+              Team &amp; Roles
             </button>
           </div>
-          <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage communities, Residents, bills, and visitor access</p>
+          <p className='px-8 mt-7 text-sm md:text-[16px] font-normal text-GrayHomz'>Invite and assign roles to trusted users to help manage your estate</p>
           <div className='px-8 py-4'>
             <div className='bg-inputBg p-4 rounded-[12px]'>
               <button onClick={toggleDropdown} className="flex justify-between w-full">

@@ -9,7 +9,7 @@ import RegisterTenantIconMobile from '@/components/icons/estateManager&Resident/
 import EmptyEstateIconMobile from '@/components/icons/estateManager&Resident/mobile/emptyEstateIconMobile';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { Suspense } from 'react';
 import EmptyEstateState from '../components/emptyEstateState';
 import ArrowDown from '@/components/icons/arrowDown';
 import Image from 'next/image';
@@ -28,7 +28,7 @@ import { PermissionGuard } from '@/components/PermissionGuard';
 import InviteResident from '../manage-resident/residents/components/inviteResident';
 // import { useAuthSlice } from '@/store/authStore';
 
-const Dashboard = () => {
+const DashboardInner = () => {
     const [openEstateList, setOpenEstateList] = React.useState<boolean>(false);
     const [openInvite, setOpenInvite] = React.useState<boolean>(false);
     const searchParams = useSearchParams();
@@ -224,4 +224,10 @@ const Dashboard = () => {
     )
 }
 
-export default Dashboard
+export default function Dashboard() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <DashboardInner />
+        </Suspense>
+    );
+}

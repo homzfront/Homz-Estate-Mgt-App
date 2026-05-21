@@ -3,10 +3,10 @@ import CustomModal from '@/components/general/customModal';
 import AccessControlIcon from '@/components/icons/estateManager&Resident/mobile/accessControlIcon';
 import DashboardIcon from '@/components/icons/estateManager&Resident/mobile/dashboardIcon';
 import ExpensesIcon from '@/components/icons/estateManager&Resident/mobile/expensesIcon';
-// import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import PaymentIcon from '@/components/icons/estateManager&Resident/mobile/paymentIcon';
 import ResidentIcon from '@/components/icons/estateManager&Resident/mobile/residentIcon';
 import SettingsIcon from '@/components/icons/estateManager&Resident/mobile/settingsIcon';
+import ManageUserIcon from '@/components/icons/estateManager&Resident/desktop/manageUserIcon';
 import MobileClose from '@/components/icons/estateManager&Resident/mobile/mobileClose';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,180 +16,64 @@ import { useAuthSlice } from '@/store/authStore';
 import MoreIcon from '@/components/icons/estateManager&Resident/mobile/moreIcon';
 import UserTick from '@/components/icons/userTick';
 import { useAbility } from '@/contexts/AbilityContext';
-
-interface DataType {
-    id: number;
-    image: React.JSX.Element;
-    image2: React.JSX.Element;
-    link: string;
-    name: string;
-    extra: boolean;
-}
+import NotiIcon from '@/components/icons/estateManager&Resident/desktop/notiIcon';
+import MaintenanceIcon from '@/components/icons/maintenanceIcon';
+import { useNotificationStore } from '@/store/useNotificationStore';
 
 const Data = [
-    {
-        id: 1,
-        image: <DashboardIcon />,
-        image2: (
-            <DashboardIcon className='#006AFF' />
-        ),
-        link: "/dashboard",
-        name: "Dashboard",
-        extra: false,
-    },
-    {
-        id: 2,
-        image: <ResidentIcon />,
-        image2: (
-            <ResidentIcon className='#006AFF' />
-        ),
-        link: "/manage-resident/residents",
-        name: "Residents",
-        extra: false,
-    },
-    {
-        id: 3,
-        image: <AccessControlIcon />,
-        image2: (
-            <AccessControlIcon className='#006AFF' />
-        ),
-        link: "/access-control",
-        name: "Access Control",
-        extra: false,
-    },
-    {
-        id: 4,
-        image: <MoreIcon />,
-        image2: <MoreIcon className='#006AFF' />,
-        link: null,
-        name: "More",
-        extra: true,
-    }
-];
-
-const PopUpData = [
-    {
-        id: 1,
-        image: <UserTick color={"#202020"} width="21" height="21" />,
-        image2: <UserTick color={"#006AFF"} width="21" height="21" />,
-        link: '/manage-resident/request',
-        name: 'Requests',
-        coming_Soon: false,
-    },
-    {
-        id: 2,
-        image: <PaymentIcon />,
-        image2: (
-            <PaymentIcon className='#006AFF' />
-        ),
-        link: "/finance/payment",
-        name: "Payments",
-        coming_Soon: false,
-    },
-    {
-        id: 3,
-        image: <ExpensesIcon />,
-        image2: (
-            <ExpensesIcon className='#006AFF' />
-        ),
-        link: "/finance/bill-utility",
-        name: "Billing",
-        coming_Soon: false,
-    },
-    // {
-    //     id: 3,
-    //     image: <UsersIcon />,
-    //     image2: (
-    //         <UsersIcon className='#006AFF' />
-    //     ),
-    //     link: "/manage-resident",
-    //     name: "Users",
-    //     coming_Soon: true,
-    // },
-    // {
-    //     id: 4,
-    //     image: <SupportIcon />,
-    //     image2: <SupportIcon className='#006AFF' />,
-    //     link: "/support",
-    //     name: "Support",
-    //     coming_Soon: true,
-    // },
-    // {
-    //     id: 5,
-    //     image: <NotiIcon />,
-    //     image2: <NotiIcon className='#006AFF' />,
-    //     link: "/notification-page",
-    //     name: "Notifi...",
-    //     coming_Soon: true,
-    // },
-    // {
-    //     id: 6,
-    //     image: <ProfileIcon />,
-    //     image2: <ProfileIcon className='#006AFF' />,
-    //     link: "/profile",
-    //     name: "Profile"
-    // },
-    {
-        id: 7,
-        image: <SettingsIcon />,
-        image2: <SettingsIcon className='#006AFF' />,
-        link: "/settings",
-        name: "Settings",
-        coming_Soon: false,
-    },
-    {
-        id: 8,
-        image: <LogoutIcon />,
-        image2: <LogoutIcon />,
-        link: "",
-        name: "Logout"
-    }
+    { id: 1, image: <DashboardIcon />, image2: <DashboardIcon className='#006AFF' />, link: "/dashboard", name: "Dashboard", extra: false },
+    { id: 2, image: <ResidentIcon />, image2: <ResidentIcon className='#006AFF' />, link: "/manage-resident/residents", name: "Residents", extra: false },
+    { id: 3, image: <AccessControlIcon />, image2: <AccessControlIcon className='#006AFF' />, link: "/access-control", name: "Access", extra: false },
+    { id: 4, image: <MoreIcon />, image2: <MoreIcon className='#006AFF' />, link: null, name: "More", extra: true },
 ];
 
 const MobileFooter = () => {
     const ability = useAbility();
-    const { logOutUser } = useAuthSlice()
+    const { logOutUser } = useAuthSlice();
+    const [showLogout, setShowLogout] = React.useState(false);
     const pathname = usePathname();
-    const [subOpen, setSubOpen] = React.useState<DataType | null>(null);
-    const moreRoutes = ['/manage-resident/request', '/finance/payment', '/finance/bill-utility', '/settings'];
+    const { unreadCount } = useNotificationStore();
+    const [moreOpen, setMoreOpen] = React.useState(false);
 
-    const isRouteActive = (link: string) => {
-        if (pathname === link) return true;
-        if (link === '/manage-resident/residents' && pathname === '/manage-resident/residents/[id]') {
-            return true;
-        }
-        return false;
-    };
+    const moreRoutes = ['/manage-resident/request', '/finance/payment', '/finance/bill-utility', '/settings', '/settings/account', '/maintenance', '/notifications'];
+    const isRouteActive = (link: string) => !!link && (pathname === link || pathname.startsWith(link + '/'));
+    const isMoreActive = () => moreRoutes.some(r => isRouteActive(r));
 
-    const isMoreActive = () => moreRoutes.includes(pathname);
+    const popupItems = [
+        { id: 1, image: <UserTick color="#202020" width="21" height="21" />, image2: <UserTick color="#006AFF" width="21" height="21" />, link: '/manage-resident/request', name: 'Requests', show: ability.can('create', 'residents') },
+        { id: 2, image: <PaymentIcon />, image2: <PaymentIcon className='#006AFF' />, link: "/finance/payment", name: "Payments", show: true },
+        { id: 3, image: <ExpensesIcon />, image2: <ExpensesIcon className='#006AFF' />, link: "/finance/bill-utility", name: "Billing", show: true },
+        { id: 4, image: <MaintenanceIcon />, image2: <MaintenanceIcon className='#006AFF' />, link: "/maintenance", name: "Maintenance", show: true },
+        { id: 5, image: <NotiIcon />, image2: <NotiIcon className='#006AFF' />, link: "/notifications", name: "Notifs", badge: unreadCount, show: true },
+        { id: 6, image: <SettingsIcon />, image2: <SettingsIcon className='#006AFF' />, link: "/settings/account", name: "Settings", show: true },
+        { id: 7, image: <ManageUserIcon />, image2: <ManageUserIcon className='#006AFF' classNameII='#006AFF' />, link: "/settings", name: "Team", show: ability.can('read', 'settings') },
+        { id: 8, image: <LogoutIcon />, image2: <LogoutIcon />, link: "", name: "Logout", show: true },
+    ].filter(d => d.show);
 
     return (
         <>
-            {subOpen && (
-                <CustomModal onRequestClose={() => setSubOpen(null)} isOpen={subOpen?.extra}>
+            {moreOpen && (
+                <CustomModal onRequestClose={() => setMoreOpen(false)} isOpen={moreOpen}>
                     <div className='w-full max-w-[350px] mx-auto bg-white p-4 border border-[#E6E6E6] rounded-[12px] flex flex-col gap-4'>
                         <div className='flex justify-between items-center'>
                             <p className='text-sm font-normal text-BlackHomz'>More</p>
-                            <button onClick={() => setSubOpen(null)}>
-                                <MobileClose />
-                            </button>
+                            <button onClick={() => setMoreOpen(false)}><MobileClose /></button>
                         </div>
-                        <div className='grid grid-cols-4 justify-between gap-4 items-center'>
-                            {PopUpData.filter((item) => {
-                if (item.link === '/manage-resident/request' && !ability.can('create', 'residents')) return false;
-                return true;
-            }).map((data) => (
+                        <div className='grid grid-cols-4 gap-4 items-center'>
+                            {popupItems.map((data) => (
                                 <Link
                                     href={data.link}
                                     key={data.id}
-                                    onClick={async () => {
-                                        if (data?.name === "Logout") logOutUser();
-                                    }}
-                                    className={`${data.coming_Soon ? "opacity-50 pointer-events-none" : ""} flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] ${data?.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"
-                                        } text-[11px] font-[400] ${pathname === data.link ? "text-BlueHomz" : "text-GrayHomz"}`}
+                                    onClick={() => { if (data.name === "Logout") { setShowLogout(true); setMoreOpen(false); } else setMoreOpen(false); }}
+                                    className={`flex justify-center items-center rounded-[8px] p-1 h-[58px] w-[66px] ${data.name !== "Logout" ? "bg-[#F6F6F6]" : "bg-[#FDF2F2]"} text-[11px] font-[400]`}
                                 >
-                                    <span className={`flex flex-col gap-1 items-center truncate ${data?.name === "Logout" ? "text-error" : ""}`}>
-                                        {pathname === data.link ? data.image2 : data.image}
+                                    <span className={`relative flex flex-col gap-1 items-center truncate ${data.name === "Logout" ? "text-error" : isRouteActive(data.link) ? "text-BlueHomz" : "text-GrayHomz"}`}>
+                                        {isRouteActive(data.link) ? data.image2 : data.image}
+                                        {'badge' in data && data.badge && data.badge > 0 ? (
+                                            <span className='absolute -top-1 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center'>
+                                                {data.badge > 9 ? '9+' : data.badge}
+                                            </span>
+                                        ) : null}
                                         {data.name}
                                     </span>
                                 </Link>
@@ -199,31 +83,25 @@ const MobileFooter = () => {
                 </CustomModal>
             )}
 
-            {/* Footer fixed at bottom */}
             <div className='fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 px-4 py-2 flex justify-between items-center z-50 md:hidden'>
                 {Data.map((data) => {
-                    const isActive = data.extra ? isMoreActive() : isRouteActive(data.link ?? "/");
-
-                    return (
-                        <Link
-                            key={data.id}
-                            href={data?.link ? data.link : ""}
-                            onClick={() => {
-                                if (data?.extra) setSubOpen(data as DataType);
-                                else if (data?.name === "Logout") logOutUser();
-                            }}
-                            className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${isActive ? "text-BlueHomz" : data?.name === "Logout" ? "text-error" : "text-GrayHomz"
-                                }`}
-                        >
-                            {isActive ? data.image2 : data.image}
-                            <div className='flex items-center w-full truncate'>
+                    const active = data.extra ? isMoreActive() : isRouteActive(data.link ?? "/");
+                    if (data.extra) {
+                        return (
+                            <button key={data.id} onClick={() => setMoreOpen(true)} className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${active ? "text-BlueHomz" : "text-GrayHomz"}`}>
+                                {active ? data.image2 : data.image}
                                 <span>{data.name}</span>
-                            </div>
+                            </button>
+                        );
+                    }
+                    return (
+                        <Link key={data.id} href={data.link ?? ""} className={`flex flex-col gap-2 justify-center items-center p-1 text-[11px] font-[400] ${active ? "text-BlueHomz" : "text-GrayHomz"}`}>
+                            {active ? data.image2 : data.image}
+                            <span>{data.name}</span>
                         </Link>
                     );
                 })}
             </div>
-
         </>
     );
 };

@@ -7,12 +7,14 @@ interface StoreTokenRequest {
 }
 
 export async function storeToken(request: StoreTokenRequest) {
+  const isLocalhost = process.env.NODE_ENV === 'development';
+
   (await cookies()).set({
     name: "accessToken",
     value: request.token,
     httpOnly: true,
     sameSite: "strict",
-    secure: true,
+    secure: !isLocalhost, // don't use secure on localhost (http)
   });
 
   if (request.refresh_token) {
@@ -21,7 +23,7 @@ export async function storeToken(request: StoreTokenRequest) {
       value: request.refresh_token,
       httpOnly: true,
       sameSite: "strict",
-      secure: true,
+      secure: !isLocalhost,
     });
   }
 }

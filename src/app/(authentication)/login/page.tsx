@@ -56,6 +56,17 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Clear stale co-resident session data and resident community from previous flows
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('homz_access_token');
+        sessionStorage.removeItem('homz_pending_coresident_invite');
+      }
+      // Clear stale resident community data so we get fresh estates on login
+      const { useResidentCommunity } = await import('@/store/useResidentCommunity');
+      useResidentCommunity.getState().setResidentCommunity(null);
+      const { useSelectedEsate } = await import('@/store/useSelectedEstate');
+      useSelectedEsate.getState().setSelectedEstate(null);
+
       const response = await api.post("/auth/log-in", {
         email,
         password
@@ -83,10 +94,6 @@ const Login = () => {
 
       // Store user data
       setUserData(profile.data.data);
-      // console.log("profile data:", profile.data.data);
-      // setUserID(profile.data.data?._id);
-
-      // console.log("profile:", profile)
       if (profile?.data?.data?.accounts?.length === 0) {
         if (isResident && organizationId && estateId && token) {
           // User logged in but hasn't completed resident profile yet
@@ -116,10 +123,10 @@ const Login = () => {
         }
 
         clearResidentData();
-        const response = await api.get("/community-manager/current-profile");
-        if (!response) {
-          router.push("/resident/dashboard")
-        } else {
+        // Try CM profile — 403 means this user is a resident, not a CM
+        try {
+          await api.get("/community-manager/current-profile");
+          // Success — user is a community manager
           toast.success("Login successful!", {
             position: "top-center",
             duration: 2000,
@@ -133,6 +140,38 @@ const Login = () => {
             },
           });
           router.push("/dashboard");
+        } catch (profileErr: any) {
+          const status = profileErr?.response?.status;
+          if (status === 403 || status === 401) {
+            // Not a CM — must be a resident
+            toast.success("Login successful!", {
+              position: "top-center",
+              duration: 2000,
+              style: {
+                background: "#E8F5E9",
+                color: "#2E7D32",
+                fontWeight: 500,
+                padding: "12px 20px",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              },
+            });
+            // Check for pending invitation after login
+            const pendingInvite = sessionStorage.getItem('homz_pending_coresident_invite');
+            if (pendingInvite) {
+                try {
+                    const { token, estateId } = JSON.parse(pendingInvite);
+                    router.push(`/resident/accept-invitation?token=${token}&estateId=${estateId}`);
+                } catch {
+                    router.push("/resident/dashboard");
+                }
+            } else {
+                router.push("/resident/dashboard");
+            }
+          } else {
+            // Unexpected error — go to select-profile to let user choose
+            router.push("/select-profile");
+          }
         }
       }
     } catch (error: any) {
