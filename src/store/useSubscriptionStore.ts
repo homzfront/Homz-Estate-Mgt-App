@@ -7,6 +7,7 @@ export interface SubscriptionPlan {
     _id: string;
     name: string;
     description: string;
+    price?: number;
     monthlyPrice: number;
     annualPrice: number;
     features: string[];
@@ -36,21 +37,21 @@ export type FeatureKey =
     | 'residents_unlimited';
 
 const PLAN_FEATURES: Record<string, FeatureKey[]> = {
-    free: ['finance_view'],
+    free:       ['finance_view'],
     enterprise: ['finance_view', 'finance', 'payments', 'wallet', 'exports', 'residents_full'],
-    premium: ['finance_view', 'finance', 'payments', 'wallet', 'exports', 'residents_full', 'wallet_advanced', 'residents_unlimited'],
-    platinum: ['finance_view', 'finance', 'payments', 'wallet', 'exports', 'residents_full', 'wallet_advanced', 'residents_unlimited'],
+    premium:    ['finance_view', 'finance', 'payments', 'wallet', 'exports', 'residents_full', 'wallet_advanced', 'residents_unlimited'],
+    platinum:   ['finance_view', 'finance', 'payments', 'wallet', 'exports', 'residents_full', 'wallet_advanced', 'residents_unlimited'],
 };
 
 export const FEATURE_LABELS: Record<FeatureKey, { title: string; description: string; requiredPlan: string }> = {
-    finance_view: { title: 'Estate Billing (View)', description: 'View bills — upgrade to create and manage', requiredPlan: 'Enterprise' },
-    finance: { title: 'Estate Billing', description: 'Create and manage bills for your residents', requiredPlan: 'Enterprise' },
-    wallet: { title: 'Wallet Collections', description: 'Collect payments via resident wallets', requiredPlan: 'Enterprise' },
-    payments: { title: 'Estate Payments', description: 'Manage internal estate payment flows', requiredPlan: 'Enterprise' },
-    exports: { title: 'Financial Exports', description: 'Export financial summaries and statements', requiredPlan: 'Enterprise' },
-    residents_full: { title: 'Extended Residents', description: 'Manage up to 200 residents per estate', requiredPlan: 'Enterprise' },
-    wallet_advanced: { title: 'Advanced Wallet', description: 'External payments & automated Paystack payouts', requiredPlan: 'Premium' },
-    residents_unlimited: { title: 'Unlimited Residents', description: 'Manage unlimited residents per estate', requiredPlan: 'Premium' },
+    finance_view:        { title: 'Estate Billing (View)',   description: 'View bills — upgrade to create and manage',        requiredPlan: 'Enterprise' },
+    finance:             { title: 'Estate Billing',          description: 'Create and manage bills for your residents',        requiredPlan: 'Enterprise' },
+    wallet:              { title: 'Wallet Collections',      description: 'Collect payments via resident wallets',             requiredPlan: 'Enterprise' },
+    payments:            { title: 'Estate Payments',         description: 'Manage internal estate payment flows',              requiredPlan: 'Enterprise' },
+    exports:             { title: 'Financial Exports',       description: 'Export financial summaries and statements',         requiredPlan: 'Enterprise' },
+    residents_full:      { title: 'Extended Residents',      description: 'Manage up to 200 residents per estate',            requiredPlan: 'Enterprise' },
+    wallet_advanced:     { title: 'Advanced Wallet',         description: 'External payments & automated Paystack payouts',   requiredPlan: 'Premium'    },
+    residents_unlimited: { title: 'Unlimited Residents',     description: 'Manage unlimited residents per estate',            requiredPlan: 'Premium'    },
 };
 
 interface SubscriptionStore {
