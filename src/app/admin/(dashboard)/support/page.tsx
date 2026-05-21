@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 
@@ -40,7 +40,7 @@ const StatusBadge = ({ status }: { status?: string }) => {
     return <span className={`text-[12px] font-medium capitalize ${styles[s || ''] || 'text-[#9E9E9E]'}`}>{status || '—'}</span>;
 };
 
-export default function AdminSupportPage() {
+function AdminSupportPageInner() {
     const router = useRouter();
     const [tab, setTab] = useState<TabType>('support');
     const [messages, setMessages] = useState<SupportMsg[]>([]);
@@ -215,5 +215,13 @@ export default function AdminSupportPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function AdminSupportPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminSupportPageInner />
+        </Suspense>
     );
 }

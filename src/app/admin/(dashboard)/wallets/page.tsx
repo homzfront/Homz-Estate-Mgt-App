@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 
@@ -20,7 +20,7 @@ interface Wallet {
     ownerRole?: string;
 }
 
-export default function AdminWalletsPage() {
+function AdminWalletsPageInner() {
     const router = useRouter();
     const [wallets, setWallets] = useState<Wallet[]>([]);
     const searchParams = useSearchParams();
@@ -200,5 +200,13 @@ export default function AdminWalletsPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function AdminWalletsPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminWalletsPageInner />
+        </Suspense>
     );
 }

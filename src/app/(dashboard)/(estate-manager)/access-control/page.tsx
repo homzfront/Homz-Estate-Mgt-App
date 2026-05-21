@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useAccessStore } from '@/store/useAccessStore'
 import EmptyAccess from '@/components/icons/estateManager&Resident/desktop/emptyAccess'
 import AddWhiteBox from '@/components/icons/addWhiteBox'
@@ -17,7 +17,7 @@ import { useAbility } from '@/contexts/AbilityContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import EmptyEstateState from '../components/emptyEstateState'
 
-const AccessControl = () => {
+const AccessControlInner = () => {
     const router = useRouter();
     const ability = useAbility();
 
@@ -192,4 +192,10 @@ const AccessControl = () => {
     )
 }
 
-export default AccessControl
+export default function AccessControl() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AccessControlInner />
+        </Suspense>
+    );
+}

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
@@ -101,7 +101,7 @@ const SearchableSelect = ({ options, value, onChange, placeholder }: {
     );
 };
 
-export default function AdminUsersPage() {
+function AdminUsersPageInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [users, setUsers] = useState<User[]>([]);
@@ -253,5 +253,13 @@ export default function AdminUsersPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function AdminUsersPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminUsersPageInner />
+        </Suspense>
     );
 }

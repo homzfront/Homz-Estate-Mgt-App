@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 
@@ -31,7 +31,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
     free:     { label: 'Free',     color: '#1565C0' },
 };
 
-export default function AdminSubscriptionsPage() {
+function AdminSubscriptionsPageInner() {
     const router = useRouter();
     const [subs, setSubs] = useState<Subscription[]>([]);
     const [stats, setStats] = useState<Stats>({ totalRevenue: 0, totalSubscriptions: 0, activeSubscriptions: 0, expiredSubscriptions: 0 });
@@ -228,5 +228,13 @@ export default function AdminSubscriptionsPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function AdminSubscriptionsPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminSubscriptionsPageInner />
+        </Suspense>
     );
 }

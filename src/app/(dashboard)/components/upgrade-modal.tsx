@@ -122,11 +122,11 @@ export default function UpgradeModal() {
                                     <span className='text-[12px] text-GrayHomz'>Required Plan</span>
                                     <span className='text-[12px] font-semibold text-BlueHomz'>{requiredPlanName}</span>
                                 </div>
-                                {requiredPlan && requiredPlan.price > 0 && (
+                                {requiredPlan && (requiredPlan.price ?? 0) > 0 && (
                                     <div className='flex items-center justify-between mt-2 pt-2 border-t border-[#E6E6E6]'>
                                         <span className='text-[12px] text-GrayHomz'>Price</span>
                                         <span className='text-[12px] font-semibold text-BlackHomz'>
-                                            ₦{requiredPlan.price.toLocaleString()}/{requiredPlan.interval}
+                                            ₦{(requiredPlan.price ?? 0).toLocaleString()}/{requiredPlan.interval}
                                         </span>
                                     </div>
                                 )}

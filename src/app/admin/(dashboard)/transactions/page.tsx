@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 
@@ -188,7 +188,7 @@ function TxnDetailModal({ txn, onClose }: TxnDetailModalProps) {
 }
 
 
-export default function AdminTransactionsPage() {
+function AdminTransactionsPageInner() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const searchParams = useSearchParams();
     const [search, setSearch] = useState('');
@@ -323,5 +323,13 @@ export default function AdminTransactionsPage() {
 
             <TxnDetailModal txn={selected} onClose={() => setSelected(null)} />
         </div>
+    );
+}
+
+export default function AdminTransactionsPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminTransactionsPageInner />
+        </Suspense>
     );
 }

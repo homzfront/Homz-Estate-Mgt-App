@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 import { useAuthSlice } from '@/store/authStore';
@@ -9,7 +9,7 @@ type State = 'loading' | 'success' | 'error' | 'prompt';
 // Key used to store pending co-resident invitation across auth flow
 const PENDING_KEY = 'homz_pending_coresident_invite';
 
-export default function AcceptInvitationPage() {
+function AcceptInvitationPageInner() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { userData } = useAuthSlice();
@@ -196,5 +196,13 @@ export default function AcceptInvitationPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function AcceptInvitationPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AcceptInvitationPageInner />
+        </Suspense>
     );
 }

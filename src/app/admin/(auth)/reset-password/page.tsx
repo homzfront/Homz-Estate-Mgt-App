@@ -1,11 +1,11 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
-export default function AdminResetPasswordPage() {
+function AdminResetPasswordPageInner() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [token, setToken] = useState('');
@@ -110,5 +110,13 @@ export default function AdminResetPasswordPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function AdminResetPasswordPage() {
+    return (
+        <Suspense fallback={<div className='flex justify-center py-16'><div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' /></div>}>
+            <AdminResetPasswordPageInner />
+        </Suspense>
     );
 }
