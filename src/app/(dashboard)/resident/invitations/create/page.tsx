@@ -102,9 +102,7 @@ const Resident = () => {
         try {
             const response: any = await api.get(`/estates/public/single-estate/organizations/${organizationId}/estates/${estateId}`);
             setPublicCommunity(response?.data?.data);
-        } catch (error) {
-            console.error("Failed to fetch estates:", error);
-        };
+        } catch { /* silent */ }
     }
 
     // Handle URL parameters
@@ -342,12 +340,6 @@ const Resident = () => {
             setLoading(false);
         }
     };
-
-    // console.log("selectedOwner:", selectedOwner)
-    // console.log("formData:", formData)
-    // console.log("userData:", userData)
-
-    // console.log("publicCommunity:", publicCommunity)
 
     return (
         <div className="min-h-screen bg-[#F8F9FB]">

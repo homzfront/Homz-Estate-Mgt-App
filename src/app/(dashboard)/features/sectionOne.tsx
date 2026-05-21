@@ -31,9 +31,7 @@ const SupportComponent: React.FC = () => {
         setCopiedState((prevState) => ({ ...prevState, [identifier]: false })), 
         2000
       );
-    } catch (error) {
-      console.error('Unable to copy to clipboard:', error);
-    }
+    } catch { /* silent */ }
   };
 
   return (

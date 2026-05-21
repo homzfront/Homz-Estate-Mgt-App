@@ -20,8 +20,8 @@ const LogoutConfirmationModal: React.FC<LogoutConfirmationModalProps> = ({
     setIsLoading(true);
     try {
       await onConfirm();
-    } catch (error) {
-      console.error("Logout failed:", error);
+    } catch {
+      // silent
     } finally {
       setIsLoading(false);
     }

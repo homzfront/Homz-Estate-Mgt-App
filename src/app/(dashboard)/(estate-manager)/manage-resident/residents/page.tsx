@@ -31,6 +31,7 @@ const ManageResidents = () => {
     const [openInvite, setOpenInvite] = React.useState<boolean>(false);
     const [openSuccessModal, setOpenSuccessModal] = React.useState<boolean>(false);
     const [openManualForm, setOpenManualForm] = React.useState<boolean>(false);
+    const [invitedEmail, setInvitedEmail] = React.useState<string>('');
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     const { initialLoading, hasAnyData, fetchResidents, search } = useResidentsListStore();
 
@@ -63,10 +64,10 @@ const ManageResidents = () => {
                 <CustomModal isOpen={openManualForm} onRequestClose={() => setOpenManualForm(false)}>
                     <ManualForm
                         setOpenManualForm={setOpenManualForm}
-                        setOpenSuccessModal={(val) => {
+                        setOpenSuccessModal={(val: boolean, email?: string) => {
                             setOpenSuccessModal(val);
                             if (val === true) {
-                                // refetch residents after successful manual creation
+                                if (email) setInvitedEmail(email);
                                 fetchResidents({ page: 1, silent: true });
                             }
                         }}
@@ -78,7 +79,7 @@ const ManageResidents = () => {
                 <SuccessModal
                     isOpen={openSuccessModal}
                     title="Success! Invitation Sent"
-                    successText="Your invitation link has been sent to [Resident's Email]. They can now create an account and join your property directly from the email."
+                    successText={`Your invitation link has been sent to ${invitedEmail || 'the resident'}. They can now create an account and join your property directly from the email.`}
                     color="text-BlueHomz"
                     handleBack={() => {
                         setResidentData(true);

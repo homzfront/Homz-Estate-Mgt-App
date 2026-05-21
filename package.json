@@ -26,6 +26,7 @@
     "react-slick": "^0.30.3",
     "react-swiper": "^0.1.5",
     "slick-carousel": "^1.8.1",
+    "smile-identity-core": "^3.1.0",
     "swiper": "^11.2.10",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.6"

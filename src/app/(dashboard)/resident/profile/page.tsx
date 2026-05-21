@@ -66,18 +66,12 @@ const Profile = () => {
       // Update resident name fields
       await api.patch(
         `/resident/update-profile/organizations/${orgId}/estates/${estateId}/residents/${residentId}`,
-        { firstName: formData.firstName, lastName: formData.lastName }
+        { firstName: formData.firstName, lastName: formData.lastName, phoneNumber: formData.phoneNumber || undefined }
       )
 
       // Update phone number on the user/CM account if it changed
-      const originalPhone = communityProfile?.personal?.phoneNumber || ''
-      if (formData.phoneNumber && formData.phoneNumber !== originalPhone) {
-        if (communityProfile?._id) {
-          await api.patch(`/community-manager/update-profile/${communityProfile._id}`, {
-            phoneNumber: formData.phoneNumber,
-          })
-          await getCommunityManaProfile()
-        }
+      // Phone is updated via resident endpoint above
+      if (false) {
       }
 
       toast.success('Profile updated successfully!', {

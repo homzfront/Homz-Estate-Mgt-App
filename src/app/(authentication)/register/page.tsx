@@ -116,6 +116,23 @@ const Register = () => {
         return;
       }
 
+      // Check if this was a resident signup (signUp_resident skips email verification)
+      // and there's a pending co-resident invitation to accept
+      const pendingInvite = sessionStorage.getItem('homz_pending_coresident_invite');
+      if (pendingInvite && (result?.access_token || (result as any)?.accessToken)) {
+        // Already logged in — go accept the invitation
+        try {
+          const { token, estateId } = JSON.parse(pendingInvite);
+          toast.success("Account created! Accepting your invitation...", {
+            position: "top-center", duration: 2000,
+          });
+          router.push(`/resident/accept-invitation?token=${token}&estateId=${estateId}`);
+        } catch {
+          router.push("/resident/dashboard");
+        }
+        return;
+      }
+
       toast.success("Account created! Please check your email for the OTP.", {
         position: "top-center",
         duration: 3000,
@@ -128,7 +145,7 @@ const Register = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         },
       });
-      // Redirect to OTP verification page instead of login
+      // Pending co-resident invitation will be picked up after email verification and login
       router.push("/verify-email");
 
     } catch (error: any) {

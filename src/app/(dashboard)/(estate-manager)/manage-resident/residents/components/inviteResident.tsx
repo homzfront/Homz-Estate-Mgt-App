@@ -30,12 +30,6 @@ const InviteResident = ({ setOpenInvite }: InviteResidentProps) => {
     //     }));
     // };
 
-    // const handleSubmit = () => {
-    //     const payload = formData
-    //     console.log(payload)
-    //     setOpenInvite(false);
-    // }
-
     useEffect(() => {
         if (!selectedCommunity?.estate?._id) return;
 

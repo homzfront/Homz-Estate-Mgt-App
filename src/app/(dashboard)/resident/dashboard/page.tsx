@@ -55,10 +55,19 @@ const Dashboard = () => {
   //   { id: 4, label: 'Property4' },
   // ];
 
-  const secondOptions = [
-    { id: 1, name: 'Primary Resident', extra: "Role" },
+  const isFullAccessResident = ['resident', 'co-owner'].includes(selectedEstate?.role || 'resident');
+  const residentRoleLabel = selectedEstate?.role
+    ? selectedEstate.role.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+    : 'Primary Resident';
+
+  const secondOptions = isFullAccessResident ? [
+    { id: 1, name: residentRoleLabel, extra: "Role" },
     { id: 2, name: capitalizeFirstLetter(residentProfile?.ownershipType), extra: "Ownership Type" },
     { id: 3, name: formatDateReadable(residentProfile?.rentedDetails?.rentDueDate), extra: "Rent Due Date" },
+  ] : [
+    { id: 1, name: residentRoleLabel, extra: "Role" },
+    { id: 2, name: residentProfile?.zone || '—', extra: "Zone" },
+    { id: 3, name: residentProfile?.building || '—', extra: "Building" },
   ];
 
   const fetchAccessCode = async () => {
@@ -125,7 +134,7 @@ const Dashboard = () => {
     };
 
     fetchLatest(); // fire immediately on mount
-    const poll = setInterval(fetchLatest, 8000);
+    const poll = setInterval(fetchLatest, 30000);
     return () => clearInterval(poll);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEstate?.status, userData?._id]);

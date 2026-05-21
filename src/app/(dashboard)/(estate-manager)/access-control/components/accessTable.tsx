@@ -342,10 +342,8 @@ const AccessTable: React.FC<AccessTableProps> = ({ steps, residentIdFilter }) =>
                                                                         setUpdatingStatusId(row._id);
                                                                         await updateManagerAccessStatus(row._id, next as any);
                                                                         fetchManagerAccess({ page: 1, limit: 8, manualOnly: steps === 1 });
-                                                                    } catch (error) {
-                                                                        // Optionally show error toast here
-                                                                        console.error('Error updating status:', error);
-
+                                                                    } catch {
+                                                                        // silent — status reverts via re-fetch
                                                                     } finally {
                                                                         setOpenStatusIndex(null);
                                                                         setUpdatingStatusId(null);

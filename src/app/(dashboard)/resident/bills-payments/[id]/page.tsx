@@ -10,12 +10,14 @@ import LoadingSpinner from '@/components/general/loadingSpinner';
 
 const DetailedPage = () => {
     const router = useRouter();
-    const { id } = useParams();
+    const params = useParams();
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const {
         detailedBills: bills, // Renamed to detailedBills but kept local name if preferred
         detailedMetrics: metrics,
         fetchResidentBills,
         isLoading,
+        reset,
         search,
         frequency
     } = useResidentBillStore();
@@ -23,41 +25,29 @@ const DetailedPage = () => {
     const { residentCommunity } = useResidentCommunity();
     const activeCommunity = residentCommunity?.[0];
 
-    // Always fetch fresh on mount and when id/filters change — picks up EM status changes
+    // Always fetch fresh on mount — picks up payments made on payment-record page
     useEffect(() => {
         if (activeCommunity && id) {
             const { estateId, associatedIds } = activeCommunity;
+            reset();
             fetchResidentBills({
                 estateId,
                 organizationId: associatedIds.organizationId,
                 residentId: associatedIds.residentId,
-                billingId: id as string,
+                billingId: id || '',
                 silent: false,
             });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeCommunity?.estateId, id, fetchResidentBills, search, frequency]);
 
     const groupedBills = useMemo(() => {
-        const uniquePeriods: Record<string, ResidentBillItem> = {};
-
-        bills.forEach(bill => {
-            const periodKey = bill.period || 'Other';
-            const billDate = new Date(bill.updatedAt || bill.createdAt).getTime();
-
-            if (!uniquePeriods[periodKey]) {
-                uniquePeriods[periodKey] = bill;
-            } else {
-                const currentLatestDate = new Date(uniquePeriods[periodKey].updatedAt || uniquePeriods[periodKey].createdAt).getTime();
-                if (billDate > currentLatestDate) {
-                    uniquePeriods[periodKey] = bill;
-                }
-            }
-        });
-
-        // The Table expects Record<string, ResidentBillItem[]> where each period group has its bills
+        // Store already deduplicates by periodNumber (one record per period, earliest createdAt)
+        // Just convert to the Record<string, ResidentBillItem[]> shape the Table expects
         const result: Record<string, ResidentBillItem[]> = {};
-        Object.entries(uniquePeriods).forEach(([key, value]) => {
-            result[key] = [value];
+        bills.forEach(bill => {
+            const key = bill.periodNumber != null ? `period_${bill.periodNumber}` : `id_${bill._id}`;
+            result[key] = [bill];
         });
         return result;
     }, [bills]);
@@ -93,7 +83,8 @@ const DetailedPage = () => {
         },
     ];
 
-    const billName = bills?.[0]?.billType?.replace(/_/g, ' ') || 'Bill details';
+    const billName = (bills?.[0]?.billType?.replace(/_/g, ' ') || 'Bill details')
+        .split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
     return (
         <div className='w-full p-8'>

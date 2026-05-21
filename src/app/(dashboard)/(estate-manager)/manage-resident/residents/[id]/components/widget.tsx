@@ -11,6 +11,7 @@ import { ManagerResidentItem } from "@/store/useResidentsListStore";
 import BillPaymentPropertyList from "./billPaymentPropertyList";
 import { useBillPaymentStore } from '@/store/useBillPaymentStore'
 import ArrowLeft16Long from "@/components/icons/arrowLeft16Long";
+import CoResidentsTab from '@/app/(dashboard)/(estate-manager)/manage-resident/residents/[id]/components/coResidentsTab';
 
 interface widgetProps {
     residentData: ManagerResidentItem | null;
@@ -116,6 +117,12 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                             >
                                 <p>Bill Payment History</p>
                             </div>
+                            <div
+                                className={`cursor-pointer rounded-md h-[37px] w-[auto] px-4 text-[14px] font-[500] flex justify-center items-center text-center ${step === 2 ? "bg-BlueHomz text-white" : "text-GrayHomz"}`}
+                                onClick={() => setStep(2)}
+                            >
+                                <p>Co-Residents</p>
+                            </div>
                         </div>
                         <div className="flex gap-2 items-center">
                             {/* Only show Add button when an apartment is selected in billing */}
@@ -157,6 +164,9 @@ const Widget: React.FC<widgetProps> = ({ residentData }) => {
                                 apartmentId={selectedBillingProperty?.id ? String(selectedBillingProperty.id) : undefined}
                             />
                         </div>
+                    )}
+                    {step === 2 && (
+                        <CoResidentsTab residentData={residentData} />
                     )}
                 </div>
             </div>

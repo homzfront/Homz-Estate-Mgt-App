@@ -108,7 +108,6 @@ const ChangePassword = ({ setActive }: PasswordProps) => {
             setUserData(profile.data.data);
 
             const responseTwo: any = await api.get(`estates/resident/all-estates/users/${profile.data.data?._id}`);
-            // console.log("Resident Estate Response:", response);
             setResidentCommunity(responseTwo?.data?.data?.estates?.results)
 
             await getResidentProfile(responseTwo?.data?.data?.estates?.results?.[0]?.associatedIds?.residentId);

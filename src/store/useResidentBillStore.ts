@@ -65,6 +65,7 @@ interface FetchBillsParams {
     sortby?: number;
     silent?: boolean;
     billingId?: string;
+    bustCache?: boolean;
 }
 
 interface ResidentBillStore {
@@ -118,7 +119,7 @@ export const useResidentBillStore = create<ResidentBillStore>((set, get) => ({
     setFrequency: (val) => set({ frequency: val }),
 
     fetchResidentBills: async (params) => {
-        const { silent = false, billingId } = params;
+        const { silent = false, billingId, bustCache = false } = params;
         const state = get();
 
         // Rules for showing loader:
@@ -156,26 +157,80 @@ export const useResidentBillStore = create<ResidentBillStore>((set, get) => ({
             queryParams.append('sortby', sortby.toString());
             if (search) queryParams.append('search', search);
             if (frequency) queryParams.append('frequency', frequency);
-            if (billingId) queryParams.append('billingId', billingId);
+            if (billingId) {
+                const billingIdStr = typeof billingId === 'object' ? (billingId as any)._id || String(billingId) : billingId;
+                queryParams.append('billingId', billingIdStr);
+            }
+            // Add cache-buster to force fresh response after payment (avoids 304 stale data)
+            if (bustCache) queryParams.append('_t', Date.now().toString());
             const url = `/resident/bill-payment/organizations/${organizationId}/estates/${estateId}/residents/${residentId}?${queryParams.toString()}`;
 
             const response = await api.get(url);
 
             if (response.data.success) {
                 const { billing, stats } = response.data.data;
-                const { results, totalCount, totalPages, currentPage } = billing;
+                // Filter out soft-deleted billings (billingId is a populated object after $lookup)
+                const allResults = (billing?.results || []).filter((b: any) => {
+                    const billingObj = b.billingId;
+                    if (!billingObj) return false;
+                    if (billingObj.isDeleted === true) return false;
+                    if (billingObj.isActive === false) return false;
+                    return true;
+                });
+
+                // For the main bills LIST: one card per billing (show lowest periodNumber = current/oldest unpaid)
+                // For the DETAIL view: show all period records grouped by periodNumber
+                // billingId is a populated object — extract the string id for comparison
+                const getBillingIdStr = (b: any): string => {
+                    const bid = b.billingId;
+                    if (!bid) return b._id;
+                    if (typeof bid === 'string') return bid;
+                    return bid._id || String(bid);
+                };
+
+                const { totalCount, totalPages, currentPage } = billing;
 
                 if (billingId) {
+                    // Detail view: deduplicate by periodNumber, keeping the cron-generated record
+                    // (paymentMode === 'offline' and created by cron = no paymentDate initially)
+                    // Pick the record with the earliest createdAt per periodNumber (the original period record)
+                    const byPeriod: Record<number, any> = {};
+                    allResults.forEach((b: any) => {
+                        const pn = b.periodNumber ?? 0;
+                        if (!byPeriod[pn]) {
+                            byPeriod[pn] = b;
+                        } else {
+                            // Keep the one created earliest (the original period, not payment records)
+                            const existing = new Date(byPeriod[pn].createdAt).getTime();
+                            const current = new Date(b.createdAt).getTime();
+                            if (current < existing) byPeriod[pn] = b;
+                        }
+                    });
+                    const results = Object.values(byPeriod).sort((a: any, b: any) => a.periodNumber - b.periodNumber);
                     set({
-                        detailedBills: page === 1 ? results : [...get().detailedBills, ...results],
+                        detailedBills: results,
                         detailedMetrics: stats?.metrics || null,
-                        fullBillsHistory: page === 1 ? results : [...get().fullBillsHistory, ...results],
+                        fullBillsHistory: allResults, // ALL records including payment history for payment-record page
                         totalCount,
                         totalPages,
                         currentPage,
                         isInitialized: true
                     });
                 } else {
+                    // List view: one card per unique billingId, pick the most recent period status
+                    const byBilling: Record<string, any> = {};
+                    allResults.forEach((b: any) => {
+                        const key = getBillingIdStr(b);
+                        if (!byBilling[key]) {
+                            byBilling[key] = b;
+                        } else {
+                            // Keep highest periodNumber (most current period) for status display
+                            if ((b.periodNumber ?? 0) > (byBilling[key].periodNumber ?? 0)) {
+                                byBilling[key] = b;
+                            }
+                        }
+                    });
+                    const results = Object.values(byBilling);
                     set({
                         bills: page === 1 ? results : [...get().bills, ...results],
                         metrics: stats?.metrics || null,

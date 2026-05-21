@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { useSelectedCommunity } from './useSelectedCommunity';
 import { useSelectedEsate } from './useSelectedEstate';
 import { useResidentCommunity } from './useResidentCommunity';
+
 interface RentedDetails {
     rentDurationType: string;
     rentDuration: number;
@@ -38,24 +39,26 @@ export interface ResidentData {
     updatedAt: string;
 }
 
-interface ReponseData {
-    currentPage: number
-    limit: number
-    next: number
-    previous: number
-    results: ResidentData[]
-    totalCount: number
-    totalPages: number
+interface ResponseData {
+    currentPage: number;
+    limit: number;
+    next: number;
+    previous: number;
+    results: ResidentData[];
+    totalCount: number;
+    totalPages: number;
 }
+
 export interface RequestState {
     isLoading: boolean;
+    requestResponse: ResponseData | null;
+    // FIX: status and search are now separate params — not mixed up
     getRequest: (
         page?: number,
         limit?: number,
         status?: string,
         search?: string
     ) => Promise<void>;
-    requestResponse: ReponseData | null;
     clearRequest: () => void;
     sendCoResidentInvitation: (
         coResidentData: {
@@ -71,10 +74,11 @@ export interface RequestState {
 
 export const useRequestSlice = create<RequestState>()(
     (set) => ({
-        isLoading: true,
+        isLoading: false, // FIX: start false, not true — prevents flash of loading on mount
         requestResponse: null,
 
-        clearRequest: () => set({ requestResponse: null, isLoading: false }),
+        // FIX: don't wipe isLoading to false here, leave it for fetch to manage
+        clearRequest: () => set({ requestResponse: null }),
 
         getRequest: async (
             page = 1,
@@ -84,30 +88,39 @@ export const useRequestSlice = create<RequestState>()(
         ) => {
             set({ isLoading: true });
             try {
-                const baseUrl = `/resident-invitation/organizations/${useSelectedCommunity.getState().selectedCommunity?.estate?.associatedIds?.organizationId}/estates/${useSelectedCommunity.getState().selectedCommunity?.estate?._id}`;
-                let query = `${baseUrl}?limit=${limit}&page=${page}`;
+                const community = useSelectedCommunity.getState().selectedCommunity;
+                const orgId = community?.estate?.associatedIds?.organizationId;
+                const estateId = community?.estate?._id;
 
-                if (status) {
-                    query += `&status=${status}`;
+                if (!orgId || !estateId) {
+                    set({ isLoading: false });
+                    return;
                 }
 
-                if (search) {
-                    query += `&search=${search}`;
+                const baseUrl = `/resident-invitation/organizations/${orgId}/estates/${estateId}`;
+                const params = new URLSearchParams();
+                params.set('limit', String(limit));
+                params.set('page', String(page));
+
+                // FIX: status goes to status param, search goes to search param
+                if (status && status !== 'all') {
+                    params.set('status', status);
+                }
+                if (search && search.trim()) {
+                    params.set('search', search.trim());
                 }
 
-                const response = await api.get(query);
-                const data = response.data.data;
-                set({ requestResponse: data });
-            } catch (error: any) {
-                set({ isLoading: false });
-                throw error;
+                const response = await api.get(`${baseUrl}?${params.toString()}`);
+                const data = response.data?.data;
+                set({ requestResponse: data || null });
+            } catch {
+                set({ requestResponse: null });
             } finally {
                 set({ isLoading: false });
             }
         },
 
         sendCoResidentInvitation: async (coResidentData) => {
-            // On resident side: use selectedEstate or residentCommunity stores
             const selectedEstate = useSelectedEsate.getState()?.selectedEstate;
             const residentCommunity = useResidentCommunity.getState()?.residentCommunity;
             const activeCommunity = selectedEstate || residentCommunity?.[0];
@@ -122,16 +135,13 @@ export const useRequestSlice = create<RequestState>()(
             try {
                 const response = await api.post(
                     `/resident/invite-co-resident/organizations/${organizationId}/estates/${estateId}`,
-                    {
-                        coResident: coResidentData,
-                    }
+                    { coResident: coResidentData }
                 );
-
                 return response.data.data;
             } catch (error: any) {
                 const backendMessage = error?.response?.data?.message;
                 const backendMessageTwo = error?.response?.data?.message?.[0];
-                const fallbackMessage = error?.message || "Failed to send co-resident invitation";
+                const fallbackMessage = error?.message || 'Failed to send co-resident invitation';
                 throw new Error(backendMessage || backendMessageTwo || fallbackMessage);
             }
         },

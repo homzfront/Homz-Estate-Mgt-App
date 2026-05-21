@@ -17,15 +17,13 @@ interface Props {
 const Billing: React.FC<Props> = ({ openAddModal, onOpenPaymentModal, showData, residentId, apartmentId }) => {
     const { initialLoading, hasAnyData, items, lastApartmentId, fetchBillPayments, stats, isFilterActive } = useBillPaymentStore()
 
-    // Fetch data when component mounts or when apartmentId or residentId changes
+    // Always fetch fresh — ensures wallet payments show correct mode immediately
     React.useEffect(() => {
         if (residentId && apartmentId) {
             const state = useBillPaymentStore.getState()
-            const cacheKey = apartmentId
-            const cachedData = state.apartmentCache[cacheKey]
-
+            const cachedData = state.apartmentCache[apartmentId]
+            // Show cached data instantly to prevent flash
             if (cachedData) {
-                // Immediately load cached data to prevent empty state flash
                 useBillPaymentStore.setState({
                     items: cachedData.items,
                     totalCount: cachedData.totalCount,
@@ -40,10 +38,9 @@ const Billing: React.FC<Props> = ({ openAddModal, onOpenPaymentModal, showData, 
                     pageLoading: false,
                     isAppending: false,
                 })
-                // Don't fetch for cached data to avoid overwriting with potentially empty response
-            } else {
-                fetchBillPayments({ residentId, apartmentId })
             }
+            // Always fetch fresh to pick up latest mode/status changes
+            fetchBillPayments({ residentId, apartmentId })
         }
     }, [apartmentId, residentId, fetchBillPayments])
 
