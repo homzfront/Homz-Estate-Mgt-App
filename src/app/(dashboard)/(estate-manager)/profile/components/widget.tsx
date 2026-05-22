@@ -51,7 +51,7 @@ const Widget = () => {
   return (
     <div>
       <div className="w-full h-auto py-4">
-        <div className="flex mt-5 gap-2 justify-between w-[500px] cursor-pointer">
+        <div className="flex mt-5 gap-2 justify-between w-full max-w-[500px] cursor-pointer">
           {pages.map((page) => (
             <div
               key={page.id}

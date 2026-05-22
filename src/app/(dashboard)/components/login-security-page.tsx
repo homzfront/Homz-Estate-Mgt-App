@@ -110,7 +110,7 @@ export default function LoginSecurityPage() {
     };
 
     return (
-        <div className='p-8 w-full'>
+        <div className='p-4 md:p-8 w-full'>
             <button onClick={() => router.back()} className='mb-6 flex items-center gap-2 text-[11px] text-GrayHomz2 font-medium'>
                 <ArrowLeft /> Back
             </button>

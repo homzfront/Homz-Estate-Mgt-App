@@ -46,7 +46,7 @@ const Layout = ({
 
     return (
 
-        <div className='dashboard_main relative md:min-w-[1200px]'>
+        <div className='dashboard_main relative'>
             {openEstateList && (
                 <div className="absolute inset-0 z-[99999999] bg-black bg-opacity-50 flex justify-start">
                     <div className="w-full h-fit mt-[185px] ml-[25px] shadow-lg">

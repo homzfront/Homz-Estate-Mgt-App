@@ -4,8 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 .dashboard_main {
-  min-width: 1200px;
   max-width: 1728px;
   margin: 0 auto;
   width: 100%;
@@ -13,6 +21,7 @@
   flex-direction: row;
   background-color: white;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  overflow-x: hidden;
 }
 
 .header {
@@ -63,9 +72,11 @@
   }
 
   .dashboard_main {
-    min-width: 0px;
+    min-width: 0;
+    max-width: 100vw;
     flex-direction: column;
-    padding-bottom: 60px; /* 👈 Leave space for fixed footer */
+    padding-bottom: 80px;
+    overflow-x: hidden;
   }
 }
 
@@ -134,4 +145,3 @@
     0 85%
   ); /* Increased from 60% to show more of the image */
 }
-

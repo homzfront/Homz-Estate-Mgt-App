@@ -273,7 +273,7 @@ const Request = () => {
     const hasResults = !!(requestResponse?.results && requestResponse.results.length > 0);
 
     return (
-        <div className='p-8'>
+        <div className='p-4 md:p-8'>
             {/* Confirm modal */}
             <CustomModal isOpen={modelOpen !== ''} onRequestClose={() => setModelOpen('')}>
                 <div className='p-6 min-w-[340px] w-full md:w-[600px] bg-white rounded-[12px]'>

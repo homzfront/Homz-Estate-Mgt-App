@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSubscriptionStore, FEATURE_LABELS } from '@/store/useSubscriptionStore';
 import type { FeatureKey } from '@/store/useSubscriptionStore';
 import { useAuthSlice } from '@/store/authStore';
+import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import CustomModal from '@/components/general/customModal';
 
 type Step = 'prompt' | 'redirecting';
@@ -13,6 +14,9 @@ export default function UpgradeModal() {
     const { showUpgradeModal, upgradeFeature, closeUpgradeModal, plans, initializePayment, getPlanTier } = useSubscriptionStore();
     const { communityProfile } = useAuthSlice();
     const communityManagerId = communityProfile?._id || '';
+    const selectedCommunity = useSelectedCommunity((s) => s.selectedCommunity);
+    const organizationId = selectedCommunity?.associatedIds?.organizationId || '';
+    const estateId = selectedCommunity?.estate?._id || '';
     const router = useRouter();
     const [step, setStep] = useState<Step>('prompt');
 
@@ -36,7 +40,7 @@ export default function UpgradeModal() {
         }
         setStep('redirecting');
         try {
-            const url = await initializePayment(requiredPlan._id, communityManagerId);
+            const url = await initializePayment(requiredPlan._id, communityManagerId, 'monthly', organizationId, estateId);
             if (url) {
                 window.open(url, '_blank');
             } else {

@@ -157,7 +157,7 @@ export default function CoResidentsPage() {
     };
 
     return (
-        <div className='p-8 w-full'>
+        <div className='p-4 md:p-8 w-full'>
             <div className='mb-6'>
                 <h1 className='text-[20px] font-semibold text-BlackHomz'>Invite &amp; Manage</h1>
                 <p className='text-sm text-GrayHomz mt-1'>Invite co-residents and manage their roles.</p>

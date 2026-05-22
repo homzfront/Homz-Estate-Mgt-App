@@ -1,6 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import { useAuthSlice } from '@/store/authStore';
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
@@ -21,29 +21,33 @@ const LOCKED_FEATURES = [
     'Financial exports',
 ];
 
-export default function FreePlanWelcomeModal() {
+function FreePlanWelcomeModalInner() {
     const router = useRouter();
+    const pathname = usePathname();
     const { getPlanTier, plans, fetchPlans } = useSubscriptionStore();
     const { communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((s) => s.selectedCommunity);
     const [show, setShow] = useState(false);
 
-    // Only show to owner/admin — sub-users don't manage subscriptions
     const role = selectedCommunity?.role || 'owner';
     const canSeeModal = ['owner', 'admin'].includes(role);
-
     const STORAGE_KEY = `homz-free-welcome-${communityProfile?._id || 'em'}`;
 
     useEffect(() => {
         const seen = localStorage.getItem(STORAGE_KEY);
         const tier = getPlanTier();
-        // Show once if on free plan, haven't seen it, AND is owner/admin
-        if (!seen && tier === 'free' && communityProfile?._id && canSeeModal) {
+        const hasEstate = !!selectedCommunity?.estate?._id;
+
+        // Only show on clean /dashboard with no query params
+        const isCleanDashboard = pathname === '/dashboard' &&
+            (typeof window === 'undefined' || !window.location.search);
+
+        if (!seen && tier === 'free' && communityProfile?._id && canSeeModal && hasEstate && isCleanDashboard) {
             setShow(true);
             if (plans.length === 0) fetchPlans();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [communityProfile?._id]);
+    }, [communityProfile?._id, selectedCommunity?.estate?._id, pathname]);
 
     const handleDismiss = () => {
         localStorage.setItem(STORAGE_KEY, 'seen');
@@ -60,7 +64,6 @@ export default function FreePlanWelcomeModal() {
     return (
         <CustomModal isOpen={show} onRequestClose={handleDismiss}>
             <div className='w-[520px] max-w-[95vw] bg-white rounded-[16px] p-8'>
-                {/* Header */}
                 <div className='flex items-start justify-between mb-6'>
                     <div className='flex items-center gap-3'>
                         <div className='w-12 h-12 rounded-full bg-[#EEF5FF] flex items-center justify-center flex-shrink-0'>
@@ -86,7 +89,6 @@ export default function FreePlanWelcomeModal() {
                 </p>
 
                 <div className='grid grid-cols-2 gap-4 mb-6'>
-                    {/* What you have */}
                     <div className='bg-[#F6FFF8] border border-[#B2DFDB] rounded-[10px] p-4'>
                         <p className='text-[12px] font-semibold text-[#2E7D32] mb-3'>✓ Included in Free</p>
                         <div className='flex flex-col gap-2'>
@@ -101,7 +103,6 @@ export default function FreePlanWelcomeModal() {
                         </div>
                     </div>
 
-                    {/* What's locked */}
                     <div className='bg-[#FFF8F0] border border-[#FFCC80] rounded-[10px] p-4'>
                         <p className='text-[12px] font-semibold text-[#E65100] mb-3'>🔒 Unlock with Paid Plan</p>
                         <div className='flex flex-col gap-2'>
@@ -131,5 +132,13 @@ export default function FreePlanWelcomeModal() {
                 </button>
             </div>
         </CustomModal>
+    );
+}
+
+export default function FreePlanWelcomeModal() {
+    return (
+        <Suspense fallback={null}>
+            <FreePlanWelcomeModalInner />
+        </Suspense>
     );
 }

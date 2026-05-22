@@ -140,7 +140,7 @@ const Dashboard = () => {
   }, [selectedEstate?.status, userData?._id]);
 
   return (
-    <div className='p-8 mb-[150px]'>
+    <div className='p-4 md:p-8 mb-[150px]'>
       {openEstateList &&
         <CustomModal isOpen={openEstateList} onRequestClose={() => setOpenEstateList(false)}>
           <PickEstate closeRef={closeRef} />

@@ -118,7 +118,7 @@ export default function ResidentMaintenancePage() {
     // ── Create Form ──────────────────────────────────────────────────────────
     if (showForm) {
         return (
-            <div className='p-8 w-full'>
+            <div className='p-4 md:p-8 w-full'>
                 <button onClick={() => setShowForm(false)} className='mb-6 flex items-center gap-2 text-[11px] text-GrayHomz2 font-medium'>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="#4E4E4E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     Back
@@ -213,7 +213,7 @@ export default function ResidentMaintenancePage() {
 
     // ── List Page ────────────────────────────────────────────────────────────
     return (
-        <div className='p-8 w-full'>
+        <div className='p-4 md:p-8 w-full'>
             <div className='flex items-start justify-between mb-4'>
                 <div>
                     <h1 className='text-[20px] font-semibold text-BlackHomz'>Maintenance Request</h1>

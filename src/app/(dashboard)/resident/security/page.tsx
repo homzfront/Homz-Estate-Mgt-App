@@ -141,7 +141,7 @@ export default function ResidentKYCPage() {
     const cfg = STATUS_CONFIG[status];
 
     return (
-        <div className='p-8 w-full max-w-[600px]'>
+        <div className='p-4 md:p-8 w-full max-w-[600px]'>
             <h1 className='text-[20px] font-semibold text-BlackHomz mb-1'>Identity Verification</h1>
             <p className='text-sm text-GrayHomz mb-6'>Verify your identity to access all features of your estate account.</p>
 
