@@ -17,7 +17,13 @@ import { useResidentStore } from "@/store/useResidentStore";
 const VerifyEmail = () => {
   const router = useRouter();
   const { userData, setUserData } = useAuthSlice();
-  const email = userData?.email;
+  const email = userData?.email || (typeof window !== 'undefined' ? sessionStorage.getItem('homz_verify_email') || '' : '');
+  // Persist email to sessionStorage so it survives a page refresh
+  React.useEffect(() => {
+    if (userData?.email) {
+      sessionStorage.setItem('homz_verify_email', userData.email);
+    }
+  }, [userData?.email]);
   const [error, setError] = useState(false);
   const [error2, setError2] = useState("");
   const [verificationSuccess, setVerificationSuccess] = useState(false);

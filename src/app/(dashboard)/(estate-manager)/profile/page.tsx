@@ -18,7 +18,7 @@ const Profile = () => {
 
   return (
     <Suspense fallback={<p>Loading...</p>}>
-      <div className="p-8 w-full">
+      <div className="p-4 md:p-8 w-full">
         <p className="font-[500] text-[20px] text-GrayHomz">Profile</p>
         <div>
           <div className="hidden md:block">

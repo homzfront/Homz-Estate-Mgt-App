@@ -234,20 +234,20 @@ const Settings = () => {
             </div>
             <div className='mt-4 rounded-[12px] bg-inputBg p-4 flex flex-col gap-4 text-xs'>
               <div className='flex flex-row gap-8 items-center'>
-                <h3 className='w-[80px]'>First Name</h3>
-                <h3 className='w-[150px] flex items-start'>{selectedData?.firstName || 'N/A'}</h3>
+                <h3 className='w-[80px] shrink-0 text-sm'>First Name</h3>
+                <h3 className='flex-1 min-w-0 flex items-start text-sm break-all'>{selectedData?.firstName || 'N/A'}</h3>
               </div>
               <div className='flex flex-row gap-8 items-center'>
-                <h3 className='w-[80px]'>Last Name</h3>
-                <h3 className='w-[150px] flex items-start'>{selectedData?.lastName || 'N/A'}</h3>
+                <h3 className='w-[80px] shrink-0 text-sm'>Last Name</h3>
+                <h3 className='flex-1 min-w-0 flex items-start text-sm break-all'>{selectedData?.lastName || 'N/A'}</h3>
               </div>
               <div className="flex flex-row gap-8 items-start flex-wrap">
-                <h3 className="w-[80px]">Email</h3>
+                <h3 className='w-[80px] shrink-0 text-sm'>Email</h3>
                 <h3 className="break-all w-[150px]">{selectedData?.email}</h3>
               </div>
 
               <div className='flex flex-row gap-8 items-center'>
-                <h3 className='w-[80px]'>Role</h3>
+                <h3 className='w-[80px] shrink-0 text-sm'>Role</h3>
                 <div className='w-[150px]'>
                   {updatingRoleId === selectedData?._id ? (
                     <div className="flex justify-center items-center">

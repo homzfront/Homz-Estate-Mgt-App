@@ -91,7 +91,7 @@ const Profile = () => {
   const canSave = Boolean(formData.firstName && formData.lastName)
 
   return (
-    <div className='p-8 mb-[150px]'>
+    <div className='p-4 md:p-8 mb-[150px]'>
       <h1 className='text-[16px] md:text-[20px] text-BlackHomz font-normal md:font-medium'>Profile</h1>
 
       <div className='mt-4 flex flex-col md:flex-row gap-4'>

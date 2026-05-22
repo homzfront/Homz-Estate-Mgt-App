@@ -49,7 +49,7 @@ const ManageResidents = () => {
     }, [hasAnyData]);
 
     return (
-        <div className='p-8 w-full'>
+        <div className='p-4 md:p-8 w-full'>
             {
                 openInvite &&
                 <CustomModal isOpen={openInvite} onRequestClose={() => setOpenInvite(false)} closeOnOverlayClick={false}>

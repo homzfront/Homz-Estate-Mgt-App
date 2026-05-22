@@ -135,7 +135,7 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
     };
 
     return (
-        <div className='p-8 w-full'>
+        <div className='p-4 md:p-8 w-full'>
             <div className='mb-6'>
                 <h1 className='text-[20px] font-semibold text-BlackHomz'>
                     {role === 'resident' ? 'My Wallet' : 'Estate Wallet'}

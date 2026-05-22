@@ -155,6 +155,8 @@ export default function SubscriptionPage() {
     // communityProfile._id is the definitive community manager ID
     // It comes from /community-manager/current-profile which is always loaded at login
     // selectedCommunity.associatedIds.communityManagerId is a backup (same value, persisted)
+    const organizationId: string = selectedCommunity?.associatedIds?.organizationId || '';
+    const estateId: string = selectedCommunity?.estateId || selectedCommunity?.estate?._id || '';
     const communityManagerId: string =
         (communityProfile?._id as string) ||
         (selectedCommunity?.associatedIds?.communityManagerId as string) ||
@@ -221,7 +223,7 @@ export default function SubscriptionPage() {
 
         setModalStep('redirecting');
         try {
-            const url = await initializePayment(selectedPlan._id, communityManagerId, billing);
+            const url = await initializePayment(selectedPlan._id, communityManagerId, billing, organizationId, estateId);
             if (url) {
                 window.location.href = url;
             } else {

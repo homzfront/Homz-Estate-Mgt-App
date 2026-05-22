@@ -12,7 +12,8 @@ import { storeToken } from "@/utils/cookies";
 import api from "@/utils/api";
 import toast from "react-hot-toast";
 import { useAuthSlice } from "@/store/authStore";
-import { useResidentStore } from "@/store/useResidentStore";
+import { useResidentStore } from "@/store/useResidentStore"
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 
 const Login = () => {
@@ -298,9 +299,7 @@ const Login = () => {
                 </button>
               </form>
 
-              {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
-                OR
-              </span> */}
+              <SocialAuthButtons mode="login" />
               <div className="mt-4">
                 <p className="text-center font-[400] text-[14px]">
                   Don&apos;t have an account?{" "}

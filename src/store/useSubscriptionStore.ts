@@ -65,7 +65,7 @@ interface SubscriptionStore {
 
     fetchPlans: () => Promise<void>;
     fetchCurrent: (estateId?: string) => Promise<void>;
-    initializePayment: (planId: string, communityManagerId: string, interval?: 'monthly' | 'annually') => Promise<string>;
+    initializePayment: (planId: string, communityManagerId: string, interval?: 'monthly' | 'annually', organizationId?: string, estateId?: string) => Promise<string>;
     getPlanTier: () => string;
     canUse: (feature: FeatureKey) => boolean;
     promptUpgrade: (feature: FeatureKey) => void;
@@ -126,30 +126,18 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
                 finally { set({ isLoadingCurrent: false }); }
             },
 
-            initializePayment: async (planId, communityManagerId, interval = 'monthly') => {
-                // Fetch the plan to get the correct price for the selected billing cycle
-                // We send `amount` explicitly because the backend DTO may not support `interval`
-                const plan = get().plans.find(p => p._id === planId);
-                const amount = plan
-                    ? (interval === 'annually' ? plan.annualPrice : plan.monthlyPrice)
-                    : undefined;
+            initializePayment: async (planId, communityManagerId, interval = 'monthly', organizationId?: string, estateId?: string) => {
+                const callbackUrl = typeof window !== 'undefined'
+                    ? `${window.location.origin}/subscription?ref=paystack`
+                    : '';
 
-                const payload: Record<string, unknown> = {
-                    planId,
-                    type: 'CM_SUBSCRIPTION',
-                    communityManagerId,
-                    callbackUrl: typeof window !== 'undefined'
-                        ? `${window.location.origin}/subscription?ref=paystack`
-                        : '',
-                };
+                const payload = { interval, callbackUrl };
 
-                // Only send amount if we have it — backend will derive from plan if omitted
-                if (amount && amount > 0) {
-                    payload.amount = amount;
-                }
-
-                const res = await api.post('/payments/initialize', payload);
-                return res.data?.data?.authorization_url || '';
+                const res = await api.post(
+                    `/subscriptions/${planId}/initialize-payment/organizations/${organizationId}/estates/${estateId}`,
+                    payload
+                );
+                return res.data?.data?.authorization_url || res.data?.data?.payment_url || '';
             },
 
             getPlanTier: () => {

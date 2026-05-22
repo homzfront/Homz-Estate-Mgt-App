@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 
 const Register = () => {
   const router = useRouter();
-  const { createUser, isSigningUP, error, clearError } = useAuthSlice();
+  const { createUser, isSigningUP, error, clearError, setUserData } = useAuthSlice();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -112,6 +112,8 @@ const Register = () => {
           position: "top-center",
           duration: 3000,
         });
+        setUserData({ email: formData.email } as any);
+        sessionStorage.setItem('homz_verify_email', formData.email);
         router.push("/verify-email");
         return;
       }
@@ -146,6 +148,8 @@ const Register = () => {
         },
       });
       // Pending co-resident invitation will be picked up after email verification and login
+      setUserData({ email: formData.email } as any);
+      sessionStorage.setItem('homz_verify_email', formData.email);
       router.push("/verify-email");
 
     } catch (error: any) {
