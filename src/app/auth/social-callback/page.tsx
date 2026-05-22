@@ -31,10 +31,21 @@ function SocialCallbackInner() {
 
         const handleSocialLogin = async () => {
             try {
-                const res = await fetch(`${BACKEND_URL}/auth/social/${provider}?code=${encodeURIComponent(code)}`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                });
+                let res: Response;
+                if (provider === 'apple') {
+                    // Apple uses POST with body
+                    res = await fetch(`${BACKEND_URL}/auth/social/apple`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code }),
+                    });
+                } else {
+                    // Google uses GET with query param
+                    res = await fetch(`${BACKEND_URL}/auth/social/${provider}?code=${encodeURIComponent(code)}`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+                }
                 const data = await res.json();
 
                 if (!res.ok || !data.accessToken) {
