@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 // import Image from "next/image";
 import AuthSlider from "@/components/auth/authSlider";
 import DotLoader from "@/components/general/dotLoader";
-import { useAuthSlice } from "@/store/authStore";
+import { useAuthSlice } from "@/store/authStore"
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import toast from "react-hot-toast";
 
 const Register = () => {
@@ -316,9 +317,7 @@ const Register = () => {
                 {isSigningUP ? <DotLoader /> : "Get Started"}
               </button>
             </form>
-            {/* <span className="font-normal w-full text-center text-sm text-GrayHomz">
-              OR
-            </span> */}
+            <SocialAuthButtons mode="register" />
             <div className="mt-4">
               <p className="text-center font-[400] text-[14px]">
                 Already have an account?{" "}
