@@ -5,6 +5,8 @@ import AddFundsModal from '@/app/(dashboard)/components/add-funds-modal';
 import RequestPayoutsModal from '@/app/(dashboard)/components/request-payouts-modal';
 import ReceiptModal, { ReceiptData } from '@/app/(dashboard)/components/receipt-modal';
 import Dropdown from '@/components/general/dropDown';
+import { useKycStore } from '@/store/useKycStore';
+import { useRouter } from 'next/navigation';
 
 interface WalletPageProps {
     role: 'resident' | 'em';
@@ -33,10 +35,10 @@ function formatTime(iso: string) {
 }
 
 const TX_LABELS: Record<string, string> = {
-    FUNDING:      'Wallet Top-up',
+    FUNDING: 'Wallet Top-up',
     BILL_PAYMENT: 'Bill Payment',
-    WITHDRAWAL:   'Payout Request',
-    REFUND:       'Refund',
+    WITHDRAWAL: 'Payout Request',
+    REFUND: 'Refund',
     SUBSCRIPTION: 'Subscription',
 };
 
@@ -51,7 +53,7 @@ function txIcon(tx: WalletTransaction) {
     return (
         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isCredit ? 'bg-[#E8F5E9]' : 'bg-[#FFF3E0]'}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d={isCredit ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M5 12l7 7 7-7'} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d={isCredit ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M5 12l7 7 7-7'} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
         </div>
     );
@@ -101,9 +103,26 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
 
     const [showAddFunds, setShowAddFunds] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
+    const [showKycModal, setShowKycModal] = useState(false);
     const [selectedTx, setSelectedTx] = useState<WalletTransaction | null>(null);
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [page, setPage] = useState(1);
+
+    const { status: kycStatus, fetchStatus: fetchKycStatus } = useKycStore();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (role === 'em') fetchKycStatus();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [role]);
+
+    const handleWithdrawClick = () => {
+        if (role === 'em' && kycStatus !== 'APPROVED') {
+            setShowKycModal(true);
+        } else {
+            setShowWithdraw(true);
+        }
+    };
 
     const fetchBalance = () => role === 'resident'
         ? fetchResidentBalance(orgId, estateId)
@@ -119,7 +138,7 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
             fetchTx(1);
             if (role === 'em') fetchWithdrawals(orgId, estateId);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orgId, estateId, role]);
 
     const handleStatusFilter = (opt: { id: string | number }) => {
@@ -175,7 +194,7 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
                             </button>
                         ) : (
                             <button
-                                onClick={() => setShowWithdraw(true)}
+                                onClick={handleWithdrawClick}
                                 className='bg-white text-BlueHomz text-[13px] font-semibold px-5 py-2.5 rounded-[8px] hover:bg-[#F0F5FF] transition-colors whitespace-nowrap'
                             >
                                 Request Payout
@@ -210,9 +229,9 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
                                         <td className='py-3 px-4 text-center'>
                                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize
                                                 ${w.status === 'COMPLETED' ? 'bg-[#E8F5E9] text-[#039855]'
-                                                : w.status === 'PENDING' ? 'bg-[#FFF3E0] text-[#E65100]'
-                                                : w.status === 'APPROVED' ? 'bg-[#EEF5FF] text-BlueHomz'
-                                                : 'bg-[#FFEBEE] text-red-500'}`}>
+                                                    : w.status === 'PENDING' ? 'bg-[#FFF3E0] text-[#E65100]'
+                                                        : w.status === 'APPROVED' ? 'bg-[#EEF5FF] text-BlueHomz'
+                                                            : 'bg-[#FFEBEE] text-red-500'}`}>
                                                 {w.status.charAt(0) + w.status.slice(1).toLowerCase()}
                                             </span>
                                         </td>
@@ -253,8 +272,8 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
                 <div className='bg-white rounded-[12px] border border-[#E6E6E6] flex flex-col items-center justify-center py-16 gap-3'>
                     <div className='w-14 h-14 bg-[#EEF5FF] rounded-full flex items-center justify-center'>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M2 8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V15.5C22 19 20 20.5 17 20.5H7C4 20.5 2 19 2 15.5V8.5Z" stroke="#006AFF" strokeWidth="1.5"/>
-                            <path d="M15.5 12C15.5 10.62 16.62 9.5 18 9.5H22V14.5H18C16.62 14.5 15.5 13.38 15.5 12Z" stroke="#006AFF" strokeWidth="1.5"/>
+                            <path d="M2 8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V15.5C22 19 20 20.5 17 20.5H7C4 20.5 2 19 2 15.5V8.5Z" stroke="#006AFF" strokeWidth="1.5" />
+                            <path d="M15.5 12C15.5 10.62 16.62 9.5 18 9.5H22V14.5H18C16.62 14.5 15.5 13.38 15.5 12Z" stroke="#006AFF" strokeWidth="1.5" />
                         </svg>
                     </div>
                     <p className='text-base font-semibold text-BlackHomz'>No transactions yet</p>
@@ -296,7 +315,7 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
                                 title='Download receipt'
                             >
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </button>
                         </div>
@@ -327,7 +346,63 @@ export default function WalletPage({ role, orgId, estateId }: WalletPageProps) {
                 </div>
             )}
 
-            {/* Modals */}
+            {/* KYC Required Modal */}
+            {showKycModal && (
+                <div className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4'>
+                    <div className='w-full max-w-[420px] bg-white rounded-[16px] p-8 flex flex-col items-center gap-4 text-center'>
+                        <div className='w-16 h-16 bg-[#FFF3E0] rounded-full flex items-center justify-center'>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="11" width="18" height="11" rx="2" stroke="#E65100" strokeWidth="1.5" />
+                                <path d="M7 11V7a5 5 0 0110 0v4" stroke="#E65100" strokeWidth="1.5" strokeLinecap="round" />
+                                <circle cx="12" cy="16" r="1.5" fill="#E65100" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 className='text-[18px] font-bold text-BlackHomz'>KYC Verification Required</h2>
+                            <p className='text-[13px] text-GrayHomz mt-2 leading-relaxed'>
+                                {kycStatus === 'PENDING'
+                                    ? 'Your identity verification is currently under review. Withdrawal will be available once approved.'
+                                    : kycStatus === 'REJECTED'
+                                        ? 'Your verification was rejected. Please re-submit your identity documents to enable withdrawals.'
+                                        : 'You need to verify your identity before requesting a withdrawal. This keeps your account and funds secure.'}
+                            </p>
+                        </div>
+                        {kycStatus !== 'NONE' && (
+                            <span className={`text-[12px] font-semibold px-3 py-1 rounded-full ${kycStatus === 'PENDING' ? 'bg-[#FFF3E0] text-[#E65100]' :
+                                    kycStatus === 'REJECTED' ? 'bg-[#FFEBEE] text-[#D32F2F]' :
+                                        'bg-[#F5F5F5] text-[#616161]'
+                                }`}>
+                                {kycStatus === 'PENDING' ? 'Under Review' : kycStatus === 'REJECTED' ? 'Rejected' : kycStatus}
+                            </span>
+                        )}
+                        <div className='flex flex-col gap-3 w-full mt-2'>
+                            {kycStatus !== 'PENDING' && (
+                                <button
+                                    onClick={() => { setShowKycModal(false); router.push('/kyc'); }}
+                                    className='w-full h-[48px] bg-BlueHomz text-white rounded-[10px] font-semibold text-sm hover:opacity-90'
+                                >
+                                    {kycStatus === 'REJECTED' ? 'Re-submit Verification' : 'Verify My Identity'}
+                                </button>
+                            )}
+                            {kycStatus === 'PENDING' && (
+                                <button
+                                    onClick={() => { fetchKycStatus(); }}
+                                    className='w-full h-[48px] bg-BlueHomz text-white rounded-[10px] font-semibold text-sm hover:opacity-90'
+                                >
+                                    Check Status
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setShowKycModal(false)}
+                                className='w-full h-[44px] border border-[#E6E6E6] text-GrayHomz rounded-[10px] text-sm hover:bg-[#F5F5F5]'
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Withdrawal Modal */}
             <AddFundsModal
                 isOpen={showAddFunds}
                 onClose={() => setShowAddFunds(false)}

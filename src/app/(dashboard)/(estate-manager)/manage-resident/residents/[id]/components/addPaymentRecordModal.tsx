@@ -47,6 +47,11 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
     const { items: bills, fetchBills } = useBillStore();
     const { fetchBillPayments } = useBillPaymentStore();
 
+    // Pending payment records for the selected apartment — used to auto-fill period fields
+    const [pendingRecords, setPendingRecords] = React.useState<any[]>([]);
+    const [selectedRecord, setSelectedRecord] = React.useState<any | null>(null);
+    const [loadingPending, setLoadingPending] = React.useState(false);
+
     const [formData, setFormData] = React.useState<FormData>(() => ({
         paymentDate: (initialData?.paymentDate as string) || '',
         billType: (initialData?.billType as string) || '',
@@ -76,6 +81,8 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             dueDate: ''
         });
         setSelectedBill(null);
+        setSelectedRecord(null);
+        setPendingRecords([]);
     };
 
     // Fetch bills when modal opens (only if not already loaded)
@@ -84,6 +91,34 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             fetchBills({ limit: 100 })
         }
     }, [isOpen, bills.length, residentData, fetchBills])
+
+    // For new payments (not editing), fetch pending/overdue records for this apartment
+    // so the CM can select a period and have all fields auto-filled
+    React.useEffect(() => {
+        if (!isOpen || initialData) return;
+        const orgId = residentData?.associatedIds?.organizationId;
+        const estateId = residentData?.associatedIds?.estateId;
+        const residentId = residentData?._id;
+        const apartmentId = selectedProperty?.id;
+        if (!orgId || !estateId || !residentId || !apartmentId) return;
+
+        setLoadingPending(true);
+        setPendingRecords([]);
+        setSelectedRecord(null);
+
+        api.get(`/community-manager/bill-payment/organizations/${orgId}/estates/${estateId}/residents/${residentId}?limit=100&status=pending`)
+            .then(res => {
+                const results = res.data?.data?.billing?.results || [];
+                // Filter to only this apartment's pending/overdue records
+                const forApartment = results.filter((r: any) =>
+                    r.apartmentId === String(apartmentId) &&
+                    (r.status?.toLowerCase() === 'pending' || r.status?.toLowerCase() === 'overdue')
+                );
+                setPendingRecords(forApartment);
+            })
+            .catch(() => setPendingRecords([]))
+            .finally(() => setLoadingPending(false));
+    }, [isOpen, initialData, residentData, selectedProperty?.id]);
 
     // Reset form when opening for add (no initialData)
     React.useEffect(() => {
@@ -200,6 +235,34 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
             }
         }
     }, [bills, formData.billType])
+
+    const handleRecordSelect = (record: any) => {
+        setSelectedRecord(record);
+
+        // Find the matching bill from the store
+        const bill = bills.find(b => b._id === record.billingId || b.billName === record.billType);
+        if (bill) setSelectedBill(bill);
+
+        const formatDate = (d: any) => {
+            if (!d) return '';
+            try { return new Date(d).toISOString().split('T')[0]; } catch { return ''; }
+        };
+
+        setFormData(prev => ({
+            ...prev,
+            billType: record.billType ? formatBillType(record.billType) : prev.billType,
+            frequency: record.frequency ? capitalizeFirstLetter(record.frequency) : prev.frequency,
+            periodNumber: record.periodNumber?.toString() || prev.periodNumber,
+            amount: record.amount?.toString() || prev.amount,
+            amountPaid: '',   // CM fills this in
+            paymentType: '',  // CM chooses
+            paymentDate: '',  // CM fills this in
+            startDate: formatDate(record.startDate) || formatDate(record.billingStartDate) || prev.startDate,
+            dueDate: formatDate(record.dueDate) || prev.dueDate,
+            residencyDuration: record.residencyDuration?.toString() || prev.residencyDuration,
+            residencyType: record.residencyTypeDetails?.residencyType || prev.residencyType,
+        }));
+    };
 
     const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }))
@@ -352,8 +415,8 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                 return
             }
 
-            // Use selected bill's ID if available, otherwise fallback (though user should select a bill)
-            const billingId = initialData?.billingId as string || selectedBill?._id
+            // Use billing ID from the selected pending record first, then fall back to selectedBill
+            const billingId = (selectedRecord?.billingId as string) || (initialData?.billingId as string) || selectedBill?._id
 
             if (!billingId) {
                 toast.error('Please select a valid bill type')
@@ -549,6 +612,49 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                     <p className='mt-1 text-[13px] font-normal text-GrayHomz mr-[10%] md:mr-[20%]'>Manually log payments made outside the platform to keep records up-to-date and complete.</p>
 
                     <div className='mt-6'>
+                        {/* Pending period selector — only for new payments, not edits */}
+                        {!initialData && (
+                            <div className='mb-4 bg-[#EEF5FF] border border-[#C7DCFF] rounded-[8px] p-4'>
+                                <p className='text-sm font-medium text-BlueHomz mb-1'>Select Pending Period</p>
+                                <p className='text-xs text-GrayHomz mb-3'>
+                                    {loadingPending
+                                        ? 'Loading pending records...'
+                                        : pendingRecords.length === 0
+                                            ? 'No pending records found for this property. Fill in the form manually below.'
+                                            : 'Select a pending period to auto-fill the form. You only need to enter the amount paid and payment date.'}
+                                </p>
+                                {loadingPending && (
+                                    <div className='flex items-center gap-2 text-xs text-GrayHomz'>
+                                        <div className='w-4 h-4 border-2 border-BlueHomz border-t-transparent rounded-full animate-spin' />
+                                        Loading...
+                                    </div>
+                                )}
+                                {!loadingPending && pendingRecords.length > 0 && (
+                                    <div className='flex flex-col gap-2 max-h-[160px] overflow-y-auto'>
+                                        {pendingRecords.map((record: any) => {
+                                            const isSelected = selectedRecord?._id === record._id;
+                                            const isOverdue = record.status?.toLowerCase() === 'overdue';
+                                            return (
+                                                <button
+                                                    key={record._id}
+                                                    onClick={() => handleRecordSelect(record)}
+                                                    className={`flex items-center justify-between text-left px-3 py-2 rounded-[6px] border text-xs transition-all
+                                                        ${isSelected
+                                                            ? 'border-BlueHomz bg-white text-BlueHomz font-medium'
+                                                            : 'border-[#E6E6E6] bg-white text-GrayHomz hover:border-BlueHomz'
+                                                        }`}
+                                                >
+                                                    <span>{formatBillType(record.billType)} — Period {record.periodNumber} ({capitalizeFirstLetter(record.frequency)})</span>
+                                                    <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${isOverdue ? 'bg-[#FDF2F2] text-error' : 'bg-warningBg text-warning'}`}>
+                                                        {isOverdue ? 'Overdue' : 'Pending'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className='bg-inputBg py-5 px-4 rounded-[8px] space-y-4'>
                             <div className='grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 items-center'>
                                 <label className='text-sm text-GrayHomz font-medium'>Payment Date <span className='text-red-500'>*</span></label>
@@ -707,9 +813,9 @@ const AddPaymentRecordModal: React.FC<Props> = ({ isOpen, onRequestClose, initia
                             )}
                         </div>
                         <button disabled={loading} onClick={handleSave} className={`${loading ? 'pointer-events-none flex justify-center h-[48px]' : ''} mt-4 w-full text-white bg-BlueHomz p-3 hover:bg-BlueHomzDark rounded-[4px]`}>{loading ? 'Saving...' : 'Record Transaction'}</button>
-                    </div>
-                </div >
-            </CustomModal >
+                    </div>{/* end mt-6 */}
+                </div>
+            </CustomModal>
             <SuccessModal
                 isOpen={showSuccess}
                 title={'Offline Bill Payment Added Successfully'}

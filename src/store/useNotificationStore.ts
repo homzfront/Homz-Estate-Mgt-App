@@ -7,7 +7,8 @@ export interface NotificationItem {
     _id: string;
     title: string;
     message: string;
-    type: 'access_control' | 'bill' | 'payment' | 'co_resident' | 'maintenance' | 'system' | 'wallet' | 'general';
+    type: 'ACCESS_CONTROL' | 'BILLING' | 'BILLINGS_PAYMENTS' | 'RESIDENT_ACTIVITY' | 'WALLET_TRANSACTIONS' | 'SYSTEM_SECURITY' | 'MAINTENANCE' | 'GENERAL'
+        | 'access_control' | 'bill' | 'payment' | 'co_resident' | 'maintenance' | 'system' | 'wallet' | 'general';
     isRead: boolean;
     createdAt: string;
     updatedAt: string;
@@ -19,6 +20,7 @@ export interface NotificationSettings {
     pushNotifications: boolean;
     emailNotifications: boolean;
     billingsAndPayments: boolean;
+    residentActivity: boolean;
     accessControl: boolean;
     walletAndTransactions: boolean;
     systemAndSecurity: boolean;
@@ -42,6 +44,7 @@ function fromApi(data: any): NotificationSettings {
         pushNotifications:    data?.push          ?? true,
         emailNotifications:   data?.email         ?? true,
         billingsAndPayments:  data?.categories?.billingsPayments  ?? true,
+        residentActivity:     data?.categories?.residentActivity  ?? true,
         accessControl:        data?.categories?.accessControl     ?? true,
         walletAndTransactions:data?.categories?.walletTransactions ?? true,
         systemAndSecurity:    data?.categories?.systemSecurity    ?? false,
@@ -67,6 +70,7 @@ function toApi(settings: NotificationSettings): Record<string, any> {
         email: settings.emailNotifications,
         categories: {
             billingsPayments:   settings.billingsAndPayments,
+            residentActivity:   settings.residentActivity,
             accessControl:      settings.accessControl,
             walletTransactions: settings.walletAndTransactions,
             systemSecurity:     settings.systemAndSecurity,
@@ -100,6 +104,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
     pushNotifications:     true,
     emailNotifications:    true,
     billingsAndPayments:   true,
+    residentActivity:      true,
     accessControl:         true,
     walletAndTransactions: true,
     systemAndSecurity:     false,

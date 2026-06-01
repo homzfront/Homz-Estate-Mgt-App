@@ -1,7 +1,17 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAdminStore } from '@/store/admin/useAdminStore';
+import api from '@/utils/api';
+
+interface ActivityItem {
+    _id: string;
+    title: string;
+    message: string;
+    type: string;
+    isRead: boolean;
+    createdAt: string;
+}
 
 const PAGE_TITLES: Record<string, string> = {
     '/admin/dashboard': 'Dashboard Overview',
@@ -32,6 +42,61 @@ export default function AdminTopbar() {
     const searchRef = React.useRef<HTMLDivElement>(null);
     const [search, setSearch] = useState('');
 
+    // Notification state
+    const [notifOpen, setNotifOpen] = useState(false);
+    const [activities, setActivities] = useState<ActivityItem[]>([]);
+    const [notifLoading, setNotifLoading] = useState(false);
+    const notifRef = useRef<HTMLDivElement>(null);
+
+    // Fetch recent activities for notification dropdown
+    const fetchActivities = async () => {
+        setNotifLoading(true);
+        try {
+            const res = await api.get('/notifications', { params: { page: 1, limit: 6 } });
+            const results: ActivityItem[] = res.data?.data?.results || [];
+            setActivities(results);
+        } catch { /* silent */ }
+        finally { setNotifLoading(false); }
+    };
+
+    useEffect(() => {
+        const t = setTimeout(() => fetchActivities(), 500);
+        return () => clearTimeout(t);
+    }, []);
+
+    // Unread count from actual backend isRead field
+    const unreadCount = activities.filter(a => !a.isRead).length;
+
+    const markAllSeen = async () => {
+        try {
+            await api.patch('/notifications/read-all');
+            setActivities(prev => prev.map(a => ({ ...a, isRead: true })));
+        } catch { /* silent */ }
+    };
+
+    const markOneSeen = async (id: string) => {
+        try {
+            await api.patch(`/notifications/${id}/read`);
+            setActivities(prev => prev.map(a => a._id === id ? { ...a, isRead: true } : a));
+        } catch { /* silent */ }
+    };
+
+    // Close notif dropdown on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+                setNotifOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleOpenNotif = () => {
+        setNotifOpen(v => !v);
+        if (!notifOpen) fetchActivities();
+    };
+
     const SEARCHABLE_PAGES = ['/admin/users', '/admin/estates', '/admin/wallets', '/admin/transactions', '/admin/kyc', '/admin/support', '/admin/activity', '/admin/subscriptions'];
     const isOnSearchablePage = SEARCHABLE_PAGES.some(p => pathname.startsWith(p));
 
@@ -43,7 +108,7 @@ export default function AdminTopbar() {
         { label: 'Search Transactions', desc: 'Find by reference number', path: '/admin/transactions',
           icon: <svg width='15' height='15' viewBox='0 0 24 24' fill='none'><rect x='2' y='5' width='20' height='14' rx='2' stroke='#006AFF' strokeWidth='1.5'/><path d='M2 10h20' stroke='#006AFF' strokeWidth='1.5'/></svg> },
         { label: 'Search Wallets', desc: 'Find wallets by owner name', path: '/admin/wallets',
-          icon: <svg width='15' height='15' viewBox='0 0 24 24' fill='none'><path d='M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z' stroke='#006AFF' strokeWidth='1.5'/><path d='M16 3l-4 4-4-4' stroke='#006AFF' strokeWidth='1.5' strokeLinecap='round'/><circle cx='17' cy='13' r='1' fill='#006AFF'/></svg> },
+          icon: <svg width='15' height='15' viewBox='0 0 24 24' fill='none'><path d='M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z' stroke='#006AFF' strokeWidth='1.5'/><circle cx='17' cy='13' r='1' fill='#006AFF'/></svg> },
         { label: 'Search KYC', desc: 'Find KYC submissions', path: '/admin/kyc',
           icon: <svg width='15' height='15' viewBox='0 0 24 24' fill='none'><rect x='3' y='3' width='18' height='18' rx='2' stroke='#006AFF' strokeWidth='1.5'/><path d='M9 9h6M9 12h6M9 15h4' stroke='#006AFF' strokeWidth='1.5' strokeLinecap='round'/></svg> },
         { label: 'Search Support', desc: 'Find support requests', path: '/admin/support',
@@ -54,7 +119,6 @@ export default function AdminTopbar() {
           icon: <svg width='15' height='15' viewBox='0 0 24 24' fill='none'><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z' stroke='#006AFF' strokeWidth='1.5'/></svg> },
     ];
 
-    // Click outside to close suggestions
     React.useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -72,7 +136,6 @@ export default function AdminTopbar() {
         if (currentBase) {
             router.push(`${currentBase}?search=${encodeURIComponent(search.trim())}`);
         } else {
-            // Not on searchable page — default to users
             router.push(`/admin/users?search=${encodeURIComponent(search.trim())}`);
         }
     };
@@ -80,16 +143,28 @@ export default function AdminTopbar() {
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
         if (!e.target.value.trim()) {
-            // Clear search - go back to page without search param
             const currentBase = SEARCHABLE_PAGES.find(p => pathname.startsWith(p));
             if (currentBase) router.push(currentBase);
         }
     };
 
-    // Get title from pathname
     const title = Object.keys(PAGE_TITLES)
         .sort((a, b) => b.length - a.length)
         .find(key => pathname.startsWith(key));
+
+    const [mounted, setMounted] = React.useState(false);
+    useEffect(() => { setMounted(true); }, []);
+
+    const timeAgo = (d: string) => {
+        if (!mounted) return '';
+        const diff = Date.now() - new Date(d).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        return `${Math.floor(hrs / 24)}d ago`;
+    };
 
     return (
         <React.Fragment>
@@ -145,12 +220,98 @@ export default function AdminTopbar() {
 
             {/* Right: notifications + profile */}
             <div className='flex items-center gap-3 flex-shrink-0'>
+
                 {/* Notification bell */}
-                <button className='w-[36px] h-[36px] rounded-full bg-[#F0F6FF] flex items-center justify-center hover:bg-[#E0EDFF] transition-colors relative'>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                </button>
+                <div className='relative' ref={notifRef}>
+                    <button
+                        onClick={handleOpenNotif}
+                        className='w-[36px] h-[36px] rounded-full bg-[#F0F6FF] flex items-center justify-center hover:bg-[#E0EDFF] transition-colors relative'
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke={notifOpen ? '#006AFF' : '#006AFF'} strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        {unreadCount > 0 && (
+                            <span className='absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center'>
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        )}
+                    </button>
+
+                    {/* Notification Dropdown */}
+                    {notifOpen && (
+                        <div className='absolute right-0 top-12 w-[360px] bg-white border border-[#E8E8E8] rounded-[12px] shadow-xl z-[9999] overflow-hidden'>
+                            {/* Header */}
+                            <div className='flex items-center justify-between px-4 py-3 border-b border-[#F0F0F0]'>
+                                <div className='flex items-center gap-2'>
+                                    <span className='text-sm font-semibold text-[#1A1A1A]'>Activity</span>
+                                    {unreadCount > 0 && (
+                                        <span className='bg-[#006AFF] text-white text-[10px] font-medium px-2 py-0.5 rounded-full'>
+                                            {unreadCount} new
+                                        </span>
+                                    )}
+                                </div>
+                                <div className='flex items-center gap-3'>
+                                    {unreadCount > 0 && (
+                                        <button
+                                            onClick={markAllSeen}
+                                            className='text-[11px] text-[#006AFF] font-medium hover:underline'
+                                        >
+                                            Mark all read
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => { setNotifOpen(false); router.push('/admin/notifications'); }}
+                                        className='text-[11px] text-[#9E9E9E] font-medium hover:text-[#006AFF]'
+                                    >
+                                        See all
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* List */}
+                            <div className='max-h-[320px] overflow-y-auto'>
+                                {notifLoading ? (
+                                    <div className='py-8 flex justify-center'>
+                                        <div className='w-5 h-5 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' />
+                                    </div>
+                                ) : activities.length === 0 ? (
+                                    <div className='py-8 text-center text-[13px] text-[#9E9E9E]'>
+                                        No recent activity
+                                    </div>
+                                ) : (
+                                    activities.map((a) => (
+                                        <button
+                                            key={a._id}
+                                            onClick={() => {
+                                                markOneSeen(a._id);
+                                                setNotifOpen(false);
+                                                router.push('/admin/notifications');
+                                            }}
+                                            className={`w-full text-left px-4 py-3 border-t border-[#F5F5F5] hover:bg-[#F6F9FF] transition-colors flex items-start gap-3 ${!a.isRead ? 'bg-[#F0F5FF]' : ''}`}
+                                        >
+                                            <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${!a.isRead ? 'bg-[#006AFF]' : 'bg-transparent'}`} />
+                                            <div className='flex-1 min-w-0'>
+                                                <p className='text-[13px] font-medium text-[#1A1A1A] truncate'>{a.title}</p>
+                                                <p className='text-[11px] text-[#9E9E9E] mt-0.5 line-clamp-1'>{a.message}</p>
+                                                <p className='text-[10px] text-[#BDBDBD] mt-1'>{timeAgo(a.createdAt)}</p>
+                                            </div>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
+
+                            {/* Footer */}
+                            <div className='border-t border-[#F0F0F0] p-3'>
+                                <button
+                                    onClick={() => { setNotifOpen(false); router.push('/admin/notifications'); }}
+                                    className='w-full text-center text-[13px] font-medium text-[#006AFF] hover:underline py-1'
+                                >
+                                    View all notifications
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 {/* Profile dropdown */}
                 <div className='relative'>

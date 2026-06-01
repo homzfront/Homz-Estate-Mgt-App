@@ -18,8 +18,8 @@ export const metadata = {
     "Homz.ng is a comprehensive community management platform. Manage residents, process billing payments, control visitor access with secure access codes, and streamline community operations with ease.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon-192x192.png",
-    shortcut: "/icons/icon-512x512.png",
+    icon: "/icons/manifest-icon-192.maskable.png",
+    shortcut: "/icons/manifest-icon-512.maskable.png",
     apple: "/icons/apple-touch-icon.png",
   },
   appleTouchIcon: "/apple-icon-180.png",

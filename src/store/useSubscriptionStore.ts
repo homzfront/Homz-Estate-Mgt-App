@@ -66,6 +66,7 @@ interface SubscriptionStore {
     fetchPlans: () => Promise<void>;
     fetchCurrent: (estateId?: string) => Promise<void>;
     initializePayment: (planId: string, communityManagerId: string, interval?: 'monthly' | 'annually', organizationId?: string, estateId?: string) => Promise<string>;
+    subscribeWithWallet: (planId: string, interval: 'monthly' | 'annually', organizationId: string, estateId: string) => Promise<void>;
     getPlanTier: () => string;
     canUse: (feature: FeatureKey) => boolean;
     promptUpgrade: (feature: FeatureKey) => void;
@@ -138,6 +139,18 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
                     payload
                 );
                 return res.data?.data?.authorization_url || res.data?.data?.payment_url || '';
+            },
+
+            subscribeWithWallet: async (planId: string, interval: 'monthly' | 'annually', organizationId: string, estateId: string) => {
+                const res = await api.post(
+                    `/subscriptions/${planId}/pay-with-wallet/organizations/${organizationId}/estates/${estateId}`,
+                    { interval }
+                );
+                const data = res.data?.data;
+                if (data) {
+                    const planName = typeof data.planId === 'object' ? data.planId?.name : get().plans.find(p => p._id === data.planId)?.name;
+                    set({ current: { ...data, _planName: planName?.toLowerCase() || '' } });
+                }
             },
 
             getPlanTier: () => {

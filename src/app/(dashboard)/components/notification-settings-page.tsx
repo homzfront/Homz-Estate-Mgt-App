@@ -34,6 +34,7 @@ const ROWS: { key: keyof NotificationSettings; label: string; description: strin
     { key: 'pushNotifications',     label: 'Push Notifications',    description: 'Receive alerts on your device' },
     { key: 'emailNotifications',    label: 'Email Notifications',   description: 'Receive alerts on your email address' },
     { key: 'billingsAndPayments',   label: 'Billings & Payments',   description: 'Bills, payment, and overdue alerts' },
+    { key: 'residentActivity',      label: 'Resident Activity',     description: 'New residents, join requests and profile updates' },
     { key: 'accessControl',         label: 'Access Control',        description: 'Visitor access codes and access status updates' },
     { key: 'walletAndTransactions', label: 'Wallet & Transactions',  description: 'Wallet credits, debits and payments' },
     { key: 'systemAndSecurity',     label: 'System & Security',     description: 'Login alerts, password and security updates' },

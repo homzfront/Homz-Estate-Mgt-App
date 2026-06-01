@@ -7,16 +7,28 @@ interface ProfileCardProps {
 }
 
 const ProfileCard = ({ residentData }: ProfileCardProps) => {
+    const photo = residentData?.profilePhoto || null;
+
     return (
         <div className="w-[350px] h-auto py-4 px-6 shadow-md bg-white rounded-[12px]">
-            <div className="w-full ">
-                <div className="w-[198px] h-[198px] bg-GrayHomz5 rounded-full flex items-center justify-center">
-                    <Image
-                        src="/user.png"
-                        height={52}
-                        width={52}
-                        alt="img"
-                    />
+            <div className="w-full">
+                <div className="w-[198px] h-[198px] bg-GrayHomz5 rounded-full flex items-center justify-center overflow-hidden">
+                    {photo ? (
+                        <Image
+                            src={photo}
+                            height={198}
+                            width={198}
+                            alt={`${residentData?.firstName} ${residentData?.lastName}`}
+                            className="w-full h-full object-cover rounded-full"
+                        />
+                    ) : (
+                        <Image
+                            src="/user.png"
+                            height={52}
+                            width={52}
+                            alt="img"
+                        />
+                    )}
                 </div>
             </div>
             <h1 className="font-[700] my-4 text-[20px] text-GrayHomz">
@@ -26,7 +38,7 @@ const ProfileCard = ({ residentData }: ProfileCardProps) => {
                 <div className="flex justify-between gap-3">
                     <p className="text-[13px] font-[400] text-GrayHomz">Phone No</p>
                     <p className="text-[13px] font-[500] text-BlackHomz w-[62%]">
-                        -
+                        {residentData?.phoneNumber || '-'}
                     </p>
                 </div>
                 <div className="flex justify-between gap-3">
@@ -38,7 +50,7 @@ const ProfileCard = ({ residentData }: ProfileCardProps) => {
                 <div className="flex justify-between gap-3">
                     <p className="text-[13px] font-[400] text-GrayHomz">Home Address</p>
                     <p className="text-[13px] font-[500] text-BlackHomz w-[62%]">
-                        {residentData ? `${residentData.building}, ${residentData.apartment}, ${residentData.streetName}, ${residentData.zone}` : ''}
+                        {residentData ? `${residentData.building}, ${residentData.apartment}, ${residentData.streetName}${residentData.zone ? `, ${residentData.zone}` : ''}` : ''}
                     </p>
                 </div>
             </div>

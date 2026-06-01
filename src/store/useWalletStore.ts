@@ -128,6 +128,12 @@ export const useWalletStore = create<WalletStore>((set) => ({
 
     requestWithdrawal: async (orgId, estateId, amount) => {
         await api.post(`/community-manager/wallets/withdraw/organizations/${orgId}/estates/${estateId}`, { amount });
+        // Refresh balance and withdrawal history so UI reflects the debit immediately
+        const store = useWalletStore.getState();
+        await Promise.all([
+            store.fetchEMBalance(orgId, estateId),
+            store.fetchWithdrawals(orgId, estateId),
+        ]);
     },
 
     fetchWithdrawals: async (orgId, estateId) => {

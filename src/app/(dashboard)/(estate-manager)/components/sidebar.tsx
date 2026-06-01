@@ -196,10 +196,11 @@ const Sidebar = () => {
                         {ability.can('read', 'residents' as Subjects) && (
                             <NavLink href="/maintenance" label="Maintenance" icon={<MaintenanceIcon />} iconActive={<MaintenanceIcon className='#FFFFFF' />} active={isAt('/maintenance')} isCollapsed={isCollapsed} />
                         )}
-                        {/* Notifications & Account Settings — only for roles that manage the estate */}
-                        {ability.can('read', 'dashboard' as Subjects) && !['viewer', 'account_manager'].includes(selectedCommunity?.role || '') && (
+                        {/* Notifications — available to all roles that can read the dashboard */}
+                        {ability.can('read', 'dashboard' as Subjects) && (
                             <NavLink href="/notifications" label="Notifications" icon={<NotiIcon />} iconActive={<NotiIcon className='#FFFFFF' />} active={isAt('/notifications')} isCollapsed={isCollapsed} badge={unreadCount} />
                         )}
+                        {/* Account Settings — only for roles that manage the estate */}
                         {ability.can('read', 'dashboard' as Subjects) && !['viewer', 'account_manager'].includes(selectedCommunity?.role || '') && (
                             <NavLink href="/settings/account" label="Account Settings" icon={<SettingsIcon />} iconActive={<SettingsIcon className='#FFFFFF' />} active={isAt('/settings/account')} isCollapsed={isCollapsed} />
                         )}

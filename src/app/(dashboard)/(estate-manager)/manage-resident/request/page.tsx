@@ -68,6 +68,10 @@ const Request = () => {
     const [menuPortalStyle, setMenuPortalStyle] = React.useState<React.CSSProperties | null>(null);
     const actionButtonRefs                    = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
+    // Rent dates — collected from CM before approving a rented resident
+    const [rentDates, setRentDates] = React.useState({ rentStartDate: '', rentDuration: '', rentDurationType: 'months' });
+    const [rentDatesError, setRentDatesError] = React.useState('');
+
     const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
     useClickOutside(actionsMenuRef as any, () => setActionsMenuOpen(false));
 
@@ -157,26 +161,55 @@ const Request = () => {
         setPopUpMenu(prev => !prev);
     };
 
+    // ── Rent due date calculator ─────────────────────────────────────────────
+    const calcRentDueDate = (startDate: string, duration: string, durationType: string): string => {
+        if (!startDate || !duration) return '';
+        const d = new Date(startDate);
+        const n = parseInt(duration);
+        if (durationType === 'months') {
+            d.setMonth(d.getMonth() + n);
+        } else {
+            d.setFullYear(d.getFullYear() + n);
+        }
+        d.setDate(d.getDate() - 1);
+        return d.toISOString();
+    };
+
     // ── Approve ──────────────────────────────────────────────────────────────
     const handleApprove = async () => {
         if (!selectedData) return;
+
+        // If rented — validate rent dates before submitting
+        if (selectedData.ownershipType === 'rented') {
+            if (!rentDates.rentStartDate || !rentDates.rentDuration) {
+                setRentDatesError('Please enter the rent start date and duration.');
+                return;
+            }
+        }
+        setRentDatesError('');
         setIsRequesting(true);
+
+        const payload: any = {
+            validationIds: {
+                estateId: selectedData.associatedIds?.estateId,
+                organizationId: selectedData.associatedIds?.organizationId,
+            },
+        };
+
+        if (selectedData.ownershipType === 'rented' && rentDates.rentStartDate && rentDates.rentDuration) {
+            payload.rentStartDate = new Date(rentDates.rentStartDate).toISOString();
+            payload.rentDueDate = calcRentDueDate(rentDates.rentStartDate, rentDates.rentDuration, rentDates.rentDurationType);
+        }
+
         try {
             await api.post(
                 `/resident-invitation/residents/${selectedData._id}/accept/tokens/${selectedData.invitationToken}`,
-                {
-                    validationIds: {
-                        estateId: selectedData.associatedIds?.estateId,
-                        organizationId: selectedData.associatedIds?.organizationId,
-                    },
-                }
+                payload
             );
             toast.success('Invitation approved');
             setModelOpen('');
             setPopUpMenu(false);
-            // FIX: just refresh current tab — don't change tab after approve
-            // The approved request will disappear from "pending" and appear in "accepted"
-            // User can switch to "Approved" tab themselves to verify
+            setRentDates({ rentStartDate: '', rentDuration: '', rentDurationType: 'months' });
             getRequest(pageNo, pageSize, activeStatus).finally(() => setHasFetched(true));
         } catch (error: any) {
             const msg = error?.response?.data?.message;
@@ -275,7 +308,7 @@ const Request = () => {
     return (
         <div className='p-4 md:p-8'>
             {/* Confirm modal */}
-            <CustomModal isOpen={modelOpen !== ''} onRequestClose={() => setModelOpen('')}>
+            <CustomModal isOpen={modelOpen !== ''} onRequestClose={() => { setModelOpen(''); setRentDates({ rentStartDate: '', rentDuration: '', rentDurationType: 'months' }); setRentDatesError(''); }}>
                 <div className='p-6 min-w-[340px] w-full md:w-[600px] bg-white rounded-[12px]'>
                     <div className='flex flex-col gap-6 items-center justify-center'>
                         <Image
@@ -284,7 +317,7 @@ const Request = () => {
                             width={46}
                             alt=''
                         />
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col w-full'>
                             <p className='text-[14px] md:text-[20px] font-[700] leading-[17.64px] md:leading-[25.2px] text-center mb-1'>
                                 {modelOpen === 'approve' ? 'Approve Request?' : 'Decline Request?'}
                             </p>
@@ -293,6 +326,54 @@ const Request = () => {
                                     ? `Are you sure you want to approve this request? ${selectedData?.firstName} will be added as a resident to ${selectedData?.estateName}.`
                                     : 'This action will notify the resident that their request was declined.'}
                             </p>
+
+                            {/* Rent date fields — only for rented residents */}
+                            {modelOpen === 'approve' && selectedData?.ownershipType === 'rented' && (
+                                <div className='mt-5 flex flex-col gap-3 p-4 bg-[#F8F9FB] rounded-[8px] border border-[#E6E6E6]'>
+                                    <p className='text-sm font-semibold text-BlackHomz'>Set Rent Details</p>
+                                    <p className='text-xs text-GrayHomz'>This resident is renting. Set their rent start date and duration before approving.</p>
+                                    <div className='grid grid-cols-2 gap-3'>
+                                        <div className='flex flex-col gap-1'>
+                                            <label className='text-xs font-medium text-BlackHomz'>Rent Start Date <span className='text-error'>*</span></label>
+                                            <input
+                                                type='date'
+                                                value={rentDates.rentStartDate}
+                                                onChange={e => setRentDates(prev => ({ ...prev, rentStartDate: e.target.value }))}
+                                                className='h-[40px] px-3 border border-[#E6E6E6] rounded-[4px] text-sm text-BlackHomz'
+                                            />
+                                        </div>
+                                        <div className='flex flex-col gap-1'>
+                                            <label className='text-xs font-medium text-BlackHomz'>Duration <span className='text-error'>*</span></label>
+                                            <div className='flex gap-1'>
+                                                <input
+                                                    type='number'
+                                                    min='1'
+                                                    placeholder='e.g 12'
+                                                    value={rentDates.rentDuration}
+                                                    onChange={e => setRentDates(prev => ({ ...prev, rentDuration: e.target.value }))}
+                                                    className='h-[40px] px-3 border border-[#E6E6E6] rounded-[4px] text-sm text-BlackHomz w-full'
+                                                />
+                                                <select
+                                                    value={rentDates.rentDurationType}
+                                                    onChange={e => setRentDates(prev => ({ ...prev, rentDurationType: e.target.value }))}
+                                                    className='h-[40px] px-2 border border-[#E6E6E6] rounded-[4px] text-xs text-BlackHomz bg-white'
+                                                >
+                                                    <option value='months'>Months</option>
+                                                    <option value='years'>Years</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {rentDates.rentStartDate && rentDates.rentDuration && (
+                                        <p className='text-xs text-GrayHomz'>
+                                            Rent due date: <span className='font-medium text-BlackHomz'>
+                                                {new Date(calcRentDueDate(rentDates.rentStartDate, rentDates.rentDuration, rentDates.rentDurationType)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            </span>
+                                        </p>
+                                    )}
+                                    {rentDatesError && <p className='text-xs text-error'>{rentDatesError}</p>}
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className='flex justify-center items-center mt-4 gap-4'>
@@ -308,7 +389,7 @@ const Request = () => {
                         <button
                             disabled={isRequesting}
                             className='flex-1 text-BlackHomz border border-BlackHomz rounded-[4px] font-normal text-sm hover:text-GrayHomz cursor-pointer h-[48px]'
-                            onClick={() => setModelOpen('')}
+                            onClick={() => { setModelOpen(''); setRentDates({ rentStartDate: '', rentDuration: '', rentDurationType: 'months' }); setRentDatesError(''); }}
                         >
                             Cancel
                         </button>

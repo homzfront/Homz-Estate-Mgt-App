@@ -5,12 +5,14 @@ import ChangePassword from './components/changePassword'
 import UpdateResidentAccount from './components/updateResidentAccount'
 import { useResidentParams } from '@/hooks/useResidentParams'
 import LoadingSpinner from '@/components/general/loadingSpinner'
+import { useLogoutOnMount } from '@/hooks/useLogoutOnMount'
 
 const pages = ['Create Account', 'Review Property Details']
 
 const ResidentSignup = () => {
   const [active, setActive] = React.useState<number>(0);
   const { paramsLoaded } = useResidentParams()
+  useLogoutOnMount();
 
   return (
     <div className="flex m-auto max-w-[100%] sm:max-w-[1440px] h-[1024px]">

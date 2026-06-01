@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/utils/api';
 import LoadingSpinner from '@/components/general/loadingSpinner';
 import formatBillType from '@/app/utils/formatBillType';
+import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 
 interface BillSummaryRow {
   billType: string;
@@ -50,6 +51,7 @@ const PaymentModeBadge = ({ mode }: { mode: string }) => {
 const Payment = () => {
   const router = useRouter();
   const ability = useAbility();
+  const { canUse, promptUpgrade } = useSubscriptionStore();
   React.useEffect(() => { if (!ability.can('read', 'finance')) router.push('/dashboard'); }, [ability, router]);
 
   const selectedCommunity = useSelectedCommunity((state) => state.selectedCommunity);
@@ -273,7 +275,7 @@ const Payment = () => {
                 </>
               )}
             </div>
-            {!loading && !drillBillType && summaryArr.length > 0 && ability.can('create', 'finance') && (
+            {!loading && !drillBillType && summaryArr.length > 0 && ability.can('create', 'finance') && canUse('exports') && (
               <button
                 onClick={() => {
                   const headers = ['Bill Type','Residents','Total Expected','Total Paid','Outstanding','Paid','Pending','Overdue'];
@@ -288,6 +290,15 @@ const Payment = () => {
                 className='h-[37px] px-4 border border-BlueHomz text-BlueHomz text-sm font-medium rounded-[4px] flex items-center gap-2 hover:bg-whiteblue whitespace-nowrap'
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Export CSV
+              </button>
+            )}
+            {!loading && !drillBillType && summaryArr.length > 0 && ability.can('create', 'finance') && !canUse('exports') && (
+              <button
+                onClick={() => promptUpgrade('exports')}
+                className='h-[37px] px-4 border border-[#E6E6E6] text-GrayHomz text-sm font-medium rounded-[4px] flex items-center gap-2 opacity-60 whitespace-nowrap'
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2z" stroke="#A9A9A9" strokeWidth="1.5"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#A9A9A9" strokeWidth="1.5"/></svg>
                 Export CSV
               </button>
             )}

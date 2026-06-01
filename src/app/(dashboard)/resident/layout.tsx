@@ -14,7 +14,6 @@ const FULL_ACCESS_ROUTES = [
     '/resident/bills-payments',
     '/resident/wallet',
     '/resident/maintenance',
-    '/resident/notifications',
     '/resident/co-residents',
 ];
 

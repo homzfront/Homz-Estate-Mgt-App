@@ -160,7 +160,7 @@ export default function RequestPayoutsModal({ isOpen, onClose, balance, orgId, e
                         />
                     </div>
                 </div>
-                <p className='text-[11px] text-GrayHomz mb-5'>Withdraw funds from your Homz wallet to your bank account</p>
+                <p className='text-[11px] text-GrayHomz mb-5'>Your wallet balance will be debited immediately. Funds are transferred to your bank account once the payout is processed by Homz.</p>
 
                 <button
                     onClick={handleRequest}

@@ -133,9 +133,10 @@ const EstateForm = () => {
                 if (coverPhoto) {
                     // Convert data URL to blob
                     const blob = await fetch(coverPhoto).then(res => res.blob());
+                    const mimeType = coverPhoto.startsWith("data:image/png") ? "image/png" : "image/jpeg";
 
                     const formData = new FormData();
-                    formData.append('coverImage', blob, 'cover-photo.jpg');
+                    formData.append('coverImage', new File([blob], 'cover-photo.' + (mimeType === 'image/png' ? 'png' : 'jpg'), { type: mimeType }));
 
                     await api.patch(`/estates/community-manager/upload/single/cover-photo/organizations/${estateManId}/estates/${estateId}`, formData);
 

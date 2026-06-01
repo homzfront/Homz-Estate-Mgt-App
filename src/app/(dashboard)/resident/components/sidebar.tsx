@@ -140,7 +140,7 @@ const Sidebar = () => {
                         <div className='border-t border-[#F0F0F0] my-1' />
 
                         {isFullAccess && <NavLink href="/resident/maintenance" label="Maintenance" icon={<MaintenanceIcon />} iconActive={<MaintenanceIcon className='#FFFFFF' />} active={isAt('/resident/maintenance')} isCollapsed={isCollapsed} />}
-                        {isFullAccess && <NavLink href="/resident/notifications" label="Notifications" icon={<NotiIcon />} iconActive={<NotiIcon className='#FFFFFF' />} active={isAt('/resident/notifications')} isCollapsed={isCollapsed} badge={unreadCount} />}
+                        <NavLink href="/resident/notifications" label="Notifications" icon={<NotiIcon />} iconActive={<NotiIcon className='#FFFFFF' />} active={isAt('/resident/notifications')} isCollapsed={isCollapsed} badge={unreadCount} />
                         {canInviteCoResidents && <NavLink href="/resident/co-residents" label="Invite & Manage" icon={<ManageUserIcon />} iconActive={<ManageUserIcon className='#FFFFFF' classNameII='#FFFFFF' />} active={isAt('/resident/co-residents')} isCollapsed={isCollapsed} />}
                         <NavLink href="/resident/settings/hub" label="Settings" icon={<SettingsIcon />} iconActive={<SettingsIcon className='#FFFFFF' />} active={isAt('/resident/settings/hub') || isAt('/resident/settings/security') || isAt('/resident/settings/about')} isCollapsed={isCollapsed} />
                         <NavLink href="/resident/profile" label="Profile" icon={<Profile16Icon />} iconActive={<Profile16Icon className='#FFFFFF' />} active={isAt('/resident/profile')} isCollapsed={isCollapsed} />

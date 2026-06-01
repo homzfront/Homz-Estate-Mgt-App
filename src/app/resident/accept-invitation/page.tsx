@@ -1,8 +1,9 @@
 'use client';
-import React, { useEffect, useState, Suspense} from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 import { useAuthSlice } from '@/store/authStore';
+import { useLogoutOnMount } from '@/hooks/useLogoutOnMount';
 
 type State = 'loading' | 'success' | 'error' | 'prompt';
 
@@ -13,11 +14,12 @@ function AcceptInvitationPageInner() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { userData } = useAuthSlice();
+    useLogoutOnMount();
 
-    const token    = searchParams.get('token')    || '';
+    const token = searchParams.get('token') || '';
     const estateId = searchParams.get('estateId') || '';
 
-    const [state, setState]     = useState<State>('loading');
+    const [state, setState] = useState<State>('loading');
     const [message, setMessage] = useState('');
     const hasCalledRef = React.useRef(false);
 
@@ -40,7 +42,7 @@ function AcceptInvitationPageInner() {
             // Not logged in — show options: sign up or log in
             setState('prompt');
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userData, token, estateId]);
 
     const acceptInvitation = async () => {
@@ -86,8 +88,8 @@ function AcceptInvitationPageInner() {
                 {/* Logo */}
                 <div className='flex items-center gap-2 mb-2'>
                     <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="6" fill="#006AFF"/>
-                        <path d="M8 22V14L16 8L24 14V22H19V17H13V22H8Z" fill="white"/>
+                        <rect width="32" height="32" rx="6" fill="#006AFF" />
+                        <path d="M8 22V14L16 8L24 14V22H19V17H13V22H8Z" fill="white" />
                     </svg>
                     <span className='text-[18px] font-bold text-[#1A1A1A]'>Homz<span className='text-[#006AFF]'>.ng</span></span>
                 </div>
@@ -110,7 +112,7 @@ function AcceptInvitationPageInner() {
                     <>
                         <div className='w-14 h-14 bg-[#EEF5FF] rounded-full flex items-center justify-center'>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#006AFF" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
                         </div>
                         <div>
@@ -146,7 +148,7 @@ function AcceptInvitationPageInner() {
                     <>
                         <div className='w-14 h-14 bg-[#E8F5E9] rounded-full flex items-center justify-center'>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 12l5 5L20 7" stroke="#039855" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M5 12l5 5L20 7" stroke="#039855" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </div>
                         <div>
@@ -169,7 +171,7 @@ function AcceptInvitationPageInner() {
                     <>
                         <div className='w-14 h-14 bg-[#FFEBEE] rounded-full flex items-center justify-center'>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" stroke="#D32F2F" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" stroke="#D32F2F" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
                         </div>
                         <div>

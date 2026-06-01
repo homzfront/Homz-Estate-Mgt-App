@@ -54,9 +54,14 @@ interface Props {
 
 export default function CoResidentsTab({ residentData }: Props) {
     const selectedCommunity = useSelectedCommunity((s) => s.selectedCommunity);
-    const orgId    = selectedCommunity?.estate?.associatedIds?.organizationId || '';
-    const estateId = selectedCommunity?.estate?._id || '';
-    const residentId = (residentData as any)?._id || (residentData as any)?.associatedIds?.residentId || '';
+
+    // Prefer the resident's own associatedIds — avoids stale selectedCommunity
+    // mismatch when CM has multiple estates or navigates between residents
+    const orgId    = (residentData as any)?.associatedIds?.organizationId
+                     || selectedCommunity?.estate?.associatedIds?.organizationId || '';
+    const estateId = (residentData as any)?.associatedIds?.estateId
+                     || selectedCommunity?.estate?._id || '';
+    const residentId = (residentData as any)?._id || '';
 
     const [coResidents, setCoResidents] = useState<CoResident[]>([]);
     const [loading, setLoading] = useState(true);
@@ -93,10 +98,13 @@ export default function CoResidentsTab({ residentData }: Props) {
             setCoResidents(res.data?.data?.results || res.data?.data?.items || []);
             setBackendReady(true);
         } catch (err: any) {
-            if (err?.response?.status === 404 || err?.response?.status === 403) {
-                setBackendReady(false);
+            const status = err?.response?.status;
+            if (status === 404 || status === 403) {
+                // 404 means resident profile not found in DB (may have been deleted)
+                // Still show empty co-residents list rather than error state
+                setBackendReady(true);
+                setCoResidents([]);
             }
-            setCoResidents([]);
         } finally {
             setLoading(false);
         }
