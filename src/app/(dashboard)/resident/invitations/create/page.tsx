@@ -276,7 +276,6 @@ const Resident = () => {
                 residencyType: selectedResidentType,
                 ownershipType,
                 // For rented residents, rent dates are set by the CM on approval
-                // so we only include ownedDetails if owned
                 ...(ownershipType === "owned"
                     ? { ownedDetails: residence.ownedDetails }
                     : {}),
@@ -529,31 +528,9 @@ const Resident = () => {
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                                            <div>
-                                                <label className="text-sm text-BlackHomz font-medium">
-                                                    Rent Start Date <span className="text-red-500">*</span>
-                                                </label>
-                                                <div className="relative mt-1">
-                                                    <CustomInput
-                                                        borderColor="#4E4E4E"
-                                                        type="date"
-                                                        className="h-[45px] px-4 pr-10 input-hide-date-icon"
-                                                        onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
-                                                        required
-                                                    />
-                                                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
-                                                        <DateIcon />
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className='flex flex-col gap-1'>
-                                                <h3 className='text-sm font-medium text-BlackHomz mb-1'>Rent Due Date <span className='text-error'>*</span></h3>
-                                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4 text-sm text-GrayHomz'>
-                                                    {calculatedDueDate ? calculatedDueDate : 'Auto-filled'}
-                                                </span>
-                                            </div>
-                                        </div>
+                                        <p className='text-[12px] text-GrayHomz'>
+                                            Rent start and end dates will be set by your estate manager upon approval.
+                                        </p>
                                     </div>
                                 )}
 
