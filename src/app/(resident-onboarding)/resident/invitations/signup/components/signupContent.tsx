@@ -1,18 +1,18 @@
 "use client"
 import AuthSlider from '@/components/auth/authSlider'
 import React from 'react'
-import ChangePassword from './components/changePassword'
-import UpdateResidentAccount from './components/updateResidentAccount'
+import ChangePassword from './changePassword'
+import UpdateResidentAccount from './updateResidentAccount'
 import { useResidentParams } from '@/hooks/useResidentParams'
 import LoadingSpinner from '@/components/general/loadingSpinner'
 import { useLogoutOnMount } from '@/hooks/useLogoutOnMount'
 
 const pages = ['Create Account', 'Review Property Details']
 
-const ResidentSignup = () => {
-  const [active, setActive] = React.useState<number>(0);
+const SignupContent = () => {
+  const [active, setActive] = React.useState<number>(0)
   const { paramsLoaded } = useResidentParams()
-  useLogoutOnMount();
+  useLogoutOnMount()
 
   return (
     <div className="flex m-auto max-w-[100%] sm:max-w-[1440px] h-[1024px]">
@@ -20,7 +20,6 @@ const ResidentSignup = () => {
         <AuthSlider />
       </div>
       <div className="sm:w-[794px] w-full flex flex-col items-center">
-        {/* Show spinner until URL params have been parsed and stored */}
         {!paramsLoaded ? (
           <div className="h-full w-full flex items-center justify-center">
             <LoadingSpinner size={48} />
@@ -55,4 +54,4 @@ const ResidentSignup = () => {
   )
 }
 
-export default ResidentSignup
+export default SignupContent

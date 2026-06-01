@@ -114,7 +114,9 @@ const Resident = () => {
             (async () => {
                 const t = await getToken();
                 if (!t || !userData) {
-                    router.push("/register")
+                    // Redirect to signup (not register) so the invitation flow is preserved
+                    const params = new URLSearchParams(window.location.search).toString();
+                    router.push(`/resident/invitations/signup?${params}`)
                 } else {
                     getPublicEstate();
                 }

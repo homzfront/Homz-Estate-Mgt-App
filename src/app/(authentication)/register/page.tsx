@@ -26,6 +26,19 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [emailError, setEmailError] = useState("");
 
+  // Save invitation params to sessionStorage so they survive the OTP flow
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invitation = params.get('invitation');
+    const organizationId = params.get('organizationId');
+    const estateId = params.get('estateId');
+    if (invitation && organizationId && estateId) {
+      sessionStorage.setItem('homz_resident_invite', JSON.stringify({
+        invitation, organizationId, estateId
+      }));
+    }
+  }, []);
+
 
 
   // Password requirements checker
@@ -241,7 +254,7 @@ const Register = () => {
                   return (
                     <div className="w-full sm:w-[360px]">
                       <div className="flex gap-1 mb-1">
-                        {[1,2,3,4,5].map((i) => (
+                        {[1, 2, 3, 4, 5].map((i) => (
                           <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= met ? color : 'bg-gray-200'}`} />
                         ))}
                       </div>

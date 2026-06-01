@@ -10,10 +10,23 @@ import api from '@/utils/api';
 
 const MyProperties = () => {
     const residentProfile = useAuthSlice((state) => state.residentProfile);
+    const getResidentProfile = useAuthSlice((state) => state.getResidentProfile);
     const [openId, setOpenId] = React.useState<number | null>(null);
     const { residentCommunity } = useResidentCommunity();
     const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
     const active = selectedEstate || residentCommunity?.[0];
+
+    // Re-fetch profile if rented resident is missing rent dates —
+    // this happens when CM has approved but the cached profile is stale
+    React.useEffect(() => {
+        if (
+            residentProfile?.ownershipType === 'rented' &&
+            !residentProfile?.rentedDetails?.rentStartDate
+        ) {
+            getResidentProfile(residentProfile?.associatedIds?.residentId);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // For dependents, zone/building may be empty strings copied from a
     // primary resident whose zone was undefined at signup time.
@@ -69,12 +82,10 @@ const MyProperties = () => {
                 zone: resolvedZone || '-',
                 rentStart: residentProfile.rentedDetails?.rentStartDate
                     ? formatDateReadable(residentProfile.rentedDetails.rentStartDate)
-                    : residentProfile.ownedDetails?.residencyStartDate
-                        ? formatDateReadable(residentProfile.ownedDetails.residencyStartDate)
-                        : '-',
+                    : residentProfile.ownershipType === 'rented' ? 'Pending approval' : '-',
                 rentDue: residentProfile.rentedDetails?.rentDueDate
                     ? formatDateReadable(residentProfile.rentedDetails.rentDueDate)
-                    : '-',
+                    : residentProfile.ownershipType === 'rented' ? 'Pending approval' : '-',
             },
         },
     ];
