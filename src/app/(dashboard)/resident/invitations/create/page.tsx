@@ -275,10 +275,15 @@ const Resident = () => {
                 apartment: selectedApartment,
                 residencyType: selectedResidentType,
                 ownershipType,
-                // For rented residents, rent dates are set by the CM on approval
+                // For rented: send duration only — CM sets start/end dates on approval
                 ...(ownershipType === "owned"
                     ? { ownedDetails: residence.ownedDetails }
-                    : {}),
+                    : {
+                        rentedDetails: {
+                            rentDurationType: formData.rentDurationType === 'months' ? 'Monthly' : 'Yearly',
+                            rentDuration: parseInt(formData.rentDuration) || 1,
+                        }
+                    }),
                 residences: [{
                     zone: residence.zone,
                     streetName: residence.streetName,
@@ -286,10 +291,14 @@ const Resident = () => {
                     apartment: residence.apartment,
                     residencyType: residence.residencyType,
                     ownershipType: residence.ownershipType,
-                    // Only include ownedDetails in residence for owned type
                     ...(ownershipType === "owned"
                         ? { ownedDetails: residence.ownedDetails }
-                        : {}),
+                        : {
+                            rentedDetails: {
+                                rentDurationType: formData.rentDurationType === 'months' ? 'Monthly' : 'Yearly',
+                                rentDuration: parseInt(formData.rentDuration) || 1,
+                            }
+                        }),
                 }],
             };
 
