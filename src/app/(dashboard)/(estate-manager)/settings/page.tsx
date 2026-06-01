@@ -10,6 +10,7 @@ import Table from './components/table';
 import CustomModal from '@/components/general/customModal';
 import CloseTransluscentIcon from '@/components/icons/closeTransluscentIcon';
 import { useMembersStore, MemberItem } from '@/store/useMembersStore';
+const useMembersStoreInstance = useMembersStore;
 import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import { useAuthSlice } from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -70,6 +71,7 @@ const Settings = () => {
     { id: 2, label: 'Account Manager', value: 'account_manager' },
     { id: 3, label: 'Security', value: 'security' },
     { id: 4, label: 'Viewer', value: 'viewer' },
+    { id: 5, label: 'Landlord', value: 'landLord' },
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -160,9 +162,13 @@ const Settings = () => {
           role: roleValue,
         });
       }
+
+      // Bust the member cache so the updated role shows immediately
+      useMembersStoreInstance.setState({ cachedData: {} });
+
       // Fetch members for the current role filter after update
       const currentRole = pages[activePage].value;
-      fetchMembers({ page: 1, role: currentRole });
+      fetchMembers({ page: 1, role: currentRole, silent: true });
     } catch (error: any) {
       toast.error(getErrorMessage(error, 'Failed to update role.'), {
         position: "top-center",

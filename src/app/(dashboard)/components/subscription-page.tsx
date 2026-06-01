@@ -69,7 +69,7 @@ const PLAN_META: Record<string, {
         icon: <EnterpriseIcon />,
         cta: 'upgrade',
         monthlyFallback: 50000,
-        annualFallback: 500000,
+        annualFallback: 600000,
         features: [
             'Manage 51-200 resident per estate',
             'Dependent & household accounts (spouse, staff, children)',
@@ -85,8 +85,8 @@ const PLAN_META: Record<string, {
         subtitle: 'Scale, Automation & Integration',
         icon: <PremiumIcon />,
         cta: 'upgrade',
-        monthlyFallback: 150000,
-        annualFallback: 1500000,
+        monthlyFallback: 120000,
+        annualFallback: 1440000,
         features: [
             'Manage unlimited resident per estate',
             'Everything in enterprise plan plus',
@@ -141,10 +141,11 @@ export default function SubscriptionPage() {
         fetchPlans();
         // Always fetch current subscription on mount to ensure fresh tier detection
         // (persisted planId can lose populated shape after localStorage serialization)
-        fetchCurrent().catch(() => {});
+        const estId = selectedCommunity?.estateId || selectedCommunity?.estate?._id || undefined;
+        fetchCurrent(estId).catch(() => {});
         if (searchParams?.get('ref') === 'paystack') {
             // After payment redirect, wait 2.5s then re-fetch to catch activation delay
-            const t = setTimeout(() => fetchCurrent(), 2500);
+            const t = setTimeout(() => fetchCurrent(estId), 2500);
             return () => clearTimeout(t);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps

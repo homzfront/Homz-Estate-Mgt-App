@@ -4,10 +4,36 @@ import BuildingIcon from '@/components/icons/building';
 import React from 'react';
 import { useAuthSlice } from '@/store/authStore';
 import formatDateReadable from '@/app/utils/formatDateReadable';
+import { useResidentCommunity } from '@/store/useResidentCommunity';
+import { useSelectedEsate } from '@/store/useSelectedEstate';
+import api from '@/utils/api';
 
 const MyProperties = () => {
     const residentProfile = useAuthSlice((state) => state.residentProfile);
     const [openId, setOpenId] = React.useState<number | null>(null);
+    const { residentCommunity } = useResidentCommunity();
+    const selectedEstate = useSelectedEsate((s) => s.selectedEstate);
+    const active = selectedEstate || residentCommunity?.[0];
+
+    // For dependents, zone/building may be empty strings copied from a
+    // primary resident whose zone was undefined at signup time.
+    // Fetch the primary resident's profile as fallback.
+    const [primaryProfile, setPrimaryProfile] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        const isMissingLocationData = !residentProfile?.zone || !residentProfile?.building;
+        if (!isMissingLocationData) return;
+
+        const orgId = active?.associatedIds?.organizationId;
+        const estateId = active?.estateId;
+        // The invitedBy field on the resident's estate record holds the primary resident's ID
+        const invitedBy = (residentProfile as any)?.invitedBy || (active as any)?.invitedBy;
+        if (!orgId || !estateId || !invitedBy) return;
+
+        api.get(`/resident/profile/organizations/${orgId}/estates/${estateId}/residents/${invitedBy}`)
+            .then(res => setPrimaryProfile(res.data?.data))
+            .catch(() => { /* silent */ });
+    }, [residentProfile, active]);
 
     const toggleOpen = (id: number) => {
         setOpenId(openId === id ? null : id);
@@ -21,20 +47,26 @@ const MyProperties = () => {
         );
     }
 
+    // Resolve zone/building — use primary resident's data as fallback for dependents
+    const resolvedZone     = residentProfile.zone     || primaryProfile?.zone     || '';
+    const resolvedBuilding = residentProfile.building || primaryProfile?.building || '';
+    const resolvedStreet   = residentProfile.streetName || primaryProfile?.streetName || '';
+    const resolvedApartment = residentProfile.apartment || primaryProfile?.apartment || '';
+
     // Build property cards from the resident profile
     const propertyCards = [
         {
             id: 1,
-            name: residentProfile.apartment || '-',
+            name: resolvedApartment || '-',
             extra: residentProfile.ownershipType
                 ? residentProfile.ownershipType.charAt(0).toUpperCase() + residentProfile.ownershipType.slice(1)
                 : '-',
             details: {
                 ownershipType: residentProfile.ownershipType || '-',
-                apartment: residentProfile.apartment || '-',
-                building: residentProfile.building || '-',
-                street: residentProfile.streetName || '-',
-                zone: residentProfile.zone || '-',
+                apartment: resolvedApartment || '-',
+                building: resolvedBuilding || '-',
+                street: resolvedStreet || '-',
+                zone: resolvedZone || '-',
                 rentStart: residentProfile.rentedDetails?.rentStartDate
                     ? formatDateReadable(residentProfile.rentedDetails.rentStartDate)
                     : residentProfile.ownedDetails?.residencyStartDate

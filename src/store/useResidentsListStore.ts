@@ -20,6 +20,7 @@ export interface ManagerResidentItem {
   building: string
   status: string
   apartment: string
+  residencyType?: string
   ownershipType: 'rented' | 'owned'
   rentedDetails?: {
     rentDurationType: 'Monthly' | 'Yearly'
@@ -53,6 +54,7 @@ export interface ManagerResidentItem {
   createdAt: string
   updatedAt: string
   phoneNumber?: string
+  profilePhoto?: string
 }
 
 interface ResidentsListState {

@@ -7,7 +7,7 @@ import api from "@/utils/api";
 import { getFriendlyErrorMessage } from "@/utils/friendlyErrorMessage";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const ForgotPassword = () => {
@@ -15,6 +15,15 @@ const ForgotPassword = () => {
   const [sentEmail, setSentMail] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // Countdown timer for resend cooldown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendCooldown]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -29,6 +38,7 @@ const ForgotPassword = () => {
 
       if (response.data.success === true) {
         setSentMail(true);
+        setResendCooldown(60);
         toast.success("Reset password link sent to your email.");
       } else {
         setEmailError(response.data.message || "Failed to send reset link");
@@ -43,20 +53,22 @@ const ForgotPassword = () => {
     }
   };
 
-  const handleResend = async (e: FormEvent) => {
-    e.preventDefault();
-
+  const handleResend = async () => {
+    if (resendLoading || resendCooldown > 0) return;
+    setResendLoading(true);
     try {
       const response = await api.post("/auth/forgot-password", { email });
-
-      if (response.data.statuscode === 200 || response.data.statuscode === 201) {
+      if (response.data.success === true) {
         toast.success("Reset password link resent to your email.");
+        setResendCooldown(60);
       } else {
         toast.error(response.data.message || "Failed to resend reset link");
       }
     } catch (error: any) {
       const errorMessage = getFriendlyErrorMessage(error);
       toast.error(errorMessage);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -148,13 +160,21 @@ const ForgotPassword = () => {
                     Continue
                   </Link>
                   <p className="mt-5 text-center font-[400] text-[14px]">
-                    Didn&apos;t receive the email?
-                    <button
-                      className="text-center font-[700] text-[14px] text-BlueHomz ml-1"
-                      onClick={handleResend}
-                    >
-                      Click to resend
-                    </button>
+                    Didn&apos;t receive the email?{" "}
+                    {resendCooldown > 0 ? (
+                      <span className="text-GrayHomz text-[14px] ml-1">
+                        Resend in {resendCooldown}s
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="text-center font-[700] text-[14px] text-BlueHomz ml-1 disabled:opacity-50"
+                        onClick={handleResend}
+                        disabled={resendLoading}
+                      >
+                        {resendLoading ? "Sending..." : "Click to resend"}
+                      </button>
+                    )}
                   </p>
                   <div className="mt-4 flex justify-center gap-1">
                     <Image

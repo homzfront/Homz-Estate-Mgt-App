@@ -14,10 +14,12 @@ import { useSelectedCommunity } from '@/store/useSelectedCommunity';
 import EmptyEstateState from '../../components/emptyEstateState';
 import { useAbility } from '@/contexts/AbilityContext';
 import { useRouter } from 'next/navigation';
+import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 
 const BillAndUti = () => {
   const router = useRouter();
   const ability = useAbility();
+  const { canUse, promptUpgrade } = useSubscriptionStore();
 
   React.useEffect(() => {
     if (!ability.can('read', 'finance')) {
@@ -44,6 +46,10 @@ const BillAndUti = () => {
   }, [selectedCommunity?.estate?._id]);
 
   const handleCreateBillClick = () => {
+    if (!canUse('finance')) {
+      promptUpgrade('finance');
+      return;
+    }
     const { currencyConfigured } = useBillStore.getState();
 
     if (!currencyConfigured) {

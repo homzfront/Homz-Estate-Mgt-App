@@ -5,9 +5,11 @@ import ChangePassword from './components/changePassword'
 import UpdateResidentAccount from './components/roleData'
 import { useRoleSignupForm } from '@/hooks/useRoleSignupForm'
 import { useRoleSignupParams } from '@/hooks/useRoleSignupParams'
+import { useLogoutOnMount } from '@/hooks/useLogoutOnMount'
 
 const ResidentSignup = () => {
   const [active, setActive] = React.useState<number>(0);
+  useLogoutOnMount();
 
   // Handle URL parameters and form state
   const params = useRoleSignupParams();

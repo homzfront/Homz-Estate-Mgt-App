@@ -34,9 +34,17 @@ function FreePlanWelcomeModalInner() {
     const STORAGE_KEY = `homz-free-welcome-${communityProfile?._id || 'em'}`;
 
     useEffect(() => {
-        const seen = localStorage.getItem(STORAGE_KEY);
         const tier = getPlanTier();
         const hasEstate = !!selectedCommunity?.estate?._id;
+
+        // If they've upgraded, clear any stale "seen" flag so logic stays clean
+        if (tier !== 'free') {
+            localStorage.removeItem(STORAGE_KEY);
+            setShow(false);
+            return;
+        }
+
+        const seen = localStorage.getItem(STORAGE_KEY);
 
         // Only show on clean /dashboard with no query params
         const isCleanDashboard = pathname === '/dashboard' &&
@@ -47,7 +55,7 @@ function FreePlanWelcomeModalInner() {
             if (plans.length === 0) fetchPlans();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [communityProfile?._id, selectedCommunity?.estate?._id, pathname]);
+    }, [communityProfile?._id, selectedCommunity?.estate?._id, pathname, getPlanTier()]);
 
     const handleDismiss = () => {
         localStorage.setItem(STORAGE_KEY, 'seen');

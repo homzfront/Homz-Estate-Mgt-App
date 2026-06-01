@@ -3,12 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
+import { useAdminStore } from '@/store/admin/useAdminStore';
 
 type TabType = 'overview' | 'access' | 'payments' | 'activity';
 
 export default function UserDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
+    const { admin } = useAdminStore();
+    const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
+
     const [tab, setTab] = useState<TabType>('overview');
     const [user, setUser] = useState<any>(null);
     const [profile, setProfile] = useState<any>(null);
@@ -19,6 +23,8 @@ export default function UserDetailPage() {
     const [loading, setLoading] = useState(true);
     const [suspending, setSuspending] = useState(false);
     const [showSuspendConfirm, setShowSuspendConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => { fetchUser(); }, [id]);
 
@@ -84,6 +90,20 @@ export default function UserDetailPage() {
         finally { setSuspending(false); }
     };
 
+    const handleDelete = async () => {
+        setDeleting(true);
+        try {
+            await api.delete(`/admin/users/${id}`);
+            toast.success('Account deleted successfully');
+            router.push('/admin/users');
+        } catch (e: any) {
+            toast.error(e?.response?.data?.message || 'Failed to delete account');
+        } finally {
+            setDeleting(false);
+            setShowDeleteConfirm(false);
+        }
+    };
+
     // ── Profile field helpers based on type ──
     const getFirstName  = () => profile?.firstName  || profile?.personal?.firstName  || '';
     const getLastName   = () => profile?.lastName   || profile?.personal?.lastName   || '';
@@ -147,6 +167,12 @@ export default function UserDetailPage() {
                         className='h-[36px] px-4 border border-[#E8E8E8] text-[#1A1A1A] rounded-[8px] text-[13px] hover:bg-[#F5F5F5]'>
                         Edit User
                     </button>
+                    {isSuperAdmin && (userType === 'RESIDENT' || userType === 'COMMUNITY_MANAGER') && (
+                        <button onClick={() => setShowDeleteConfirm(true)}
+                            className='h-[36px] px-4 bg-[#EF4444] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#DC2626]'>
+                            Delete Account
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -389,6 +415,39 @@ export default function UserDetailPage() {
                             <button onClick={async () => { setShowSuspendConfirm(false); await handleSuspend(); }} disabled={suspending}
                                 className={`flex-1 h-[40px] rounded-[8px] text-[13px] font-semibold text-white disabled:opacity-50 ${user?.isActive !== false ? 'bg-[#EF4444] hover:bg-[#DC2626]' : 'bg-[#38A169] hover:bg-[#2F855A]'}`}>
                                 {user?.isActive !== false ? 'Yes, Suspend' : 'Yes, Activate'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* ── Delete modal ── */}
+            {showDeleteConfirm && (
+                <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4'>
+                    <div className='bg-white rounded-[16px] w-full max-w-[400px] p-6'>
+                        <div className='w-12 h-12 rounded-full bg-[#FEF2F2] flex items-center justify-center mx-auto mb-4'>
+                            <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
+                                <path d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6' stroke='#EF4444' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/>
+                            </svg>
+                        </div>
+                        <h3 className='text-[16px] font-bold text-[#1A1A1A] text-center mb-1'>
+                            Delete Account?
+                        </h3>
+                        <p className='text-[13px] text-[#6B6B6B] text-center mb-2'>
+                            You are about to permanently delete <strong>{getDisplayName()}</strong>&apos;s account.
+                        </p>
+                        <p className='text-[12px] text-[#EF4444] text-center mb-6 bg-[#FEF2F2] rounded-[8px] px-3 py-2'>
+                            This action cannot be undone. All associated data including profile, billing records, and access logs will be permanently removed.
+                        </p>
+                        <div className='flex gap-3'>
+                            <button onClick={() => setShowDeleteConfirm(false)}
+                                className='flex-1 h-[40px] border border-[#E0E0E0] rounded-[8px] text-[13px] text-[#6B6B6B] hover:bg-[#F5F5F5]'>
+                                Cancel
+                            </button>
+                            <button onClick={handleDelete} disabled={deleting}
+                                className='flex-1 h-[40px] bg-[#EF4444] text-white rounded-[8px] text-[13px] font-semibold hover:bg-[#DC2626] disabled:opacity-50 flex items-center justify-center gap-2'>
+                                {deleting ? (
+                                    <><div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'/> Deleting...</>
+                                ) : 'Yes, Delete Account'}
                             </button>
                         </div>
                     </div>

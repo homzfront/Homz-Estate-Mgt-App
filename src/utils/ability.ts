@@ -8,7 +8,10 @@ export type AppAbility = Ability<[Actions, Subjects]>;
 export function defineAbilityFor(role: string): AppAbility {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(Ability);
 
-    switch (role?.toLowerCase()) {
+    // Normalise — backend sends 'landLord', frontend stores lowercase
+    const normalisedRole = role?.toLowerCase().replace('landlord', 'landlord');
+
+    switch (normalisedRole) {
         case 'admin':
             can('manage', 'all');
             can('create', 'residents');
@@ -50,7 +53,6 @@ export function defineAbilityFor(role: string): AppAbility {
 
         case 'landlord':
             // Landlord: read-only access to estate info and own profile
-            // Backend has no defined CASL for this role (defaults to cannot manage all)
             can('read', 'dashboard');
             can('read', 'estate-info');
             can('read', 'profile');

@@ -15,9 +15,16 @@ const BillPaymentPropertyList: React.FC<Props> = ({ residentData, onSelectProper
 
         const list: PropertyDetailsType[] = [];
 
-        // 1. Primary Residence
+        // 1. Primary Residence — use the matching residence._id as the apartmentId
+        // The offline payment endpoint needs the residence document _id, not the resident profile _id
+        const primaryResidence = residentData.residences?.find(r =>
+            r.building === residentData.building &&
+            r.apartment === residentData.apartment &&
+            r.streetName === residentData.streetName
+        ) || residentData.residences?.[0];
+
         list.push({
-            id: residentData._id,
+            id: primaryResidence?._id || residentData._id, // fallback to residentData._id only if no residence found
             title: `${residentData.building || 'Building'} - ${residentData.apartment || 'Apartment'}`,
             subtitle: `View ${residentData.estateName || 'Estate'}`,
             details: {
@@ -29,7 +36,7 @@ const BillPaymentPropertyList: React.FC<Props> = ({ residentData, onSelectProper
                 street: residentData.streetName,
                 zone: residentData.zone,
                 ownershipType: residentData.ownershipType,
-                residencyType: (residentData as ManagerResidentItem & { residencyType?: string }).residencyType,
+                residencyType: residentData.residencyType,
                 rentDurationType: residentData?.rentedDetails?.rentDurationType ? residentData.rentedDetails.rentDurationType : undefined,
                 rentDuration: residentData?.rentedDetails?.rentDuration ? residentData.rentedDetails.rentDuration : undefined
             }

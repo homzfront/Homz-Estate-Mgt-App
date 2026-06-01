@@ -216,11 +216,12 @@ export const useMembersStore = create<MembersState>((set, get) => ({
                 { email, role }
             );
 
-            // Update local state
+            // Update local state and clear cache so next fetch gets fresh data
             set((state) => ({
                 members: state.members.map((member) =>
-                    member._id === memberId ? { ...member, role: role.toLowerCase() } : member
+                    member._id === memberId ? { ...member, role } : member
                 ),
+                cachedData: {}, // bust all cached pages — role change affects all filters
             }));
         } catch (error: any) {
             const backendMessage = error?.response?.data?.message;

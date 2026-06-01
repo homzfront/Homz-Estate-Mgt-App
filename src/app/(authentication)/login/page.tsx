@@ -23,7 +23,7 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setUserData } = useAuthSlice();
+  const { setUserData, getCommunityManaProfile } = useAuthSlice();
   const { isResident, token, estateId, organizationId, clearResidentData } = useResidentStore()
   // const handleGoogleSignIn = () => {
   //   // Empty function as requested
@@ -127,6 +127,8 @@ const Login = () => {
         // Try CM profile — 403 means this user is a resident, not a CM
         try {
           await api.get("/community-manager/current-profile");
+          // Fetch estates so we know the user's role before redirecting
+          await getCommunityManaProfile();
           // Success — user is a community manager
           toast.success("Login successful!", {
             position: "top-center",
@@ -140,7 +142,15 @@ const Login = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             },
           });
-          router.push("/dashboard");
+          // Route directly to the correct landing page based on role —
+          // avoids a flash of /dashboard before the layout redirects restricted roles
+          const { estatesData } = useAuthSlice.getState();
+          const userRole = estatesData?.[0]?.role?.toLowerCase() ?? '';
+          const ROLE_LANDING: Record<string, string> = {
+            security: '/access-control',
+            landlord: '/estate-info',
+          };
+          router.push(ROLE_LANDING[userRole] ?? '/dashboard');
         } catch (profileErr: any) {
           const status = profileErr?.response?.status;
           if (status === 403 || status === 401) {
