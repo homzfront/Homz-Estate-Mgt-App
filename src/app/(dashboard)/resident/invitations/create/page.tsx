@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import DotLoader from '@/components/general/dotLoader'
 import api from '@/utils/api'
 import { getFriendlyErrorMessage } from '@/utils/friendlyErrorMessage'
-
+import { formatDueDateForSubmission } from '@/app/utils/formatDueDateForSubmission'
 import { useSelectedCommunity } from '@/store/useSelectedCommunity'
 import { RESIDENCY_TYPES } from '@/constant'
 
@@ -32,12 +32,21 @@ const ownerTypeOption = [
     }
 ];
 
+const durationTypeOptions = [
+    { id: 1, label: "Months", value: "months" },
+    { id: 2, label: "Years", value: "years" }
+];
+
 const Resident = () => {
     const router = useRouter()
     const [formData, setFormData] = React.useState({
         firstName: '',
         lastName: '',
         selectOwnershipType: '',
+        rentDuration: '',
+        rentDurationType: 'months',
+        rentStartDate: '',
+        rentDueDate: '',
         residentType: '',
         residencyStartDate: '',
         estateName: ''
@@ -46,8 +55,10 @@ const Resident = () => {
     const [selectedApartment, setSelectedApartment] = useState('');
     const [selectedOwner, setSelectedOwner] = useState('');
     const [selectedResidentType, setSelectedResidentType] = useState('');
+    // const [selectedOwner, setSelectedOwner] = useState(ownerTypeOption[0]);
     const [selectedStreetName, setSelectedStreetName] = useState('');
     const [selectedStreetZone, setSelectedStreetZone] = useState('');
+    const [calculatedDueDate, setCalculatedDueDate] = useState('');
     const { userData } = useAuthSlice();
     const [loading, setLoading] = useState(false);
     const { publicCommunity, setPublicCommunity } = useSelectedCommunity();
@@ -141,8 +152,61 @@ const Resident = () => {
             [field]: value
         }));
     };
-    const handleDurationTypeChange = (_type: string) => {
-        // Rent duration type is now set by the CM during approval
+    const calculateDueDate = () => {
+        if (!formData.rentStartDate || !formData.rentDuration) {
+            setCalculatedDueDate('');
+            return;
+        }
+
+        const startDate = new Date(formData.rentStartDate);
+        if (!startDate) {
+            setCalculatedDueDate('');
+            return;
+        }
+
+        const duration = parseInt(formData.rentDuration);
+        const dueDate = new Date(startDate);
+
+        if (formData.rentDurationType === 'months') {
+            // Move forward by `duration` months, keeping the same day
+            dueDate.setMonth(dueDate.getMonth() + duration);
+            // Subtract one day to get the day before
+            dueDate.setDate(dueDate.getDate() - 1);
+        } else if (formData.rentDurationType === 'years') {
+            // Move forward by `duration` years, keeping the same day
+            dueDate.setFullYear(dueDate.getFullYear() + duration);
+            // Subtract one day to get the day before
+            dueDate.setDate(dueDate.getDate() - 1);
+        }
+
+        // Handle edge case: if the resulting date is invalid (e.g., Feb 30), adjust to last day of previous month
+        if (dueDate.getDate() !== (new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())).getDate()) {
+            dueDate.setDate(0); // Set to last day of previous month
+        }
+
+        // Format: MM/DD/YYYY
+        const formatted =
+            String(dueDate.getMonth() + 1).padStart(2, '0') + '/' +
+            String(dueDate.getDate()).padStart(2, '0') + '/' +
+            dueDate.getFullYear();
+
+        setCalculatedDueDate(formatted);
+    };
+
+
+    React.useEffect(() => {
+        if (formData.rentStartDate && formData.rentDurationType && formData.rentDuration) {
+            calculateDueDate()
+            return;
+        }
+
+    }, [formData.rentStartDate, formData.rentDuration, formData.rentDurationType]);
+
+    const handleDurationTypeChange = (type: string) => {
+        setFormData(prev => ({
+            ...prev,
+            rentDurationType: type
+        }));
     };
 
     const handleSubmit = async () => {
@@ -196,15 +260,8 @@ const Resident = () => {
                 residence.ownedDetails = {
                     residencyStartDate: new Date(formData.residencyStartDate).toISOString()
                 };
-            } else {
-                // Rented — no rent dates needed here, CM sets them on approval
-                residence.rentedDetails = {
-                    rentDurationType: 'Monthly',
-                    rentDuration: 0,
-                    rentStartDate: null,
-                    rentDueDate: null,
-                };
             }
+            // For rented: no rentedDetails — CM sets rent dates on approval
 
             const payload: any = {
                 email: userData?.email || "",
@@ -218,10 +275,23 @@ const Resident = () => {
                 apartment: selectedApartment,
                 residencyType: selectedResidentType,
                 ownershipType,
+                // For rented residents, rent dates are set by the CM on approval
+                // so we only include ownedDetails if owned
                 ...(ownershipType === "owned"
                     ? { ownedDetails: residence.ownedDetails }
-                    : { rentedDetails: residence.rentedDetails }),
-                residences: [residence],
+                    : {}),
+                residences: [{
+                    zone: residence.zone,
+                    streetName: residence.streetName,
+                    building: residence.building,
+                    apartment: residence.apartment,
+                    residencyType: residence.residencyType,
+                    ownershipType: residence.ownershipType,
+                    // Only include ownedDetails in residence for owned type
+                    ...(ownershipType === "owned"
+                        ? { ownedDetails: residence.ownedDetails }
+                        : {}),
+                }],
             };
 
             // Make API call
@@ -432,18 +502,57 @@ const Resident = () => {
                                     </div>
                                 </div>
 
-                                {/* Rented — inform resident CM will set dates on approval */}
+                                {/* Rented fields */}
                                 {selectedOwner === "I am renting this apartment/property" && (
-                                    <div className="flex items-start gap-3 p-4 bg-[#EEF5FF] rounded-[8px] border border-[#C7DCFF]">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="flex-shrink-0 mt-0.5">
-                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#006AFF" strokeWidth="1.5"/>
-                                            <path d="M12 8V12M12 16H12.01" stroke="#006AFF" strokeWidth="2" strokeLinecap="round"/>
-                                        </svg>
-                                        <div>
-                                            <p className="text-sm font-medium text-BlueHomz">Rent dates set by your estate manager</p>
-                                            <p className="text-xs text-[#4A6FA5] mt-0.5 leading-relaxed">
-                                                Your rent start and end dates will be assigned by your community manager when they approve your request. You don&apos;t need to fill these in.
-                                            </p>
+                                    <div className="flex flex-col gap-4 p-4 bg-[#F8F9FB] rounded-[8px] border border-[#E6E6E6]">
+                                        <h3 className='text-sm font-semibold text-BlackHomz'>Rental Details</h3>
+                                        <div className='relative'>
+                                            <CustomInput
+                                                borderColor="#4E4E4E"
+                                                label="Rent Duration"
+                                                placeholder="e.g 12"
+                                                value={formData.rentDuration}
+                                                onValueChange={(value) => handleInputChange('rentDuration', value)}
+                                                required
+                                                type='number'
+                                                className='h-[45px] pl-4 pr-[100px] mt-1'
+                                            />
+                                            <select
+                                                className="absolute top-9 right-2 border-none text-xs px-2 py-1 bg-transparent"
+                                                value={formData.rentDurationType}
+                                                onChange={(e) => handleDurationTypeChange(e.target.value)}
+                                            >
+                                                {durationTypeOptions.map(option => (
+                                                    <option key={option.id} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                                            <div>
+                                                <label className="text-sm text-BlackHomz font-medium">
+                                                    Rent Start Date <span className="text-red-500">*</span>
+                                                </label>
+                                                <div className="relative mt-1">
+                                                    <CustomInput
+                                                        borderColor="#4E4E4E"
+                                                        type="date"
+                                                        className="h-[45px] px-4 pr-10 input-hide-date-icon"
+                                                        onChange={(e) => handleInputChange('rentStartDate', e.target.value)}
+                                                        required
+                                                    />
+                                                    <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
+                                                        <DateIcon />
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className='flex flex-col gap-1'>
+                                                <h3 className='text-sm font-medium text-BlackHomz mb-1'>Rent Due Date <span className='text-error'>*</span></h3>
+                                                <span className='h-[45px] rounded-[4px] bg-[#E6E6E6] w-full flex items-center pl-4 text-sm text-GrayHomz'>
+                                                    {calculatedDueDate ? calculatedDueDate : 'Auto-filled'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
