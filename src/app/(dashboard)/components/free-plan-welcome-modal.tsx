@@ -24,16 +24,31 @@ const LOCKED_FEATURES = [
 function FreePlanWelcomeModalInner() {
     const router = useRouter();
     const pathname = usePathname();
-    const { getPlanTier, plans, fetchPlans } = useSubscriptionStore();
+    const { getPlanTier, plans, fetchPlans, isLoadingCurrent, current } = useSubscriptionStore();
     const { communityProfile } = useAuthSlice();
     const selectedCommunity = useSelectedCommunity((s) => s.selectedCommunity);
     const [show, setShow] = useState(false);
+    // Track whether we've attempted a subscription fetch at least once
+    const [subChecked, setSubChecked] = useState(false);
 
     const role = selectedCommunity?.role || 'owner';
     const canSeeModal = ['owner', 'admin'].includes(role);
     const STORAGE_KEY = `homz-free-welcome-${communityProfile?._id || 'em'}`;
 
+    // Mark as checked once loading finishes
     useEffect(() => {
+        if (!isLoadingCurrent && selectedCommunity?.estate?._id) {
+            setSubChecked(true);
+        }
+    }, [isLoadingCurrent, selectedCommunity?.estate?._id]);
+
+    useEffect(() => {
+        // Don't evaluate until subscription fetch has completed at least once
+        if (!subChecked || isLoadingCurrent) return;
+        // Don't evaluate until we have the real community profile ID
+        // Without it, STORAGE_KEY uses 'em' as fallback and the seen check is wrong
+        if (!communityProfile?._id) return;
+
         const tier = getPlanTier();
         const hasEstate = !!selectedCommunity?.estate?._id;
 
@@ -55,7 +70,7 @@ function FreePlanWelcomeModalInner() {
             if (plans.length === 0) fetchPlans();
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [communityProfile?._id, selectedCommunity?.estate?._id, pathname, getPlanTier()]);
+    }, [subChecked, isLoadingCurrent, communityProfile?._id, selectedCommunity?.estate?._id, pathname]);
 
     const handleDismiss = () => {
         localStorage.setItem(STORAGE_KEY, 'seen');
