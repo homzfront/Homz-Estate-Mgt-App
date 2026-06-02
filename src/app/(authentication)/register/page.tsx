@@ -300,14 +300,18 @@ const Register = () => {
                   <p className="cursor-pointer text-center text-GrayHomz font-[400] text-[11px]">
                     I agree to the{" "}
                     <Link
-                      href={"/terms-and-conditions"}
+                      href={"https://homz.ng/terms-and-conditions"}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-BlackHomz font-[700] hover:underline"
                     >
                       Terms and Conditions
                     </Link>{" "}
                     and{" "}
                     <Link
-                      href={"/privacy-policy"}
+                      href={"https://homz.ng/privacy-policy"}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-BlackHomz font-[700] hover:underline"
                     >
                       Privacy Policy
