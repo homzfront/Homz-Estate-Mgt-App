@@ -596,7 +596,19 @@ const Request = () => {
                                                                 </button>
                                                                 <button
                                                                     className='flex gap-2 items-center w-full text-left px-4 py-2 text-Success hover:bg-whiteblue'
-                                                                    onClick={() => { setSelectedData(data); setModelOpen('approve'); setPopUpMenu(false); }}
+                                                                    onClick={() => {
+                                                                        setSelectedData(data);
+                                                                        // Pre-fill duration from resident's submitted rentedDetails
+                                                                        if (data.ownershipType === 'rented' && data.rentedDetails) {
+                                                                            setRentDates(prev => ({
+                                                                                ...prev,
+                                                                                rentDuration: data.rentedDetails?.rentDuration?.toString() || '',
+                                                                                rentDurationType: data.rentedDetails?.rentDurationType === 'Yearly' ? 'years' : 'months',
+                                                                            }));
+                                                                        }
+                                                                        setModelOpen('approve');
+                                                                        setPopUpMenu(false);
+                                                                    }}
                                                                 >
                                                                     <ApproveIcon /> Approve
                                                                 </button>

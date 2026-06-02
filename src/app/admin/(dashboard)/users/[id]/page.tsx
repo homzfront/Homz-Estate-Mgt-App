@@ -25,6 +25,8 @@ export default function UserDetailPage() {
     const [showSuspendConfirm, setShowSuspendConfirm] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [eligibility, setEligibility] = useState<any>(null);
+    const [checkingEligibility, setCheckingEligibility] = useState(false);
 
     useEffect(() => { fetchUser(); }, [id]);
 
@@ -90,10 +92,24 @@ export default function UserDetailPage() {
         finally { setSuspending(false); }
     };
 
+    const handleDeleteClick = async () => {
+        setCheckingEligibility(true);
+        try {
+            const res = await api.get(`/admin/account-deletion/users/${id}/eligibility`);
+            const data = res.data?.data;
+            setEligibility(data);
+            setShowDeleteConfirm(true);
+        } catch (e: any) {
+            toast.error(e?.response?.data?.message || 'Failed to check eligibility');
+        } finally {
+            setCheckingEligibility(false);
+        }
+    };
+
     const handleDelete = async () => {
         setDeleting(true);
         try {
-            await api.delete(`/admin/users/${id}`);
+            await api.delete(`/admin/account-deletion/users/${id}`);
             toast.success('Account deleted successfully');
             router.push('/admin/users');
         } catch (e: any) {
@@ -168,7 +184,8 @@ export default function UserDetailPage() {
                         Edit User
                     </button>
                     {isSuperAdmin && (userType === 'RESIDENT' || userType === 'COMMUNITY_MANAGER') && (
-                        <button onClick={() => setShowDeleteConfirm(true)}
+                        <button onClick={handleDeleteClick}
+                            disabled={checkingEligibility}
                             className='h-[36px] px-4 bg-[#EF4444] text-white rounded-[8px] text-[13px] font-medium hover:bg-[#DC2626]'>
                             Delete Account
                         </button>
@@ -423,33 +440,57 @@ export default function UserDetailPage() {
             {/* ── Delete modal ── */}
             {showDeleteConfirm && (
                 <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4'>
-                    <div className='bg-white rounded-[16px] w-full max-w-[400px] p-6'>
+                    <div className='bg-white rounded-[16px] w-full max-w-[480px] p-6'>
                         <div className='w-12 h-12 rounded-full bg-[#FEF2F2] flex items-center justify-center mx-auto mb-4'>
                             <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
                                 <path d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6' stroke='#EF4444' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/>
                             </svg>
                         </div>
-                        <h3 className='text-[16px] font-bold text-[#1A1A1A] text-center mb-1'>
-                            Delete Account?
-                        </h3>
-                        <p className='text-[13px] text-[#6B6B6B] text-center mb-2'>
-                            You are about to permanently delete <strong>{getDisplayName()}</strong>&apos;s account.
-                        </p>
-                        <p className='text-[12px] text-[#EF4444] text-center mb-6 bg-[#FEF2F2] rounded-[8px] px-3 py-2'>
-                            This action cannot be undone. All associated data including profile, billing records, and access logs will be permanently removed.
-                        </p>
-                        <div className='flex gap-3'>
-                            <button onClick={() => setShowDeleteConfirm(false)}
-                                className='flex-1 h-[40px] border border-[#E0E0E0] rounded-[8px] text-[13px] text-[#6B6B6B] hover:bg-[#F5F5F5]'>
-                                Cancel
-                            </button>
-                            <button onClick={handleDelete} disabled={deleting}
-                                className='flex-1 h-[40px] bg-[#EF4444] text-white rounded-[8px] text-[13px] font-semibold hover:bg-[#DC2626] disabled:opacity-50 flex items-center justify-center gap-2'>
-                                {deleting ? (
-                                    <><div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'/> Deleting...</>
-                                ) : 'Yes, Delete Account'}
-                            </button>
-                        </div>
+                        {eligibility && !eligibility.eligible ? (
+                            <>
+                                <h3 className='text-[16px] font-bold text-[#1A1A1A] text-center mb-1'>
+                                    Cannot Delete Account
+                                </h3>
+                                <p className='text-[13px] text-[#6B6B6B] text-center mb-4'>
+                                    This account cannot be deleted yet. The following issues must be resolved first:
+                                </p>
+                                <div className='max-h-[240px] overflow-y-auto flex flex-col gap-2 mb-5'>
+                                    {eligibility.blockers?.map((b: any, i: number) => (
+                                        <div key={i} className='bg-[#FEF2F2] rounded-[8px] px-3 py-2 text-[12px] text-[#EF4444]'>
+                                            <span className='font-semibold'>{b.estateName}</span> — {b.message}
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => { setShowDeleteConfirm(false); setEligibility(null); }}
+                                    className='w-full h-[40px] border border-[#E0E0E0] rounded-[8px] text-[13px] text-[#6B6B6B] hover:bg-[#F5F5F5]'>
+                                    Close
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className='text-[16px] font-bold text-[#1A1A1A] text-center mb-1'>
+                                    Delete Account?
+                                </h3>
+                                <p className='text-[13px] text-[#6B6B6B] text-center mb-2'>
+                                    You are about to permanently delete <strong>{getDisplayName()}</strong>&apos;s account.
+                                </p>
+                                <p className='text-[12px] text-[#EF4444] text-center mb-6 bg-[#FEF2F2] rounded-[8px] px-3 py-2'>
+                                    This action cannot be undone. All associated data including profile, billing records, and access logs will be permanently removed.
+                                </p>
+                                <div className='flex gap-3'>
+                                    <button onClick={() => { setShowDeleteConfirm(false); setEligibility(null); }}
+                                        className='flex-1 h-[40px] border border-[#E0E0E0] rounded-[8px] text-[13px] text-[#6B6B6B] hover:bg-[#F5F5F5]'>
+                                        Cancel
+                                    </button>
+                                    <button onClick={handleDelete} disabled={deleting}
+                                        className='flex-1 h-[40px] bg-[#EF4444] text-white rounded-[8px] text-[13px] font-semibold hover:bg-[#DC2626] disabled:opacity-50 flex items-center justify-center gap-2'>
+                                        {deleting ? (
+                                            <><div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'/> Deleting...</>
+                                        ) : 'Yes, Delete Account'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

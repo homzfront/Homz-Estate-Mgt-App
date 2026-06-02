@@ -43,17 +43,19 @@ const Layout = ({
         }
     }, [pathname, selectedEstate?.role]);
 
+    const isInvitationRoute = pathname.startsWith('/resident/invitations');
+
     return (
 
         <div className='dashboard_main relative'>
-            {openEstateList && (
+            {openEstateList && !isInvitationRoute && (
                 <div className="absolute inset-0 z-[99999999] bg-black bg-opacity-50 flex justify-start">
                     <div className="w-full h-fit mt-[185px] ml-[25px] shadow-lg">
                         <PickEstate closeRef={closeRef} setOpenPendingModal={setOpenPendingModal} />
                     </div>
                 </div>
             )}
-            {openPendingModal && (
+            {openPendingModal && !isInvitationRoute && (
                 <CustomModal onRequestClose={() => setOpenPendingModal(false)} isOpen={openPendingModal}>
                     <PendingEstateRequest setOpenPendingModal={setOpenPendingModal} />
                 </CustomModal>

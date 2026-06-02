@@ -73,6 +73,7 @@ const AuthSlider = () => {
                     objectPosition="center"
                     className="object-cover bg-center w-[480px] h-[286px] sm:h-[464px] rounded-[40px]"
                     priority
+                    unoptimized
                   />
                 </div>
               ))}

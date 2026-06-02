@@ -2,17 +2,10 @@ import { useEffect, useRef } from 'react';
 import { useAuthSlice } from '@/store/authStore';
 
 /**
- * Silently logs out any existing session when an invitation page mounts.
- *
- * Use case: a user opens an invitation link while already logged in as a
- * different account. Without this, their existing token fires API calls that
- * return 401, triggering the "Session Expired" overlay before they see anything.
- *
- * This hook clears the token and Zustand store on mount so the invitation page
- * always starts from a clean unauthenticated state.
+ * Silently clears any existing auth session when an invitation page mounts.
+ * Does NOT redirect to /login — invitation pages handle their own flow.
  */
 export function useLogoutOnMount() {
-    const { logOutUser } = useAuthSlice();
     const hasRun = useRef(false);
 
     useEffect(() => {
@@ -21,17 +14,20 @@ export function useLogoutOnMount() {
 
         const silentLogout = async () => {
             try {
-                // Clear the httpOnly cookie via the API route
                 await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-                // Clear Zustand store state
-                logOutUser();
+                // Clear auth store directly — avoids the window.location.href = "/login" in logOutUser()
+                useAuthSlice.setState({
+                    userData: null,
+                    communityProfile: null,
+                    residentProfile: null,
+                    estatesData: null,
+                });
+                localStorage.removeItem('auth');
             } catch {
-                // Silent — if logout fails the page will still work,
-                // the invitation pages handle their own auth state
+                // Silent
             }
         };
 
         silentLogout();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 }

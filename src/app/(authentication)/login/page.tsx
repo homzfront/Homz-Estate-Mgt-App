@@ -95,16 +95,23 @@ const Login = () => {
 
       // Store user data
       setUserData(profile.data.data);
-      if (profile?.data?.data?.accounts?.length === 0) {
-        if (isResident && organizationId && estateId && token) {
-          // User logged in but hasn't completed resident profile yet
-          // Send them back to the invite link to complete signup
-          const params = new URLSearchParams({
-            invitation: token as any,
-            organizationId: organizationId as any,
-            estateId: estateId as any
-          }).toString()
 
+      // Check invitation params — from store or sessionStorage fallback (register → OTP → login flow)
+      const storedInvite = sessionStorage.getItem('homz_resident_invite');
+      const parsedInvite = storedInvite ? JSON.parse(storedInvite) : null;
+      const invToken = token || parsedInvite?.invitation;
+      const invOrgId = organizationId || parsedInvite?.organizationId;
+      const invEstateId = estateId || parsedInvite?.estateId;
+      const hasInvite = !!(invToken && invOrgId && invEstateId);
+
+      if (profile?.data?.data?.accounts?.length === 0) {
+        if (hasInvite) {
+          sessionStorage.removeItem('homz_resident_invite');
+          const params = new URLSearchParams({
+            invitation: invToken,
+            organizationId: invOrgId,
+            estateId: invEstateId
+          }).toString()
           router.push(`/resident/invitations/create?${params}`)
         } else {
           clearResidentData();
@@ -113,11 +120,12 @@ const Login = () => {
 
       } else {
         // User has accounts — check if they have a pending resident invite to complete
-        if (isResident && organizationId && estateId && token) {
+        if (hasInvite) {
+          sessionStorage.removeItem('homz_resident_invite');
           const params = new URLSearchParams({
-            invitation: token as any,
-            organizationId: organizationId as any,
-            estateId: estateId as any
+            invitation: invToken,
+            organizationId: invOrgId,
+            estateId: invEstateId
           }).toString()
           router.push(`/resident/invitations/create?${params}`)
           return;

@@ -4,11 +4,13 @@ import api from '@/utils/api';
 
 interface Activity {
     _id: string;
-    actorName?: string;
+    user?: string;       // mapped from actorName by backend
     role?: string;
     action: string;
     target?: string;
-    createdAt: string;
+    date: string;        // mapped from createdAt by backend
+    time: string;        // same as date, frontend formats
+    estateName?: string;
 }
 
 interface ActivityDetail {
@@ -72,7 +74,7 @@ export default function AdminActivityPage() {
                 const results = res.data?.data?.results || res.data?.data?.estates || [];
                 setEstates(results);
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const fetchActivities = useCallback(async (p = 1) => {
@@ -136,7 +138,7 @@ export default function AdminActivityPage() {
                     >
                         {selectedEstateName}
                         <svg width='12' height='12' viewBox='0 0 24 24' fill='none'>
-                            <path d='M6 9l6 6 6-6' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'/>
+                            <path d='M6 9l6 6 6-6' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
                         </svg>
                     </button>
                     {showEstateDropdown && (
@@ -145,8 +147,8 @@ export default function AdminActivityPage() {
                             <div className='p-2 border-b border-[#F0F0F0]'>
                                 <div className='relative'>
                                     <svg className='absolute left-2.5 top-1/2 -translate-y-1/2 text-[#BDBDBD]' width='12' height='12' viewBox='0 0 24 24' fill='none'>
-                                        <circle cx='11' cy='11' r='8' stroke='currentColor' strokeWidth='1.5'/>
-                                        <line x1='21' y1='21' x2='16.65' y2='16.65' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'/>
+                                        <circle cx='11' cy='11' r='8' stroke='currentColor' strokeWidth='1.5' />
+                                        <line x1='21' y1='21' x2='16.65' y2='16.65' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
                                     </svg>
                                     <input
                                         autoFocus
@@ -180,8 +182,8 @@ export default function AdminActivityPage() {
                                     const name = e.basicDetails?.name || e.name || '';
                                     return name.toLowerCase().includes(estateSearch.toLowerCase());
                                 }).length === 0 && estateSearch && (
-                                    <p className='px-4 py-3 text-[12px] text-[#9E9E9E]'>No estates found</p>
-                                )}
+                                        <p className='px-4 py-3 text-[12px] text-[#9E9E9E]'>No estates found</p>
+                                    )}
                             </div>
                         </div>
                     )}
@@ -195,7 +197,7 @@ export default function AdminActivityPage() {
                     >
                         {startDate ? `${startDate} – ${endDate || '...'}` : 'Date'}
                         <svg width='12' height='12' viewBox='0 0 24 24' fill='none'>
-                            <path d='M6 9l6 6 6-6' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'/>
+                            <path d='M6 9l6 6 6-6' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
                         </svg>
                     </button>
                     {showDateDropdown && (
@@ -205,12 +207,12 @@ export default function AdminActivityPage() {
                                 <div>
                                     <label className='text-[11px] text-[#6B6B6B] mb-1 block'>From</label>
                                     <input type='date' value={startDate} onChange={e => setStartDate(e.target.value)}
-                                        className='w-full h-[34px] border border-[#E8E8E8] rounded-[6px] px-3 text-[12px] focus:outline-none focus:border-[#006AFF]'/>
+                                        className='w-full h-[34px] border border-[#E8E8E8] rounded-[6px] px-3 text-[12px] focus:outline-none focus:border-[#006AFF]' />
                                 </div>
                                 <div>
                                     <label className='text-[11px] text-[#6B6B6B] mb-1 block'>To</label>
                                     <input type='date' value={endDate} onChange={e => setEndDate(e.target.value)}
-                                        className='w-full h-[34px] border border-[#E8E8E8] rounded-[6px] px-3 text-[12px] focus:outline-none focus:border-[#006AFF]'/>
+                                        className='w-full h-[34px] border border-[#E8E8E8] rounded-[6px] px-3 text-[12px] focus:outline-none focus:border-[#006AFF]' />
                                 </div>
                                 <div className='flex gap-2 mt-1'>
                                     <button onClick={() => { setStartDate(''); setEndDate(''); setShowDateDropdown(false); }}
@@ -243,7 +245,7 @@ export default function AdminActivityPage() {
                             <tr>
                                 <td colSpan={6} className='text-center py-16'>
                                     <div className='flex justify-center'>
-                                        <div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin'/>
+                                        <div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' />
                                     </div>
                                 </td>
                             </tr>
@@ -259,12 +261,12 @@ export default function AdminActivityPage() {
                                 onClick={() => openDetail(a._id)}
                                 className={`cursor-pointer hover:bg-[#F5F8FF] transition-colors ${i < activities.length - 1 ? 'border-b border-[#F0F0F0]' : ''}`}
                             >
-                                <td className='px-5 py-3.5 text-[13px] text-[#1A1A1A]'>{a.actorName || '—'}</td>
+                                <td className='px-5 py-3.5 text-[13px] text-[#1A1A1A]'>{a.user || '—'}</td>
                                 <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{a.role || '—'}</td>
                                 <td className='px-5 py-3.5 text-[13px] text-[#1A1A1A]'>{a.action || '—'}</td>
                                 <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{a.target || '—'}</td>
-                                <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{formatDate(a.createdAt)}</td>
-                                <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{formatTime(a.createdAt)}</td>
+                                <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{formatDate(a.date)}</td>
+                                <td className='px-5 py-3.5 text-[13px] text-[#6B6B6B]'>{formatTime(a.time)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -296,14 +298,14 @@ export default function AdminActivityPage() {
                             <button onClick={() => { setSelectedId(null); setDetail(null); }}
                                 className='text-[#9E9E9E] hover:text-[#1A1A1A] transition-colors'>
                                 <svg width='20' height='20' viewBox='0 0 24 24' fill='none'>
-                                    <path d='M18 6L6 18M6 6l12 12' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'/>
+                                    <path d='M18 6L6 18M6 6l12 12' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
                                 </svg>
                             </button>
                         </div>
 
                         {detailLoading ? (
                             <div className='flex justify-center py-10'>
-                                <div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin'/>
+                                <div className='w-6 h-6 border-2 border-[#006AFF] border-t-transparent rounded-full animate-spin' />
                             </div>
                         ) : !detail ? (
                             <p className='text-center text-[13px] text-[#9E9E9E] py-8'>Details not available</p>

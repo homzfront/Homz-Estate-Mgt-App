@@ -317,7 +317,7 @@ export const useAuthSlice = create<AuthState>()(
                     return;
                 }
                 try {
-                    const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${freshResidentId}`);
+                    const response = await api.get(`/resident/profile/organizations/${organizationId}/estates/${estateId}/residents/${freshResidentId}?_t=${Date.now()}`);
                     const data = response.data.data;
                     set({ residentProfile: data });
                 } catch (error: any) {
@@ -336,7 +336,8 @@ export const useAuthSlice = create<AuthState>()(
                 userData: state.userData,
                 estatesData: state.estatesData,
                 communityProfile: state.communityProfile,
-                residentProfile: state.residentProfile,
+                // residentProfile intentionally NOT persisted — it contains time-sensitive
+                // data (rentStartDate, rentDueDate) that must always be fetched fresh
             }),
             // storage: createJSONStorage(() => sessionStorage),
             // storage: createJSONStorage(() => localStorage),

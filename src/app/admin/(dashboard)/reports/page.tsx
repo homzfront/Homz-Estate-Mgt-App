@@ -71,7 +71,7 @@ export default function AdminReportsPage() {
                     api.get('/admin/wallets/summary'),
                     api.get('/admin/wallets/charts/estates', { params: { top: 10 } }),
                     api.get('/admin/wallets/charts/transactions', { params: { months: 12 } }),
-                    api.get('/admin/users', { params: { limit: '1' } }),
+                    api.get('/admin/users', { params: { limit: 1, status: 'active' } }),
                 ]);
                 // wallet summary: { totalBalance, activeCount, inactiveCount }
                 const ws = walletSummary.status === 'fulfilled' ? walletSummary.value.data?.data || {} : {};
@@ -79,7 +79,7 @@ export default function AdminReportsPage() {
                 const ec = estateCharts.status === 'fulfilled' ? (estateCharts.value.data?.data || []) : [];
                 // txn charts: [{ month, totalVolume }] or [{ month, value }]
                 const tc = txnCharts.status === 'fulfilled' ? (txnCharts.value.data?.data || []) : [];
-                const ur = userRes.status === 'fulfilled' ? userRes.value.data?.data || {} : {};
+                const ur = userRes.status === 'fulfilled' ? userRes.value.data || {} : {};
 
                 // Total payments = sum of all estate totalPayments
                 const totalPay = Array.isArray(ec) ? ec.reduce((sum: number, e: any) => sum + (e.totalPayments || 0), 0) : 0;
