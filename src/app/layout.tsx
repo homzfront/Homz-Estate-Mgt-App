@@ -9,7 +9,7 @@ const plus_Jakarta_Sans = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  metadataBase: new URL("http://community.homz.ng/"),
+  metadataBase: new URL("https://community.homz.ng/"),
   title: {
     default: "Homz.ng - Community Management Platform | Manage Residents, Billing & Access Control",
     template: "Homz - %s",
@@ -204,7 +204,9 @@ export const metadata = {
   },
   openGraph: {
     site_name: "Homz.ng",
-    url: "http://community.homz.ng/",
+    url: "https://community.homz.ng/",
+    type: "website",
+    locale: "en_US",
   },
 };
 

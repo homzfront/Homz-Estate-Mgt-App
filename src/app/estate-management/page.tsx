@@ -100,12 +100,12 @@ const EstateHomePage = () => {
                 <div className='relative w-full md:h-[820px] md:rounded-lg shadow-2xl bg-cover flex flex-col justify-between bg-BlueHomz bg-[url("/Background-image.png")]'>
                     {/* Content at the top */}
                     <div className='px-8 md:px-[100px] text-center md:text-start flex flex-col gap-5 pt-10 md:pt-[100px]'>
-                        <p className='hidden md:block text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
+                        <h1 className='hidden md:block text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
                             Effortless Community Management for Smarter Living
-                        </p>
-                        <p className='md:hidden text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
+                        </h1>
+                        <h1 className='md:hidden text-[25px] lg:text-[38px] font-[700] text-white text-center leading-tight'>
                             Effortless Community Management
-                        </p>
+                        </h1>
                         <p className='hidden md:block text-[18px] lg:text-[20px] font-[400] text-white text-center max-w-[700px] m-auto'>
                             Manage community bills, residents, and visitors all from one powerful dashboard built for modern property operations.
                         </p>
@@ -159,9 +159,9 @@ const EstateHomePage = () => {
 
                 <div className='mt-[100px] bg-whiteblue px-8 md:px-[80px] py-[60px]'>
                     <div className='w-full flex flex-col gap-4'>
-                        <p className='max-w-[900px] m-auto text-[23px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
+                        <h2 className='max-w-[900px] m-auto text-[23px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
                             Create Communities. Invite Residents. <span className='text-BlackHomz'>Stay in Control.</span>
-                        </p>
+                        </h2>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[650px] m-auto'>
                             Set up communities in minutes and invite residents via secure links or emails. Monitor who&apos;s joined, and manage access.
                         </p>
@@ -215,9 +215,9 @@ const EstateHomePage = () => {
 
                 <div className='mt-10 md:mt-[100px] px-10 md:px-[80px] py-[60px]'>
                     <div className='w-full flex flex-col gap-4'>
-                        <p className='max-w-[900px] m-auto text-[23px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
+                        <h2 className='max-w-[900px] m-auto text-[23px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
                             Simplify Billing, Get Paid Faster.
-                        </p>
+                        </h2>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[740px] m-auto'>
                             Create and assign recurring or one-time bills like community dues, water, and security fees. Residents get automated reminders and can pay directly via their dashboard.
                         </p>
@@ -283,9 +283,9 @@ const EstateHomePage = () => {
 
                 <div className='mt-10 md:mt-[100px] bg-BlueHomz px-8 md:px-[80px] py-[60px] md:rounded-[12px]'>
                     <div className='w-full flex flex-col gap-4'>
-                        <p className='max-w-[950px] m-auto text-[25px] lg:text-[36px] font-[700] text-white text-center leading-tight'>
+                        <h2 className='max-w-[950px] m-auto text-[25px] lg:text-[36px] font-[700] text-white text-center leading-tight'>
                             Control Community Access, Keep Your Environment Safe.
-                        </p>
+                        </h2>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-white text-center max-w-[700px] m-auto'>
                             Review visitor access requests made by residents. Approve, decline, or log new entries manually. Everything you need for secure, controlled access, centralized.
                         </p>
@@ -338,9 +338,9 @@ const EstateHomePage = () => {
                 </div>
                 <div className='bg-whiteblue mt-10 md:mt-[100px] px-8 md:px-[80px] py-[60px]'>
                     <div className='w-full flex flex-col gap-4'>
-                        <p className='max-w-[900px] m-auto text-[25px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
+                        <h2 className='max-w-[900px] m-auto text-[25px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
                             Empower Your Security Team with the Right Tools
-                        </p>
+                        </h2>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[700px] m-auto'>
                             Invite security personnel to manage visitor access in real-time. Grant them the right level of access to ensure smooth operations without compromising control.
                         </p>
@@ -394,9 +394,9 @@ const EstateHomePage = () => {
 
                 <div className='bg-white mt-10 md:mt-[100px] px-8 md:px-[80px] py-[60px]'>
                     <div className='w-full flex flex-col gap-4'>
-                        <p className='max-w-[900px] m-auto text-[25px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
+                        <h2 className='max-w-[900px] m-auto text-[25px] lg:text-[36px] font-[700] text-BlueHomz text-center leading-tight'>
                             Gain Insights with Reports and Logs
-                        </p>
+                        </h2>
                         <p className='hidden md:block text-[16px] lg:text-[18px] font-[400] text-BlackHomz text-center max-w-[700px] m-auto'>
                             Access billing reports, visitor logs, and personnel activity, exportable anytime. Make informed decisions with accurate community data at your fingertips.
                         </p>
