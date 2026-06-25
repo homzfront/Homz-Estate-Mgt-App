@@ -118,6 +118,20 @@ html, body {
   height: 100%;
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+    box-shadow: 0 15px 30px rgba(0, 106, 255, 0.25);
+  }
+  50% {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 40px rgba(0, 106, 255, 0.28);
+  }
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+}
 
 .image-clip {
   clip-path: polygon(
