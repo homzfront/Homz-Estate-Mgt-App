@@ -411,6 +411,17 @@ const Header = () => {
                 >
                   Sign in
                 </Link>
+                <a
+                  href="#get-the-app"
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border border-gray-200 text-BlackHomz font-bold hover:bg-gray-50 transition-all active:scale-[0.98]"
+                  onClick={() => toggleState('open')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="5" y="2" width="14" height="20" rx="2" />
+                    <line x1="12" y1="18" x2="12" y2="18.01" />
+                  </svg>
+                  Get the App
+                </a>
               </div>
             )}
           </div>
@@ -445,6 +456,16 @@ const Header = () => {
         ) :
           (
             <>
+              <a
+                href="#get-the-app"
+                className="hidden lg:flex items-center gap-1.5 text-GrayHomz hover:text-blue-400 transition"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="5" y="2" width="14" height="20" rx="2" />
+                  <line x1="12" y1="18" x2="12" y2="18.01" />
+                </svg>
+                Get the App
+              </a>
               <Link
                 href="/login"
                 className="hover:text-blue-400 text-GrayHomz"
