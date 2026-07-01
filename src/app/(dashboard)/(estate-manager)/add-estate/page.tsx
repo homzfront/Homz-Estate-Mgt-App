@@ -19,7 +19,7 @@ const AddEstate = () => {
     // OR for new users who haven't created any estates yet (estatesData.length === 0)
     // OR for users with in-progress form data
     React.useEffect(() => {
-        // If estates data is still loading, don't do anything yet
+       
         if (estateLoading) {
             return;
         }
