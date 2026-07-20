@@ -15,9 +15,7 @@ const AddEstate = () => {
     const { estateLoading, estatesData } = useAuthSlice();
     const [checkComplete, setCheckComplete] = React.useState(false);
 
-    // Allow access to add-estate page for community managers who can create estates
-    // OR for new users who haven't created any estates yet (estatesData.length === 0)
-    // OR for users with in-progress form data
+
     React.useEffect(() => {
        
         if (estateLoading) {
