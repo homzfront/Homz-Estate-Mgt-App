@@ -23,6 +23,7 @@ interface EstateInfoProps {
         utilityPhone: string;
         accountNumber: string;
         bankName: string;
+        bankCode: string;
         accountName: string;
         emergencyPhone: string;
         securityPhone: string;
@@ -43,7 +44,9 @@ const EstateInfo = ({ handleInputChange, formData, readOnly = false, hideBankDet
     const { chooseArea, loading: loadingArea, areaData } = useAreaStore();
 
     const [banks, setBanks] = React.useState<NigerianBank[]>([]);
-    const [selectedBankCode, setSelectedBankCode] = React.useState('');
+    const [selectedBankCode, setSelectedBankCode] = React.useState(
+        formData.bankCode || ''
+    );
     const [resolvingAccount, setResolvingAccount] = React.useState(false);
 
     // Only show loading indicator if there's no data yet (first load)
@@ -55,6 +58,10 @@ const EstateInfo = ({ handleInputChange, formData, readOnly = false, hideBankDet
             chooseArea(formData?.state)
         }
     }, [formData?.state, chooseArea])
+
+    React.useEffect(() => {
+        setSelectedBankCode(formData.bankCode || '');
+    }, [formData.bankCode]);
 
     // Fetch Nigerian bank list from backend (which proxies Paystack securely)
     React.useEffect(() => {
