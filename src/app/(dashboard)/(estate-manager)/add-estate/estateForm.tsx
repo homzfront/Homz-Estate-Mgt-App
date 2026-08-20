@@ -72,6 +72,7 @@ const EstateForm = () => {
             securityPhone,
             accountNumber,
             bankName,
+            bankCode,
             accountName,
             zones,
             streets,
@@ -98,7 +99,8 @@ const EstateForm = () => {
             bankDetails: {
                 accountNumber,
                 accountName,
-                bankName
+                bankName,
+                bankCode
             },
             zones: zones.map(zone => ({ name: zone.label })),
             streets: streets.map(street => ({

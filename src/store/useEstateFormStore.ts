@@ -37,6 +37,7 @@ export interface EstateFormData {
     utilityPhone: string;
     accountNumber: string;
     bankName: string;
+    bankCode: string;
     accountName: string;
     emergencyPhone: string;
     securityPhone: string;
@@ -56,6 +57,7 @@ const initialFormData: EstateFormData = {
     utilityPhone: '',
     accountNumber: '',
     bankName: '',
+    bankCode: '',
     accountName: '',
     emergencyPhone: '',
     securityPhone: '',
