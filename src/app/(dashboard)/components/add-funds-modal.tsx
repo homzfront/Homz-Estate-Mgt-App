@@ -52,14 +52,13 @@ export default function AddFundsModal({ isOpen, onClose, balance, onSuccess }: A
 
         setLoading(true);
         try {
-            const res = await api.post('/payments/initialize', {
-                amount: amountNaira,
-                type: 'WALLET_FUNDING',
-                residentId,
-                organizationId: orgId,
-                estateId,
-                callbackUrl: `${window.location.origin}/resident/wallet`,
-            });
+            const res = await api.post(
+                `/residents/wallets/initialize-funding/organizations/${orgId}/estates/${estateId}`,
+                {
+                    amount: amountNaira,
+                    callbackUrl: `${window.location.origin}/resident/wallet`,
+                }
+            );
 
             const paystackUrl = res.data?.data?.authorization_url;
             if (paystackUrl) {
@@ -92,7 +91,7 @@ export default function AddFundsModal({ isOpen, onClose, balance, onSuccess }: A
                 <div className='w-[440px] max-w-[95vw] bg-white rounded-[16px] p-8 flex flex-col items-center gap-5'>
                     <div className='w-20 h-20 rounded-full border border-[#C7DCFF] flex items-center justify-center'>
                         <svg className='animate-spin' width="40" height="40" viewBox="0 0 48 48" fill="none">
-                            {[0,1,2,3,4,5,6,7].map((i) => (
+                            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
                                 <line key={i} x1="24" y1="6" x2="24" y2="14" stroke="#006AFF" strokeWidth="3" strokeLinecap="round"
                                     transform={`rotate(${i * 45} 24 24)`} strokeOpacity={1 - i * 0.1} />
                             ))}
@@ -137,7 +136,7 @@ export default function AddFundsModal({ isOpen, onClose, balance, onSuccess }: A
             <CustomModal isOpen={isOpen} onRequestClose={handleClose}>
                 <div className='w-[400px] max-w-[95vw] bg-white rounded-[16px] p-8 flex flex-col items-center gap-4'>
                     <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                        <path d="M14 14l28 28M42 14L14 42" stroke="#DC2626" strokeWidth="5" strokeLinecap="round"/>
+                        <path d="M14 14l28 28M42 14L14 42" stroke="#DC2626" strokeWidth="5" strokeLinecap="round" />
                     </svg>
                     <h3 className='text-[18px] font-semibold text-BlackHomz'>Payment Failed</h3>
                     <p className='text-[13px] text-GrayHomz text-center'>
@@ -171,7 +170,7 @@ export default function AddFundsModal({ isOpen, onClose, balance, onSuccess }: A
                     </div>
                     <button onClick={handleClose}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="#4E4E4E" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M18 6L6 18M6 6l12 12" stroke="#4E4E4E" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
                     </button>
                 </div>
